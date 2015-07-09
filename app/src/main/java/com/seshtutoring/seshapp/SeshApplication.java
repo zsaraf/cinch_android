@@ -14,12 +14,14 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by nadavhollander on 7/7/15.
  */
 public class SeshApplication extends Application {
     public static final boolean IS_LIVE = true;
+    public static final boolean IS_DEV = true;
 
     private static final String TAG = SeshApplication.class.getName();
 
@@ -28,16 +30,8 @@ public class SeshApplication extends Application {
         super.onCreate();
 
         SeshNetworking networkAPIWrapper = new SeshNetworking(this);
-        JSONObject params = new JSONObject();
-        try {
-            params.put("format", "json");
-            params.put("email", "loetting@stanford.edu");
-            params.put("password", "lco1430");
-        } catch (JSONException e) {
-            Log.e(TAG, "EWEKRJWK");
-        }
 
-        networkAPIWrapper.postWithRelativeUrl("login.php", params, new Response.Listener<JSONObject>() {
+        networkAPIWrapper.loginWithEmail("nadavh@stanford.edu", "aaa1994", new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
                 Log.d(TAG, response.toString());
