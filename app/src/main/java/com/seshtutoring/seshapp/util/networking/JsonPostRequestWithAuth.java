@@ -27,11 +27,10 @@ public class JsonPostRequestWithAuth extends JsonObjectRequest {
 
     public Map<String, String> mParams;
 
-    public JsonPostRequestWithAuth(String url, Map<String, String> params,
+    public JsonPostRequestWithAuth(String url, JSONObject params,
                                    Response.Listener<JSONObject> successListener,
                                    Response.ErrorListener errorListener) {
-        super(Method.POST, url, null, successListener, errorListener);
-        this.mParams = params;
+        super(Method.POST, url, params, successListener, errorListener);
     }
 
     @Override
@@ -44,27 +43,27 @@ public class JsonPostRequestWithAuth extends JsonObjectRequest {
         return params;
     }
 
-    @Override
-    public byte[] getBody() {
-        Map<String, String> params = mParams;
-        if (mParams != null && mParams.size() > 0) {
-            return encodeParameters(params, getParamsEncoding());
-        }
-        return null;
-    }
-
-    protected byte[] encodeParameters(Map<String, String> params, String paramsEncoding) {
-        StringBuilder encodedParams = new StringBuilder();
-        try {
-            for (Map.Entry<String, String> entry : params.entrySet()) {
-                encodedParams.append(URLEncoder.encode(entry.getKey(), paramsEncoding));
-                encodedParams.append('=');
-                encodedParams.append(URLEncoder.encode(entry.getValue(), paramsEncoding));
-                encodedParams.append('&');
-            }
-            return encodedParams.toString().getBytes(paramsEncoding);
-        } catch (UnsupportedEncodingException uee) {
-            throw new RuntimeException("Encoding not supported: " + paramsEncoding, uee);
-        }
-    }
+//    @Override
+//    public byte[] getBody() {
+//        Map<String, String> params = mParams;
+//        if (mParams != null && mParams.size() > 0) {
+//            return encodeParameters(params, getParamsEncoding());
+//        }
+//        return null;
+//    }
+//
+//    protected byte[] encodeParameters(Map<String, String> params, String paramsEncoding) {
+//        StringBuilder encodedParams = new StringBuilder();
+//        try {
+//            for (Map.Entry<String, String> entry : params.entrySet()) {
+//                encodedParams.append(URLEncoder.encode(entry.getKey(), paramsEncoding));
+//                encodedParams.append('=');
+//                encodedParams.append(URLEncoder.encode(entry.getValue(), paramsEncoding));
+//                encodedParams.append('&');
+//            }
+//            return encodedParams.toString().getBytes(paramsEncoding);
+//        } catch (UnsupportedEncodingException uee) {
+//            throw new RuntimeException("Encoding not supported: " + paramsEncoding, uee);
+//        }
+//    }
 }

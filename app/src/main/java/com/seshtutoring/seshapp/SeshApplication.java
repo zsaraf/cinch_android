@@ -28,9 +28,14 @@ public class SeshApplication extends Application {
         super.onCreate();
 
         SeshNetworking networkAPIWrapper = new SeshNetworking(this);
-        HashMap<String, String> params = new HashMap<>();
-        params.put("email", "loetting@stanford.edu");
-        params.put("password", "lco1430");
+        JSONObject params = new JSONObject();
+        try {
+            params.put("format", "json");
+            params.put("email", "loetting@stanford.edu");
+            params.put("password", "lco1430");
+        } catch (JSONException e) {
+            Log.e(TAG, "EWEKRJWK");
+        }
 
         networkAPIWrapper.postWithRelativeUrl("login.php", params, new Response.Listener<JSONObject>() {
             @Override
