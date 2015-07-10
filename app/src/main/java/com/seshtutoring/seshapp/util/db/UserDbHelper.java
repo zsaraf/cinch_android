@@ -49,6 +49,21 @@ public class UserDbHelper {
         return id;
     }
 
+    public long createOrUpdateUser(User user) {
+        SQLiteDatabase db = dbOpenHelper.getWritableDatabase();
+        int numberOfUsersInTableWithMatchingId = userCount(user.getUserId(), db);
+        if (numberOfUsersInTableWithMatchingId == 0) {
+
+        } else if (numberOfUsersInTableWithMatchingId > 1) {
+
+        } else {
+
+        }
+
+
+        Cursor cursor = db.rawQuery(query, new String[] { Integer.toString(user.getUserId()) });
+    }
+
     public User getCurrentUser() {
         User currentUser;
 
@@ -80,10 +95,10 @@ public class UserDbHelper {
         return currentUser;
     }
 
-    public int getUserRowCount() {
-        String countQuery = "SELECT  * FROM " + UserTable.TABLE_NAME;
-        SQLiteDatabase db = dbOpenHelper.getReadableDatabase();
-        Cursor cursor = db.rawQuery(countQuery, null);
+    public int userCount(int userId, SQLiteDatabase db) {
+        String countQuery = "SELECT COUNT(*) FROM " + UserTable.TABLE_NAME + " WHERE " +
+                UserTable.COLUMN_NAME_USER_ID + "=?";
+        Cursor cursor = db.rawQuery(countQuery, new String[] {Integer.toString(userId)});
         int rowCount = cursor.getCount();
         db.close();
         cursor.close();

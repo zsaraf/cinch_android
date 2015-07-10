@@ -1,0 +1,84 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    tools:context="com.seshtutoring.seshapp.view.AuthenticationActivity">
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Login"
+        android:id="@+id/loginButton"
+        android:layout_marginBottom="60dp"
+        android:layout_above="@+id/signupButton"
+        android:layout_centerHorizontal="true" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Sign Up"
+        android:id="@+id/signupButton"
+        android:layout_marginBottom="40dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignLeft="@+id/loginButton"
+        android:layout_alignStart="@+id/loginButton" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Don&apos;t have an account?  Figure it out.  Sign up."
+        android:id="@+id/signupText"
+        android:layout_above="@+id/signupButton"
+        android:layout_marginBottom="22dp"
+        android:gravity="center_horizontal"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textEmailAddress"
+        android:ems="10"
+        android:id="@+id/emailEditText"
+        android:hint="Email"
+        android:layout_marginTop="48dp"
+        android:layout_below="@+id/seshSubtest"
+        android:layout_alignLeft="@+id/passwordEditText"
+        android:layout_alignStart="@+id/passwordEditText" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textPassword"
+        android:ems="10"
+        android:id="@+id/passwordEditText"
+        android:layout_alignTop="@+id/emailEditText"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="61dp"
+        android:hint="Password" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Sesh"
+        android:id="@+id/seshTitle"
+        android:textSize="60dp"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="20dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="(now on Android!)"
+        android:id="@+id/seshSubtest"
+        android:layout_below="@+id/seshTitle"
+        android:layout_centerHorizontal="true" />
+</RelativeLayout>

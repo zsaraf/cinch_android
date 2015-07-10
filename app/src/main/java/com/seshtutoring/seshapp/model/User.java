@@ -1,5 +1,7 @@
 package com.seshtutoring.seshapp.model;
 
+import org.json.JSONObject;
+
 /**
  * Created by nadavhollander on 7/6/15.
  */
@@ -32,6 +34,10 @@ public class User {
 
     public static User getCurrentUser() {
         return new User(0, null, null, null);
+    }
+
+    public static void createOrUpdateUserWithObject(JSONObject userJson) {
+
     }
 
     public String getBio() {
