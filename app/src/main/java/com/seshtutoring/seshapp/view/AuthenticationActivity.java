@@ -1,6 +1,7 @@
 package com.seshtutoring.seshapp.view;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -63,9 +64,15 @@ public class AuthenticationActivity extends Activity {
                                     onLoginFailure(volleyError.getMessage());
                                 }
                             });
-                } else {
-                    onLoginInformationMalformed("Login info is malformed.");
                 }
+            }
+        });
+
+        final Context context = this;
+
+        signupButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+//                Do something
             }
         });
     }
@@ -73,27 +80,25 @@ public class AuthenticationActivity extends Activity {
     private void onLoginResponse(JSONObject responseJson) {
         try {
             if (responseJson.get("status").equals("SUCCESS")) {
-                User.createOrUpdateUserWithObject(responseJson);
-                Toast.makeText(this, "yeaaa login success", Toast.LENGTH_LONG);
+                User.createOrUpdateUserWithObject(responseJson, this);
+                Toast.makeText(this, "yeaaa login success", Toast.LENGTH_LONG).show();
             } else if (responseJson.get("status").equals("UNVERIFIED")) {
-                Toast.makeText(this, "unverified account", Toast.LENGTH_LONG);
+                Toast.makeText(this, "unverified account", Toast.LENGTH_LONG).show();
             } else {
-                Toast.makeText(this, "Login Failed.", Toast.LENGTH_LONG);
+                Toast.makeText(this, "Login Failed.", Toast.LENGTH_LONG).show();
             }
         } catch (JSONException e) {
             Log.e(TAG, e.toString());
-            Toast.makeText(this, "Login Failed.", Toast.LENGTH_LONG);
+            Toast.makeText(this, "Login Failed.", Toast.LENGTH_LONG).show();
         }
     }
 
     private void onLoginFailure(String errorMessage) {
+        Log.e(TAG, "NETWORK ERROR: " + errorMessage);
         Toast.makeText(this, "We couldn't reach the network, sorry!", Toast.LENGTH_LONG);
     }
 
-    private void onLoginInformationMalformed(String message) {
-        Toast.makeText(this, message, Toast.LENGTH_LONG);
-    }
-
+    // @TODO: Implement some sort of verification that Login info formatted correctly
     private boolean loginDetailsValid(String email, String password) {
         return true;
     }

@@ -1,15 +1,17 @@
 package com.seshtutoring.seshapp.util.networking;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 
 /**
  * Singleton stub for storing token
- * @TODO implement
  */
 public class SeshAuthManager {
+    private static final String SESSION_ID_SHARED_PREFERENCES = "session_id_shared_preferences";
+    private static final String SESSION_ID_KEY = "session_id";
     private static SeshAuthManager mInstance;
     private Context mContext;
-    private String sessionStub;
+    private String sessionId;
 
     private SeshAuthManager(Context context) {
         this.mContext = context;
@@ -24,9 +26,17 @@ public class SeshAuthManager {
 
     // Stub implementation to make tests for SeshNetworking work
     public String getAccessToken() {
-        if (sessionStub == null) {
-            return "abcdefg";
+        if (sessionId == null) {
+            SharedPreferences keyStore = mContext.getSharedPreferences(SESSION_ID_SHARED_PREFERENCES, 0);
+            sessionId = keyStore.getString(SESSION_ID_KEY, null);
         }
-        return sessionStub;
+        return sessionId;
+    }
+
+    public void foundSessionId(String sessionId) {
+        SharedPreferences keyStore = mContext.getSharedPreferences(SESSION_ID_SHARED_PREFERENCES, 0);
+        SharedPreferences.Editor editor = keyStore.edit();
+        editor.putString(SESSION_ID_KEY, sessionId);
+        editor.commit();
     }
 }

@@ -24,16 +24,11 @@ public class UserDbHelper {
         this.dbOpenHelper = new DbOpenHelper(context);
     }
 
-    // only implementing basic db fill-in for now
     public long createUser(User user)
         throws SQLiteException {
         SQLiteDatabase db = dbOpenHelper.getWritableDatabase();
 
-        ContentValues values = new ContentValues();
-        values.put(UserTable.COLUMN_NAME_USER_ID, user.getUserId());
-        values.put(UserTable.COLUMN_NAME_EMAIL, user.getEmail());
-        values.put(UserTable.COLUMN_NAME_SESSION_ID, user.getSessionId());
-        values.put(UserTable.COLUMN_NAME_FULL_NAME, user.getFullName());
+        ContentValues values = getContentValuesForUser(user);
 
         Log.i(TAG, "Inserting new User into Users table");
         long id = db.insert(UserTable.TABLE_NAME, null, values);
@@ -51,26 +46,26 @@ public class UserDbHelper {
 
     public long createOrUpdateUser(User user) {
         SQLiteDatabase db = dbOpenHelper.getWritableDatabase();
-        int numberOfUsersInTableWithMatchingId = userCount(user.getUserId(), db);
-        if (numberOfUsersInTableWithMatchingId == 0) {
+        int existingUsersWithId = userCount(user.getUserId(), db);
 
-        } else if (numberOfUsersInTableWithMatchingId > 1) {
+        ContentValues values = getContentValuesForUser(user);
+        long id;
 
+        if (existingUsersWithId == 0) {
+            id = db.insert(UserTable.TABLE_NAME, null, values);
+        } else if (existingUsersWithId > 1) {
+            Log.e(TAG, "More than one user with id " + user.getUserId() + " in user table");
+            return -1;
         } else {
-
+            id = db.update(UserTable.TABLE_NAME, values,
+                    UserTable.COLUMN_NAME_USER_ID + "=" + user.getUserId(), null);
         }
-
-
-        Cursor cursor = db.rawQuery(query, new String[] { Integer.toString(user.getUserId()) });
+        db.close();
+        return id;
     }
 
     public User getCurrentUser() {
         User currentUser;
-
-        int userId;
-        String email;
-        String sessionId;
-        String fullName;
 
         String query = "SELECT * FROM " + UserTable.TABLE_NAME;
         SQLiteDatabase db = dbOpenHelper.getReadableDatabase();
@@ -78,15 +73,14 @@ public class UserDbHelper {
         Cursor cursor = db.rawQuery(query, null);
         cursor.moveToFirst();
 
-        if (cursor.getCount() > 0) {
-           userId = cursor.getInt(cursor.getColumnIndex(UserTable.COLUMN_NAME_USER_ID));
-            email = cursor.getString(cursor.getColumnIndex(UserTable.COLUMN_NAME_EMAIL));
-            sessionId = cursor.getString(cursor.getColumnIndex(UserTable.COLUMN_NAME_SESSION_ID));
-            fullName = cursor.getString(cursor.getColumnIndex(UserTable.COLUMN_NAME_FULL_NAME));
-            currentUser = new User(userId, email, sessionId, fullName);
-        } else {
-            Log.e(TAG, "No user found in Users table.");
+        if (cursor.getCount() > 1) {
+            Log.e(TAG, "Big problem: more than one user in DB");
             currentUser = null;
+        } else if (cursor.getCount() < 1){
+            Log.i(TAG, "No user found in Users table.");
+            currentUser = null;
+        } else {
+            currentUser = getUserForCursor(cursor);
         }
 
         db.close();
@@ -95,12 +89,12 @@ public class UserDbHelper {
         return currentUser;
     }
 
-    public int userCount(int userId, SQLiteDatabase db) {
+    private int userCount(int userId, SQLiteDatabase db) {
         String countQuery = "SELECT COUNT(*) FROM " + UserTable.TABLE_NAME + " WHERE " +
                 UserTable.COLUMN_NAME_USER_ID + "=?";
         Cursor cursor = db.rawQuery(countQuery, new String[] {Integer.toString(userId)});
-        int rowCount = cursor.getCount();
-        db.close();
+        cursor.moveToFirst();
+        int rowCount = cursor.getInt(0);
         cursor.close();
 
         return rowCount;
@@ -112,5 +106,44 @@ public class UserDbHelper {
         db.close();
 
         Log.i(TAG, "Deleted all user info from Users table.");
+    }
+
+    public ContentValues getContentValuesForUser(User user) {
+        ContentValues values = new ContentValues();
+        values.put(UserTable.COLUMN_NAME_USER_ID, user.getUserId());
+        values.put(UserTable.COLUMN_NAME_EMAIL, user.getEmail());
+        values.put(UserTable.COLUMN_NAME_SESSION_ID, user.getSessionId());
+        values.put(UserTable.COLUMN_NAME_FULL_NAME, user.getFullName());
+        values.put(UserTable.COLUMN_NAME_PROFILE_PICTURE_URL, user.getProfilePictureUrl());
+        values.put(UserTable.COLUMN_NAME_BIO, user.getBio());
+        values.put(UserTable.COLUMN_NAME_STRIPE_CUSTOMER_ID, user.getStripeCustomerId());
+        values.put(UserTable.COLUMN_NAME_MAJOR, user.getMajor());
+        values.put(UserTable.COLUMN_NAME_TUTOR_OFFLINE_PING, user.isTutorOfflinePing());
+        values.put(UserTable.COLUMN_NAME_COMPLETED_APP_TOUR, user.completedAppTour());
+        values.put(UserTable.COLUMN_NAME_IS_VERIFIED, user.isVerified());
+        values.put(UserTable.COLUMN_NAME_FULL_LEGAL_NAME, user.getFullLegalName());
+        values.put(UserTable.COLUMN_NAME_SHARE_CODE, user.getShareCode());
+        return values;
+    }
+
+    public User getUserForCursor(Cursor cursor) {
+        int userId = cursor.getInt(cursor.getColumnIndex(UserTable.COLUMN_NAME_USER_ID));
+        String email = cursor.getString(cursor.getColumnIndex(UserTable.COLUMN_NAME_EMAIL));
+        String sessionId = cursor.getString(cursor.getColumnIndex(UserTable.COLUMN_NAME_SESSION_ID));
+        String fullName = cursor.getString(cursor.getColumnIndex(UserTable.COLUMN_NAME_FULL_NAME));
+        String profilePictureUrl = cursor.getString(cursor.getColumnIndex(UserTable.COLUMN_NAME_PROFILE_PICTURE_URL));
+        String bio = cursor.getString(cursor.getColumnIndex(UserTable.COLUMN_NAME_BIO));
+        String stripeCustomerId = cursor.getString(cursor.getColumnIndex(UserTable.COLUMN_NAME_STRIPE_CUSTOMER_ID));
+        String major = cursor.getString(cursor.getColumnIndex(UserTable.COLUMN_NAME_MAJOR));
+        boolean tutorOfflinePing =
+                (cursor.getInt(cursor.getColumnIndex(UserTable.COLUMN_NAME_TUTOR_OFFLINE_PING)) == 1) ? true : false;
+        boolean completedAppTour = (cursor.getInt(cursor.getColumnIndex(UserTable.COLUMN_NAME_COMPLETED_APP_TOUR)) == 1) ? true : false;
+        boolean isVerified = (cursor.getInt(cursor.getColumnIndex(UserTable.COLUMN_NAME_IS_VERIFIED)) == 1) ? true : false;
+        String fullLegalName = cursor.getString(cursor.getColumnIndex(UserTable.COLUMN_NAME_FULL_LEGAL_NAME));
+        String shareCode = cursor.getString(cursor.getColumnIndex(UserTable.COLUMN_NAME_SHARE_CODE));
+
+        return new User(userId, email, sessionId, fullName, profilePictureUrl, bio,
+                stripeCustomerId, major, tutorOfflinePing, completedAppTour, isVerified,
+                fullLegalName, shareCode);
     }
 }
