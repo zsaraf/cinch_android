@@ -14,9 +14,22 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.seshtutoring.seshapp.R;
-import com.seshtutoring.seshapp.view.MainContainerActivity.MenuOption;
 
 public class SideMenuFragment extends ListFragment {
+    public static enum MenuOption {
+        HOME("Home", R.drawable.home), PROFILE("Profile", R.drawable.profile),
+        PAYMENT("Payment", R.drawable.payment), SETTINGS("Settings", R.drawable.settings),
+        PROMOTE("Promote", R.drawable.share);
+
+        public String title;
+        public int iconRes;
+
+        MenuOption(String title, int iconRes) {
+            this.title = title;
+            this.iconRes = iconRes;
+        }
+    }
+
     public static final String MAIN_WRAPPER_STATE_KEY = "main_wrapper_state";
     private MainContainerActivity mainContainerActivity;
     private TextView selectedTextView;
@@ -33,16 +46,11 @@ public class SideMenuFragment extends ListFragment {
         MenuOption selectedItem = mainContainerActivity.getCurrentState();
 
         SideMenuAdapter adapter = new SideMenuAdapter(getActivity());
-        adapter.add(new SideMenuItem("Home", R.drawable.home,
-                (selectedItem == MenuOption.HOME) ? true : false));
-        adapter.add(new SideMenuItem("Profile", R.drawable.profile,
-                (selectedItem == MenuOption.PROFILE) ? true : false));
-        adapter.add(new SideMenuItem("Payment", R.drawable.payment,
-                (selectedItem == MenuOption.PAYMENT) ? true : false));
-        adapter.add(new SideMenuItem("Settings", R.drawable.settings,
-                (selectedItem == MenuOption.SETTINGS) ? true : false));
-        adapter.add(new SideMenuItem("Promote", R.drawable.share,
-                (selectedItem == MenuOption.PROMOTE) ? true : false));
+        for (MenuOption menuOption : MenuOption.values()) {
+            adapter.add(new SideMenuItem(menuOption.title, menuOption.iconRes,
+                    (selectedItem == menuOption) ? true : false));
+        }
+
         setListAdapter(adapter);
 
         menu.setOnItemClickListener(new ListView.OnItemClickListener() {

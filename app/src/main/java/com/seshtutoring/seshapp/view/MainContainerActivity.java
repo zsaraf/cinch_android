@@ -13,13 +13,11 @@ import android.widget.TextView;
 
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.seshtutoring.seshapp.R;
+import com.seshtutoring.seshapp.view.SideMenuFragment.MenuOption;
 
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 public class MainContainerActivity extends ActionBarActivity {
-    public static enum MenuOption {
-        HOME, PROFILE, PAYMENT, SETTINGS, PROMOTE
-    }
 
     private SlidingMenu slidingMenu;
     private MenuOption selectedMenuOption;
@@ -34,7 +32,7 @@ public class MainContainerActivity extends ActionBarActivity {
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
         getSupportActionBar().setCustomView(R.layout.sesh_action_bar);
 
-        setCurrentState(MenuOption.HOME);
+        setCurrentState(SideMenuFragment.MenuOption.HOME);
 
         slidingMenu = new SlidingMenu(this);
         slidingMenu.attachToActivity(this, SlidingMenu.SLIDING_WINDOW);
