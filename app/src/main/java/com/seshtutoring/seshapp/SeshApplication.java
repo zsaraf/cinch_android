@@ -16,6 +16,8 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
+import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
+
 /**
  * Created by nadavhollander on 7/7/15.
  */
@@ -28,5 +30,11 @@ public class SeshApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        // initialize default font
+        CalligraphyConfig.initDefault(new CalligraphyConfig.Builder()
+                .setDefaultFontPath("fonts/Gotham-Light.otf")
+                .setFontAttrId(R.attr.fontPath)
+                .build());
     }
 }

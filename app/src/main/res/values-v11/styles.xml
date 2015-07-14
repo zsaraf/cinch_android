@@ -1,15 +1,15 @@
 <resources>
 
-    <style name="FullscreenTheme" parent="android:Theme.Holo">
-        <item name="android:actionBarStyle">@style/FullscreenActionBarStyle</item>
-        <item name="android:windowActionBarOverlay">true</item>
-        <item name="android:windowBackground">@null</item>
-        <item name="metaButtonBarStyle">?android:attr/buttonBarStyle</item>
-        <item name="metaButtonBarButtonStyle">?android:attr/buttonBarButtonStyle</item>
+    <style name="SeshActionBarTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="@android:actionBarStyle">@style/SeshActionBar</item>
+        <item name="actionBarStyle">@style/SeshActionBar</item>
+
     </style>
 
-    <style name="FullscreenActionBarStyle" parent="android:Widget.Holo.ActionBar">
-        <item name="android:background">@color/black_overlay</item>
+    <style name="SeshActionBar" parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
+        <item name="android:background">@color/seshorange</item>
+        <item name="android:icon">@drawable/ic_action_menu</item>
+        <item name="background">@color/seshorange</item>
     </style>
 
 </resources>

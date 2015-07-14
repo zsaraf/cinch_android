@@ -376,7 +376,7 @@ public class SeshNetworking {
         if (SeshApplication.IS_LIVE) {
             baseUrl = "https://www.seshtutoring.com/ios-php/";
         } else {
-            baseUrl = "http://www.cinchtutoring.com/ios-php/";
+            baseUrl = "https://www.cinchtutoring.com/ios-php/";
         }
         return baseUrl;
     }

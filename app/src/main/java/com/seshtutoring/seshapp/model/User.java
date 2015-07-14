@@ -100,7 +100,7 @@ public class User {
         // Log user in on client
         SeshAuthManager.sharedManager(context).foundSessionId(sessionId);
     }
-    
+
     public int getUserId() {
         return userId;
     }

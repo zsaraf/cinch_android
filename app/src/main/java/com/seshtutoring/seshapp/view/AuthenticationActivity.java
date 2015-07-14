@@ -2,6 +2,7 @@ package com.seshtutoring.seshapp.view;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -15,11 +16,12 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.User;
-import com.seshtutoring.seshapp.util.LoginSignupManager;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 public class AuthenticationActivity extends Activity {
     private static final String TAG = AuthenticationActivity.class.getName();
@@ -81,7 +83,8 @@ public class AuthenticationActivity extends Activity {
         try {
             if (responseJson.get("status").equals("SUCCESS")) {
                 User.createOrUpdateUserWithObject(responseJson, this);
-                Toast.makeText(this, "yeaaa login success", Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(this, MainContainerActivity.class);
+                startActivity(intent);
             } else if (responseJson.get("status").equals("UNVERIFIED")) {
                 Toast.makeText(this, "unverified account", Toast.LENGTH_LONG).show();
             } else {
@@ -101,5 +104,10 @@ public class AuthenticationActivity extends Activity {
     // @TODO: Implement some sort of verification that Login info formatted correctly
     private boolean loginDetailsValid(String email, String password) {
         return true;
+    }
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
     }
 }

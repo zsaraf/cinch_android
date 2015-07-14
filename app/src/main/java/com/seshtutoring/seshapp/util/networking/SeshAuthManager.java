@@ -24,6 +24,10 @@ public class SeshAuthManager {
         return mInstance;
     }
 
+    public boolean isValidSession() {
+        return getAccessToken() == null ? false : true;
+    }
+
     // Stub implementation to make tests for SeshNetworking work
     public String getAccessToken() {
         if (sessionId == null) {
