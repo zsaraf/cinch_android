@@ -5,6 +5,8 @@ import android.support.v4.app.Fragment;
 import android.content.Context;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -18,6 +20,7 @@ import com.seshtutoring.seshapp.view.fragments.SideMenuFragment.MenuOption;
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 public class MainContainerActivity extends ActionBarActivity {
+    private static final String TAG = MainContainerActivity.class.getName();
 
     private SlidingMenu slidingMenu;
     private MenuOption selectedMenuOption;
@@ -49,10 +52,13 @@ public class MainContainerActivity extends ActionBarActivity {
                 .commit();
 
         ImageButton menuButton = (ImageButton) findViewById(R.id.action_bar_menu_button);
-        menuButton.setOnClickListener(new View.OnClickListener() {
+        menuButton.setOnTouchListener(new View.OnTouchListener() {
             @Override
-            public void onClick(View v) {
-                slidingMenu.toggle(true);
+            public boolean onTouch(View v, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_UP) {
+                    slidingMenu.toggle(true);
+                }
+                return false;
             }
         });
     }
@@ -80,5 +86,9 @@ public class MainContainerActivity extends ActionBarActivity {
     @Override
     protected void attachBaseContext(Context newBase) {
         super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
+    }
+
+    public void onNetworkError() {
+        Log.e(TAG, "Network Error");
     }
 }

@@ -41,42 +41,43 @@ public class AuthenticationActivity extends Activity {
 
         setContentView(R.layout.authentication_activity);
 
-        Button loginButton = (Button) findViewById(R.id.loginButton);
-        Button signupButton = (Button) findViewById(R.id.signupButton);
+//        Button loginButton = (Button) findViewById(R.id.loginButton);
+//        Button signupButton = (Button) findViewById(R.id.signupButton);
+//
+//        final EditText emailEditText = (EditText) findViewById(R.id.emailEditText);
+//        final EditText passwordEditText = (EditText) findViewById(R.id.passwordEditText);
+//
+//        this.seshNetworking = new SeshNetworking(this);
+//
+//        loginButton.setOnClickListener(new View.OnClickListener() {
+//            public void onClick(View v) {
+//                String email = emailEditText.getText().toString();
+//                String password = passwordEditText.getText().toString();
+//                if (loginDetailsValid(email, password)) {
+//                    seshNetworking.loginWithEmail(email, password,
+//                            new Response.Listener<JSONObject>() {
+//                                @Override
+//                                public void onResponse(JSONObject responseJson) {
+//                                    onLoginResponse(responseJson);
+//                                }
+//                            }, new Response.ErrorListener() {
+//                                @Override
+//                                public void onErrorResponse(VolleyError volleyError) {
+//                                    onLoginFailure(volleyError.getMessage());
+//                                }
+//                            });
+//                }
+//            }
+//        });
 
-        final EditText emailEditText = (EditText) findViewById(R.id.emailEditText);
-        final EditText passwordEditText = (EditText) findViewById(R.id.passwordEditText);
-
-        this.seshNetworking = new SeshNetworking(this);
-
-        loginButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                String email = emailEditText.getText().toString();
-                String password = passwordEditText.getText().toString();
-                if (loginDetailsValid(email, password)) {
-                    seshNetworking.loginWithEmail(email, password,
-                            new Response.Listener<JSONObject>() {
-                                @Override
-                                public void onResponse(JSONObject responseJson) {
-                                    onLoginResponse(responseJson);
-                                }
-                            }, new Response.ErrorListener() {
-                                @Override
-                                public void onErrorResponse(VolleyError volleyError) {
-                                    onLoginFailure(volleyError.getMessage());
-                                }
-                            });
-                }
-            }
-        });
-
-        final Context context = this;
-
-        signupButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-//                Do something
-            }
-        });
+//        final Context context = this;
+//
+//        signupButton.setOnClickListener(new View.OnClickListener() {
+//            public void onClick(View v) {
+////                Do something
+//            }
+//        });
+//    }
     }
 
     private void onLoginResponse(JSONObject responseJson) {

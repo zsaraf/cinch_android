@@ -3,6 +3,8 @@
     <color name="black_overlay">#66000000</color>
     <color name="seshbackground">#F4F4F5</color>
     <color name="seshorange">#F4806E</color>
+    <color name="seshorangeopaque">#66F4806E</color>
     <color name="seshcharcoal">#34495E</color>
+    <color name="seshlightred">#F5D1C4</color>
     <color name="light_gray">#ffdedede</color>
 </resources>

@@ -58,6 +58,15 @@ public class User {
         return userDbHelper.getCurrentUser();
     }
 
+    public static void logoutUserLocally(Context context) {
+        UserDbHelper userDbHelper = new UserDbHelper(context);
+        userDbHelper.deleteAllUsers();
+
+        SeshAuthManager.sharedManager(context).clearSession();
+
+        Log.i(TAG, "User logged out locally.");
+    }
+
     public static void createOrUpdateUserWithObject(JSONObject userJson, Context context) {
         User user;
         String sessionId;

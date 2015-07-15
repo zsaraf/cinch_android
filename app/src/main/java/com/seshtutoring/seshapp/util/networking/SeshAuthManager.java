@@ -43,4 +43,13 @@ public class SeshAuthManager {
         editor.putString(SESSION_ID_KEY, sessionId);
         editor.commit();
     }
+
+    public void clearSession() {
+        SharedPreferences keyStore = mContext.getSharedPreferences(SESSION_ID_SHARED_PREFERENCES, 0);
+        SharedPreferences.Editor editor = keyStore.edit();
+        editor.remove(SESSION_ID_KEY);
+        editor.commit();
+
+        this.sessionId = null;
+    }
 }

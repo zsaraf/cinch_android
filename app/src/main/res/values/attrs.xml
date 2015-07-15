@@ -9,4 +9,18 @@
         <attr name="metaButtonBarButtonStyle" format="reference" />
     </declare-styleable>
 
+    <declare-styleable name="SeshEditText">
+        <attr name="iconResource" format="enum">
+            <enum name="account" value="0" />
+            <enum name="password" value="1" />
+            <enum name="reenterpassword" value="2" />
+            <enum name="fullname" value="3" />
+        </attr>
+        <attr name="editTextType" format="enum">
+            <enum name="email" value="0" />
+            <enum name="password" value="1" />
+        </attr>
+        <attr name="hint" format="string" />
+    </declare-styleable>
+
 </resources>
