@@ -1,19 +1,19 @@
 package com.seshtutoring.seshapp.view;
 
 import android.app.ActionBar;
+import android.support.v4.app.Fragment;
 import android.content.Context;
-import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.seshtutoring.seshapp.R;
-import com.seshtutoring.seshapp.view.SideMenuFragment.MenuOption;
+import com.seshtutoring.seshapp.view.fragments.HomeFragment;
+import com.seshtutoring.seshapp.view.fragments.SideMenuFragment;
+import com.seshtutoring.seshapp.view.fragments.SideMenuFragment.MenuOption;
 
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
@@ -25,19 +25,19 @@ public class MainContainerActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.home_activity);
+        setContentView(R.layout.main_container_activity);
 
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
         getSupportActionBar().setCustomView(R.layout.sesh_action_bar);
 
-        setCurrentState(SideMenuFragment.MenuOption.HOME);
+        setCurrentState(MenuOption.HOME);
 
         slidingMenu = new SlidingMenu(this);
         slidingMenu.attachToActivity(this, SlidingMenu.SLIDING_WINDOW);
         slidingMenu.setMode(SlidingMenu.LEFT);
-        slidingMenu.setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
+        slidingMenu.setTouchModeAbove(SlidingMenu.TOUCHMODE_MARGIN);
         slidingMenu.setBehindOffsetRes(R.dimen.sliding_menu_behind_offset);
         slidingMenu.setBehindScrollScale(0);
         slidingMenu.setFadeEnabled(false);
@@ -65,17 +65,12 @@ public class MainContainerActivity extends ActionBarActivity {
         this.selectedMenuOption = selectedMenuOption;
         TextView title = (TextView) findViewById(R.id.action_bar_title);
 
-        if (selectedMenuOption == MenuOption.HOME) {
-            title.setText(R.string.title_activity_home);
-        } else if (selectedMenuOption == MenuOption.PROFILE) {
-            title.setText(R.string.title_activity_profile);
-        } else if (selectedMenuOption == MenuOption.PAYMENT) {
-            title.setText(R.string.title_activity_payment);
-        } else if (selectedMenuOption == MenuOption.SETTINGS) {
-            title.setText(R.string.title_activity_settings);
-        } else if (selectedMenuOption == MenuOption.PROMOTE) {
-            title.setText(R.string.title_activity_promote);
-        }
+        title.setText(selectedMenuOption.title);
+
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.main_container, selectedMenuOption.fragment)
+                .commit();
     }
 
     public void closeDrawer() {

@@ -1,8 +1,9 @@
-package com.seshtutoring.seshapp.view;
+package com.seshtutoring.seshapp.view.fragments;
 
 import android.content.Context;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.ListFragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,19 +15,24 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.seshtutoring.seshapp.R;
+import com.seshtutoring.seshapp.view.MainContainerActivity;
 
 public class SideMenuFragment extends ListFragment {
     public static enum MenuOption {
-        HOME("Home", R.drawable.home), PROFILE("Profile", R.drawable.profile),
-        PAYMENT("Payment", R.drawable.payment), SETTINGS("Settings", R.drawable.settings),
-        PROMOTE("Promote", R.drawable.share);
+        HOME("Home", R.drawable.home, new HomeFragment()),
+        PROFILE("Profile", R.drawable.profile, new ProfileFragment()),
+        PAYMENT("Payment", R.drawable.payment, new PaymentFragment()),
+        SETTINGS("Settings", R.drawable.settings, new SettingsFragment()),
+        PROMOTE("Promote", R.drawable.share, new PromoteFragment());
 
         public String title;
         public int iconRes;
+        public Fragment fragment;
 
-        MenuOption(String title, int iconRes) {
+        MenuOption(String title, int iconRes, Fragment fragment) {
             this.title = title;
             this.iconRes = iconRes;
+            this.fragment = fragment;
         }
     }
 

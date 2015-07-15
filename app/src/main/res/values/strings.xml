@@ -10,4 +10,8 @@
     <string name="title_activity_settings">Settings</string>
     <string name="title_activity_promote">Promote</string>
 
+    <string name="learn_tab_button_title">LEARN</string>
+    <string name="teach_tab_button_title">TEACH</string>
+    <string name="title_activity_maps">Map</string>
+
 </resources>
