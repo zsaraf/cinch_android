@@ -24,7 +24,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="47dp">
+        android:layout_marginBottom="47dp" >
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -47,8 +47,7 @@
         android:layout_height="wrap_content"
         android:layout_above="@id/forgot_password_link"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="17dp"
-        android:visibility="invisible">
+        android:layout_marginBottom="17dp" >
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -73,8 +72,8 @@
     <com.seshtutoring.seshapp.view.components.SeshButton
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/loginButton"
-        android:text="Sign Up"
+        android:id="@+id/loginSignupButton"
+        android:text="Log In"
         android:layout_centerHorizontal="true"
         android:layout_above="@id/dont_have_account_text"
         android:layout_marginBottom="15dp"
@@ -88,7 +87,7 @@
         android:id="@+id/reenterPasswordEditText"
         android:layout_marginLeft="25dp"
         android:layout_marginRight="25dp"
-        android:layout_above="@id/loginButton"
+        android:layout_above="@id/loginSignupButton"
         custom:editTextType="reenter_password"
         custom:hint="Re-enter Password" />
 

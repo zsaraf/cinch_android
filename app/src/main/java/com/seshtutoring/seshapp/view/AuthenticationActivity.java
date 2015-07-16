@@ -7,10 +7,12 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,12 +31,29 @@ import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 public class AuthenticationActivity extends Activity {
     private static final String TAG = AuthenticationActivity.class.getName();
+    public static enum EntranceType { LOGIN, SIGNUP }
+    public static final String ENTRANCE_TYPE_KEY = "entrance_type";
 
     private SeshNetworking seshNetworking;
+    private EntranceType entranceType;
+    private SeshEditText fullnameEditText;
+    private SeshEditText emailEditText;
+    private SeshEditText passwordEditText;
+    private SeshEditText reenterPasswordEditText;
+    private LinearLayout dontHaveAccountText;
+    private LinearLayout alreadyHaveAccountText;
+    private SeshButton loginSignupButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        this.entranceType = (EntranceType) getIntent().getSerializableExtra(ENTRANCE_TYPE_KEY);
+
+        if (entranceType == null) {
+            Log.e(TAG, "Intent does not specify EntranceType for AuthenticationActivity");
+            this.entranceType = EntranceType.LOGIN;
+        }
 
         //Remove title bar
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -45,14 +64,19 @@ public class AuthenticationActivity extends Activity {
 
         setContentView(R.layout.authentication_activity);
 
-        SeshButton loginButton = (SeshButton) findViewById(R.id.loginButton);
+        loginSignupButton = (SeshButton) findViewById(R.id.loginSignupButton);
 
-        final SeshEditText emailEditText = (SeshEditText) findViewById(R.id.emailEditText);
-        final SeshEditText passwordEditText = (SeshEditText) findViewById(R.id.passwordEditText);
+        this.fullnameEditText = (SeshEditText) findViewById(R.id.fullNameEditText);
+        this.emailEditText = (SeshEditText) findViewById(R.id.emailEditText);
+        this.passwordEditText = (SeshEditText) findViewById(R.id.passwordEditText);
+        this.reenterPasswordEditText = (SeshEditText) findViewById(R.id.reenterPasswordEditText);
+
+        this.dontHaveAccountText = (LinearLayout) findViewById(R.id.dont_have_account_text);
+        this.alreadyHaveAccountText = (LinearLayout) findViewById(R.id.already_have_account_text);
 
         this.seshNetworking = new SeshNetworking(this);
 
-        loginButton.setOnClickListener(new View.OnClickListener() {
+        loginSignupButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 String email = emailEditText.getText().toString();
                 String password = passwordEditText.getText().toString();
@@ -83,6 +107,8 @@ public class AuthenticationActivity extends Activity {
                 return true;
             }
         });
+
+        setupEntranceType();
     }
 
     private void onLoginResponse(JSONObject responseJson) {
@@ -115,5 +141,38 @@ public class AuthenticationActivity extends Activity {
     @Override
     protected void attachBaseContext(Context newBase) {
         super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
+    }
+
+    public void setupEntranceType() {
+        if (entranceType == EntranceType.LOGIN) {
+            fullnameEditText.setVisibility(View.INVISIBLE);
+            reenterPasswordEditText.setVisibility(View.INVISIBLE);
+            alreadyHaveAccountText.setVisibility(View.INVISIBLE);
+            loginSignupButton.setText("Log in");
+
+            ViewGroup.MarginLayoutParams fullNameLayoutParams =
+                    (ViewGroup.MarginLayoutParams) fullnameEditText.getLayoutParams();
+            ViewGroup.MarginLayoutParams reenterPasswordLayoutParams =
+                    (ViewGroup.MarginLayoutParams) reenterPasswordEditText.getLayoutParams();
+
+            fullNameLayoutParams.height = 0;
+            reenterPasswordLayoutParams.height = 0;
+            reenterPasswordLayoutParams.setMargins(0, 0, 0, 0);
+        } else if (entranceType == EntranceType.SIGNUP) {
+            dontHaveAccountText.setVisibility(View.INVISIBLE);
+            loginSignupButton.setText("Sign up");
+        } else {
+            Log.e(TAG, "EntranceType malformed in intent to start AuthenticationActivity");
+        }
+    }
+
+    public void toggleEntranceTypeWithAnimation() {
+        if (entranceType == EntranceType.LOGIN) {
+
+        } else if (entranceType == EntranceType.SIGNUP) {
+
+        } else {
+
+        }
     }
 }

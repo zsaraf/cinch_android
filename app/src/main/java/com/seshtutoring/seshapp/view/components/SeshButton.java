@@ -40,6 +40,10 @@ public class SeshButton extends LinearLayout {
         button.setOnClickListener(onClickListener);
     }
 
+    public void setText(String text) {
+        button.setText(text);
+    }
+
     public Button getButton() {
         return button;
     }

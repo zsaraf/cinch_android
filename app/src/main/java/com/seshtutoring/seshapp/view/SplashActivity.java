@@ -9,6 +9,7 @@ import android.view.WindowManager;
 
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.util.networking.SeshAuthManager;
+import com.seshtutoring.seshapp.view.AuthenticationActivity.EntranceType;
 
 /**
  * Created by nadavhollander on 7/10/15.
@@ -41,6 +42,7 @@ public class SplashActivity extends Activity {
                     } else {
                         i = new Intent(context, AuthenticationActivity.class);
                     }
+                    i.putExtra(AuthenticationActivity.ENTRANCE_TYPE_KEY, EntranceType.LOGIN);
                     startActivity(i);
                 }
             }
