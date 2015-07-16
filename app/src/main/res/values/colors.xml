@@ -6,5 +6,10 @@
     <color name="seshorangeopaque">#66F4806E</color>
     <color name="seshcharcoal">#34495E</color>
     <color name="seshlightred">#F5D1C4</color>
+    <color name="seshlightgray">#7F7F7F</color>
+
+    <color name="sesh_button_normal">#F57F6E</color>
+    <color name="sesh_button_pressed">#DF7364</color>
     <color name="light_gray">#ffdedede</color>
+    <color name="white">#FFFFFF</color>
 </resources>

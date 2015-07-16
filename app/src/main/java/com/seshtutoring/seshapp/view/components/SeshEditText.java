@@ -132,4 +132,8 @@ public class SeshEditText extends RelativeLayout {
             }
         });
     }
+
+    public String getText() {
+        return editText.getText().toString();
+    }
 }

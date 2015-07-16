@@ -5,11 +5,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Response;
@@ -17,6 +19,8 @@ import com.android.volley.VolleyError;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
+import com.seshtutoring.seshapp.view.components.SeshButton;
+import com.seshtutoring.seshapp.view.components.SeshEditText;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -41,43 +45,44 @@ public class AuthenticationActivity extends Activity {
 
         setContentView(R.layout.authentication_activity);
 
-//        Button loginButton = (Button) findViewById(R.id.loginButton);
-//        Button signupButton = (Button) findViewById(R.id.signupButton);
-//
-//        final EditText emailEditText = (EditText) findViewById(R.id.emailEditText);
-//        final EditText passwordEditText = (EditText) findViewById(R.id.passwordEditText);
-//
-//        this.seshNetworking = new SeshNetworking(this);
-//
-//        loginButton.setOnClickListener(new View.OnClickListener() {
-//            public void onClick(View v) {
-//                String email = emailEditText.getText().toString();
-//                String password = passwordEditText.getText().toString();
-//                if (loginDetailsValid(email, password)) {
-//                    seshNetworking.loginWithEmail(email, password,
-//                            new Response.Listener<JSONObject>() {
-//                                @Override
-//                                public void onResponse(JSONObject responseJson) {
-//                                    onLoginResponse(responseJson);
-//                                }
-//                            }, new Response.ErrorListener() {
-//                                @Override
-//                                public void onErrorResponse(VolleyError volleyError) {
-//                                    onLoginFailure(volleyError.getMessage());
-//                                }
-//                            });
-//                }
-//            }
-//        });
+        SeshButton loginButton = (SeshButton) findViewById(R.id.loginButton);
 
-//        final Context context = this;
-//
-//        signupButton.setOnClickListener(new View.OnClickListener() {
-//            public void onClick(View v) {
-////                Do something
-//            }
-//        });
-//    }
+        final SeshEditText emailEditText = (SeshEditText) findViewById(R.id.emailEditText);
+        final SeshEditText passwordEditText = (SeshEditText) findViewById(R.id.passwordEditText);
+
+        this.seshNetworking = new SeshNetworking(this);
+
+        loginButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                String email = emailEditText.getText().toString();
+                String password = passwordEditText.getText().toString();
+                if (loginDetailsValid(email, password)) {
+                    seshNetworking.loginWithEmail(email, password,
+                            new Response.Listener<JSONObject>() {
+                                @Override
+                                public void onResponse(JSONObject responseJson) {
+                                    onLoginResponse(responseJson);
+                                }
+                            }, new Response.ErrorListener() {
+                                @Override
+                                public void onErrorResponse(VolleyError volleyError) {
+                                    onLoginFailure(volleyError.getMessage());
+                                }
+                            });
+                }
+            }
+        });
+
+        TextView registerLink = (TextView) findViewById(R.id.register_link);
+//        @TODO: implement forgot password link
+//        TextView forgotPasswordLink = (TextView) findViewById(R.id.forgot_password_link);
+
+        registerLink.setOnTouchListener(new View.OnTouchListener() {
+            public boolean onTouch(View v, MotionEvent event) {
+                Toast.makeText(getBaseContext(), "yeaa", Toast.LENGTH_LONG).show();
+                return true;
+            }
+        });
     }
 
     private void onLoginResponse(JSONObject responseJson) {

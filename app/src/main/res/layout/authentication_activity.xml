@@ -6,24 +6,134 @@
     android:orientation="vertical"
     android:background="@color/seshbackground"
     tools:context="com.seshtutoring.seshapp.view.AuthenticationActivity">
-    <ImageView
-        android:layout_width="150dp"
-        android:layout_height="150dp"
-        android:id="@+id/imageView2"
-        android:background="@drawable/sesh_logo_simple"
-        android:layout_marginTop="150dp"
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Forgot Password?"
+        android:textSize="16sp"
+        android:id="@+id/forgot_password_link"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="12dp"
+        android:textColor="@color/seshorange"/>
+
+    <LinearLayout
+        android:id="@+id/already_have_account_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="47dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/seshlightgray"
+            android:text="Already have an account?"
+            android:textSize="16sp" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/seshorange"
+            android:textSize="16sp"
+            android:paddingLeft="5dp"
+            android:id="@+id/login_link"
+            android:text="Log in"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/dont_have_account_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/forgot_password_link"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="17dp"
+        android:visibility="invisible">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/seshlightgray"
+            android:text="Don't have an account?"
+            android:textSize="16sp" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/seshorange"
+            android:textSize="16sp"
+            android:paddingLeft="5dp"
+            android:id="@+id/register_link"
+            android:text="Register"/>
+    </LinearLayout>
+
+    <!-- Dummy item to prevent SeshEditText from receiving focus -->
+    <LinearLayout
+        android:focusable="true" android:focusableInTouchMode="true"
+        android:layout_width="0px" android:layout_height="0px"/>
+
+    <com.seshtutoring.seshapp.view.components.SeshButton
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/loginButton"
+        android:text="Sign Up"
+        android:layout_centerHorizontal="true"
+        android:layout_above="@id/dont_have_account_text"
+        android:layout_marginBottom="15dp"
+        android:layout_marginLeft="25dp"
+        android:layout_marginRight="25dp" />
+
+    <com.seshtutoring.seshapp.view.components.SeshEditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:id="@+id/reenterPasswordEditText"
+        android:layout_marginLeft="25dp"
+        android:layout_marginRight="25dp"
+        android:layout_above="@id/loginButton"
+        custom:editTextType="reenter_password"
+        custom:hint="Re-enter Password" />
+
+    <com.seshtutoring.seshapp.view.components.SeshEditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:id="@+id/passwordEditText"
+        android:layout_marginLeft="25dp"
+        android:layout_marginRight="25dp"
+        android:layout_above="@id/reenterPasswordEditText"
+        custom:editTextType="password"
+        custom:hint="Password"/>
+
+    <com.seshtutoring.seshapp.view.components.SeshEditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:layout_marginLeft="25dp"
+        android:layout_marginRight="25dp"
+        android:id="@+id/emailEditText"
+        custom:editTextType="email"
+        custom:hint="College Email"
+        android:layout_above="@id/passwordEditText"
         android:layout_centerHorizontal="true" />
 
     <com.seshtutoring.seshapp.view.components.SeshEditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="20dp"
-        android:id="@+id/password"
-        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="10dp"
         android:layout_marginLeft="25dp"
         android:layout_marginRight="25dp"
-        custom:editTextType="password"
-        custom:hint="Password"
-        custom:iconResource="account"/>
+        android:id="@+id/fullNameEditText"
+        custom:editTextType="fullname"
+        custom:hint="Full Name"
+        android:layout_above="@id/emailEditText"
+        android:layout_centerHorizontal="true" />
+
+    <ImageView
+        android:layout_width="130dp"
+        android:layout_height="130dp"
+        android:id="@+id/imageView2"
+        android:background="@drawable/sesh_logo_simple"
+        android:layout_centerHorizontal="true"
+        android:layout_above="@id/fullNameEditText"
+        android:layout_marginBottom="60dp"/>
 
 </RelativeLayout>
