@@ -16,15 +16,29 @@
         android:layout_centerHorizontal="true"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="12dp"
-        android:textColor="@color/seshorange"/>
+        android:textColor="@color/seshorange" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:layout_marginLeft="40dp"
+        android:layout_marginRight="40dp"
+        android:layout_centerHorizontal="true"
+        android:textColor="@color/terms_text_light_gray"
+        android:gravity="center_horizontal"
+        android:layout_alignParentBottom="true"
+        android:textSize="12sp"
+        android:text="@string/terms_label"
+        android:id="@+id/terms_and_privacy_text" />
 
     <LinearLayout
         android:id="@+id/already_have_account_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
+        android:layout_above="@id/forgot_password_link"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="47dp" >
+        android:layout_marginBottom="10dp" >
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -37,6 +51,8 @@
             android:textColor="@color/seshorange"
             android:textSize="16sp"
             android:paddingLeft="5dp"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
             android:id="@+id/login_link"
             android:text="Log in"/>
     </LinearLayout>
@@ -47,7 +63,7 @@
         android:layout_height="wrap_content"
         android:layout_above="@id/forgot_password_link"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="17dp" >
+        android:layout_marginBottom="10dp" >
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -60,6 +76,8 @@
             android:textColor="@color/seshorange"
             android:textSize="16sp"
             android:paddingLeft="5dp"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
             android:id="@+id/register_link"
             android:text="Register"/>
     </LinearLayout>
@@ -75,15 +93,15 @@
         android:id="@+id/loginSignupButton"
         android:text="Log In"
         android:layout_centerHorizontal="true"
-        android:layout_above="@id/dont_have_account_text"
-        android:layout_marginBottom="15dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="85dp"
         android:layout_marginLeft="25dp"
         android:layout_marginRight="25dp" />
 
     <com.seshtutoring.seshapp.view.components.SeshEditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
+        android:layout_marginBottom="40dp"
         android:id="@+id/reenterPasswordEditText"
         android:layout_marginLeft="25dp"
         android:layout_marginRight="25dp"
@@ -98,7 +116,7 @@
         android:id="@+id/passwordEditText"
         android:layout_marginLeft="25dp"
         android:layout_marginRight="25dp"
-        android:layout_above="@id/reenterPasswordEditText"
+        android:layout_above="@id/loginSignupButton"
         custom:editTextType="password"
         custom:hint="Password"/>
 
@@ -114,25 +132,39 @@
         android:layout_above="@id/passwordEditText"
         android:layout_centerHorizontal="true" />
 
+    <!--Dummy block for animation-->
     <com.seshtutoring.seshapp.view.components.SeshEditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
+        android:paddingBottom="10dp"
+        android:layout_marginLeft="25dp"
+        android:layout_marginRight="25dp"
+        android:id="@+id/dummyEditText"
+        custom:editTextType="fullname"
+        custom:hint="Full Name"
+        android:layout_above="@id/emailEditText"
+        android:layout_centerHorizontal="true"
+        android:visibility="invisible"/>
+
+    <com.seshtutoring.seshapp.view.components.SeshEditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="40dp"
         android:layout_marginLeft="25dp"
         android:layout_marginRight="25dp"
         android:id="@+id/fullNameEditText"
         custom:editTextType="fullname"
         custom:hint="Full Name"
-        android:layout_above="@id/emailEditText"
+        android:layout_above="@id/dummyEditText"
         android:layout_centerHorizontal="true" />
 
     <ImageView
         android:layout_width="130dp"
         android:layout_height="130dp"
-        android:id="@+id/imageView2"
+        android:id="@+id/seshLogo"
         android:background="@drawable/sesh_logo_simple"
         android:layout_centerHorizontal="true"
-        android:layout_above="@id/fullNameEditText"
-        android:layout_marginBottom="60dp"/>
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="350dp" />
 
 </RelativeLayout>

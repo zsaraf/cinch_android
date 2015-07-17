@@ -13,5 +13,6 @@
     <string name="learn_tab_button_title">LEARN</string>
     <string name="teach_tab_button_title">TEACH</string>
     <string name="title_activity_maps">Map</string>
+    <string name="terms_label">By creating an account you agree to the Terms Of Use and you acknowledge that you have read the Privacy Policy.</string>
 
 </resources>

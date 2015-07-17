@@ -2,6 +2,7 @@ package com.seshtutoring.seshapp.view.components;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Canvas;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.text.Editable;
@@ -11,6 +12,7 @@ import android.text.method.PasswordTransformationMethod;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.ViewTreeObserver;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -46,11 +48,14 @@ public class SeshEditText extends RelativeLayout {
         }
     }
 
+    public static final int SESH_EDIT_TEXT_HEIGHT_DP = 85;
+
     private SeshEditTextType editTextType;
     private String hint;
     private EditText editText;
     private ImageView icon;
     private boolean filledIconActive = false;
+    private int visibleHeight;
 
     public SeshEditText(Context context, AttributeSet attrs) {
         super(context, attrs);

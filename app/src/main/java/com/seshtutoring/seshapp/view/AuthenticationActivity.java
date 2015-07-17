@@ -1,18 +1,28 @@
 package com.seshtutoring.seshapp.view;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.ClickableSpan;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.Button;
-import android.widget.EditText;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.TranslateAnimation;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,6 +30,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.User;
+import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.components.SeshButton;
 import com.seshtutoring.seshapp.view.components.SeshEditText;
@@ -33,6 +44,8 @@ public class AuthenticationActivity extends Activity {
     private static final String TAG = AuthenticationActivity.class.getName();
     public static enum EntranceType { LOGIN, SIGNUP }
     public static final String ENTRANCE_TYPE_KEY = "entrance_type";
+    private static final int EDITTEXT_BOTTOM_MARGIN_DP = 10;
+    private static final int TERMS_TEXT_OFFSET_DP = 30;
 
     private SeshNetworking seshNetworking;
     private EntranceType entranceType;
@@ -40,9 +53,20 @@ public class AuthenticationActivity extends Activity {
     private SeshEditText emailEditText;
     private SeshEditText passwordEditText;
     private SeshEditText reenterPasswordEditText;
+    private SeshEditText dummyEditText;
     private LinearLayout dontHaveAccountText;
     private LinearLayout alreadyHaveAccountText;
+    private TextView forgotPasswordLink;
+    private TextView termsAndPrivacyPolicyText;
     private SeshButton loginSignupButton;
+    private ImageView seshLogo;
+
+    private LinearLayout.MarginLayoutParams fullnameMargins;
+    private LinearLayout.MarginLayoutParams emailMargins;
+    private LinearLayout.MarginLayoutParams passwordMargins;
+    private LinearLayout.MarginLayoutParams reenterPasswordMargins;
+    private LinearLayout.MarginLayoutParams logoMargins;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,15 +88,20 @@ public class AuthenticationActivity extends Activity {
 
         setContentView(R.layout.authentication_activity);
 
+        this.seshLogo = (ImageView) findViewById(R.id.seshLogo);
+
         loginSignupButton = (SeshButton) findViewById(R.id.loginSignupButton);
 
         this.fullnameEditText = (SeshEditText) findViewById(R.id.fullNameEditText);
         this.emailEditText = (SeshEditText) findViewById(R.id.emailEditText);
         this.passwordEditText = (SeshEditText) findViewById(R.id.passwordEditText);
         this.reenterPasswordEditText = (SeshEditText) findViewById(R.id.reenterPasswordEditText);
+        this.dummyEditText = (SeshEditText) findViewById(R.id.dummyEditText);
 
         this.dontHaveAccountText = (LinearLayout) findViewById(R.id.dont_have_account_text);
         this.alreadyHaveAccountText = (LinearLayout) findViewById(R.id.already_have_account_text);
+        this.forgotPasswordLink = (TextView) findViewById(R.id.forgot_password_link);
+        this.termsAndPrivacyPolicyText = (TextView) findViewById(R.id.terms_and_privacy_text);
 
         this.seshNetworking = new SeshNetworking(this);
 
@@ -98,15 +127,51 @@ public class AuthenticationActivity extends Activity {
         });
 
         TextView registerLink = (TextView) findViewById(R.id.register_link);
+        TextView loginLink = (TextView) findViewById(R.id.login_link);
 //        @TODO: implement forgot password link
 //        TextView forgotPasswordLink = (TextView) findViewById(R.id.forgot_password_link);
 
         registerLink.setOnTouchListener(new View.OnTouchListener() {
             public boolean onTouch(View v, MotionEvent event) {
-                Toast.makeText(getBaseContext(), "yeaa", Toast.LENGTH_LONG).show();
+                if (entranceType == EntranceType.LOGIN) {
+                    toggleEntranceTypeWithAnimation();
+                }
                 return true;
             }
         });
+
+        loginLink.setOnTouchListener(new View.OnTouchListener() {
+            public boolean onTouch(View v, MotionEvent event) {
+                if (entranceType == EntranceType.SIGNUP) {
+                    toggleEntranceTypeWithAnimation();
+                }
+                return true;
+            }
+        });
+        Spannable spannable = new SpannableString(getResources().getString(R.string.terms_label));
+
+        LayoutUtils.NoUnderlineClickableSpan termsLinkClickableSpan = new LayoutUtils.NoUnderlineClickableSpan() {
+            @Override
+            public void onClick(View widget) {
+                // @TODO: implement terms link
+            }
+        };
+        LayoutUtils.NoUnderlineClickableSpan privacyPolicyLink = new LayoutUtils.NoUnderlineClickableSpan() {
+            @Override
+            public void onClick(View widget) {
+                // @TODO: implement privacy policy link
+            }
+        };
+
+        ForegroundColorSpan termsLinksColor = new ForegroundColorSpan(getResources().getColor(R.color.seshorange));
+        ForegroundColorSpan privacyLinkColor = new ForegroundColorSpan(getResources().getColor(R.color.seshorange));
+
+        spannable.setSpan(termsLinkClickableSpan, 40, 52, Spanned.SPAN_POINT_MARK);
+        spannable.setSpan(termsLinksColor, 40, 52, 0);
+        spannable.setSpan(privacyPolicyLink, 96, 110, Spanned.SPAN_POINT_MARK);
+        spannable.setSpan(privacyLinkColor, 96, 110, 0);
+
+        termsAndPrivacyPolicyText.setText(spannable);
 
         setupEntranceType();
     }
@@ -144,21 +209,19 @@ public class AuthenticationActivity extends Activity {
     }
 
     public void setupEntranceType() {
+        LayoutUtils utils = new LayoutUtils(this);
+
         if (entranceType == EntranceType.LOGIN) {
-            fullnameEditText.setVisibility(View.INVISIBLE);
-            reenterPasswordEditText.setVisibility(View.INVISIBLE);
-            alreadyHaveAccountText.setVisibility(View.INVISIBLE);
+            fullnameEditText.setAlpha(0);
+            reenterPasswordEditText.setAlpha(0);
+            alreadyHaveAccountText.setAlpha(0);
+            termsAndPrivacyPolicyText.setAlpha(0);
+
             loginSignupButton.setText("Log in");
-
-            ViewGroup.MarginLayoutParams fullNameLayoutParams =
-                    (ViewGroup.MarginLayoutParams) fullnameEditText.getLayoutParams();
-            ViewGroup.MarginLayoutParams reenterPasswordLayoutParams =
-                    (ViewGroup.MarginLayoutParams) reenterPasswordEditText.getLayoutParams();
-
-            fullNameLayoutParams.height = 0;
-            reenterPasswordLayoutParams.height = 0;
-            reenterPasswordLayoutParams.setMargins(0, 0, 0, 0);
         } else if (entranceType == EntranceType.SIGNUP) {
+            RelativeLayout.LayoutParams dummyEditTextLayout =
+                    (RelativeLayout.LayoutParams) dummyEditText.getLayoutParams();
+            dummyEditTextLayout.height = 0;
             dontHaveAccountText.setVisibility(View.INVISIBLE);
             loginSignupButton.setText("Sign up");
         } else {
@@ -167,12 +230,50 @@ public class AuthenticationActivity extends Activity {
     }
 
     public void toggleEntranceTypeWithAnimation() {
+        LayoutUtils utils = new LayoutUtils(this);
+        final int yDelta = utils.dpToPixels(EDITTEXT_BOTTOM_MARGIN_DP)
+                + utils.dpToPixels(TERMS_TEXT_OFFSET_DP) + passwordEditText.getHeight();
+
         if (entranceType == EntranceType.LOGIN) {
+            loginSignupButton.setText("Sign Up");
 
+            utils.crossFade(dontHaveAccountText, alreadyHaveAccountText);
+            utils.crossFade(forgotPasswordLink, termsAndPrivacyPolicyText);
+
+            loginSignupButton.animate().setDuration(300)
+                    .translationYBy(-1 * utils.dpToPixels(TERMS_TEXT_OFFSET_DP));
+            alreadyHaveAccountText.animate().setDuration(300)
+                    .translationYBy(-1 * utils.dpToPixels(TERMS_TEXT_OFFSET_DP));
+            emailEditText.animate().setDuration(300).translationYBy(-1 * yDelta);
+            passwordEditText.animate().setDuration(300).translationYBy(-1 * yDelta);
+            seshLogo.animate().setDuration(300).translationYBy(-1 * yDelta);
+
+            fullnameEditText.animate().setStartDelay(300).setDuration(300).alpha(1);
+            reenterPasswordEditText.animate().setStartDelay(300).setDuration(300).alpha(1);
+
+            entranceType = EntranceType.SIGNUP;
         } else if (entranceType == EntranceType.SIGNUP) {
+            loginSignupButton.setText("Log In");
 
+            utils.crossFade(alreadyHaveAccountText, dontHaveAccountText);
+            utils.crossFade(termsAndPrivacyPolicyText, forgotPasswordLink);
+
+            fullnameEditText.animate().setStartDelay(0).setDuration(100).alpha(0);
+            reenterPasswordEditText.animate().setStartDelay(0).setDuration(100).alpha(0);
+
+            loginSignupButton.animate().setDuration(300)
+                    .translationYBy(utils.dpToPixels(TERMS_TEXT_OFFSET_DP));
+            alreadyHaveAccountText.animate().setDuration(300)
+                    .translationYBy(utils.dpToPixels(TERMS_TEXT_OFFSET_DP));
+            emailEditText.animate().setDuration(300).translationYBy(yDelta);
+            passwordEditText.animate().setDuration(300).translationYBy(yDelta);
+            seshLogo.animate().setDuration(300).translationYBy(yDelta);
+
+
+            entranceType = EntranceType.LOGIN;
         } else {
-
+            Log.e(TAG, "No entrance type is specified.");
         }
+
     }
 }
