@@ -1,5 +1,4 @@
 <resources>
-
     <style name="SeshActionBarTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="@android:actionBarStyle">@style/SeshActionBar</item>
         <item name="actionBarStyle">@style/SeshActionBar</item>

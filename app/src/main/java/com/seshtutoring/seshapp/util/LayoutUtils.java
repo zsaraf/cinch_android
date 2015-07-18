@@ -25,7 +25,7 @@ public class LayoutUtils {
         fadeInView.animate().alpha(1f).setDuration(100);
     }
 
-    public int dpToPixels(int dp) {
+    public int dpToPixels(float dp) {
         Resources r = mContext.getResources();
         return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, r.getDisplayMetrics());
     }

@@ -8,9 +8,11 @@
     <color name="seshlightred">#F5D1C4</color>
     <color name="seshlightgray">#7F7F7F</color>
     <color name="terms_text_light_gray">#CCCCCC</color>
+    <color name="confirmation_code_activity_gray">#999999</color>
 
     <color name="sesh_button_normal">#F57F6E</color>
     <color name="sesh_button_pressed">#DF7364</color>
+    <color name="sesh_button_disabled">#6bff8e79</color>
     <color name="light_gray">#ffdedede</color>
     <color name="white">#FFFFFF</color>
 </resources>

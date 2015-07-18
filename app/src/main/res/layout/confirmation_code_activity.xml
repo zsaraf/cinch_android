@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/confirmation_code_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/email_sent_title"
+        android:textColor="@color/confirmation_code_activity_gray"
+        android:textSize="28sp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="50dp" />
+
+    <ImageView
+        android:id="@+id/email_image"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/confirmation_code_title"
+        android:layout_marginTop="30dp"
+        android:background="@drawable/mail"
+        android:layout_centerHorizontal="true"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/email_image"
+        android:text="@string/confirmation_code_activity_text"
+        android:textColor="@color/confirmation_code_activity_gray"
+        android:textSize="20sp"
+        android:lineSpacingExtra="4dp"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center"
+        android:layout_marginLeft="40dp"
+        android:layout_marginRight="40dp"
+        android:layout_marginTop="30dp"/>
+
+    <com.seshtutoring.seshapp.view.components.SeshButton
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/resendEmailButton"
+        android:text="Re-send email"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="25dp"
+        android:layout_marginLeft="25dp"
+        android:layout_marginRight="25dp" />
+
+</RelativeLayout>

@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.Window;
 import android.view.WindowManager;
 
+import com.google.android.gms.auth.api.Auth;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.util.networking.SeshAuthManager;
 import com.seshtutoring.seshapp.view.AuthenticationActivity.EntranceType;

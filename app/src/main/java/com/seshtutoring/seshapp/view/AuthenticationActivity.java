@@ -44,6 +44,8 @@ public class AuthenticationActivity extends Activity {
     private static final String TAG = AuthenticationActivity.class.getName();
     public static enum EntranceType { LOGIN, SIGNUP }
     public static final String ENTRANCE_TYPE_KEY = "entrance_type";
+    public static final String SIGN_UP_EMAIL_KEY = "email";
+    public static final String SIGN_UP_PASSWORD_KEY = "password";
     private static final int EDITTEXT_BOTTOM_MARGIN_DP = 10;
     private static final int TERMS_TEXT_OFFSET_DP = 30;
 
@@ -107,21 +109,13 @@ public class AuthenticationActivity extends Activity {
 
         loginSignupButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                String email = emailEditText.getText().toString();
-                String password = passwordEditText.getText().toString();
-                if (loginDetailsValid(email, password)) {
-                    seshNetworking.loginWithEmail(email, password,
-                            new Response.Listener<JSONObject>() {
-                                @Override
-                                public void onResponse(JSONObject responseJson) {
-                                    onLoginResponse(responseJson);
-                                }
-                            }, new Response.ErrorListener() {
-                                @Override
-                                public void onErrorResponse(VolleyError volleyError) {
-                                    onLoginFailure(volleyError.getMessage());
-                                }
-                            });
+                loginSignupButton.setEnabled(false);
+                if (entranceType == EntranceType.LOGIN) {
+                    handleLogin();
+                } else if (entranceType == EntranceType.SIGNUP) {
+                    handleSignup();
+                } else {
+                    Log.e(TAG, "Entrance type is not set.");
                 }
             }
         });
@@ -176,6 +170,50 @@ public class AuthenticationActivity extends Activity {
         setupEntranceType();
     }
 
+    private void handleLogin() {
+
+        String email = emailEditText.getText().toString();
+        String password = passwordEditText.getText().toString();
+
+        if (validateLoginDetails(email, password)) {
+            seshNetworking.loginWithEmail(email, password,
+                    new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject responseJson) {
+                            onLoginResponse(responseJson);
+                        }
+                    }, new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError volleyError) {
+                            onNetworkError(volleyError);
+                            loginSignupButton.setEnabled(true);
+                        }
+                    });
+        }
+    }
+
+    private void handleSignup() {
+        String fullName = fullnameEditText.getText().toString();
+        String email = emailEditText.getText().toString();
+        String password = passwordEditText.getText().toString();
+        String reenterPassword = reenterPasswordEditText.getText().toString();
+
+        if (validateSignupDetails(fullName, email, password, reenterPassword)) {
+            seshNetworking.signUpWithName(fullName, email, password,
+                    new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject jsonObject) {
+                            onSignupResponse(jsonObject);
+                        }
+                    }, new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError volleyError) {
+                            onNetworkError(volleyError);
+                        }
+                    });
+        }
+    }
+
     private void onLoginResponse(JSONObject responseJson) {
         try {
             if (responseJson.get("status").equals("SUCCESS")) {
@@ -191,15 +229,41 @@ public class AuthenticationActivity extends Activity {
             Log.e(TAG, e.toString());
             Toast.makeText(this, "Login Failed.", Toast.LENGTH_LONG).show();
         }
+        loginSignupButton.setEnabled(true);
     }
 
-    private void onLoginFailure(String errorMessage) {
-        Log.e(TAG, "NETWORK ERROR: " + errorMessage);
-        Toast.makeText(this, "We couldn't reach the network, sorry!", Toast.LENGTH_LONG);
+    private void onSignupResponse(JSONObject responseJson) {
+        try {
+            if (responseJson.get("status").equals("FAILURE")) {
+                Toast.makeText(this, responseJson.getString("message"), Toast.LENGTH_LONG).show();
+            } else {
+                Intent intent = new Intent(this, ConfirmationCodeActivity.class);
+                intent.putExtra(SIGN_UP_EMAIL_KEY, emailEditText.getText());
+                intent.putExtra(SIGN_UP_PASSWORD_KEY, passwordEditText.getText());
+                startActivity(intent);
+            }
+        } catch (JSONException e) {
+            Log.e(TAG, e.toString());
+            Toast.makeText(this, "Login Failed.", Toast.LENGTH_LONG).show();
+        }
+        loginSignupButton.setEnabled(true);
+    }
+
+    private void onNetworkError(VolleyError volleyError) {
+        Log.e(TAG, "NETWORK ERROR: " + volleyError.getMessage());
+        Toast.makeText(getApplicationContext(), "We couldn't reach the network, sorry!", Toast.LENGTH_LONG);
+        loginSignupButton.setEnabled(true);
+    }
+
+
+    // @TODO: Implement some sort of verification that Login info formatted correctly
+    private boolean validateLoginDetails(String email, String password) {
+        return true;
     }
 
     // @TODO: Implement some sort of verification that Login info formatted correctly
-    private boolean loginDetailsValid(String email, String password) {
+    private boolean validateSignupDetails(String fullName, String email,
+                                          String password, String reenterPassword) {
         return true;
     }
 
@@ -219,10 +283,20 @@ public class AuthenticationActivity extends Activity {
 
             loginSignupButton.setText("Log in");
         } else if (entranceType == EntranceType.SIGNUP) {
-            RelativeLayout.LayoutParams dummyEditTextLayout =
-                    (RelativeLayout.LayoutParams) dummyEditText.getLayoutParams();
-            dummyEditTextLayout.height = 0;
-            dontHaveAccountText.setVisibility(View.INVISIBLE);
+            int yDelta =
+                    utils.dpToPixels(EDITTEXT_BOTTOM_MARGIN_DP + TERMS_TEXT_OFFSET_DP +
+                            SeshEditText.SESH_EDIT_TEXT_HEIGHT_DP);
+
+            loginSignupButton.animate().setDuration(0)
+                    .translationYBy(-1 * utils.dpToPixels(TERMS_TEXT_OFFSET_DP));
+            alreadyHaveAccountText.animate().setDuration(0)
+                    .translationYBy(-1 * utils.dpToPixels(TERMS_TEXT_OFFSET_DP));
+            emailEditText.animate().setDuration(0).translationYBy(-1 * yDelta);
+            passwordEditText.animate().setDuration(0).translationYBy(-1 * yDelta);
+            seshLogo.animate().setDuration(0).translationYBy(-1 * yDelta);
+
+            dontHaveAccountText.setAlpha(0);
+            forgotPasswordLink.setAlpha(0);
             loginSignupButton.setText("Sign up");
         } else {
             Log.e(TAG, "EntranceType malformed in intent to start AuthenticationActivity");
@@ -231,8 +305,9 @@ public class AuthenticationActivity extends Activity {
 
     public void toggleEntranceTypeWithAnimation() {
         LayoutUtils utils = new LayoutUtils(this);
-        final int yDelta = utils.dpToPixels(EDITTEXT_BOTTOM_MARGIN_DP)
-                + utils.dpToPixels(TERMS_TEXT_OFFSET_DP) + passwordEditText.getHeight();
+        final int yDelta =
+                utils.dpToPixels(EDITTEXT_BOTTOM_MARGIN_DP + TERMS_TEXT_OFFSET_DP +
+                        SeshEditText.SESH_EDIT_TEXT_HEIGHT_DP);
 
         if (entranceType == EntranceType.LOGIN) {
             loginSignupButton.setText("Sign Up");

@@ -44,6 +44,10 @@ public class SeshButton extends LinearLayout {
         button.setText(text);
     }
 
+    public void setEnabled(boolean enabled) {
+        button.setEnabled(enabled);
+    }
+
     public Button getButton() {
         return button;
     }

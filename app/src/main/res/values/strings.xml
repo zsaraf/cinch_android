@@ -14,5 +14,7 @@
     <string name="teach_tab_button_title">TEACH</string>
     <string name="title_activity_maps">Map</string>
     <string name="terms_label">By creating an account you agree to the Terms Of Use and you acknowledge that you have read the Privacy Policy.</string>
+    <string name="email_sent_title">EMAIL SENT!</string>
+    <string name="confirmation_code_activity_text">We\'ve sent you an email to verify your account.  Once you\'ve clicked the link, you will be automatically taken to profile setup! Almost there!</string>
 
 </resources>

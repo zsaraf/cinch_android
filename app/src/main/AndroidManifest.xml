@@ -37,9 +37,14 @@
         </activity>
         <activity
             android:name=".view.MainContainerActivity"
-            android:label="@string/title_activity_home" >
+            android:label="@string/title_activity_home"
+            android:screenOrientation="portrait">
         </activity>
-
+        <activity
+            android:name=".view.ConfirmationCodeActivity"
+            android:label="Verify Email"
+            android:screenOrientation="portrait">
+        </activity>
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
