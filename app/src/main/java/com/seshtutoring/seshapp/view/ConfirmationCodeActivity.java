@@ -5,8 +5,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.android.volley.Response;
@@ -14,6 +16,7 @@ import com.android.volley.VolleyError;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
+import com.seshtutoring.seshapp.view.components.SeshButton;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -56,10 +59,36 @@ public class ConfirmationCodeActivity extends Activity {
             Log.e(TAG, "Intent from AuthenticationActivity to ConfirmationCodeActivity did not include email/password");
         }
 
-        this.seshNetworking = new SeshNetworking(this);
+        seshNetworking = new SeshNetworking(this);
 
-        this.attemptLoginTimer = new Timer();
-//        restartTimer();
+        SeshButton resendEmailButton = (SeshButton) findViewById(R.id.resend_email_button);
+        resendEmailButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                seshNetworking.resendVerificationEmail(email, new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject jsonObject) {
+                        try {
+                            if (jsonObject.get("status").equals("SUCCESS")) {
+                                Toast.makeText(getApplicationContext(), "Verification Email Resent", Toast.LENGTH_LONG).show();
+                            } else {
+                                Toast.makeText(getApplicationContext(), "Network Error", Toast.LENGTH_LONG).show();
+                                Log.e(TAG, jsonObject.get("message").toString());
+                            }
+                        } catch (JSONException e) {
+                            Toast.makeText(getApplicationContext(), "Network Error", Toast.LENGTH_LONG).show();
+                            Log.e(TAG, e.toString());
+                        }
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError volleyError) {
+                        Log.e(TAG, volleyError.toString());
+                        Toast.makeText(getApplicationContext(), "Network Error", Toast.LENGTH_LONG).show();
+                    }
+                });
+            }
+        });
     }
 
     // user navigates to different app, presumably to check email
@@ -69,16 +98,18 @@ public class ConfirmationCodeActivity extends Activity {
         attemptLoginTimer.cancel();
     }
 
-    // user navigates to different app, presumably to check email
+    // called both when activity is initially started and if user navigates back to app from different
+    // email.
     @Override
-    protected void onRestart() {
-        super.onRestart();
-        Log.i(TAG, "RESTARTED TIMER");
+    protected void onStart() {
+        super.onStart();
+
         attemptLoginTimer = new Timer();
         attemptLogin();
     }
 
     private void attemptLogin() {
+        Log.i(TAG, "ATTEMPTING LOGIN");
         seshNetworking.loginWithEmail(email, password, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject jsonObject) {
@@ -98,12 +129,14 @@ public class ConfirmationCodeActivity extends Activity {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError volleyError) {
+                Log.e(TAG, volleyError.toString());
                 restartTimer();
             }
         });
     }
 
     private void restartTimer() {
+        Log.i(TAG, "RESTARTING TIMER");
         attemptLoginTimer.schedule(new TimerTask() {
             @Override
             public void run() {

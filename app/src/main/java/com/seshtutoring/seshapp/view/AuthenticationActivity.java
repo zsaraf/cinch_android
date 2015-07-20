@@ -244,7 +244,7 @@ public class AuthenticationActivity extends Activity {
             }
         } catch (JSONException e) {
             Log.e(TAG, e.toString());
-            Toast.makeText(this, "Login Failed.", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Signup Failed.", Toast.LENGTH_LONG).show();
         }
         loginSignupButton.setEnabled(true);
     }

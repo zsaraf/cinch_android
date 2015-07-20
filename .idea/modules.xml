@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/SeshApp.iml" filepath="$PROJECT_DIR$/SeshApp.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/blur-behind/blur-behind.iml" filepath="$PROJECT_DIR$/blur-behind/blur-behind.iml" />
     </modules>
   </component>
 </project>

@@ -39,7 +39,7 @@
     <com.seshtutoring.seshapp.view.components.SeshButton
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/resendEmailButton"
+        android:id="@+id/resend_email_button"
         android:text="Re-send email"
         android:layout_centerHorizontal="true"
         android:layout_alignParentBottom="true"
