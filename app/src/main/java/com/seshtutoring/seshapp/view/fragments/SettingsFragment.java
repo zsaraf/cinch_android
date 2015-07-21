@@ -9,12 +9,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.google.android.gms.auth.api.Auth;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.User;
+import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.AuthenticationActivity;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
@@ -35,6 +38,12 @@ public class SettingsFragment extends Fragment {
 
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
         View view = layoutInflater.inflate(R.layout.settings_fragment, null);
+
+        // Add padding to account for action bar
+        LayoutUtils utils = new LayoutUtils(getActivity());
+        LinearLayout settingsLayout = (LinearLayout) view.findViewById(R.id.settings_layout);
+        settingsLayout.setPadding(0, utils.getActionBarHeightPx(), 0, 0);
+
         Button logOut = (Button) view.findViewById(R.id.log_out_button);
 
         seshNetworking = new SeshNetworking(getActivity());

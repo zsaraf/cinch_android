@@ -12,8 +12,10 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
 
 import com.seshtutoring.seshapp.R;
+import com.seshtutoring.seshapp.util.LayoutUtils;
 
 /**
  * Created by nadavhollander on 7/14/15.
@@ -25,12 +27,19 @@ public class HomeFragment extends Fragment {
 
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
         View homeView = layoutInflater.inflate(R.layout.home_fragment, container, false);
-        
+
         this.learnViewFragment = new LearnViewFragment();
         this.teachViewFragment = new TeachViewFragment();
 
         this.viewPager = (ViewPager) homeView.findViewById(R.id.view_pager);
         this.viewPager.setAdapter(new HomeViewPagerAdapter(getChildFragmentManager()));
+
+        LayoutUtils utils = new LayoutUtils(getActivity());
+
+        LinearLayout tabButtons = (LinearLayout) homeView.findViewById(R.id.home_tabs);
+        LinearLayout.MarginLayoutParams margins = (LinearLayout.MarginLayoutParams) tabButtons.getLayoutParams();
+        margins.topMargin = utils.getActionBarHeightPx();
+        tabButtons.setLayoutParams(margins);
 
         final Button learnTabButton = (Button) homeView.findViewById(R.id.learn_button);
         final Button teachTabButton = (Button) homeView.findViewById(R.id.teach_button);

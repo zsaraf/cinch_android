@@ -3,7 +3,8 @@
         <item name="@android:actionBarStyle">@style/SeshActionBar</item>
         <item name="actionBarStyle">@style/SeshActionBar</item>
         <item name="background">@color/seshbackground</item>
-
+        <item name="android:windowActionBarOverlay">true</item>
+        <item name="windowActionBarOverlay">true</item>
     </style>
 
     <style name="SeshActionBar" parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
@@ -12,4 +13,12 @@
         <item name="background">@color/seshorange</item>
     </style>
 
+    <style name="SeshTransparent" parent="android:Theme">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:backgroundDimEnabled">false</item>
+    </style>
 </resources>

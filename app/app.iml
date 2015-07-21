@@ -139,5 +139,6 @@
     <orderEntry type="library" exported="" name="play-services-identity-7.5.0" level="project" />
     <orderEntry type="library" exported="" name="play-services-maps-7.5.0" level="project" />
     <orderEntry type="module" module-name="slidingmenu" exported="" />
+    <orderEntry type="module" module-name="StackBlur" exported="" />
   </component>
 </module>

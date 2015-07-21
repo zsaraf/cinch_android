@@ -1,33 +1,111 @@
 package com.seshtutoring.seshapp.view.fragments;
 
+import android.app.Activity;
+import android.app.DownloadManager;
+import android.content.Intent;
 import android.content.res.TypedArray;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
+import com.enrique.stackblur.StackBlurManager;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.seshtutoring.seshapp.R;
+import com.seshtutoring.seshapp.util.LayoutUtils;
+import com.seshtutoring.seshapp.util.StorageUtils;
+import com.seshtutoring.seshapp.view.MainContainerActivity;
+import com.seshtutoring.seshapp.view.RequestActivity;
+import com.seshtutoring.seshapp.view.components.SeshButton;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 
 /**
  * Created by nadavhollander on 7/14/15.
  */
 public class LearnViewFragment extends Fragment implements OnMapReadyCallback {
+    private static final String TAG = LearnViewFragment.class.getName();
+
     private static GoogleMap mMap;
+    public static final String BLURRED_MAP_BITMAP_PATH_KEY = "blurred_map_bitmap";
 
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
         View view = layoutInflater.inflate(R.layout.learn_view_fragment, container, false);
         setUpMapIfNeeded();
+
+        LayoutUtils utils = new LayoutUtils(getActivity());
+
+        ImageButton currentLocationButton = (ImageButton) view.findViewById(R.id.current_location_button);
+        LinearLayout.MarginLayoutParams margins = (LinearLayout.MarginLayoutParams) currentLocationButton.getLayoutParams();
+        margins.topMargin += utils.getActionBarHeightPx();
+        currentLocationButton.setLayoutParams(margins);
+
+        currentLocationButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Location currentLocation = getCurrentLocation();
+                if (currentLocation != null) {
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(
+                            new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), 16), 500, null);
+                }
+            }
+        });
+
+
+
+        SeshButton requestButton = (SeshButton) view.findViewById(R.id.request_button);
+        requestButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                 startRequestActivityWithBlurTransition();
+            }
+        });
         return view;
+    }
+
+    private void startRequestActivityWithBlurTransition() {
+        Log.d(TAG, "REQUEST BUTTON HIT");
+        mMap.snapshot(new GoogleMap.SnapshotReadyCallback() {
+            @Override
+            public void onSnapshotReady(Bitmap bitmap) {
+                Log.d(TAG, "SNAPSHOT READY");
+
+                LayoutUtils utils = new LayoutUtils(getActivity());
+                Bitmap blurredMap = utils.blurScreenshot(bitmap);
+
+                File tmpFile = StorageUtils.storeTempImage(getActivity(),
+                        blurredMap, "blurred_map");
+
+                Log.d(TAG, "BLURRED IMAGE READY");
+                Intent intent = new Intent(getActivity(), RequestActivity.class);
+                intent.putExtra(BLURRED_MAP_BITMAP_PATH_KEY, tmpFile.getPath());
+                intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                startActivity(intent);
+            }
+        });
     }
 
     /**
@@ -60,13 +138,22 @@ public class LearnViewFragment extends Fragment implements OnMapReadyCallback {
         setUpMap();
     }
 
-    /**
-     * This is where we can add markers or lines, add listeners or move the camera. In this case, we
-     * just add a marker near Africa.
-     * <p/>
-     * This should only be called once and when we are sure that {@link #mMap} is not null.
-     */
     private void setUpMap() {
-        mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
+        mMap.setMyLocationEnabled(true);
+
+        Location location = getCurrentLocation();
+        LatLng coordinates = new LatLng(0, 0);
+        if (location != null) {
+            coordinates = new LatLng(location.getLatitude(), location.getLongitude());
+        }
+
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(coordinates, 18));
+    }
+
+    private Location getCurrentLocation() {
+        LocationManager locationManager = (LocationManager) getActivity().getSystemService(getActivity().LOCATION_SERVICE);
+        Criteria criteria = new Criteria();
+
+        return locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
     }
 }

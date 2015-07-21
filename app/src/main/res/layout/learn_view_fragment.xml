@@ -8,8 +8,27 @@
         tools:context="com.seshtutoring.seshapp.view.fragments.LearnViewFragment"
         android:name="com.google.android.gms.maps.SupportMapFragment" />
 
+    <ImageButton
+        android:id="@+id/current_location_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:paddingBottom="20dp"
+        android:layout_marginTop="60dp"
+        android:layout_marginRight="25dp"
+        android:background="@drawable/jump_to_my_location"/>
+
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:background="@drawable/location"/>
 
     <com.seshtutoring.seshapp.view.components.SeshButton
+        android:id="@+id/request_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="25dp"
