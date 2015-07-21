@@ -42,7 +42,7 @@ public class SideMenuFragment extends ListFragment {
     private ListView menu;
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        menu = (ListView) inflater.inflate(R.layout.side_menu_list, null);
+        menu = (ListView) inflater.inflate(R.layout.side_menu_list, container, false);
         mainContainerActivity = (MainContainerActivity) getActivity();
         return menu;
     }

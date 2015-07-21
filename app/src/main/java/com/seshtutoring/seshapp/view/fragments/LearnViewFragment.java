@@ -1,5 +1,6 @@
 package com.seshtutoring.seshapp.view.fragments;
 
+import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -7,6 +8,8 @@ import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -22,7 +25,7 @@ public class LearnViewFragment extends Fragment implements OnMapReadyCallback {
     private static GoogleMap mMap;
 
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = layoutInflater.inflate(R.layout.learn_view_fragment, null);
+        View view = layoutInflater.inflate(R.layout.learn_view_fragment, container, false);
         setUpMapIfNeeded();
         return view;
     }

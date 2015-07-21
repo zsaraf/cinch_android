@@ -7,4 +7,14 @@
         android:layout_height="match_parent" android:id="@+id/map"
         tools:context="com.seshtutoring.seshapp.view.fragments.LearnViewFragment"
         android:name="com.google.android.gms.maps.SupportMapFragment" />
+
+
+    <com.seshtutoring.seshapp.view.components.SeshButton
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="25dp"
+        android:layout_marginRight="25dp"
+        android:layout_marginBottom="25dp"
+        android:text="Request"
+        android:layout_alignParentBottom="true" />
 </RelativeLayout>

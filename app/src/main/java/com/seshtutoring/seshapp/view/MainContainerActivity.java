@@ -1,6 +1,7 @@
 package com.seshtutoring.seshapp.view;
 
 import android.app.ActionBar;
+import android.os.Build;
 import android.support.v4.app.Fragment;
 import android.content.Context;
 import android.support.v7.app.ActionBarActivity;
@@ -34,6 +35,7 @@ public class MainContainerActivity extends ActionBarActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
         getSupportActionBar().setCustomView(R.layout.sesh_action_bar);
+        getSupportActionBar().setElevation(0);
 
         setCurrentState(MenuOption.HOME);
 

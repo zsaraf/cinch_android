@@ -1,5 +1,6 @@
 package com.seshtutoring.seshapp.view.fragments;
 
+import android.content.res.Resources;
 import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
@@ -23,8 +24,8 @@ public class HomeFragment extends Fragment {
     private TeachViewFragment teachViewFragment;
 
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
-        View homeView = layoutInflater.inflate(R.layout.home_fragment, null);
-
+        View homeView = layoutInflater.inflate(R.layout.home_fragment, container, false);
+        
         this.learnViewFragment = new LearnViewFragment();
         this.teachViewFragment = new TeachViewFragment();
 
