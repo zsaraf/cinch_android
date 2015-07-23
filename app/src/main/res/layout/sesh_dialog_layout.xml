@@ -1,6 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:orientation="vertical"
+    android:screenOrientation="portrait"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
 
+    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/dialog_title"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:capitalize="characters"
+        android:textSize="30sp"
+        android:gravity="center"
+        android:textColor="@color/seshorange"
+        android:background="@color/white"
+        android:paddingBottom="40dp"
+        android:paddingTop="25dp"/>
+    <TextView
+        android:id="@+id/dialog_text"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:capitalize="characters"
+        android:textSize="20sp"
+        android:gravity="center"
+        android:textColor="@color/seshlightgray"
+        android:background="@color/white"
+        android:paddingBottom="25dp"
+        android:paddingTop="15dp"
+        android:paddingRight="10dp"
+        android:paddingLeft="10dp"/>
+    <Button
+        android:id="@+id/dialog_first_button"
+        android:capitalize="characters"
+        android:minHeight="0dp"
+        android:padding="8dp"
+        android:textSize="20sp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:textColor="@color/white"
+        android:background="@color/seshorange" />
+    <Button
+        android:id="@+id/dialog_second_button"
+        android:capitalize="characters"
+        android:minHeight="0dp"
+        android:padding="8dp"
+        android:textSize="20sp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:textColor="@color/white"
+        android:background="@color/light_gray" />
 </LinearLayout>

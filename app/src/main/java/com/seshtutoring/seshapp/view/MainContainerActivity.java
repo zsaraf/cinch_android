@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Build;
+import android.content.ComponentName;
 import android.support.v4.app.Fragment;
 import android.content.Context;
 import android.support.v7.app.ActionBarActivity;
@@ -15,17 +16,27 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.util.LayoutUtils;
+import com.seshtutoring.seshapp.model.User;
+import com.seshtutoring.seshapp.util.networking.SeshNetworking;
+import com.seshtutoring.seshapp.view.components.SeshDialog;
 import com.seshtutoring.seshapp.view.fragments.HomeFragment;
+import com.seshtutoring.seshapp.view.fragments.SettingsFragment;
 import com.seshtutoring.seshapp.view.fragments.SideMenuFragment;
 import com.seshtutoring.seshapp.view.fragments.SideMenuFragment.MenuOption;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
-public class MainContainerActivity extends ActionBarActivity {
+public class MainContainerActivity extends ActionBarActivity implements SeshDialog.OnSelectionListener{
     private static final String TAG = MainContainerActivity.class.getName();
 
     private SlidingMenu slidingMenu;
@@ -34,6 +45,12 @@ public class MainContainerActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+//        if( savedInstanceState != null ) {
+//            //Then the application is being reloaded
+//            String currentState = savedInstanceState.getString("current_state");
+//
+//        }
+
         setContentView(R.layout.main_container_activity);
 
         getSupportActionBar().setHomeButtonEnabled(true);
@@ -70,6 +87,83 @@ public class MainContainerActivity extends ActionBarActivity {
         });
     }
 
+    public void onDialogSelection(int selection, String type) {
+        SeshNetworking seshNetworking = new SeshNetworking(this);
+
+        if (type.equals("CASHOUT") && selection == 1) {
+
+            seshNetworking.cashout(
+                    new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject responseJson) {
+                            onCashoutResponse(responseJson);
+                        }
+                    }, new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError volleyError) {
+                            onCashoutFailure(volleyError.getMessage());
+                        }
+                    });
+
+        }else if (type.equals("LOGOUT") && selection == 1) {
+
+            seshNetworking.logout(
+                    new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject responseJson) {
+                            onLogoutResponse(responseJson);
+                        }
+                    }, new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError volleyError) {
+                            onLogoutFailure(volleyError.getMessage());
+                        }
+                    });
+
+        }
+
+    }
+
+    private void onCashoutResponse(JSONObject responseJson) {
+        try {
+            if (responseJson.get("status").equals("SUCCESS")) {
+                Toast.makeText(this, "You have cashed out!", Toast.LENGTH_LONG).show();
+            } else if (responseJson.get("status").equals("FAILURE")) {
+                String message = responseJson.get("message").toString();
+                Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+            }
+        } catch (JSONException e) {
+            Log.e(TAG, e.toString());
+            Toast.makeText(this, "Cash out failed.", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void onCashoutFailure(String errorMessage) {
+        Log.e(TAG, "NETWORK ERROR: " + errorMessage);
+        Toast.makeText(this, "We couldn't reach the network, sorry!", Toast.LENGTH_LONG).show();
+    }
+
+    private void onLogoutResponse(JSONObject responseJson) {
+        try {
+            if (responseJson.get("status").equals("SUCCESS")) {
+                User.logoutUserLocally(this);
+                Intent intent = new Intent(this, AuthenticationActivity.class);
+                startActivity(intent);
+            } else if (responseJson.get("status").equals("FAILURE")) {
+                String message = responseJson.get("message").toString();
+                Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+            }
+        } catch (JSONException e) {
+            Log.e(TAG, e.toString());
+            Toast.makeText(this, "Logout failed.", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void onLogoutFailure(String errorMessage) {
+        Log.e(TAG, "NETWORK ERROR: " + errorMessage);
+        Toast.makeText(this, "We couldn't reach the network, sorry!", Toast.LENGTH_LONG).show();
+    }
+
     public MenuOption getCurrentState() {
         return selectedMenuOption;
     }
@@ -95,7 +189,32 @@ public class MainContainerActivity extends ActionBarActivity {
         super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
     }
 
+//    @Override
+//    public void onSaveInstanceState(Bundle outState) {
+//        super.onSaveInstanceState(outState);
+//        String currStr = "unknown";
+//        MenuOption curr = getCurrentState();
+//        if (curr == MenuOption.SETTINGS) {
+//            currStr = "Settings";
+//        }else if (curr == MenuOption.HOME) {
+//            currStr = "Home";
+//        }
+//        outState.putString("current_state", currStr);
+//    }
+
+//    @Override
+//    public void onRestoreInstanceState(Bundle savedInstanceState) {
+//        super.onRestoreInstanceState(savedInstanceState);
+//        if( savedInstanceState != null ) {
+//            //Then the application is being reloaded
+//            String currentState = savedInstanceState.getString("current_state");
+//
+//        }
+//    }
+
     public void onNetworkError() {
         Log.e(TAG, "Network Error");
     }
 }
+
+

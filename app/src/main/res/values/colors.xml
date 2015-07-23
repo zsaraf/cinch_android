@@ -18,5 +18,7 @@
     <color name="sesh_button_disabled">#6bff8e79</color>
 
     <color name="light_gray">#ffdedede</color>
+    <color name="ios_gray">#C7C7CC</color>
     <color name="white">#FFFFFF</color>
+    <color name="tableview_background">#F7F7F7</color>
 </resources>

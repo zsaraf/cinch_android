@@ -36,4 +36,6 @@ public class AboutActivity extends ActionBarActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+
 }

@@ -10,6 +10,8 @@ android {
         targetSdkVersion 22
         versionCode 1
         versionName "1.0"
+        renderscriptTargetApi 22
+        renderscriptSupportModeEnabled true
     }
 
     buildTypes {
@@ -17,6 +19,8 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+    }
+    compileOptions {
     }
 }
 
@@ -28,4 +32,5 @@ dependencies {
     compile 'com.google.android.gms:play-services:7.5.0'
     compile project(':slidingmenu')
     compile project(':StackBlur')
+    compile 'fr.tvbarthel.blurdialogfragment:lib:2.1.4'
 }
