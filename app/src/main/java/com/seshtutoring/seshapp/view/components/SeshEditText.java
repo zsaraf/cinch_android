@@ -1,6 +1,7 @@
 package com.seshtutoring.seshapp.view.components;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Typeface;
@@ -12,7 +13,9 @@ import android.text.method.PasswordTransformationMethod;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewTreeObserver;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -30,7 +33,10 @@ public class SeshEditText extends RelativeLayout {
         PASSWORD(R.drawable.password_icon, R.drawable.password_icon_filled, false, true),
         RE_ENTER_PASSWORD(R.drawable.re_enter_password_icon,
                 R.drawable.re_enter_password_icon_filled, false, true),
-        FULLNAME(R.drawable.fullname_icon, R.drawable.fullname_icon_filled, false, false);
+        FULLNAME(R.drawable.fullname_icon, R.drawable.fullname_icon_filled, false, false),
+        CLASS(R.drawable.book, R.drawable.book, false, false),
+        ASSIGNMENT(R.drawable.subject, R.drawable.subject_filled, false, false),
+        CLOCK(R.drawable.clock_orange, R.drawable.clock_orange, false, false);
 
 
         public int iconResource;
@@ -57,6 +63,7 @@ public class SeshEditText extends RelativeLayout {
     private boolean filledIconActive = false;
     private int visibleHeight;
 
+
     public SeshEditText(Context context, AttributeSet attrs) {
         super(context, attrs);
         LayoutInflater  mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -68,10 +75,12 @@ public class SeshEditText extends RelativeLayout {
                 0, 0);
 
         int editTextTypeIndex;
+        int imeOptionsIndex;
 
         try {
             editTextTypeIndex = a.getInt(R.styleable.SeshEditText_editTextType, 0);
             hint = a.getString(R.styleable.SeshEditText_hint);
+            imeOptionsIndex = a.getInt(R.styleable.SeshEditText_imeOptions, -1);
         } finally {
             a.recycle();
         }
@@ -89,16 +98,41 @@ public class SeshEditText extends RelativeLayout {
             case 3:
                 this.editTextType = SeshEditTextType.FULLNAME;
                 break;
+            case 4:
+                this.editTextType = SeshEditTextType.CLASS;
+                break;
+            case 5:
+                this.editTextType = SeshEditTextType.ASSIGNMENT;
+                break;
+            case 6:
+                this.editTextType = SeshEditTextType.CLOCK;
+                break;
             default:
                 this.editTextType = SeshEditTextType.EMAIL;
                 break;
         }
 
+
         editText = (EditText) findViewById(R.id.editText);
         icon = (ImageView) findViewById(R.id.icon);
 
         editText.setHint(hint);
+        editText.setMovementMethod(null);
         icon.setImageResource(editTextType.iconResource);
+
+        switch (imeOptionsIndex) {
+            case 0:
+                editText.setImeOptions(EditorInfo.IME_ACTION_NEXT);
+                break;
+            case 1:
+                editText.setImeOptions(EditorInfo.IME_ACTION_GO);
+                break;
+            case 2:
+                editText.setImeOptions(EditorInfo.IME_ACTION_DONE);
+                break;
+            default:
+                break;
+        }
 
         if (editTextType.isPassword) {
             editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
@@ -121,7 +155,7 @@ public class SeshEditText extends RelativeLayout {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (!s.toString().equals("")) {
-                    if(!filledIconActive) {
+                    if (!filledIconActive) {
                         icon.setImageResource(editTextType.filledIconResource);
                         filledIconActive = true;
                     }
@@ -138,7 +172,23 @@ public class SeshEditText extends RelativeLayout {
         });
     }
 
+    public void addTextChangedListener(TextWatcher textWatcher) {
+        editText.addTextChangedListener(textWatcher);
+    }
+
+    public void setOnEditorActionListener(EditText.OnEditorActionListener input) {
+        editText.setOnEditorActionListener(input);
+    }
+
     public String getText() {
         return editText.getText().toString();
+    }
+
+    public void setText(String text) {
+        editText.setText(text);
+    }
+
+    public boolean requestEditTextFocus() {
+        return editText.requestFocus();
     }
 }

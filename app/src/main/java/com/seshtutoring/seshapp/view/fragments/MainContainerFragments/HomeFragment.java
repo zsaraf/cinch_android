@@ -1,4 +1,4 @@
-package com.seshtutoring.seshapp.view.fragments;
+package com.seshtutoring.seshapp.view.fragments.MainContainerFragments;
 
 import android.content.res.Resources;
 import android.os.Parcelable;
@@ -16,6 +16,8 @@ import android.widget.LinearLayout;
 
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.util.LayoutUtils;
+import com.seshtutoring.seshapp.view.fragments.LearnViewFragment;
+import com.seshtutoring.seshapp.view.fragments.TeachViewFragment;
 
 /**
  * Created by nadavhollander on 7/14/15.

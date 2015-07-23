@@ -1,4 +1,4 @@
-# seshandroid
+u# seshandroid
 If you would like to check out the app in the emulator/an android phone, follow the directions at:
 
 https://developer.android.com/sdk/installing/index.html?pkg=studio

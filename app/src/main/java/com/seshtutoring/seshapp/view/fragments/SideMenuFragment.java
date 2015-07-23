@@ -16,6 +16,11 @@ import android.widget.TextView;
 
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
+import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.HomeFragment;
+import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.PaymentFragment;
+import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.ProfileFragment;
+import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.PromoteFragment;
+import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.SettingsFragment;
 
 public class SideMenuFragment extends ListFragment {
     public static enum MenuOption {

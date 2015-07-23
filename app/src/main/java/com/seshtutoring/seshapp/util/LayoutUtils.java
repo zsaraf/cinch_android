@@ -1,8 +1,5 @@
 package com.seshtutoring.seshapp.util;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -11,12 +8,8 @@ import android.text.style.ClickableSpan;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
-import android.widget.FrameLayout;
-import android.widget.RelativeLayout;
 
-import com.seshtutoring.seshapp.R;
 import com.enrique.stackblur.StackBlurManager;
-import com.seshtutoring.seshapp.view.fragments.PaymentFragment;
 
 /**
  * Created by nadavhollander on 7/16/15.

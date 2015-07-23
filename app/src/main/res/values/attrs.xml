@@ -15,7 +15,15 @@
             <enum name="password" value="1" />
             <enum name="reenter_password" value="2" />
             <enum name="fullname" value="3" />
+            <enum name="choose_class" value="4" />
+            <enum name="assignment" value="5" />
+            <enum name="time" value="6" />
         </attr>
         <attr name="hint" format="string" />
+        <attr name="imeOptions" format="enum">
+            <enum name="next" value="0" />
+            <enum name="go" value="1" />
+            <enum name="done" value="2" />
+        </attr>
     </declare-styleable>
 </resources>

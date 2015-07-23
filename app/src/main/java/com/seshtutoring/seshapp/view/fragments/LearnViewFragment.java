@@ -92,7 +92,6 @@ public class LearnViewFragment extends Fragment implements OnMapReadyCallback {
             @Override
             public void onSnapshotReady(Bitmap bitmap) {
                 Log.d(TAG, "SNAPSHOT READY");
-
                 LayoutUtils utils = new LayoutUtils(getActivity());
                 Bitmap blurredMap = utils.blurScreenshot(bitmap);
 
@@ -102,8 +101,8 @@ public class LearnViewFragment extends Fragment implements OnMapReadyCallback {
                 Log.d(TAG, "BLURRED IMAGE READY");
                 Intent intent = new Intent(getActivity(), RequestActivity.class);
                 intent.putExtra(BLURRED_MAP_BITMAP_PATH_KEY, tmpFile.getPath());
-                intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
                 startActivity(intent);
+                getActivity().overridePendingTransition(R.anim.fade_in, 0);
             }
         });
     }

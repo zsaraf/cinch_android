@@ -13,7 +13,7 @@
         <item name="background">@color/seshorange</item>
     </style>
 
-    <style name="SeshTransparent" parent="android:Theme">
+    <style name="SeshTransparent" parent="@android:style/Theme.Holo">
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:windowContentOverlay">@null</item>

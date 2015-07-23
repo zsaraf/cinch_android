@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:alpha="0"
-        android:id="@+id/request_layout_background"/>
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/request_layout_background">
     <View
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -18,9 +15,10 @@
         android:layout_height="wrap_content"
         android:id="@+id/learn_request_top_bar">
         <ImageButton
+            android:id="@+id/request_flow_close"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="15dp"
+            android:layout_margin="10dp"
             android:scaleX="0.7"
             android:scaleY="0.7"
             android:background="@drawable/close" />
@@ -32,7 +30,8 @@
             android:textColor="@color/seshorange"
             android:textSize="20sp"
             android:text="Request"/>
-        <ImageView
+        <ImageButton
+            android:id="@+id/request_flow_next"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
@@ -43,10 +42,16 @@
     </RelativeLayout>
 
     <com.seshtutoring.seshapp.view.components.LearnRequestProgressBar
+        android:id="@+id/learn_request_progress_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
         android:layout_marginLeft="40dp"
         android:layout_marginRight="40dp"
         android:layout_below="@id/learn_request_top_bar"/>
+
+    <com.seshtutoring.seshapp.view.components.RequestFlowViewPager
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/learn_request_view_pager"
+        android:layout_marginTop="115dp" />
 </RelativeLayout>

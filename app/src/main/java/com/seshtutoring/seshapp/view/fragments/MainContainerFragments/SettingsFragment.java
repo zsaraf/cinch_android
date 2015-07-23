@@ -1,4 +1,4 @@
-package com.seshtutoring.seshapp.view.fragments;
+package com.seshtutoring.seshapp.view.fragments.MainContainerFragments;
 
 //import android.app.DialogFragment;
 import android.content.Context;
@@ -9,6 +9,7 @@ import android.support.v4.app.ListFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -22,6 +23,8 @@ import android.widget.ArrayAdapter;
 import android.widget.AdapterView;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.util.LayoutUtils;
@@ -35,6 +38,9 @@ import com.seshtutoring.seshapp.view.PrivacyActivity;
 import com.seshtutoring.seshapp.view.SupportActivity;
 import com.seshtutoring.seshapp.view.components.SeshDialog;
 import com.seshtutoring.seshapp.view.fragments.CashoutDialogFragment;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * Created by nadavhollander on 7/14/15.

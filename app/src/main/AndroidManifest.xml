@@ -49,6 +49,7 @@
             android:name=".view.RequestActivity"
             android:label="request activity"
             android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustNothing"
             android:theme="@style/SeshTransparent">
         </activity>
         <meta-data

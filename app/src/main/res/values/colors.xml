@@ -21,4 +21,6 @@
     <color name="ios_gray">#C7C7CC</color>
     <color name="white">#FFFFFF</color>
     <color name="tableview_background">#F7F7F7</color>
+
+    <color name="transparent">#00000000</color>
 </resources>

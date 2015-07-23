@@ -44,12 +44,6 @@ public class LearnRequestProgressBar extends LinearLayout {
         this.icons = new ImageButton[] { classIcon, assignmentIcon,
                 numberStudentsIcon, durationIcon };
 
-
-        numberStudentsIcon.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                setActiveIconIndex(2);
-            }
-        });
     }
 
     public void setActiveIconIndex(int index) {
@@ -71,9 +65,11 @@ public class LearnRequestProgressBar extends LinearLayout {
         tintedDrawable.setColorFilter(color,
                 PorterDuff.Mode.SRC_IN);
 
-        int sdk = android.os.Build.VERSION.SDK_INT;
-        if (sdk < android.os.Build.VERSION_CODES.JELLY_BEAN) {
-            classIcon.setImageDrawable(tintedDrawable);
-        }
+//        int sdk = android.os.Build.VERSION.SDK_INT;
+//        if (sdk < android.os.Build.VERSION_CODES.JELLY_BEAN) {
+//            classIcon.setBackgroundDrawable(tintedDrawable);
+//        } else {
+//            classIcon.setImageDrawable(tintedDrawable);
+//        }
     }
 }
