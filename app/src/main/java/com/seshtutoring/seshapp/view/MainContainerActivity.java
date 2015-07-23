@@ -25,8 +25,6 @@ import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.components.SeshDialog;
-import com.seshtutoring.seshapp.view.fragments.HomeFragment;
-import com.seshtutoring.seshapp.view.fragments.SettingsFragment;
 import com.seshtutoring.seshapp.view.fragments.SideMenuFragment;
 import com.seshtutoring.seshapp.view.fragments.SideMenuFragment.MenuOption;
 
