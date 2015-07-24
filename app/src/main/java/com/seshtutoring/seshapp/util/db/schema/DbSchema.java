@@ -1,4 +1,4 @@
-package com.seshtutoring.seshapp.util.db;
+package com.seshtutoring.seshapp.util.db.schema;
 
 import android.provider.BaseColumns;
 
@@ -11,7 +11,7 @@ import java.util.Map;
 public final class DbSchema {
     public DbSchema() {}
 
-    public static abstract class UserTable implements BaseColumns {
+    public static class UserTable implements BaseColumns  {
         public static final String TABLE_NAME = "users";
 
         public static final String COLUMN_NAME_USER_ID = "user_id";
@@ -42,5 +42,41 @@ public final class DbSchema {
         public static final String TEXT_TYPE_IS_VERIFIED = "INT";
         public static final String TEXT_TYPE_FULL_LEGAL_NAME = "TEXT";
         public static final String TEXT_TYPE_SHARE_CODE = "TEXT";
+    }
+
+    public static abstract class StudentTable implements BaseColumns {
+        public static final String TABLE_NAME = "students";
+
+        public static final String COLUMN_NAME_CREDITS = "credits";
+        public static final String COLUMN_NAME_HOURS_LEARNED = "hours_learned";
+        public static final String COLUMN_NAME_STUDENT_ID = "student_id";
+        public static final String COLUMN_NAME_USER_ID = "user_id";
+
+        public static final String TEXT_TYPE_CREDITS = "DOUBLE";
+        public static final String TEXT_TYPE_HOURS_LEARNED = "INT";
+        public static final String TEXT_TYPE_STUDENT_ID = "INT";
+        public static final String TEXT_TYPE_USER_ID = "INT";
+//        IMPLEMENT WHEN RELEVANT: SCHOOLS/FAVORITES/OUTSTANDING CHARGES
+//        public static final String COLUMN_NAME_SCHOOL_ID = "school_id";
+//        public static final String TEXT_TYPE_SCHOOL_ID = "INT";
+    }
+
+    public static abstract class TutorTable implements BaseColumns {
+        public static final String TABLE_NAME = "tutors";
+
+        public static final String COLUMN_NAME_CASH_AVAILABLE = "cash_available";
+        public static final String COLUMN_NAME_ENABLED = "enabled";
+        public static final String COLUMN_NAME_HOURS_TUTORED = "hours_tutored";
+        public static final String COLUMN_NAME_TUTOR_ID = "tutor_id";
+        public static final String COLUMN_NAME_USER_ID = "user_id";
+        public static final String COLUMN_NAME_DID_ACCEPT_TERMS = "did_accept_terms";
+
+        public static final String TEXT_TYPE_CASH_AVAILABLE = "DOUBLE";
+        public static final String TEXT_TYPE_ENABLED = "INT";
+        public static final String TEXT_TYPE_HOURS_TUTORED = "INT";
+        public static final String TEXT_TYPE_TUTOR_ID = "INT";
+        public static final String TEXT_TYPE_USER_ID = "INT";
+        public static final String TEXT_TYPE_DID_ACCEPT_TERMS = "INT";
+//        IMPLEMENT WHEN RELEVANT: CLASSES
     }
 }

@@ -1,4 +1,4 @@
-package com.seshtutoring.seshapp.util.db;
+package com.seshtutoring.seshapp.util.db.schema;
 
 import android.database.sqlite.*;
 import android.content.Context;
@@ -28,6 +28,22 @@ public class DbOpenHelper extends SQLiteOpenHelper {
             DbSchema.UserTable.COLUMN_NAME_FULL_LEGAL_NAME + " " + DbSchema.UserTable.TEXT_TYPE_FULL_LEGAL_NAME + ", " +
             DbSchema.UserTable.COLUMN_NAME_SHARE_CODE + " " + DbSchema.UserTable.TEXT_TYPE_SHARE_CODE + ")";
 
+    private static final String SQL_CREATE_STUDENT_TABLE = "CREATE TABLE " + DbSchema.StudentTable.TABLE_NAME + " (" +
+            DbSchema.StudentTable._ID + " INTEGER PRIMARY KEY," +
+            DbSchema.StudentTable.COLUMN_NAME_STUDENT_ID + " " + DbSchema.StudentTable.TEXT_TYPE_STUDENT_ID + ", " +
+            DbSchema.StudentTable.COLUMN_NAME_USER_ID + " " + DbSchema.StudentTable.TEXT_TYPE_USER_ID + ", " +
+            DbSchema.StudentTable.COLUMN_NAME_HOURS_LEARNED + " " + DbSchema.StudentTable.TEXT_TYPE_HOURS_LEARNED + ", " +
+            DbSchema.StudentTable.COLUMN_NAME_CREDITS + " " + DbSchema.StudentTable.TEXT_TYPE_CREDITS  + ")";
+
+    private static final String SQL_CREATE_TUTOR_TABLE = "CREATE TABLE " + DbSchema.TutorTable.TABLE_NAME + " (" +
+            DbSchema.TutorTable._ID + " INTEGER PRIMARY KEY," +
+            DbSchema.TutorTable.COLUMN_NAME_TUTOR_ID + " " + DbSchema.TutorTable.TEXT_TYPE_TUTOR_ID + ", " +
+            DbSchema.TutorTable.COLUMN_NAME_USER_ID + " " + DbSchema.TutorTable.TEXT_TYPE_USER_ID + ", " +
+            DbSchema.TutorTable.COLUMN_NAME_ENABLED + " " + DbSchema.TutorTable.TEXT_TYPE_ENABLED + ", " +
+            DbSchema.TutorTable.COLUMN_NAME_CASH_AVAILABLE + " " + DbSchema.TutorTable.TEXT_TYPE_CASH_AVAILABLE + ", " +
+            DbSchema.TutorTable.COLUMN_NAME_HOURS_TUTORED + " " + DbSchema.TutorTable.TEXT_TYPE_HOURS_TUTORED + ", " +
+            DbSchema.TutorTable.COLUMN_NAME_DID_ACCEPT_TERMS + " " + DbSchema.TutorTable.TEXT_TYPE_DID_ACCEPT_TERMS  + ")";
+
     private static final String SQL_DROP_TABLE_IF_EXISTS = "DROP TABLE IF EXISTS ";
 
     public DbOpenHelper(Context context) {
@@ -36,12 +52,16 @@ public class DbOpenHelper extends SQLiteOpenHelper {
 
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(SQL_CREATE_USER_TABLE);
+        db.execSQL(SQL_CREATE_STUDENT_TABLE);
+        db.execSQL(SQL_CREATE_TUTOR_TABLE);
     }
 
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // This database is only a cache for online data, so its upgrade policy is
         // to simply to discard the data and start over
         db.execSQL(SQL_DROP_TABLE_IF_EXISTS + DbSchema.UserTable.TABLE_NAME);
+        db.execSQL(SQL_DROP_TABLE_IF_EXISTS + DbSchema.StudentTable.TABLE_NAME);
+        db.execSQL(SQL_DROP_TABLE_IF_EXISTS + DbSchema.TutorTable.TABLE_NAME);
         onCreate(db);
     }
 

@@ -29,6 +29,7 @@ import android.widget.Toast;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.seshtutoring.seshapp.R;
+import com.seshtutoring.seshapp.model.Rate;
 import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
@@ -218,6 +219,7 @@ public class AuthenticationActivity extends Activity {
         try {
             if (responseJson.get("status").equals("SUCCESS")) {
                 User.createOrUpdateUserWithObject(responseJson, this);
+                Rate.fetchHourlyRateFromServer(this);
                 Intent intent = new Intent(this, MainContainerActivity.class);
                 startActivity(intent);
             } else if (responseJson.get("status").equals("UNVERIFIED")) {

@@ -9,7 +9,9 @@ import android.view.WindowManager;
 
 import com.google.android.gms.auth.api.Auth;
 import com.seshtutoring.seshapp.R;
+import com.seshtutoring.seshapp.model.Rate;
 import com.seshtutoring.seshapp.util.networking.SeshAuthManager;
+import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.AuthenticationActivity.EntranceType;
 
 /**
@@ -39,11 +41,13 @@ public class SplashActivity extends Activity {
                 }finally{
                     Intent i;
                     if (SeshAuthManager.sharedManager(context).isValidSession()) {
+                        Rate.fetchHourlyRateFromServer(getApplicationContext());
                         i = new Intent(context, MainContainerActivity.class);
                     } else {
                         i = new Intent(context, AuthenticationActivity.class);
+                        i.putExtra(AuthenticationActivity.ENTRANCE_TYPE_KEY, EntranceType.LOGIN);
                     }
-                    i.putExtra(AuthenticationActivity.ENTRANCE_TYPE_KEY, EntranceType.LOGIN);
+                    i.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
                     startActivity(i);
                 }
             }

@@ -1,5 +1,6 @@
 package com.seshtutoring.seshapp.view;
 
+import android.animation.TimeInterpolator;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -15,6 +16,8 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.DecelerateInterpolator;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
@@ -47,7 +50,8 @@ public class RequestActivity extends FragmentActivity implements EditText.OnEdit
     private Course selectedCourse = null;
     private String selectedAssignment = null;
     private int selectedNumberOfStudents = -1;
-    private int selectedDuration = -1;
+    private int selectedDurationHours = -1;
+    private int selectedDurationMinutes = -1;
 
     private Fragment[] requestFlowFragments = {
             new LearnRequestCourseFragment(),
@@ -174,6 +178,14 @@ public class RequestActivity extends FragmentActivity implements EditText.OnEdit
 
     public void setSelectedNumberOfStudents(int numberOfStudents) {
         this.selectedNumberOfStudents = numberOfStudents;
+    }
+
+    public void setSelectedDurationHours(int selectedDurationHours) {
+        this.selectedDurationHours = selectedDurationHours;
+    }
+
+    public void setSelectedDurationMinutes(int selectedDurationMinutes) {
+        this.selectedDurationMinutes = selectedDurationMinutes;
     }
 
     @Override

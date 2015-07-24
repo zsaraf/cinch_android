@@ -76,6 +76,7 @@ public class MainContainerActivity extends ActionBarActivity implements SeshDial
         menuButton.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
+                Log.i(TAG, "ACTION BAR HEIGHT: " + getSupportActionBar().getHeight());
                 if (event.getAction() == MotionEvent.ACTION_UP) {
                     slidingMenu.toggle(true);
                 }

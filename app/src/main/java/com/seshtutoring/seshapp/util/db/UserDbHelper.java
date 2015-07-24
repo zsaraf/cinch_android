@@ -8,7 +8,8 @@ import android.database.sqlite.SQLiteException;
 import android.util.Log;
 
 import com.seshtutoring.seshapp.model.User;
-import com.seshtutoring.seshapp.util.db.DbSchema.UserTable;
+import com.seshtutoring.seshapp.util.db.schema.DbOpenHelper;
+import com.seshtutoring.seshapp.util.db.schema.DbSchema.UserTable;
 
 /**
  * Created by nadavhollander on 7/6/15

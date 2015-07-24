@@ -31,8 +31,8 @@ public class User {
     private String shareCode;
 //    private boolean completedOnBoarding = false;
 //    private int schoolId;
-//    private Student student;
-//    private Tutor tutor;
+    private Student student;
+    private Tutor tutor;
 
     public User(int userId, String email, String sessionId, String fullName,
                 String profilePictureUrl, String bio, String stripeCustomerId, String major,
@@ -53,9 +53,20 @@ public class User {
         this.shareCode = shareCode;
     }
 
+    public void setStudent(Student student) {
+        this.student = student;
+    }
+
+    public void setTutor(Tutor tutor) {
+        this.tutor = tutor;
+    }
+
     public static User currentUser(Context context) {
         UserDbHelper userDbHelper = new UserDbHelper(context);
-        return userDbHelper.getCurrentUser();
+        User user = userDbHelper.getCurrentUser();
+        user.setStudent(Student.studentForUser(user));
+        user.setTutor(Tutor.tutorForUser(user));
+        return
     }
 
     public static void logoutUserLocally(Context context) {
@@ -71,8 +82,14 @@ public class User {
         User user;
         String sessionId;
 
+        JSONObject studentRow;
+        JSONObject tutorRow;
+
         try {
             JSONObject userRow = userJson.getJSONObject("user");
+            studentRow = userJson.getJSONObject("student");
+            tutorRow = userJson.getJSONObject("tutor");
+
             int userId = userRow.getInt("id");
             String email = userRow.getString("email");
             sessionId = userJson.getString("session_id");
@@ -105,6 +122,9 @@ public class User {
         } else {
             Log.i(TAG, "User succesfully created or updated in db.");
         }
+
+        Student.createOrUpdateStudentWithObject(studentRow);
+        Tutor.createOrUpdateTutorWithObject(tutorRow);
 
         // Log user in on client
         SeshAuthManager.sharedManager(context).foundSessionId(sessionId);

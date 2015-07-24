@@ -53,5 +53,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/learn_request_view_pager"
+        android:layout_alignParentBottom="true"
         android:layout_marginTop="115dp" />
 </RelativeLayout>

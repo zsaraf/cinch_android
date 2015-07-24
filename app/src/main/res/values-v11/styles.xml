@@ -13,12 +13,13 @@
         <item name="background">@color/seshorange</item>
     </style>
 
-    <style name="SeshTransparent" parent="@android:style/Theme.Holo">
+    <style name="SeshTransparent" parent="@android:style/Theme.Holo.Light">
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowIsFloating">false</item>
         <item name="android:backgroundDimEnabled">false</item>
+        <item name="numberPickerStyle">@style/NPWidget.Holo.NumberPicker</item>
     </style>
 </resources>

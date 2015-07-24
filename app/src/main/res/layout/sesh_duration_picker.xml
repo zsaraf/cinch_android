@@ -1,12 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#9FFFFFFF">
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@color/white_opaque">
+    <Button
+        android:id="@+id/next_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Next"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginRight="3dp"
+        android:textSize="16sp"
+        android:textColor="#ff00aeff"
+        android:background="@null"/>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="45dp"
         android:id="@+id/top_labels"
         android:orientation="horizontal">
         <RelativeLayout
@@ -14,11 +26,11 @@
             android:layout_height="wrap_content"
             android:layout_weight="1">
             <TextView
+                android:id="@+id/hours_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
-                android:textStyle="bold"
-                android:textSize="20sp"
+                android:textSize="18sp"
                 android:textColor="@color/confirmation_code_activity_gray"
                 android:text="Hours"/>
         </RelativeLayout>
@@ -27,34 +39,33 @@
             android:layout_height="wrap_content"
             android:layout_weight="1">
             <TextView
+                android:id="@+id/minutes_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
                 android:textColor="@color/confirmation_code_activity_gray"
-                android:textStyle="bold"
-                android:textSize="20sp"
+                android:textSize="18sp"
                 android:text="Minutes"/>
         </RelativeLayout>
     </LinearLayout>
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginTop="5dp"
-        android:layout_below="@id/top_labels"
-        android:id="@+id/duration_picker_divider"
-        android:background="@color/confirmation_code_activity_gray" />
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:layout_below="@id/duration_picker_divider">
+        android:layout_marginBottom="20dp"
+        android:layout_marginRight="5dp"
+        android:layout_below="@id/top_labels">
         <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1">
             <net.simonvt.numberpicker.NumberPicker
+                android:id="@+id/hour_number_picker"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                custom:selectionDivider="@drawable/sesh_number_picker_selection_divider"
+                custom:selectionDividerHeight="1dp"
+                custom:internalMaxHeight="120dp"
                 android:layout_centerHorizontal="true"/>
         </RelativeLayout>
         <RelativeLayout
@@ -62,8 +73,12 @@
             android:layout_height="wrap_content"
             android:layout_weight="1">
             <net.simonvt.numberpicker.NumberPicker
+                android:id="@+id/minutes_number_picker"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                custom:selectionDivider="@drawable/sesh_number_picker_selection_divider"
+                custom:selectionDividerHeight="1dp"
+                custom:internalMaxHeight="120dp"
                 android:layout_centerHorizontal="true"/>
         </RelativeLayout>
 
