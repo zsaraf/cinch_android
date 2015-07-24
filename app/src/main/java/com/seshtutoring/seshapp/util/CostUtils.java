@@ -11,6 +11,10 @@ public class CostUtils {
         return round(result, 2);
     }
 
+    public static float calculateEstimatedTotal(float totalCost, float creditsApplied) {
+        return Math.max(0f, totalCost - creditsApplied);
+    }
+
     public static String floatToString(float d, int numDecimals) {
         BigDecimal bd = new BigDecimal(Float.toString(d));
         bd = bd.setScale(numDecimals, BigDecimal.ROUND_HALF_UP);

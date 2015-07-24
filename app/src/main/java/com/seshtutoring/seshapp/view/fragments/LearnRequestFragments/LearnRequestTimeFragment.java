@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.Rate;
+import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.util.CostUtils;
 import com.seshtutoring.seshapp.view.RequestActivity;
 import com.seshtutoring.seshapp.view.components.SeshDurationPicker;
@@ -22,15 +23,18 @@ public class LearnRequestTimeFragment extends Fragment implements RequestActivit
         SeshDurationPicker.OnDurationChangeListener {
     private TextView timeCostLabel;
     private TextView timeCostNumber;
+    private TextView creditsAppliedNumber;
     private TextView estimatedTotalLabel;
     private TextView estimatedTotalNumber;
     private SeshEditText durationTextBox;
     private SeshDurationPicker seshDurationPicker;
     private RequestActivity parentActivity;
     private float hourlyRate;
+    private User currentUser;
 
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
         View v = layoutInflater.inflate(R.layout.learn_request_time_fragment, container, false);
+        currentUser = User.currentUser(getActivity());
 
         parentActivity = (RequestActivity) getActivity();
 
@@ -40,6 +44,8 @@ public class LearnRequestTimeFragment extends Fragment implements RequestActivit
         hourlyRate = Rate.getCurrentHourlyRate(getActivity()).getHourlyRate();
         String perMinuteString = CostUtils.floatToString(hourlyRate / 60, 2).substring(1);
         timeCostLabel.setText("Time X Cost ($" + perMinuteString + "/min)");
+
+        creditsAppliedNumber = (TextView) v.findViewById(R.id.credits_applied_number);
 
         estimatedTotalLabel = (TextView) v.findViewById(R.id.estimated_total_label);
         estimatedTotalNumber = (TextView) v.findViewById(R.id.estimated_total_number);
@@ -85,8 +91,11 @@ public class LearnRequestTimeFragment extends Fragment implements RequestActivit
 
     private void updateCostValues(int hourValue, int minuteValue) {
         float timeCostFloat = CostUtils.calculateCostForDuration(hourValue, minuteValue, hourlyRate);
+        float creditsAppliedFloat = Math.min(timeCostFloat, currentUser.getCreditSum());
+        float estimatedTotalFloat = CostUtils.calculateEstimatedTotal(timeCostFloat, creditsAppliedFloat);
+        creditsAppliedNumber.setText("-$" + CostUtils.floatToString(creditsAppliedFloat, 2));
         timeCostNumber.setText("$" + CostUtils.floatToString(timeCostFloat, 2));
-        estimatedTotalNumber.setText("$" + CostUtils.floatToString(timeCostFloat, 2));
+        estimatedTotalNumber.setText("$" + CostUtils.floatToString(estimatedTotalFloat, 2));
     }
 
     @Override

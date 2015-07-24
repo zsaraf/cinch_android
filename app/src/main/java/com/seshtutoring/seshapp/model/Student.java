@@ -17,11 +17,10 @@ public class Student extends SugarRecord<Student> {
     @Ignore
     private static final String TAG = Student.class.getName();
 
-    private int studentId;
-    private int userId;
-    private int hoursLearned;
-    private float credits;
-    private User user;
+    public int studentId;
+    public int userId;
+    public int hoursLearned;
+    public float credits;
 
     // empty constructor necessary for SugarORM to work
     public Student() {}
@@ -31,9 +30,6 @@ public class Student extends SugarRecord<Student> {
         this.userId = userId;
         this.hoursLearned = hoursLearned;
         this.credits = credits;
-
-        this.user = User.find(User.class, "user_id = ?", Integer.toString(userId)).get(0);
-
     }
 
     public static Student createOrUpdateStudentWithObject(JSONObject studentJson) {

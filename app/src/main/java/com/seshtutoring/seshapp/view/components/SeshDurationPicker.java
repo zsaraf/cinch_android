@@ -53,7 +53,6 @@ public class SeshDurationPicker extends RelativeLayout {
         hoursPicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
             @Override
             public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
-                hourValue = Integer.valueOf(hoursPicker.getDisplayedValues()[newVal]);
                 if (newVal == 0) {
                     minutesPicker.setValue(0);
                     minutesPicker.setDisplayedValues(minuteValuesForZeroHours);
@@ -62,6 +61,8 @@ public class SeshDurationPicker extends RelativeLayout {
                     minutesPicker.setDisplayedValues(minuteValues);
                     minutesPicker.setMaxValue(minuteValues.length - 1);
                 }
+                hourValue = Integer.valueOf(hoursPicker.getDisplayedValues()[newVal]);
+                minuteValue = Integer.valueOf(minutesPicker.getDisplayedValues()[minutesPicker.getValue()]);
                 onDurationChangedListener.onDurationChanged(hourValue, minuteValue);
             }
         });

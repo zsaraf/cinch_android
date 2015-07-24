@@ -17,13 +17,12 @@ public class Tutor extends SugarRecord<Tutor> {
     @Ignore
     private final static String TAG = Tutor.class.getName();
 
-    private int tutorId;
-    private int userId;
-    private boolean enabled;
-    private float cashAvailable;
-    private int hoursTutored;
-    private boolean didAcceptTerms;
-    private User user;
+    public int tutorId;
+    public int userId;
+    public boolean enabled;
+    public float cashAvailable;
+    public int hoursTutored;
+    public boolean didAcceptTerms;
 
     // empty constructor necessary for SugarORM to work
     public Tutor() {}
@@ -36,8 +35,6 @@ public class Tutor extends SugarRecord<Tutor> {
         this.cashAvailable = cashAvailable;
         this.hoursTutored = hoursTutored;
         this.didAcceptTerms = didAcceptTerms;
-
-        this.user = User.find(User.class, "user_id = ?", Integer.toString(userId)).get(0);
     }
 
     public static Tutor createOrUpdateTutorWithObject(JSONObject tutorJson) {
@@ -55,7 +52,7 @@ public class Tutor extends SugarRecord<Tutor> {
             }
 
             tutor.tutorId = tutorId;
-            tutor.userId = tutorJson.getInt("userId");
+            tutor.userId = tutorJson.getInt("user_id");
             tutor.enabled = (tutorJson.getInt("enabled") == 1) ? true : false;
             JSONObject stats = tutorJson.getJSONObject("stats");
             tutor.cashAvailable = (float) stats.getDouble("cash_available");

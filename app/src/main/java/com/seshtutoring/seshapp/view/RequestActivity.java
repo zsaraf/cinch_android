@@ -28,6 +28,7 @@ import android.widget.TextView;
 
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.Course;
+import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.view.components.LearnRequestProgressBar;
 import com.seshtutoring.seshapp.view.components.RequestFlowViewPager;
 import com.seshtutoring.seshapp.view.fragments.LearnRequestFragments.LearnRequestAssignmentFragment;
@@ -127,6 +128,12 @@ public class RequestActivity extends FragmentActivity implements EditText.OnEdit
                 showKeyboard();
             }
         }, 500);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        User.fetchUserInfoFromServer(this);
     }
 
     private class LearnRequestPagerAdapter extends FragmentStatePagerAdapter {

@@ -10,6 +10,7 @@ import android.support.v4.app.Fragment;
 import android.content.Context;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -33,7 +34,7 @@ import org.json.JSONObject;
 
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
-public class MainContainerActivity extends ActionBarActivity implements SeshDialog.OnSelectionListener{
+public class MainContainerActivity extends AppCompatActivity implements SeshDialog.OnSelectionListener{
     private static final String TAG = MainContainerActivity.class.getName();
 
     private SlidingMenu slidingMenu;
@@ -42,11 +43,6 @@ public class MainContainerActivity extends ActionBarActivity implements SeshDial
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        if( savedInstanceState != null ) {
-//            //Then the application is being reloaded
-//            String currentState = savedInstanceState.getString("current_state");
-//
-//        }
 
         setContentView(R.layout.main_container_activity);
 
@@ -83,6 +79,12 @@ public class MainContainerActivity extends ActionBarActivity implements SeshDial
                 return false;
             }
         });
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        User.fetchUserInfoFromServer(this);
     }
 
     public void onDialogSelection(int selection, String type) {

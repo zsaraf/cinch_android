@@ -3,9 +3,12 @@ package com.seshtutoring.seshapp.model;
 import android.content.Context;
 import android.util.Log;
 
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.orm.SugarRecord;
 import com.orm.dsl.Ignore;
 import com.seshtutoring.seshapp.util.networking.SeshAuthManager;
+import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -19,22 +22,22 @@ public class User extends SugarRecord<User> {
     @Ignore
     private static final String TAG = User.class.getName();
 
-    private int userId;
-    private String email;
-    private String sessionId;
-    private String fullName;
-    private String profilePictureUrl;
-    private String bio;
-    private String stripeCustomerId;
-    private int classYear;
-    private String major;
-    private boolean tutorOfflinePing = false;
-    private boolean completedAppTour = false;
-    private boolean isVerified = false;
-    private String fullLegalName;
-    private String shareCode;
-    private Student student;
-    private Tutor tutor;
+    public int userId;
+    public String email;
+    public String sessionId;
+    public String fullName;
+    public String profilePictureUrl;
+    public String bio;
+    public String stripeCustomerId;
+    public int classYear;
+    public String major;
+    public boolean tutorOfflinePing = false;
+    public boolean completedAppTour = false;
+    public boolean isVerified = false;
+    public String fullLegalName;
+    public String shareCode;
+    public Student student;
+    public Tutor tutor;
 
     // empty constructor necessary for SugarORM to work
     public User() {}
@@ -61,7 +64,30 @@ public class User extends SugarRecord<User> {
     }
 
     public static User currentUser(Context context) {
-        return User.findById(User.class, 1l);
+        return User.findAll(User.class).next();
+    }
+
+    public static void fetchUserInfoFromServer(final Context context) {
+        SeshNetworking seshNetworking = new SeshNetworking(context);
+        seshNetworking.getFullUserInfo(new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject jsonObject) {
+                try {
+                    if (jsonObject.get("status").equals("SUCCESS")) {
+                        createOrUpdateUserWithObject(jsonObject.getJSONObject(("data")), context);
+                    } else {
+                        Log.e(TAG, "Failed to fetch full user info from server.");
+                    }
+                } catch (JSONException e) {
+                    Log.e(TAG, "Failed to fetch user info from server; response malformed");
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+                Log.e(TAG, "Failed to fetch user info from server; network error");
+            }
+        });
     }
 
     public static void logoutUserLocally(Context context) {
@@ -102,12 +128,10 @@ public class User extends SugarRecord<User> {
             user.isVerified = (userRow.getInt("is_verified") == 1) ? true : false;
             user.fullLegalName = userRow.getString("full_legal_name");
             user.shareCode = userRow.getString("share_code");
-            user.save();
-
             user.tutor = Tutor.createOrUpdateTutorWithObject(tutorRow);
             user.student = Student.createOrUpdateStudentWithObject(studentRow);
-
             user.save();
+
             SeshAuthManager.sharedManager(context).foundSessionId(user.sessionId);
 
         } catch (JSONException e) {
@@ -115,6 +139,10 @@ public class User extends SugarRecord<User> {
             return null;
         }
         return user;
+    }
+
+    public float getCreditSum() {
+        return student.credits + tutor.cashAvailable;
     }
 
     public int getUserId() {

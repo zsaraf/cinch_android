@@ -47,8 +47,8 @@ public class SplashActivity extends Activity {
                         i = new Intent(context, AuthenticationActivity.class);
                         i.putExtra(AuthenticationActivity.ENTRANCE_TYPE_KEY, EntranceType.LOGIN);
                     }
-                    i.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
                     startActivity(i);
+                    overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
                 }
             }
         };
