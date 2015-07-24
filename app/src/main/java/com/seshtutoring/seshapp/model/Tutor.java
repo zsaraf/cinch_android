@@ -2,16 +2,19 @@ package com.seshtutoring.seshapp.model;
 
 import android.util.Log;
 
-import com.seshtutoring.seshapp.util.db.TutorDbHelper;
-import com.seshtutoring.seshapp.util.db.UserDbHelper;
+import com.orm.SugarRecord;
+import com.orm.dsl.Ignore;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.List;
+
 /**
  * Created by nadavhollander on 7/24/15.
  */
-public class Tutor {
+public class Tutor extends SugarRecord<Tutor> {
+    @Ignore
     private final static String TAG = Tutor.class.getName();
 
     private int tutorId;
@@ -22,45 +25,49 @@ public class Tutor {
     private boolean didAcceptTerms;
     private User user;
 
+    // empty constructor necessary for SugarORM to work
+    public Tutor() {}
+
     public Tutor(int tutorId, int userId, boolean enabled, int cashAvailable, int hoursTutored,
-                 boolean didAcceptTerms) {
+                 boolean didAcceptTerms, User user) {
         this.tutorId = tutorId;
         this.userId = userId;
         this.enabled = enabled;
         this.cashAvailable = cashAvailable;
         this.hoursTutored = hoursTutored;
         this.didAcceptTerms = didAcceptTerms;
+
+        this.user = User.find(User.class, "user_id = ?", Integer.toString(userId)).get(0);
     }
 
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public static void createOrUpdateTutorWithObject(JSONObject tutorJson) {
+    public static Tutor createOrUpdateTutorWithObject(JSONObject tutorJson) {
         Tutor tutor;
 
         try {
             int tutorId = tutorJson.getInt("id");
-            int userId = tutorJson.getInt("userId");
-            boolean enabled = (tutorJson.getInt("enabled") == 1) ? true : false;
+
+            List<Tutor> tutorsFound = Tutor.find(Tutor.class, "tutor_id = ?", Integer.toString(tutorId));
+
+            if (tutorsFound.size() > 0) {
+                tutor = tutorsFound.get(0);
+            } else {
+                tutor = new Tutor();
+            }
+
+            tutor.tutorId = tutorId;
+            tutor.userId = tutorJson.getInt("userId");
+            tutor.enabled = (tutorJson.getInt("enabled") == 1) ? true : false;
             JSONObject stats = tutorJson.getJSONObject("stats");
-            double cashAvailable = stats.getDouble("cash_available");
-            int hoursTutored = stats.getInt("hours_tutored");
-            boolean didAcceptTerms = (tutorJson.getInt("did_accept_terms") == 1) ? true : false;
+            tutor.cashAvailable = (float) stats.getDouble("cash_available");
+            tutor.hoursTutored = stats.getInt("hours_tutored");
+            tutor.didAcceptTerms = (tutorJson.getInt("did_accept_terms") == 1) ? true : false;
+
+            tutor.save();
         } catch (JSONException e) {
-            Log.e(TAG, "Failed to create tutor in db; JSON user object from server is malformed.");
-            return;
+            Log.e(TAG, "Failed to create or update tutor in db; JSON user object from server is malformed.");
+            return null;
         }
 
-        Log.i(TAG, "Creating or updating user in db.");
-
-        TutorDbHelper tutorDbHelper = new TutorDbHelper(context);
-        long id = tutorDbHelper.createOrUpdateTutor(tutor);
-
-        if (id < 0) {
-            Log.e(TAG, "Failed to create or update user in db.");
-        } else {
-            Log.i(TAG, "User succesfully created or updated in db.");
-        }
+        return tutor;
     }
 }

@@ -3,16 +3,20 @@ package com.seshtutoring.seshapp.model;
 import android.content.Context;
 import android.util.Log;
 
-import com.seshtutoring.seshapp.util.db.UserDbHelper;
+import com.orm.SugarRecord;
+import com.orm.dsl.Ignore;
 import com.seshtutoring.seshapp.util.networking.SeshAuthManager;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.List;
+
 /**
  * Created by nadavhollander on 7/6/15.
  */
-public class User {
+public class User extends SugarRecord<User> {
+    @Ignore
     private static final String TAG = User.class.getName();
 
     private int userId;
@@ -29,15 +33,16 @@ public class User {
     private boolean isVerified = false;
     private String fullLegalName;
     private String shareCode;
-//    private boolean completedOnBoarding = false;
-//    private int schoolId;
     private Student student;
     private Tutor tutor;
+
+    // empty constructor necessary for SugarORM to work
+    public User() {}
 
     public User(int userId, String email, String sessionId, String fullName,
                 String profilePictureUrl, String bio, String stripeCustomerId, String major,
                 boolean tutorOfflinePing, boolean completedAppTour, boolean isVerified,
-                String fullLegalName, String shareCode) {
+                String fullLegalName, String shareCode, Student student, Tutor tutor) {
         this.userId = userId;
         this.email = email;
         this.sessionId = sessionId;
@@ -51,83 +56,65 @@ public class User {
         this.isVerified = isVerified;
         this.fullLegalName = fullLegalName;
         this.shareCode = shareCode;
-    }
-
-    public void setStudent(Student student) {
         this.student = student;
-    }
-
-    public void setTutor(Tutor tutor) {
         this.tutor = tutor;
     }
 
     public static User currentUser(Context context) {
-        UserDbHelper userDbHelper = new UserDbHelper(context);
-        User user = userDbHelper.getCurrentUser();
-        user.setStudent(Student.studentForUser(user));
-        user.setTutor(Tutor.tutorForUser(user));
-        return
+        return User.findById(User.class, 1l);
     }
 
     public static void logoutUserLocally(Context context) {
-        UserDbHelper userDbHelper = new UserDbHelper(context);
-        userDbHelper.deleteAllUsers();
-
+        User.deleteAll(User.class);
         SeshAuthManager.sharedManager(context).clearSession();
 
         Log.i(TAG, "User logged out locally.");
     }
 
-    public static void createOrUpdateUserWithObject(JSONObject userJson, Context context) {
-        User user;
-        String sessionId;
-
-        JSONObject studentRow;
-        JSONObject tutorRow;
-
+    public static User createOrUpdateUserWithObject(JSONObject userJson, Context context) {
+        User user = null;
         try {
             JSONObject userRow = userJson.getJSONObject("user");
-            studentRow = userJson.getJSONObject("student");
-            tutorRow = userJson.getJSONObject("tutor");
+            JSONObject studentRow = userJson.getJSONObject("student");
+            JSONObject tutorRow = userJson.getJSONObject("tutor");
 
             int userId = userRow.getInt("id");
-            String email = userRow.getString("email");
-            sessionId = userJson.getString("session_id");
-            String fullName = userRow.getString("full_name");
-            String profilePictureUrl = userRow.getString("profile_picture");
-            String bio = userRow.getString("bio");
-            String stripeCustomerId = !userRow.isNull("stripe_customer_id") ?
+
+            List<User> usersFound = User.find(User.class, "user_id = ?", Integer.toString(userId));
+
+            if (usersFound.size() > 0) {
+                user = usersFound.get(0);
+            } else {
+                user = new User();
+            }
+
+            user.userId = userId;
+            user.email = userRow.getString("email");
+            user.sessionId = userJson.getString("session_id");
+            user.fullName = userRow.getString("full_name");
+            user.profilePictureUrl = userRow.getString("profile_picture");
+            user.bio = userRow.getString("bio");
+            user.stripeCustomerId = !userRow.isNull("stripe_customer_id") ?
                     userRow.getString("stripe_customer_id") : "";
-            String major = userRow.getString("major");
-            boolean tutorOfflinePing = (userRow.getInt("tutor_offline_ping") == 1) ? true : false;
-            boolean completedAppTour = (userRow.getInt("completed_app_tour") == 1) ? true : false;
-            boolean isVerified = (userRow.getInt("is_verified") == 1) ? true : false;
-            String fullLegalName = userRow.getString("full_legal_name");
-            String shareCode = userRow.getString("share_code");
-            user = new User(userId, email, sessionId, fullName, profilePictureUrl, bio,
-                    stripeCustomerId, major, tutorOfflinePing, completedAppTour,
-                    isVerified, fullLegalName, shareCode);
+            user.major = userRow.getString("major");
+            user.tutorOfflinePing = (userRow.getInt("tutor_offline_ping") == 1) ? true : false;
+            user.completedAppTour = (userRow.getInt("completed_app_tour") == 1) ? true : false;
+            user.isVerified = (userRow.getInt("is_verified") == 1) ? true : false;
+            user.fullLegalName = userRow.getString("full_legal_name");
+            user.shareCode = userRow.getString("share_code");
+            user.save();
+
+            user.tutor = Tutor.createOrUpdateTutorWithObject(tutorRow);
+            user.student = Student.createOrUpdateStudentWithObject(studentRow);
+
+            user.save();
+            SeshAuthManager.sharedManager(context).foundSessionId(user.sessionId);
+
         } catch (JSONException e) {
-            Log.e(TAG, "Failed to create user in db; JSON user object from server is malformed.");
-            return;
+            Log.e(TAG, "Failed to create or update user in db; JSON user object from server is malformed.");
+            return null;
         }
-
-        Log.i(TAG, "Creating or updating user in db.");
-
-        UserDbHelper userDbHelper = new UserDbHelper(context);
-        long id = userDbHelper.createOrUpdateUser(user);
-
-        if (id < 0) {
-            Log.e(TAG, "Failed to create or update user in db.");
-        } else {
-            Log.i(TAG, "User succesfully created or updated in db.");
-        }
-
-        Student.createOrUpdateStudentWithObject(studentRow);
-        Tutor.createOrUpdateTutorWithObject(tutorRow);
-
-        // Log user in on client
-        SeshAuthManager.sharedManager(context).foundSessionId(sessionId);
+        return user;
     }
 
     public int getUserId() {
