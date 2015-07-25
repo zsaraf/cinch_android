@@ -54,4 +54,18 @@
         android:background="@null"
         android:layout_gravity="center_vertical"
         android:src="@drawable/clock_gray"/>
+    <View
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+    <ImageButton
+        android:id="@+id/confirm_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="5dp"
+        android:scaleX="0.6"
+        android:scaleY="0.6"
+        android:background="@null"
+        android:layout_gravity="center_vertical"
+        android:src="@drawable/re_enter_password_icon"/>
 </LinearLayout>

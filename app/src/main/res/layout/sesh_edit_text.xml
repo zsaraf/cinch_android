@@ -2,6 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal" android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:id="@+id/sesh_edit_text_background"
     android:background="@color/seshorangeopaque">
     <ImageView
         android:id="@+id/icon"

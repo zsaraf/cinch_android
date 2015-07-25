@@ -32,6 +32,7 @@ import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.view.components.LearnRequestProgressBar;
 import com.seshtutoring.seshapp.view.components.RequestFlowViewPager;
 import com.seshtutoring.seshapp.view.fragments.LearnRequestFragments.LearnRequestAssignmentFragment;
+import com.seshtutoring.seshapp.view.fragments.LearnRequestFragments.LearnRequestConfirmFragment;
 import com.seshtutoring.seshapp.view.fragments.LearnRequestFragments.LearnRequestCourseFragment;
 import com.seshtutoring.seshapp.view.fragments.LearnRequestFragments.LearnRequestNumberOfStudentsFragment;
 import com.seshtutoring.seshapp.view.fragments.LearnRequestFragments.LearnRequestTimeFragment;
@@ -58,7 +59,8 @@ public class RequestActivity extends FragmentActivity implements EditText.OnEdit
             new LearnRequestCourseFragment(),
             new LearnRequestAssignmentFragment(),
             new LearnRequestNumberOfStudentsFragment(),
-            new LearnRequestTimeFragment()
+            new LearnRequestTimeFragment(),
+            new LearnRequestConfirmFragment()
     };
 
     public interface InputFragment {
@@ -137,7 +139,7 @@ public class RequestActivity extends FragmentActivity implements EditText.OnEdit
     }
 
     private class LearnRequestPagerAdapter extends FragmentStatePagerAdapter {
-        private static final int NUM_FRAGMENTS = 4;
+        private static final int NUM_FRAGMENTS = 5;
 
         public LearnRequestPagerAdapter(FragmentManager fm) {
             super(fm);
@@ -160,7 +162,7 @@ public class RequestActivity extends FragmentActivity implements EditText.OnEdit
 
         // check if current fragment is completed
         if (currentFragment.isCompleted()) {
-            if (currentItemIndex < 3) {
+            if (currentItemIndex < 4) {
                 currentFragment.saveValues();
                 viewPager.setCurrentItem(currentItemIndex + 1);
                 progressBar.setActiveIconIndex(currentItemIndex + 1);

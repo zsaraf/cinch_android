@@ -23,6 +23,7 @@ public class LearnRequestProgressBar extends LinearLayout {
     private ImageButton assignmentIcon;
     private ImageButton numberStudentsIcon;
     private ImageButton durationIcon;
+    private ImageButton confirmIcon;
 
     private ImageButton[] icons;
     private Context mContext;
@@ -40,9 +41,10 @@ public class LearnRequestProgressBar extends LinearLayout {
         this.assignmentIcon = (ImageButton) view.findViewById(R.id.assignment_icon);
         this.numberStudentsIcon = (ImageButton) view.findViewById(R.id.number_students_icon);
         this.durationIcon = (ImageButton) view.findViewById(R.id.duration_icon);
+        this.confirmIcon = (ImageButton) view.findViewById(R.id.confirm_icon);
 
         this.icons = new ImageButton[] { classIcon, assignmentIcon,
-                numberStudentsIcon, durationIcon };
+                numberStudentsIcon, durationIcon, confirmIcon };
 
     }
 
@@ -53,7 +55,7 @@ public class LearnRequestProgressBar extends LinearLayout {
 
         tintIcon(icons[index], R.color.learn_request_progress_selected);
 
-        for (int i = index + 1; i < 4; i++) {
+        for (int i = index + 1; i < 5; i++) {
             tintIcon(icons[i], R.color.learn_request_progress_unselected);
         }
     }

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <com.seshtutoring.seshapp.view.components.SeshButton
+        android:id="@+id/request_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="35dp"
+        android:layout_marginLeft="35dp"
+        android:layout_marginBottom="35dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_alignParentBottom="true"
+        android:text="REQUEST"/>
+    <TextView
+        android:id="@+id/review_details_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="35dp"
+        android:layout_marginRight="35dp"
+        android:gravity="center_horizontal"
+        android:layout_centerHorizontal="true"
+        android:text="@string/review_details_text"
+        android:textColor="@color/seshlightgray"
+        android:textSize="16sp" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="35dp"
+            android:layout_marginRight="35dp"
+            android:layout_marginLeft="35dp"
+            android:orientation="vertical"
+            android:layout_gravity="center"
+            android:layout_below="@id/review_details_label"
+            >
+            <com.seshtutoring.seshapp.view.components.SeshEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                custom:editTextType="choose_class"
+                custom:transparentMode="true"
+                custom:text="CS 106A: Introduction to Computer Science"
+                android:layout_marginTop="10dp"/>
+            <com.seshtutoring.seshapp.view.components.SeshEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                custom:transparentMode="true"
+                custom:editTextType="assignment"
+                custom:text="Karel"/>
+            <com.seshtutoring.seshapp.view.components.SeshEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                custom:transparentMode="true"
+                custom:editTextType="number"
+                custom:text="1"/>
+            <com.seshtutoring.seshapp.view.components.SeshEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                custom:transparentMode="true"
+                custom:editTextType="time"
+                custom:text="3 hrs 30 min"/>
+        </LinearLayout>
+</RelativeLayout>

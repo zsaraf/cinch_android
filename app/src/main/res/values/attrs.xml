@@ -18,6 +18,7 @@
             <enum name="choose_class" value="4" />
             <enum name="assignment" value="5" />
             <enum name="time" value="6" />
+            <enum name="number" value="7" />
         </attr>
         <attr name="hint" format="string" />
         <attr name="imeOptions" format="enum">
@@ -25,5 +26,7 @@
             <enum name="go" value="1" />
             <enum name="done" value="2" />
         </attr>
+        <attr name="transparentMode" format="boolean" />
+        <attr name="text" format="string" />
     </declare-styleable>
 </resources>

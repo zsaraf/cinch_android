@@ -36,7 +36,8 @@ public class SeshEditText extends RelativeLayout {
         FULLNAME(R.drawable.fullname_icon, R.drawable.fullname_icon_filled, false, false),
         CLASS(R.drawable.book, R.drawable.book, false, false),
         ASSIGNMENT(R.drawable.subject, R.drawable.subject_filled, false, false),
-        CLOCK(R.drawable.clock_orange, R.drawable.clock_orange, false, false);
+        CLOCK(R.drawable.clock_orange, R.drawable.clock_orange, false, false),
+        NUMBER(R.drawable.hashtag_orange, R.drawable.hashtag_orange, false, false);
 
 
         public int iconResource;
@@ -76,11 +77,15 @@ public class SeshEditText extends RelativeLayout {
 
         int editTextTypeIndex;
         int imeOptionsIndex;
+        boolean transparentMode;
+        String text;
 
         try {
             editTextTypeIndex = a.getInt(R.styleable.SeshEditText_editTextType, 0);
             hint = a.getString(R.styleable.SeshEditText_hint);
             imeOptionsIndex = a.getInt(R.styleable.SeshEditText_imeOptions, -1);
+            transparentMode = a.getBoolean(R.styleable.SeshEditText_transparentMode, false);
+            text = a.getString(R.styleable.SeshEditText_text);
         } finally {
             a.recycle();
         }
@@ -107,16 +112,31 @@ public class SeshEditText extends RelativeLayout {
             case 6:
                 this.editTextType = SeshEditTextType.CLOCK;
                 break;
+            case 7:
+                this.editTextType = SeshEditTextType.NUMBER;
+                break;
             default:
                 this.editTextType = SeshEditTextType.EMAIL;
                 break;
         }
 
+        if (transparentMode) {
+            RelativeLayout background = (RelativeLayout) findViewById(R.id.sesh_edit_text_background);
+            int sdk = android.os.Build.VERSION.SDK_INT;
+            if (sdk < android.os.Build.VERSION_CODES.JELLY_BEAN) {
+                background.setBackgroundDrawable(null);
+            } else {
+                background.setBackground(null);
+            }
+        }
 
         editText = (EditText) findViewById(R.id.editText);
         icon = (ImageView) findViewById(R.id.icon);
 
         editText.setHint(hint);
+        if (text != null) {
+            editText.setText(text);
+        }
         editText.setMovementMethod(null);
         icon.setImageResource(editTextType.iconResource);
 
