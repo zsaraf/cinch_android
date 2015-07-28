@@ -18,7 +18,3 @@
     <item android:drawable="@drawable/list_pressed_holo_dark"  />
     <item android:drawable="@drawable/list_longpressed_holo"  />
 </transition>
-<<<<<<< HEAD:android_numberpicker/src/main/res/drawable/list_selector_background_transition_holo_dark.xml
-=======
-<!-- From: file:/Users/lillioetting/Android/seshandroid/android_numberpicker/src/main/res/drawable/list_selector_background_transition_holo_dark.xml -->
->>>>>>> Payments page:android_numberpicker/build/intermediates/bundles/debug/res/drawable/list_selector_background_transition_holo_dark.xml
