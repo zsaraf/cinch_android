@@ -24,6 +24,10 @@
     <string name="title_activity_privacy">PrivacyActivity</string>
     <string name="title_activity_support">SupportActivity</string>
 
+    <string name="support_url">https://www.seshtutoring.com/support.html</string>
+
+    <string name="payment_agreement">By inserting your card information you are agreeing to the Sesh Terms and Conditions and understand that Sesh is a marketplace and not a courier company. We will not charge your credit card until you successfully complete a tutoring session.</string>
+
     <string name="affirmative">YES!</string>
     <string name="negative">NO</string>
     <string name="cashout_dialog">Would you like to cash out your tutor credits? The transfer will take 1-2 days to complete.</string>
@@ -120,4 +124,6 @@ If You have any questions about this privacy statement, the practices of Sesh, o
     <string name="per_minute_rate">$0.42/min</string>
     <string name="end_early_reminder">*Remember, you can end early if you want. (Min. 30 minutes)</string>
     <string name="review_details_text">Always check your answers!  Review the details for your upcoming Sesh.</string>
+    <string name="title_activity_add_card">AddCard</string>
+
 </resources>

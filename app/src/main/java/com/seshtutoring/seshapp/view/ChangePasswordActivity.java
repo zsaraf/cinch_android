@@ -1,18 +1,25 @@
 package com.seshtutoring.seshapp.view;
 
+import android.app.ActionBar;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.User;
+import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.components.SeshButton;
 import com.seshtutoring.seshapp.view.components.SeshEditText;
@@ -36,6 +43,36 @@ public class ChangePasswordActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_change_password);
+
+        LayoutUtils layUtils = new LayoutUtils(this);
+        getWindow().getDecorView().findViewById(android.R.id.content).setPadding(0, layUtils.getActionBarHeightPx(), 0, 0);
+
+//        getSupportActionBar().setHomeButtonEnabled(true);
+//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+        getSupportActionBar().setCustomView(R.layout.sesh_action_bar);
+        getSupportActionBar().setElevation(0);
+        TextView title = (TextView) findViewById(R.id.action_bar_title);
+        title.setText("Change Password");
+        title.setTypeface(Typeface.createFromAsset(this.getAssets(), "fonts/Gotham-Book.otf"));
+
+        ImageButton menuButton = (ImageButton) findViewById(R.id.action_bar_menu_button);
+        ViewGroup layout = (ViewGroup) menuButton.getParent();
+        layout.removeView(menuButton);
+
+        ImageButton backButton = (ImageButton) findViewById(R.id.action_bar_back_button);
+        backButton.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_UP) {
+                    onBackPressed();
+                    return true;
+                }
+                return false;
+            }
+        });
+
+
         this.oldPasswordField = (SeshEditText) findViewById(R.id.old_password);
         this.newPasswordField = (SeshEditText) findViewById(R.id.new_password);
         this.confirmPasswordField = (SeshEditText) findViewById(R.id.confirm_password);
@@ -91,18 +128,7 @@ public class ChangePasswordActivity extends ActionBarActivity {
         Toast.makeText(this, "We couldn't reach the network, sorry!", Toast.LENGTH_LONG);
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_change_password, menu);
-        return true;
-    }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        onBackPressed();
-        return true;
-    }
 }
 
 

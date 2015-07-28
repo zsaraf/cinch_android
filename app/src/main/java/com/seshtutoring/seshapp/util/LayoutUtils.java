@@ -49,13 +49,14 @@ public class LayoutUtils {
     }
 
     public int getActionBarHeightPx() {
-        TypedValue tv = new TypedValue();
-        if (mContext.getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true)) {
-            return TypedValue.complexToDimensionPixelSize(tv.data, mContext.getResources().getDisplayMetrics());
-        } else {
-            Log.e(TAG, "Couldn't programatically retrieve ActionBarHeight");
-            return dpToPixels(48f);
-        }
+        return dpToPixels(56f);
+//        TypedValue tv = new TypedValue();
+//        if (mContext.getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true)) {
+//            return TypedValue.complexToDimensionPixelSize(tv.data, mContext.getResources().getDisplayMetrics());
+//        } else {
+//            Log.e(TAG, "Couldn't programatically retrieve ActionBarHeight");
+//            return dpToPixels(48f);
+//        }
     }
 
     public Bitmap blurScreenshot(Bitmap screenshot) {

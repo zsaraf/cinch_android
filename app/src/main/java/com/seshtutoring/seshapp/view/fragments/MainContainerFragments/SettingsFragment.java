@@ -4,6 +4,7 @@ package com.seshtutoring.seshapp.view.fragments.MainContainerFragments;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.Fragment;
@@ -85,6 +86,8 @@ public class SettingsFragment extends ListFragment {
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         menu = (ListView) inflater.inflate(R.layout.settings_menu_list, null);
+        LayoutUtils layUtils = new LayoutUtils(getActivity());
+        menu.setPadding(0, layUtils.getActionBarHeightPx(), 0, 0);
         mainContainerActivity = (MainContainerActivity) getActivity();
         user = User.currentUser(mainContainerActivity.getApplicationContext());
         return menu;
@@ -194,10 +197,12 @@ public class SettingsFragment extends ListFragment {
                 int textID = R.id.settings_row_title;
                 int rightTextID = R.id.settings_right_title;
                 int resourceID = R.drawable.settings_row_item;
+                Typeface typeFace = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Gotham-Light.otf");
 
                 if (getItem(position).type == 1) {
                     textID = R.id.settings_header_title;
                     resourceID = R.drawable.settings_header_item;
+                    typeFace = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Gotham-Book.otf");
                 } else if (getItem(position).type == 3) {
                     textID = R.id.settings_explain_title;
                     resourceID = R.drawable.settings_explain_item;
@@ -205,6 +210,7 @@ public class SettingsFragment extends ListFragment {
 
                 viewHolder.mainTextView = (TextView) convertView.findViewById(textID);
                 viewHolder.mainTextView.setBackgroundResource(resourceID);
+                viewHolder.mainTextView.setTypeface(typeFace);
                 viewHolder.secondTextView = (TextView) convertView.findViewById(rightTextID);
 
                 convertView.setTag(viewHolder);

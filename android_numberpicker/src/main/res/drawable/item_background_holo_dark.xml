@@ -24,3 +24,7 @@
     <item android:state_focused="true"                                                             android:drawable="@drawable/list_focused_holo" />
     <item                                                                                          android:drawable="@color/transparent" />
 </selector>
+<<<<<<< HEAD:android_numberpicker/src/main/res/drawable/item_background_holo_dark.xml
+=======
+<!-- From: file:/Users/lillioetting/Android/seshandroid/android_numberpicker/src/main/res/drawable/item_background_holo_dark.xml -->
+>>>>>>> Payments page:android_numberpicker/build/intermediates/bundles/debug/res/drawable/item_background_holo_dark.xml

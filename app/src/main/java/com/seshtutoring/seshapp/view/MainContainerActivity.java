@@ -14,6 +14,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -52,6 +53,9 @@ public class MainContainerActivity extends AppCompatActivity implements SeshDial
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
         getSupportActionBar().setCustomView(R.layout.sesh_action_bar);
         getSupportActionBar().setElevation(0);
+        ImageButton backButton = (ImageButton) findViewById(R.id.action_bar_back_button);
+        ViewGroup layout = (ViewGroup) backButton.getParent();
+        layout.removeView(backButton);
 
         setCurrentState(MenuOption.HOME);
 

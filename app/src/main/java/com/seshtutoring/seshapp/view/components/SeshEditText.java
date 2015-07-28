@@ -173,6 +173,11 @@ public class SeshEditText extends RelativeLayout {
             editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
         }
 
+        if (editTextType == SeshEditTextType.FULLNAME) {
+            Typeface light = Typeface.createFromAsset(context.getAssets(), "fonts/Gotham-Light.otf");
+            editText.setTypeface(light);
+        }
+
         editText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {

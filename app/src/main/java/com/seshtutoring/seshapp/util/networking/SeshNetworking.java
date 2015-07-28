@@ -7,8 +7,12 @@ import android.net.NetworkInfo;
 import android.util.Log;
 
 import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Response;
 import com.seshtutoring.seshapp.SeshApplication;
+import com.seshtutoring.seshapp.model.AvailableBlock;
+import com.seshtutoring.seshapp.model.LearnRequest;
+import com.seshtutoring.seshapp.model.Rate;
 import com.seshtutoring.seshapp.model.AvailableBlock;
 import com.seshtutoring.seshapp.model.LearnRequest;
 import com.seshtutoring.seshapp.model.Rate;
@@ -58,6 +62,9 @@ public class SeshNetworking {
     private static final String FULL_LEGAL_NAME_PARAM = "full_legal_name";
     private static final String CLASS_ID_PARAM = "class_id";
     private static final String CODE_PARAM = "code";
+    private static final String CUSTOMER_TOKEN_PARAM = "customer_token";
+    private static final String RECIPIENT_TOKEN_PARAM = "recipient_token";
+    private static final String IS_RECIPIENT_PARAM = "is_recipient";
     private static final String NUM_PEOPLE_PARAM = "num_people";
     private static final String DESCRIPTION_PARAM = "description";
     private static final String EST_TIME_PARAM = "est_time";
@@ -74,6 +81,19 @@ public class SeshNetworking {
     }
 
     public void postWithRelativeUrl(String relativeUrl, Map<String, String> params,
+                                    Response.Listener<JSONObject> successListener,
+                                    Response.ErrorListener errorListener) {
+        String absoluteUrl = baseUrl() + relativeUrl;
+
+        Log.i(TAG, "Issuing POST request to URL:  " + absoluteUrl + " with params: " +
+                params.toString());
+        JsonPostRequestWithAuth requestWithAuth = new JsonPostRequestWithAuth(absoluteUrl,
+                params, successListener, errorListener);
+
+        VolleyNetworkingWrapper.getInstance(mContext).addToRequestQueue(requestWithAuth);
+    }
+
+    public void postWithLongTimeout(String relativeUrl, Map<String, String> params,
                                           Response.Listener<JSONObject> successListener,
                                           Response.ErrorListener errorListener) {
         String absoluteUrl = baseUrl() + relativeUrl;
@@ -82,6 +102,10 @@ public class SeshNetworking {
                 params.toString());
         JsonPostRequestWithAuth requestWithAuth = new JsonPostRequestWithAuth(absoluteUrl,
                 params, successListener, errorListener);
+        requestWithAuth.setRetryPolicy(new DefaultRetryPolicy(
+                10000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 
         VolleyNetworkingWrapper.getInstance(mContext).addToRequestQueue(requestWithAuth);
     }
@@ -387,12 +411,33 @@ public class SeshNetworking {
                 errorListener);
     }
 
+    public void getCards(Response.Listener<JSONObject> successListener,
+                           Response.ErrorListener errorListener) {
+        Map<String, String> params = new HashMap<>();
+        params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
+
+        postWithRelativeUrl("get_cards.php", params, successListener,
+                errorListener);
+    }
+
+    public void addCard(String customerToken, String recipientToken, boolean isRecipient, Response.Listener<JSONObject> successListener,
+                        Response.ErrorListener errorListener) {
+        Map<String, String> params = new HashMap<>();
+        params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
+        params.put(CUSTOMER_TOKEN_PARAM, customerToken);
+        params.put(RECIPIENT_TOKEN_PARAM, recipientToken);
+        params.put(IS_RECIPIENT_PARAM, isRecipient ? "1" : "0");
+
+        postWithLongTimeout("add_card.php", params, successListener,
+                errorListener);
+    }
+
     private String baseUrl() {
         String baseUrl;
         if (SeshApplication.IS_LIVE) {
             baseUrl = "https://www.seshtutoring.com/ios-php/";
         } else {
-            baseUrl = "https://www.cinchtutoring.com/ios-php/";
+            baseUrl = "https://www.cinchtutoring.com/users/lilli/";
         }
         return baseUrl;
     }

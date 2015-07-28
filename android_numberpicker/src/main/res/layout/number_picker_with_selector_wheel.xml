@@ -30,3 +30,7 @@
         android:background="@null" />
 
 </merge>
+<<<<<<< HEAD:android_numberpicker/src/main/res/layout/number_picker_with_selector_wheel.xml
+=======
+<!-- From: file:/Users/lillioetting/Android/seshandroid/android_numberpicker/src/main/res/layout/number_picker_with_selector_wheel.xml -->
+>>>>>>> Payments page:android_numberpicker/build/intermediates/bundles/debug/res/layout/number_picker_with_selector_wheel.xml

@@ -6,7 +6,7 @@
         <option name="distributionType" value="LOCAL" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="gradleHome" value="$APPLICATION_HOME_DIR$/gradle/gradle-2.2.1" />
-        <option name="gradleJvm" value="1.8" />
+        <option name="gradleJvm" value="1.7" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
@@ -14,7 +14,10 @@
             <option value="$PROJECT_DIR$/android_numberpicker" />
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/blur_dialog_fragment" />
+            <option value="$PROJECT_DIR$/pKExample" />
+            <option value="$PROJECT_DIR$/pk-library" />
             <option value="$PROJECT_DIR$/slidingmenu" />
+            <option value="$PROJECT_DIR$/stripe" />
           </set>
         </option>
       </GradleProjectSettings>

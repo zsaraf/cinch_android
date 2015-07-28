@@ -2,4 +2,8 @@
 <com.jeremyfeinstein.slidingmenu.lib.SlidingMenu xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/slidingmenumain"
     android:layout_width="fill_parent"
+<<<<<<< HEAD:slidingmenu/res/layout/slidingmenumain.xml
     android:layout_height="fill_parent" />
+=======
+    android:layout_height="fill_parent" /><!-- From: file:/Users/lillioetting/Android/seshandroid/slidingmenu/res/layout/slidingmenumain.xml -->
+>>>>>>> Payments page:slidingmenu/build/intermediates/bundles/debug/res/layout/slidingmenumain.xml
