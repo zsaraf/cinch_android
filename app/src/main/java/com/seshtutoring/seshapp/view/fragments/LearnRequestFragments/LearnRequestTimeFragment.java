@@ -65,7 +65,7 @@ public class LearnRequestTimeFragment extends Fragment implements RequestActivit
             }
         });
 
-        updateCostValues(seshDurationPicker.getHourValue(), seshDurationPicker.getMinuteValue());
+        onDurationChanged(seshDurationPicker.getHourValue(), seshDurationPicker.getMinuteValue());
 
         return v;
     }

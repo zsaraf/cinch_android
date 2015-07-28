@@ -1,42 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:screenOrientation="portrait"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="match_parent"
+    android:layout_marginLeft="40dp"
+    android:layout_marginRight="40dp">
 
     <TextView xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/dialog_title"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="15dp"
         android:capitalize="characters"
-        android:textSize="30sp"
-        android:gravity="center"
+        android:textSize="24sp"
+        android:text="TestTitle"
+        android:layout_centerHorizontal="true"
+        android:gravity="center_horizontal"
         android:textColor="@color/seshorange"
-        android:background="@color/white"
-        android:paddingBottom="40dp"
-        android:paddingTop="25dp"/>
+        android:layout_alignParentTop="true"/>
     <TextView
         android:id="@+id/dialog_text"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:maxWidth="300dp"
+        android:layout_below="@id/dialog_title"
+        android:paddingRight="30dp"
+        android:paddingBottom="30dp"
+        android:paddingLeft="30dp"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
         android:capitalize="characters"
-        android:textSize="20sp"
+        android:textSize="18sp"
+        android:text="Lorem ipsum"
         android:gravity="center"
-        android:textColor="@color/seshlightgray"
-        android:background="@color/white"
-        android:paddingBottom="25dp"
-        android:paddingTop="15dp"
-        android:paddingRight="10dp"
-        android:paddingLeft="10dp"/>
+        android:textColor="@color/seshlightgray" />
     <Button
         android:id="@+id/dialog_first_button"
         android:capitalize="characters"
+        android:layout_below="@id/dialog_text"
         android:minHeight="0dp"
         android:padding="8dp"
         android:textSize="20sp"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
         android:textColor="@color/white"
         android:background="@color/seshorange" />
     <Button
@@ -46,7 +53,9 @@
         android:padding="8dp"
         android:textSize="20sp"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/dialog_first_button"
+        android:layout_centerHorizontal="true"
         android:textColor="@color/white"
         android:background="@color/light_gray" />
-</LinearLayout>
+</RelativeLayout>

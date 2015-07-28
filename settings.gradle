@@ -1,2 +1,2 @@
-include ':app', ':slidingmenu', ':StackBlur'
+include ':app', ':slidingmenu', ':StackBlur', ':blur_dialog_fragment'
 include ':android_numberpicker'

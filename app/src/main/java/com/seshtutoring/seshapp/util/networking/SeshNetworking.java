@@ -418,7 +418,7 @@ public class SeshNetworking {
         params.put(EST_TIME_PARAM, Integer.toString(learnRequest.estTime));
         params.put(RATE_PARAM, Float.toString(Rate.getCurrentHourlyRate(mContext).getHourlyRate()));
         params.put(FAVORITES_PARAM, "[]");  // until Favorites implemented....
-        params.put(IS_INSTANT_PARAM, learnRequest.isInstant ? "1" : "0");
+        params.put(IS_INSTANT_PARAM, learnRequest.isInstant() ? "1" : "0");
         params.put(EXPIRATION_TIME_PARAM, formatter.print(new DateTime(expirationTime)));
 
         // hacky fix for adding nested hashmap params to POST request

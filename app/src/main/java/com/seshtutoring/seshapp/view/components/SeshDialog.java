@@ -4,28 +4,23 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.app.FragmentManager;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Bitmap;
 import android.graphics.Typeface;
 import android.os.Bundle;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.seshtutoring.seshapp.R;
+import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
-import com.seshtutoring.seshapp.view.MainContainerActivity;
 
-import org.json.JSONObject;
-
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.DialogFragment;
-import android.content.DialogInterface;
-import android.os.Bundle;
-import android.util.AttributeSet;
-import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -36,7 +31,6 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
-import com.seshtutoring.seshapp.view.MainContainerActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -50,8 +44,8 @@ public class SeshDialog extends BlurDialogFragment {
     OnSelectionListener mCallback;
     public enum SeshDialogType { ONE_BUTTON, TWO_BUTTON };
 
-    private static final String TAG = MainContainerActivity.class.getName();
-    private MainContainerActivity mainContainerActivity;
+    private static final String TAG = SeshDialog.class.getName();
+    private Bitmap backgroundOverlayBitmap = null;
 
     public String firstChoice;
     public String secondChoice;
@@ -82,7 +76,6 @@ public class SeshDialog extends BlurDialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
         final SeshNetworking seshNetworking = new SeshNetworking(getActivity());
-        this.mainContainerActivity = (MainContainerActivity) getActivity();
         Typeface bold = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Gotham-Medium.otf");
 
         // Use the Builder class for convenient dialog construction
@@ -140,7 +133,43 @@ public class SeshDialog extends BlurDialogFragment {
 //                });
         // Create the AlertDialog object and return it
         builder.setView(view);
+
         return builder.create();
+    }
+
+    public static void showDialog(FragmentManager manager, String title, String message,
+                                  String firstChoice, String secondChoice,
+                                  Bitmap customBackground, String type) {
+        SeshDialog dialog = new SeshDialog();
+
+        if (secondChoice != null) {
+            dialog.dialogType = SeshDialog.SeshDialogType.TWO_BUTTON;
+        } else  {
+            dialog.dialogType = SeshDialog.SeshDialogType.ONE_BUTTON;
+        }
+
+        dialog.title = title;
+        dialog.message = message;
+        dialog.firstChoice = firstChoice;
+        dialog.secondChoice = secondChoice;
+        dialog.setCustomBackgroundBitmap(customBackground);
+        dialog.type = type;
+
+        dialog.show(manager, type);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (getDialog() == null) {
+            return;
+        }
+
+        LayoutUtils utils = new LayoutUtils(getActivity());
+
+        WindowManager.LayoutParams params = getDialog().getWindow().getAttributes();
+        params.width = utils.dpToPixels(330f);
+        getDialog().getWindow().setAttributes(params);
     }
 
     @Override
@@ -162,5 +191,18 @@ public class SeshDialog extends BlurDialogFragment {
         return true;
     }
 
+    @Override
+    protected Bitmap getCustomBackgroundBitmap() {
+        return backgroundOverlayBitmap;
+    }
+
+    /**
+     * Overrides blur dialog's default behavior - instead of blurring the background
+     * before showing dialog, Bitmap that is passed in will be blurred and placed in the background
+     * @param overlay
+     */
+    public void setCustomBackgroundBitmap(Bitmap overlay) {
+        backgroundOverlayBitmap = overlay;
+    }
 }
 

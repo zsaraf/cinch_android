@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
@@ -39,6 +41,7 @@ import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.components.LearnRequestProgressBar;
 import com.seshtutoring.seshapp.view.components.RequestFlowViewPager;
+import com.seshtutoring.seshapp.view.components.SeshDialog;
 import com.seshtutoring.seshapp.view.fragments.LearnRequestFragments.LearnRequestAssignmentFragment;
 import com.seshtutoring.seshapp.view.fragments.LearnRequestFragments.LearnRequestConfirmFragment;
 import com.seshtutoring.seshapp.view.fragments.LearnRequestFragments.LearnRequestCourseFragment;
@@ -56,13 +59,17 @@ import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 /**
  * Created by nadavhollander on 7/20/15.
  */
-public class RequestActivity extends FragmentActivity implements EditText.OnEditorActionListener {
+public class RequestActivity extends FragmentActivity implements EditText.OnEditorActionListener,
+        SeshDialog.OnSelectionListener {
     private static final String TAG = RequestActivity.class.getName();
     private LearnRequestProgressBar progressBar;
     private RequestFlowViewPager viewPager;
     private ImageButton requestFlowNext;
     private ImageButton requestFlowClose;
     private LearnRequest currentLearnRequest;
+    private Bitmap mapBackgroundInstance;
+    public static final String DIALOG_TYPE_LEARN_REQUEST_SUCCESS = "learn_request_success";
+    public static final String DIALOG_TYPE_LEARN_REQUEST_FAILURE = "learn_request_failure";
 
     private Fragment[] requestFlowFragments = {
             new LearnRequestCourseFragment(),
@@ -107,6 +114,8 @@ public class RequestActivity extends FragmentActivity implements EditText.OnEdit
             } else {
                 requestLayoutBackground.setBackground(Drawable.createFromPath(path));
             }
+
+            this.mapBackgroundInstance = BitmapFactory.decodeFile(path);
         } else {
             Log.e(TAG, "Blurred background not included with intent to Request Layout");
         }
@@ -210,12 +219,11 @@ public class RequestActivity extends FragmentActivity implements EditText.OnEdit
     }
 
     public void createLearnRequest() {
-        currentLearnRequest.timestamp = new Date();
-//        temp until scheduling implementation
-        currentLearnRequest.isInstant = true;
+        // temp until scheduling implemented
+        currentLearnRequest.setIsInstant(true);
 
         if (currentLearnRequest.availableBlocks.size() == 0) {
-            createAvailableBlockForNow();
+            currentLearnRequest.createAvailableBlockForNow();
         }
 
         SeshNetworking seshNetworking = new SeshNetworking(this);
@@ -225,36 +233,45 @@ public class RequestActivity extends FragmentActivity implements EditText.OnEdit
                 try {
                     if (jsonObject.getString("status").equals("SUCCESS")) {
                         LearnRequest.createOrUpdateLearnRequest(jsonObject);
-                        setResult(LEARN_REQUEST_CREATE_SUCCESS);
-                        onBackPressed();
+                        SeshDialog.showDialog(getFragmentManager(), "Request Created",
+                                "Help is on the way! We'll notify you as soon as a tutor has accepted your Sesh request.  Hold tight!",
+                                "Got it", null, mapBackgroundInstance,
+                                DIALOG_TYPE_LEARN_REQUEST_SUCCESS);
                     } else {
-                        Toast.makeText(getApplicationContext(), "We couldn't reach the server, sorry! Try again later.", Toast.LENGTH_LONG).show();
+                        SeshDialog.showDialog(getFragmentManager(), "Whoops!",
+                                "Something went wrong.  Try again later.",
+                                "Got it", null, null,
+                                DIALOG_TYPE_LEARN_REQUEST_FAILURE);
                         Log.e(TAG, "Failed to create request, server error: " + jsonObject.getString("message"));
-                        //                      very hacky and temporary REMEMBER TO CHANGE
-                        ((LearnRequestConfirmFragment)requestFlowFragments[4]).requestButton.setEnabled(true);
                     }
                 } catch (JSONException e) {
-                    Toast.makeText(getApplicationContext(), "We couldn't reach the server, sorry!  Try again later.", Toast.LENGTH_LONG).show();
+                    SeshDialog.showDialog(getFragmentManager(), "Whoops!",
+                            "Something went wrong.  Try again later.",
+                            "Got it", null, null,
+                            DIALOG_TYPE_LEARN_REQUEST_FAILURE);
                     Log.e(TAG, "Failed to create request, response malformed: " + e.getMessage());
-                    //                      very hacky and temporary REMEMBER TO CHANGE
-                    ((LearnRequestConfirmFragment)requestFlowFragments[4]).requestButton.setEnabled(true);
                 }
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Toast.makeText(getApplicationContext(), "We couldn't reach the server, sorry!", Toast.LENGTH_LONG).show();
+                SeshDialog.showDialog(getFragmentManager(), "Network Error",
+                        "We couldn't reach the server.  Check your network settings and try again.",
+                        "Got it", null, null,
+                        DIALOG_TYPE_LEARN_REQUEST_FAILURE);
                 Log.e(TAG, "Network Error: " + error.getMessage());
-                //                      very hacky and temporary REMEMBER TO CHANGE
-                ((LearnRequestConfirmFragment)requestFlowFragments[4]).requestButton.setEnabled(true);
             }
         });
     }
 
-//    TEMP FIX UNTIL SCHEDULING IMPLEMENTED ON ANDROID
-    private void createAvailableBlockForNow() {
-        AvailableBlock block = AvailableBlock.availableBlockForInstantRequest(currentLearnRequest);
-        currentLearnRequest.availableBlocks.add(block);
+    @Override
+    public void onDialogSelection(int selection, String type) {
+        if (type.equals(DIALOG_TYPE_LEARN_REQUEST_SUCCESS)) {
+            setResult(LEARN_REQUEST_CREATE_SUCCESS);
+            onBackPressed();
+        } else if (type.equals(DIALOG_TYPE_LEARN_REQUEST_FAILURE)) {
+            reenableConfirmFragmentButton();
+        }
     }
 
     @Override
@@ -290,5 +307,10 @@ public class RequestActivity extends FragmentActivity implements EditText.OnEdit
     @Override
     protected void attachBaseContext(Context newBase) {
         super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
+    }
+
+    private void reenableConfirmFragmentButton() {
+        LearnRequestConfirmFragment fragment = (LearnRequestConfirmFragment) requestFlowFragments[4];
+        fragment.enableRequestButton();
     }
 }

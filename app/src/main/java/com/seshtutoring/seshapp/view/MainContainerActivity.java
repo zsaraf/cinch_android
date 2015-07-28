@@ -121,10 +121,7 @@ public class MainContainerActivity extends AppCompatActivity implements SeshDial
                         }
                     });
 
-        } else if (type.equals(LearnViewFragment.DIALOG_TYPE_LEARN_REQUEST_SUCCESS) && selection == 1) {
-            // do nothing
         }
-
     }
 
     private void onCashoutResponse(JSONObject responseJson) {

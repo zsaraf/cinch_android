@@ -55,8 +55,6 @@ public class LearnViewFragment extends Fragment implements OnMapReadyCallback {
     public static final String BLURRED_MAP_BITMAP_PATH_KEY = "blurred_map_bitmap";
     public static final String CHOSEN_LOCATION_LAT = "chosen_location_lat";
     public static final String CHOSEN_LOCATION_LONG = "chosen_location_long";
-    public static final String DIALOG_TYPE_LEARN_REQUEST_SUCCESS = "learn_request_success";
-    public static final String DIALOG_TYPE_LEARN_REQUEST_FAILURE = "learn_request_failure";
 
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
         View view = layoutInflater.inflate(R.layout.learn_view_fragment, container, false);
@@ -120,13 +118,7 @@ public class LearnViewFragment extends Fragment implements OnMapReadyCallback {
                                     Intent data) {
         if (requestCode == RequestActivity.ENTER_LEARN_REQUEST_FLOW) {
             if (resultCode == RequestActivity.LEARN_REQUEST_CREATE_SUCCESS) {
-                SeshDialog successDialog = new SeshDialog();
-                successDialog.firstChoice = "Got it";
-                successDialog.dialogType = SeshDialog.SeshDialogType.ONE_BUTTON;
-                successDialog.title = "Request Created";
-                successDialog.message = "Help is on the way -- you've created a Sesh request! We'll notify you as soon as a tutor accepts your request.";
-                successDialog.type = DIALOG_TYPE_LEARN_REQUEST_SUCCESS;
-                successDialog.show(getActivity().getFragmentManager(), DIALOG_TYPE_LEARN_REQUEST_SUCCESS);
+
             } else if (resultCode == RequestActivity.LEARN_REQUEST_CREATE_FAILURE) {
                 Toast.makeText(getActivity(), "Sick, didn't work.  :(", Toast.LENGTH_LONG).show();
             } else if (resultCode == RequestActivity.LEARN_REQUEST_CREATE_EXITED){

@@ -33,7 +33,7 @@ public class LearnRequest extends SugarRecord<LearnRequest> {
     public String classString;
     public String descr;
     public int estTime;
-    public boolean isInstant;
+    private boolean isInstant;
     public double latitude;
     public double longitude;
     public int learnRequestId;
@@ -131,5 +131,23 @@ public class LearnRequest extends SugarRecord<LearnRequest> {
 
     public String getEstTimeString() {
         return estTimeString;
+    }
+
+    //    TEMP FIX UNTIL SCHEDULING IMPLEMENTED ON ANDROID
+    public void createAvailableBlockForNow() {
+        AvailableBlock block = AvailableBlock.availableBlockForInstantRequest(this);
+        availableBlocks.add(block);
+    }
+
+    public boolean isInstant() {
+        return isInstant;
+    }
+
+    public void setIsInstant(boolean isInstant) {
+        this.isInstant = isInstant;
+        if (isInstant) {
+            // set timestamp to now
+            this.timestamp = new Date();
+        }
     }
 }

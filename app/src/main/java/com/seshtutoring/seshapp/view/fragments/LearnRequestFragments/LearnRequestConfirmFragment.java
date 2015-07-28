@@ -21,9 +21,7 @@ public class LearnRequestConfirmFragment extends Fragment {
     private SeshEditText assignmentTextBox;
     private SeshEditText numStudentsTextBox;
     private SeshEditText durationTextBox;
-
-//    temp
-    public SeshButton requestButton;
+    private SeshButton requestButton;
 
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
         View v = layoutInflater.inflate(R.layout.learn_request_confirm_fragment, container, false);
@@ -60,5 +58,9 @@ public class LearnRequestConfirmFragment extends Fragment {
         }
 
         durationTextBox.setText(currentLearnRequest.getEstTimeString());
+    }
+
+    public void enableRequestButton() {
+        this.requestButton.setEnabled(true);
     }
 }
