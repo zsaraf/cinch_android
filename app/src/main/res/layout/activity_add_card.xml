@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:custom="http://schemas.android.com/apk/res-auto">
+
+    <TextView
+        android:id="@+id/add_card_header"
+        android:text="Please enter your credit/debit card information below"
+        android:gravity="center_horizontal"
+        android:textSize="20sp"
+        android:textColor="@color/seshorange"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="25dp"
+        android:layout_marginBottom="20dp"
+        android:layout_marginLeft="25dp"
+        android:layout_marginRight="25dp" />
+
+    <me.brendanweinstein.views.FieldHolder
+        android:id="@+id/field_holder"
+        android:layout_width="fill_parent"
+        android:layout_height="50dp"
+        android:layout_below="@id/add_card_header"
+        android:layout_centerHorizontal="true"
+        android:padding="15dp"
+        android:layout_marginBottom="20dp"
+        android:layout_marginRight="30dp"
+        android:layout_marginLeft="30dp"
+        android:background="@drawable/sesh_payment_form">
+    </me.brendanweinstein.views.FieldHolder>
+
+    <com.seshtutoring.seshapp.view.components.SeshEditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        custom:hint="Enter full legal name"
+        custom:editTextType="fullname"
+        android:layout_below="@id/field_holder"
+        android:id="@+id/full_name_field"
+        android:layout_marginBottom="20dp"
+        android:layout_marginLeft="25dp"
+        android:layout_marginRight="25dp">
+    </com.seshtutoring.seshapp.view.components.SeshEditText>
+
+    <com.seshtutoring.seshapp.view.components.SeshButton
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="ADD CARD"
+        android:layout_below="@id/full_name_field"
+        android:id="@+id/add_card_button"
+        android:layout_marginBottom="20dp"
+        android:layout_marginLeft="25dp"
+        android:layout_marginRight="25dp">
+    </com.seshtutoring.seshapp.view.components.SeshButton>
+
+    <TextView
+        android:id="@+id/add_card_agreement"
+        android:text="@string/payment_agreement"
+        android:gravity="center_horizontal"
+        android:textSize="12sp"
+        android:textColor="@color/seshcharcoal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/add_card_button"
+        android:layout_marginBottom="15dp"
+        android:layout_marginLeft="25dp"
+        android:layout_marginRight="25dp"/>
+
+</RelativeLayout>
+
+<!--<RelativeLayout-->
+    <!--xmlns:android="http://schemas.android.com/apk/res/android"-->
+    <!--xmlns:tools="http://schemas.android.com/tools"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="match_parent"-->
+    <!--tools:context="com.seshtutoring.seshapp.view.AddPaymentCardActivityctivity"-->
+    <!--xmlns:custom="http://schemas.android.com/apk/res-auto">-->
+
+    <!--<TextView-->
+        <!--android:id="@+id/add_card_header"-->
+        <!--android:text="Please enter your credit/debit card information below"-->
+        <!--android:gravity="center_horizontal"-->
+        <!--android:textSize="20sp"-->
+        <!--android:textColor="@color/seshorange"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_centerHorizontal="true"-->
+        <!--android:layout_marginTop="15dp"-->
+        <!--android:layout_marginBottom="15dp"-->
+        <!--android:layout_marginLeft="25dp"-->
+        <!--android:layout_marginRight="25dp" />-->
+    <!--<com.seshtutoring.seshapp.view.components.SeshEditText-->
+        <!--android:id="@+id/card_number_field"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_below="@id/add_card_header"-->
+        <!--android:layout_centerHorizontal="true"-->
+        <!--android:layout_marginTop="15dp"-->
+        <!--android:layout_marginBottom="15dp"-->
+        <!--android:layout_marginLeft="25dp"-->
+        <!--android:layout_marginRight="25dp"-->
+        <!--custom:editTextType="card"-->
+        <!--custom:hint="Enter card number"></com.seshtutoring.seshapp.view.components.SeshEditText>-->
+    <!--<RelativeLayout-->
+        <!--android:orientation="horizontal"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:background="@color/seshorangeopaque"-->
+        <!--android:layout_marginTop="15dp"-->
+        <!--android:layout_marginBottom="15dp"-->
+        <!--android:layout_marginLeft="25dp"-->
+        <!--android:layout_marginRight="25dp"-->
+        <!--android:layout_below="@id/card_number_field">-->
+    <!--<ImageView-->
+        <!--android:id="@+id/calendar_icon"-->
+        <!--android:layout_width="18dp"-->
+        <!--android:layout_height="18dp"-->
+        <!--android:layout_weight="0"-->
+        <!--android:layout_centerVertical="true"-->
+        <!--android:layout_marginLeft="12dp"/>-->
+    <!--<View-->
+        <!--android:id="@+id/break_view"-->
+        <!--android:layout_width="1dp"-->
+        <!--android:layout_height="25dp"-->
+        <!--android:background="@color/seshorange"-->
+        <!--android:layout_centerVertical="true"-->
+        <!--android:layout_marginLeft="42dp" />-->
+    <!--<EditText-->
+        <!--android:background="#00000000"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:inputType="number"-->
+        <!--android:hint="mm"-->
+        <!--android:minEms="2"-->
+        <!--android:maxEms="2"-->
+        <!--android:id="@+id/exp_month"-->
+        <!--android:lines="1"-->
+        <!--android:maxLength="2"-->
+        <!--android:singleLine="true"-->
+        <!--android:layout_gravity="center_vertical"-->
+        <!--android:textSize="18sp"-->
+        <!--android:textColor="@color/seshorange"-->
+        <!--android:textColorHint="@color/seshorange"-->
+        <!--android:layout_toRightOf="@id/break_view"-->
+        <!--android:layout_centerVertical="true"-->
+        <!--android:padding="10dp"-->
+        <!--android:paddingRight="5dp"/>-->
+    <!--<TextView-->
+        <!--android:id="@+id/break_text"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:textSize="30sp"-->
+        <!--android:layout_centerVertical="true"-->
+        <!--android:text="/"-->
+        <!--android:textColor="@color/seshorange"-->
+        <!--android:layout_toRightOf="@id/exp_month"/>-->
+    <!--<EditText-->
+        <!--android:background="#00000000"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:inputType="number"-->
+        <!--android:hint="yyyy"-->
+        <!--android:minEms="4"-->
+        <!--android:maxEms="4"-->
+        <!--android:id="@+id/exp_year"-->
+        <!--android:lines="1"-->
+        <!--android:maxLength="4"-->
+        <!--android:singleLine="true"-->
+        <!--android:layout_gravity="center_vertical"-->
+        <!--android:textSize="18sp"-->
+        <!--android:textColor="@color/seshorange"-->
+        <!--android:textColorHint="@color/seshorange"-->
+        <!--android:layout_toRightOf="@id/break_text"-->
+        <!--android:layout_centerVertical="true"-->
+        <!--android:padding="10dp"-->
+        <!--android:paddingRight="5dp"/>-->
+    <!--</RelativeLayout>-->
+
+
+    <!--<com.seshtutoring.seshapp.view.components.SeshEditText-->
+        <!--android:id="@+id/card_date_field"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:layout_below="@id/card_number_field"-->
+        <!--android:layout_centerHorizontal="true"-->
+        <!--android:layout_marginTop="15dp"-->
+        <!--android:layout_marginBottom="15dp"-->
+        <!--android:layout_marginLeft="25dp"-->
+        <!--android:layout_marginRight="25dp"-->
+        <!--android:maxLength="3"-->
+        <!--custom:editTextType="card"-->
+        <!--custom:hint="Enter card number"></com.seshtutoring.seshapp.view.components.SeshEditText>-->
+    <!--<TextView-->
+        <!--android:id="@+id/add_card_agreement"-->
+        <!--android:text="@string/payment_agreement"-->
+        <!--android:gravity="center_horizontal"-->
+        <!--android:textSize="10sp"-->
+        <!--android:textColor="@color/seshcharcoal"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_below="@id/card_date_field"-->
+        <!--android:layout_marginBottom="15dp"-->
+        <!--android:layout_marginLeft="25dp"-->
+        <!--android:layout_marginRight="25dp"/>-->
+
+<!--</RelativeLayout>-->

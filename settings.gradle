@@ -1,2 +1,3 @@
 
-include ':app', ':slidingmenu', ':StackBlur', ':stripe', ':pKExample', ':pk-library', ':blur_dialog_fragment', ':android_numberpicker'
+include ':app', ':slidingmenu', ':StackBlur', ':blur_dialog_fragment', ':stripe', ':pKExample',
+        ':pk-library', ':android_numberpicker'

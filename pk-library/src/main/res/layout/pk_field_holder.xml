@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="?android:attr/editTextBackground">
+
+    <me.brendanweinstein.views.CardNumHolder
+        android:id="@+id/card_num_holder"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_gravity="center"
+        android:layout_marginLeft="10dp"
+        android:layout_toRightOf="@+id/card_icon"
+        android:contentDescription="Credit Card Number Field" />
+
+    <me.brendanweinstein.views.CardIcon
+        android:id="@+id/card_icon"
+        android:layout_width="40dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="0dp"
+        android:scaleType="centerInside"
+        android:src="@drawable/pk_default_card" />
+
+    <LinearLayout
+        android:id="@+id/extra_fields"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:orientation="horizontal" >
+
+        <me.brendanweinstein.views.ExpirationEditText
+            android:id="@+id/expiration"
+            style="@style/PKAddCardField"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:layout_gravity="center"
+            android:hint="@string/pk_expiration_field_hint"
+            android:textColorHint="#ffdedede"
+            android:imeOptions="actionNext"
+            android:inputType="number"
+            android:contentDescription="@string/pk_expiration_field_desc"
+            android:maxLength="5"
+            android:textSize="@dimen/pk_input_field_text_size"
+            android:color="@color/pk_DKGRAY" />
+
+        <me.brendanweinstein.views.CVVEditText
+            android:id="@+id/security_code"
+            style="@style/PKAddCardField"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:layout_gravity="center"
+            android:layout_marginLeft="40dp"
+            android:contentDescription="Credit Card Security Code Field"
+            android:hint=" CVV "
+            android:textColorHint="#ffdedede"
+            android:imeOptions="actionDone"
+            android:inputType="number"
+            android:maxLength="3"
+            android:nextFocusRight="@null"
+            android:textSize="@dimen/pk_input_field_text_size"
+            android:color="@color/pk_DKGRAY" />
+    </LinearLayout>
+
+</merge>
