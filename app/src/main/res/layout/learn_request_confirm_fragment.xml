@@ -25,9 +25,9 @@
         android:textColor="@color/seshlightgray"
         android:textSize="16sp" />
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="35dp"
+            android:layout_marginTop="10dp"
             android:layout_marginRight="35dp"
             android:layout_marginLeft="35dp"
             android:orientation="vertical"
@@ -35,32 +35,36 @@
             android:layout_below="@id/review_details_label"
             >
             <com.seshtutoring.seshapp.view.components.SeshEditText
-                android:layout_width="match_parent"
+                android:id="@+id/class_confirmation_box"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 custom:editTextType="choose_class"
                 custom:transparentMode="true"
-                custom:text="CS 106A: Introduction to Computer Science"
+                custom:editable="false"
                 android:layout_marginTop="10dp"/>
             <com.seshtutoring.seshapp.view.components.SeshEditText
-                android:layout_width="match_parent"
+                android:id="@+id/assignment_confirmation_box"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
+                custom:editable="false"
                 custom:transparentMode="true"
-                custom:editTextType="assignment"
-                custom:text="Karel"/>
+                custom:editTextType="assignment"/>
             <com.seshtutoring.seshapp.view.components.SeshEditText
-                android:layout_width="match_parent"
+                android:id="@+id/num_students_confirmation_box"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
+                custom:editable="false"
                 custom:transparentMode="true"
-                custom:editTextType="number"
-                custom:text="1"/>
+                custom:editTextType="number"/>
             <com.seshtutoring.seshapp.view.components.SeshEditText
-                android:layout_width="match_parent"
+                android:id="@+id/duration_confirmation_box"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
+                custom:editable="false"
                 custom:transparentMode="true"
-                custom:editTextType="time"
-                custom:text="3 hrs 30 min"/>
+                custom:editTextType="time"/>
         </LinearLayout>
 </RelativeLayout>

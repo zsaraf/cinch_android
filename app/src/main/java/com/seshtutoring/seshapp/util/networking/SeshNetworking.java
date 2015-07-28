@@ -9,15 +9,23 @@ import android.util.Log;
 import com.android.volley.AuthFailureError;
 import com.android.volley.Response;
 import com.seshtutoring.seshapp.SeshApplication;
+import com.seshtutoring.seshapp.model.AvailableBlock;
+import com.seshtutoring.seshapp.model.LearnRequest;
+import com.seshtutoring.seshapp.model.Rate;
 
 import org.apache.http.client.HttpClient;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -50,6 +58,14 @@ public class SeshNetworking {
     private static final String FULL_LEGAL_NAME_PARAM = "full_legal_name";
     private static final String CLASS_ID_PARAM = "class_id";
     private static final String CODE_PARAM = "code";
+    private static final String NUM_PEOPLE_PARAM = "num_people";
+    private static final String DESCRIPTION_PARAM = "description";
+    private static final String EST_TIME_PARAM = "est_time";
+    private static final String RATE_PARAM = "rate";
+    private static final String FAVORITES_PARAM = "favorites";
+    private static final String AVAILABLE_BLOCKS_PARAM = "available_blocks";
+    private static final String IS_INSTANT_PARAM = "is_instant";
+    private static final String EXPIRATION_TIME_PARAM = "expiration_time";
 
     private Context mContext;
 
@@ -381,6 +397,44 @@ public class SeshNetworking {
         return baseUrl;
     }
 
+    public void createRequestWithLearnRequest(LearnRequest learnRequest, Response.Listener<JSONObject> successListener,
+                                              Response.ErrorListener errorListener) {
+        Date expirationTime = new Date();
+        for (AvailableBlock block : learnRequest.availableBlocks) {
+            if (block.endTime.getTime() - expirationTime.getTime() > 0) {
+                expirationTime = block.endTime;
+            }
+        }
+
+        DateTimeFormatter formatter = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ssZ");
+
+        Map<String, String> params = new HashMap<>();
+        params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
+        params.put(LATITUDE_PARAM, Double.toString(learnRequest.latitude));
+        params.put(LONGITUDE_PARAM, Double.toString(learnRequest.latitude));
+        params.put(NUM_PEOPLE_PARAM, Integer.toString(learnRequest.numPeople));
+        params.put(CLASS_ID_PARAM, learnRequest.classId);
+        params.put(DESCRIPTION_PARAM, learnRequest.descr);
+        params.put(EST_TIME_PARAM, Integer.toString(learnRequest.estTime));
+        params.put(RATE_PARAM, Float.toString(Rate.getCurrentHourlyRate(mContext).getHourlyRate()));
+        params.put(FAVORITES_PARAM, "[]");  // until Favorites implemented....
+        params.put(IS_INSTANT_PARAM, learnRequest.isInstant ? "1" : "0");
+        params.put(EXPIRATION_TIME_PARAM, formatter.print(new DateTime(expirationTime)));
+
+        // hacky fix for adding nested hashmap params to POST request
+        Iterator<AvailableBlock> blockIterator = learnRequest.availableBlocks.iterator();
+        for (int counter = 0; blockIterator.hasNext(); counter++) {
+            AvailableBlock block = blockIterator.next();
+            params.put(AVAILABLE_BLOCKS_PARAM + "[" + counter + "][startTime]",
+                    formatter.print(new DateTime(block.startTime)));
+            params.put(AVAILABLE_BLOCKS_PARAM + "[" + counter + "][endTime]",
+                    formatter.print(new DateTime(block.endTime)));
+        }
+
+        postWithRelativeUrl("create_request.php", params, successListener, errorListener);
+    }
+
+
 //    @TODO: implement once Stripe functionality in place
 //    public void addCardWithCustomerToken(...)
 //    public void getCardsForCurrentUserWithSuccess(...)
@@ -389,7 +443,6 @@ public class SeshNetworking {
 
 //    @TODO: Implement when relevant.
 //    public void createBidForRequest(...)
-//    public void createRequestWithLearnRequest(...)
 //    public void getPossibleJobsForCourses(...)
 //    public void uploadProfilePicture(...)
 //    public void startSesh(...)

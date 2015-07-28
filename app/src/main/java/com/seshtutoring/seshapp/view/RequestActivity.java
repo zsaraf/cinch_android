@@ -3,6 +3,7 @@ package com.seshtutoring.seshapp.view;
 import android.animation.TimeInterpolator;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -25,10 +26,17 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.Volley;
 import com.seshtutoring.seshapp.R;
+import com.seshtutoring.seshapp.model.AvailableBlock;
 import com.seshtutoring.seshapp.model.Course;
+import com.seshtutoring.seshapp.model.LearnRequest;
 import com.seshtutoring.seshapp.model.User;
+import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.components.LearnRequestProgressBar;
 import com.seshtutoring.seshapp.view.components.RequestFlowViewPager;
 import com.seshtutoring.seshapp.view.fragments.LearnRequestFragments.LearnRequestAssignmentFragment;
@@ -37,6 +45,11 @@ import com.seshtutoring.seshapp.view.fragments.LearnRequestFragments.LearnReques
 import com.seshtutoring.seshapp.view.fragments.LearnRequestFragments.LearnRequestNumberOfStudentsFragment;
 import com.seshtutoring.seshapp.view.fragments.LearnRequestFragments.LearnRequestTimeFragment;
 import com.seshtutoring.seshapp.view.fragments.LearnViewFragment;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.Date;
 
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
@@ -49,11 +62,7 @@ public class RequestActivity extends FragmentActivity implements EditText.OnEdit
     private RequestFlowViewPager viewPager;
     private ImageButton requestFlowNext;
     private ImageButton requestFlowClose;
-    private Course selectedCourse = null;
-    private String selectedAssignment = null;
-    private int selectedNumberOfStudents = -1;
-    private int selectedDurationHours = -1;
-    private int selectedDurationMinutes = -1;
+    private LearnRequest currentLearnRequest;
 
     private Fragment[] requestFlowFragments = {
             new LearnRequestCourseFragment(),
@@ -68,6 +77,11 @@ public class RequestActivity extends FragmentActivity implements EditText.OnEdit
         public void saveValues();
     }
 
+    public static final int ENTER_LEARN_REQUEST_FLOW = 1;
+    public static final int LEARN_REQUEST_CREATE_SUCCESS = 2;
+    public static final int LEARN_REQUEST_CREATE_FAILURE = 3;
+    public static final int LEARN_REQUEST_CREATE_EXITED = 4;
+
     @SuppressWarnings("all")
     @Override
     public void onCreate(Bundle savedInstanceBundle) {
@@ -75,8 +89,14 @@ public class RequestActivity extends FragmentActivity implements EditText.OnEdit
 
         setContentView(R.layout.request_transparent_layout);
 
+        Intent intent = getIntent();
+
+        this.currentLearnRequest = new LearnRequest();
+        currentLearnRequest.latitude = intent.getDoubleExtra(LearnViewFragment.CHOSEN_LOCATION_LAT, 0);
+        currentLearnRequest.longitude = intent.getDoubleExtra(LearnViewFragment.CHOSEN_LOCATION_LONG, 0);
+
         // set blurred background
-        if (getIntent().hasExtra(LearnViewFragment.BLURRED_MAP_BITMAP_PATH_KEY)) {
+        if (intent.hasExtra(LearnViewFragment.BLURRED_MAP_BITMAP_PATH_KEY)) {
             String path = getIntent().getStringExtra(LearnViewFragment.BLURRED_MAP_BITMAP_PATH_KEY);
             RelativeLayout requestLayoutBackground =
                     (RelativeLayout) findViewById(R.id.request_layout_background);
@@ -119,6 +139,7 @@ public class RequestActivity extends FragmentActivity implements EditText.OnEdit
         requestFlowClose.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                setResult(LEARN_REQUEST_CREATE_EXITED);
                 onBackPressed();
             }
         });
@@ -164,12 +185,19 @@ public class RequestActivity extends FragmentActivity implements EditText.OnEdit
         if (currentFragment.isCompleted()) {
             if (currentItemIndex < 4) {
                 currentFragment.saveValues();
+
+                if (currentItemIndex == 3) {
+                    LearnRequestConfirmFragment confirmFragment =
+                            (LearnRequestConfirmFragment) requestFlowFragments[currentItemIndex + 1];
+                    confirmFragment.fillInConfirmationBoxes();
+                }
+
                 viewPager.setCurrentItem(currentItemIndex + 1);
                 progressBar.setActiveIconIndex(currentItemIndex + 1);
+
                 if (currentItemIndex == 1) {
                     hideKeyboard();
                 }
-            } else {
                 // figure out
             }
         } else {
@@ -177,24 +205,56 @@ public class RequestActivity extends FragmentActivity implements EditText.OnEdit
         }
     }
 
-    public void setSelectedCourse(Course course) {
-        this.selectedCourse = course;
+    public LearnRequest getCurrentLearnRequest() {
+        return currentLearnRequest;
     }
 
-    public void setSelectedAssignment(String selectedAssignment) {
-        this.selectedAssignment = selectedAssignment;
+    public void createLearnRequest() {
+        currentLearnRequest.timestamp = new Date();
+//        temp until scheduling implementation
+        currentLearnRequest.isInstant = true;
+
+        if (currentLearnRequest.availableBlocks.size() == 0) {
+            createAvailableBlockForNow();
+        }
+
+        SeshNetworking seshNetworking = new SeshNetworking(this);
+        seshNetworking.createRequestWithLearnRequest(currentLearnRequest, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject jsonObject) {
+                try {
+                    if (jsonObject.getString("status").equals("SUCCESS")) {
+                        LearnRequest.createOrUpdateLearnRequest(jsonObject);
+                        setResult(LEARN_REQUEST_CREATE_SUCCESS);
+                        onBackPressed();
+                    } else {
+                        Toast.makeText(getApplicationContext(), "We couldn't reach the server, sorry! Try again later.", Toast.LENGTH_LONG).show();
+                        Log.e(TAG, "Failed to create request, server error: " + jsonObject.getString("message"));
+                        //                      very hacky and temporary REMEMBER TO CHANGE
+                        ((LearnRequestConfirmFragment)requestFlowFragments[4]).requestButton.setEnabled(true);
+                    }
+                } catch (JSONException e) {
+                    Toast.makeText(getApplicationContext(), "We couldn't reach the server, sorry!  Try again later.", Toast.LENGTH_LONG).show();
+                    Log.e(TAG, "Failed to create request, response malformed: " + e.getMessage());
+                    //                      very hacky and temporary REMEMBER TO CHANGE
+                    ((LearnRequestConfirmFragment)requestFlowFragments[4]).requestButton.setEnabled(true);
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(getApplicationContext(), "We couldn't reach the server, sorry!", Toast.LENGTH_LONG).show();
+                Log.e(TAG, "Network Error: " + error.getMessage());
+                //                      very hacky and temporary REMEMBER TO CHANGE
+                ((LearnRequestConfirmFragment)requestFlowFragments[4]).requestButton.setEnabled(true);
+            }
+        });
     }
 
-    public void setSelectedNumberOfStudents(int numberOfStudents) {
-        this.selectedNumberOfStudents = numberOfStudents;
-    }
-
-    public void setSelectedDurationHours(int selectedDurationHours) {
-        this.selectedDurationHours = selectedDurationHours;
-    }
-
-    public void setSelectedDurationMinutes(int selectedDurationMinutes) {
-        this.selectedDurationMinutes = selectedDurationMinutes;
+//    TEMP FIX UNTIL SCHEDULING IMPLEMENTED ON ANDROID
+    private void createAvailableBlockForNow() {
+        AvailableBlock block = AvailableBlock.availableBlockForInstantRequest(currentLearnRequest);
+        currentLearnRequest.availableBlocks.add(block);
     }
 
     @Override

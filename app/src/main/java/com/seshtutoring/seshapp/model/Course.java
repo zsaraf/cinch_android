@@ -16,10 +16,10 @@ public class Course {
     private static final String CLASS_ID_KEY = "classId";
 
 
-    private String className;
-    private String classNumber;
-    private String deptAbbrev;
-    private int classId;
+    public String className;
+    public String classNumber;
+    public String deptAbbrev;
+    public int classId;
 
     public Course(String className, String classNumber, String deptAbbrev, int classId) {
         this.className = className;

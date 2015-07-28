@@ -26,6 +26,7 @@ import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.components.SeshDialog;
+import com.seshtutoring.seshapp.view.fragments.LearnViewFragment;
 import com.seshtutoring.seshapp.view.fragments.SideMenuFragment;
 import com.seshtutoring.seshapp.view.fragments.SideMenuFragment.MenuOption;
 
@@ -120,6 +121,8 @@ public class MainContainerActivity extends AppCompatActivity implements SeshDial
                         }
                     });
 
+        } else if (type.equals(LearnViewFragment.DIALOG_TYPE_LEARN_REQUEST_SUCCESS) && selection == 1) {
+            // do nothing
         }
 
     }
@@ -211,6 +214,11 @@ public class MainContainerActivity extends AppCompatActivity implements SeshDial
 //
 //        }
 //    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+    }
 
     public void onNetworkError() {
         Log.e(TAG, "Network Error");

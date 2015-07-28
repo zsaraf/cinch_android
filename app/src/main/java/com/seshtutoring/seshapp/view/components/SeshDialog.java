@@ -48,6 +48,7 @@ import fr.tvbarthel.lib.blurdialogfragment.BlurDialogFragment;
  */
 public class SeshDialog extends BlurDialogFragment {
     OnSelectionListener mCallback;
+    public enum SeshDialogType { ONE_BUTTON, TWO_BUTTON };
 
     private static final String TAG = MainContainerActivity.class.getName();
     private MainContainerActivity mainContainerActivity;
@@ -57,6 +58,7 @@ public class SeshDialog extends BlurDialogFragment {
     public String title;
     public String message;
     public String type;
+    public SeshDialogType dialogType = SeshDialogType.TWO_BUTTON;
 
     // Container Activity must implement this interface
     public interface OnSelectionListener {
@@ -98,9 +100,6 @@ public class SeshDialog extends BlurDialogFragment {
         Button affirmativeButton = (Button) view.findViewById(R.id.dialog_first_button);
         affirmativeButton.setText(firstChoice);
         affirmativeButton.setTypeface(bold);
-        Button negativeButton = (Button) view.findViewById(R.id.dialog_second_button);
-        negativeButton.setText(secondChoice);
-        negativeButton.setTypeface(bold);
 
         affirmativeButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -109,12 +108,21 @@ public class SeshDialog extends BlurDialogFragment {
             }
         });
 
-        negativeButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                mCallback.onDialogSelection(2, type);
-                dismiss();
-            }
-        });
+        Button negativeButton = (Button) view.findViewById(R.id.dialog_second_button);
+
+        if (dialogType == SeshDialogType.ONE_BUTTON) {
+            negativeButton.setVisibility(View.GONE);
+        } else {
+            negativeButton.setText(secondChoice);
+            negativeButton.setTypeface(bold);
+
+            negativeButton.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    mCallback.onDialogSelection(2, type);
+                    dismiss();
+                }
+            });
+        }
 
 //        builder.setTitle("Cash Out?")
 //                        //.setView() - set view to new view created above

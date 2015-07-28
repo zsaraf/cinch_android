@@ -77,8 +77,9 @@ public class SeshEditText extends RelativeLayout {
 
         int editTextTypeIndex;
         int imeOptionsIndex;
-        boolean transparentMode;
+        final boolean transparentMode;
         String text;
+        boolean editable;
 
         try {
             editTextTypeIndex = a.getInt(R.styleable.SeshEditText_editTextType, 0);
@@ -86,6 +87,7 @@ public class SeshEditText extends RelativeLayout {
             imeOptionsIndex = a.getInt(R.styleable.SeshEditText_imeOptions, -1);
             transparentMode = a.getBoolean(R.styleable.SeshEditText_transparentMode, false);
             text = a.getString(R.styleable.SeshEditText_text);
+            editable = a.getBoolean(R.styleable.SeshEditText_editable, true);
         } finally {
             a.recycle();
         }
@@ -137,8 +139,13 @@ public class SeshEditText extends RelativeLayout {
         if (text != null) {
             editText.setText(text);
         }
+
         editText.setMovementMethod(null);
         icon.setImageResource(editTextType.iconResource);
+
+        if (!editable) {
+            editText.setKeyListener(null);
+        }
 
         switch (imeOptionsIndex) {
             case 0:
@@ -175,7 +182,7 @@ public class SeshEditText extends RelativeLayout {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (!s.toString().equals("")) {
-                    if (!filledIconActive) {
+                    if (!filledIconActive && !transparentMode) {
                         icon.setImageResource(editTextType.filledIconResource);
                         filledIconActive = true;
                     }

@@ -28,5 +28,6 @@
         </attr>
         <attr name="transparentMode" format="boolean" />
         <attr name="text" format="string" />
+        <attr name="editable" format="boolean" />
     </declare-styleable>
 </resources>

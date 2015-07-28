@@ -126,6 +126,7 @@ public class SettingsFragment extends ListFragment {
                             SeshDialog dialog = new SeshDialog();
                             dialog.firstChoice = "yes!";
                             dialog.secondChoice = "no";
+                            dialog.dialogType = SeshDialog.SeshDialogType.TWO_BUTTON;
                             dialog.title = "Cash Out?";
                             dialog.message = "Would you like to cash out your tutor credits? The transfer will take 1-2 days to complete.";
                             dialog.type = "CASHOUT";
@@ -136,6 +137,7 @@ public class SettingsFragment extends ListFragment {
                             SeshDialog logoutDialog = new SeshDialog();
                             logoutDialog.firstChoice = "yes";
                             logoutDialog.secondChoice = "no";
+                            logoutDialog.dialogType = SeshDialog.SeshDialogType.TWO_BUTTON;
                             logoutDialog.title = "Wait";
                             logoutDialog.message = "Are you sure you want to logout?";
                             logoutDialog.type = "LOGOUT";

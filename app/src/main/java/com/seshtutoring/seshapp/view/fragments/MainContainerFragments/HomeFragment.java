@@ -1,5 +1,6 @@
 package com.seshtutoring.seshapp.view.fragments.MainContainerFragments;
 
+import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Parcelable;
 import android.support.v4.app.Fragment;
@@ -102,5 +103,11 @@ public class HomeFragment extends Fragment {
             // Do nothing here!!  A bit hacky, but this is a fix for something weird in Android's
             // way of handling ViewPagers within fragments
         }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        learnViewFragment.onActivityResult(requestCode, resultCode, data);
     }
 }

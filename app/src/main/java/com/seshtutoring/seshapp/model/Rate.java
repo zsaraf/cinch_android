@@ -65,7 +65,6 @@ public class Rate {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError volleyError) {
-                Log.e(TAG, volleyError.getMessage());
                 Log.e(TAG, "Failed to fetch hourly rate from server, check network.");
             }
         });

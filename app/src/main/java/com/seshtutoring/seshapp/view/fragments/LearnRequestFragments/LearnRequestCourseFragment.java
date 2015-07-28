@@ -157,7 +157,9 @@ public class LearnRequestCourseFragment extends Fragment implements RequestActiv
 
     @Override
     public void saveValues()  {
-        parentActivity.setSelectedCourse(selectedCourse);
+        parentActivity.getCurrentLearnRequest().classId = String.format("%d", selectedCourse.classId);
+        parentActivity.getCurrentLearnRequest().classString = String.format("%s %s",
+                selectedCourse.deptAbbrev, selectedCourse.classNumber);
     }
 
     @Override

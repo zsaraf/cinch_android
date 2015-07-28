@@ -34,5 +34,6 @@ dependencies {
     compile project(':slidingmenu')
     compile project(':StackBlur')
     compile project(':android_numberpicker')
+    compile 'joda-time:joda-time:2.3'
     compile 'fr.tvbarthel.blurdialogfragment:lib:2.1.4'
 }

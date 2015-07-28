@@ -56,7 +56,7 @@ public class LearnRequestNumberOfStudentsFragment extends Fragment implements Re
 
     @Override
     public void saveValues() {
-        parentActivity.setSelectedNumberOfStudents(numStudents);
+        parentActivity.getCurrentLearnRequest().numPeople = numStudents;
     }
 
     @Override

@@ -37,7 +37,7 @@ public class LearnRequestAssignmentFragment extends Fragment implements RequestA
 
     @Override
     public void saveValues() {
-        parentActivity.setSelectedAssignment(assignmentInput.getText());
+        parentActivity.getCurrentLearnRequest().descr = assignmentInput.getText();
     }
 
     @Override

@@ -105,7 +105,8 @@ public class LearnRequestTimeFragment extends Fragment implements RequestActivit
 
     @Override
     public void saveValues() {
-        parentActivity.setSelectedDurationHours(seshDurationPicker.getHourValue());
-        parentActivity.setSelectedDurationMinutes(seshDurationPicker.getMinuteValue());
+        parentActivity.getCurrentLearnRequest().estTime =
+                (seshDurationPicker.getHourValue() * 60) + seshDurationPicker.getMinuteValue();
+        parentActivity.getCurrentLearnRequest().setEstTimeString(durationTextBox.getText());
     }
 }

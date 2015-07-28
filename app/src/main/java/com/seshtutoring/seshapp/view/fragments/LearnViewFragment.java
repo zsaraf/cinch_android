@@ -22,6 +22,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import com.enrique.stackblur.StackBlurManager;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -39,6 +40,7 @@ import com.seshtutoring.seshapp.util.StorageUtils;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
 import com.seshtutoring.seshapp.view.RequestActivity;
 import com.seshtutoring.seshapp.view.components.SeshButton;
+import com.seshtutoring.seshapp.view.components.SeshDialog;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -51,6 +53,10 @@ public class LearnViewFragment extends Fragment implements OnMapReadyCallback {
 
     private static GoogleMap mMap;
     public static final String BLURRED_MAP_BITMAP_PATH_KEY = "blurred_map_bitmap";
+    public static final String CHOSEN_LOCATION_LAT = "chosen_location_lat";
+    public static final String CHOSEN_LOCATION_LONG = "chosen_location_long";
+    public static final String DIALOG_TYPE_LEARN_REQUEST_SUCCESS = "learn_request_success";
+    public static final String DIALOG_TYPE_LEARN_REQUEST_FAILURE = "learn_request_failure";
 
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
         View view = layoutInflater.inflate(R.layout.learn_view_fragment, container, false);
@@ -80,7 +86,7 @@ public class LearnViewFragment extends Fragment implements OnMapReadyCallback {
         requestButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                 startRequestActivityWithBlurTransition();
+                startRequestActivityWithBlurTransition();
             }
         });
         return view;
@@ -101,10 +107,32 @@ public class LearnViewFragment extends Fragment implements OnMapReadyCallback {
                 Log.d(TAG, "BLURRED IMAGE READY");
                 Intent intent = new Intent(getActivity(), RequestActivity.class);
                 intent.putExtra(BLURRED_MAP_BITMAP_PATH_KEY, tmpFile.getPath());
-                startActivity(intent);
+                intent.putExtra(CHOSEN_LOCATION_LAT, mMap.getCameraPosition().target.latitude);
+                intent.putExtra(CHOSEN_LOCATION_LONG, mMap.getCameraPosition().target.longitude);
+                startActivityForResult(intent, RequestActivity.ENTER_LEARN_REQUEST_FLOW);
                 getActivity().overridePendingTransition(R.anim.fade_in, 0);
             }
         });
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode,
+                                    Intent data) {
+        if (requestCode == RequestActivity.ENTER_LEARN_REQUEST_FLOW) {
+            if (resultCode == RequestActivity.LEARN_REQUEST_CREATE_SUCCESS) {
+                SeshDialog successDialog = new SeshDialog();
+                successDialog.firstChoice = "Got it";
+                successDialog.dialogType = SeshDialog.SeshDialogType.ONE_BUTTON;
+                successDialog.title = "Request Created";
+                successDialog.message = "Help is on the way -- you've created a Sesh request! We'll notify you as soon as a tutor accepts your request.";
+                successDialog.type = DIALOG_TYPE_LEARN_REQUEST_SUCCESS;
+                successDialog.show(getActivity().getFragmentManager(), DIALOG_TYPE_LEARN_REQUEST_SUCCESS);
+            } else if (resultCode == RequestActivity.LEARN_REQUEST_CREATE_FAILURE) {
+                Toast.makeText(getActivity(), "Sick, didn't work.  :(", Toast.LENGTH_LONG).show();
+            } else if (resultCode == RequestActivity.LEARN_REQUEST_CREATE_EXITED){
+                // log to mixpanel -- user exited request flow
+            }
+        }
     }
 
     /**
@@ -124,11 +152,11 @@ public class LearnViewFragment extends Fragment implements OnMapReadyCallback {
      */
     private void setUpMapIfNeeded() {
         // Do a null check to confirm that we have not already instantiated the map.
-        if (mMap == null) {
+//        if (mMap == null) {
             // Try to obtain the map from the SupportMapFragment.
             ((SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map))
                     .getMapAsync(this);
-        }
+//        }
     }
 
     @Override
