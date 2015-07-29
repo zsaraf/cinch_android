@@ -30,4 +30,8 @@
         <attr name="text" format="string" />
         <attr name="editable" format="boolean" />
     </declare-styleable>
+
+    <!--<declare-styleable name="AnimatedEllipsisTextView">-->
+        <!--<attr name="text" format="string"/>-->
+    <!--</declare-styleable>-->
 </resources>

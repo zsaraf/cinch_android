@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.content.ComponentName;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.content.Context;
 import android.support.v7.app.ActionBarActivity;
@@ -21,8 +22,11 @@ import android.widget.Toast;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.seshtutoring.seshapp.R;
+import com.seshtutoring.seshapp.model.LearnRequest;
 import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
@@ -36,10 +40,11 @@ import org.json.JSONObject;
 
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
-public class MainContainerActivity extends AppCompatActivity implements SeshDialog.OnSelectionListener{
+public class MainContainerActivity extends AppCompatActivity implements SeshDialog.OnSelectionListener {
     private static final String TAG = MainContainerActivity.class.getName();
 
     private SlidingMenu slidingMenu;
+    private SideMenuFragment sideMenuFragment;
     private MenuOption selectedMenuOption;
 
     @Override
@@ -59,6 +64,8 @@ public class MainContainerActivity extends AppCompatActivity implements SeshDial
 
         setCurrentState(MenuOption.HOME);
 
+        sideMenuFragment = new SideMenuFragment();
+
         slidingMenu = new SlidingMenu(this);
         slidingMenu.attachToActivity(this, SlidingMenu.SLIDING_WINDOW);
         slidingMenu.setMode(SlidingMenu.LEFT);
@@ -67,10 +74,11 @@ public class MainContainerActivity extends AppCompatActivity implements SeshDial
         slidingMenu.setBehindScrollScale(0);
         slidingMenu.setFadeEnabled(false);
         slidingMenu.setMenu(R.layout.sliding_menu_frame);
+        slidingMenu.setOnOpenedListener(sideMenuFragment);
 
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.sliding_menu_frame, new SideMenuFragment())
+                .replace(R.id.sliding_menu_frame, sideMenuFragment)
                 .commit();
 
         ImageButton menuButton = (ImageButton) findViewById(R.id.action_bar_menu_button);
@@ -90,6 +98,14 @@ public class MainContainerActivity extends AppCompatActivity implements SeshDial
     public void onResume() {
         super.onResume();
         User.fetchUserInfoFromServer(this);
+
+        GoogleApiAvailability googleApiAvailability = GoogleApiAvailability.getInstance();
+
+        int code = googleApiAvailability.isGooglePlayServicesAvailable(this);
+
+        if (code != ConnectionResult.SUCCESS) {
+            googleApiAvailability.getErrorDialog(this, code, 0).show();
+        }
     }
 
     public void onDialogSelection(int selection, String type) {
@@ -219,7 +235,21 @@ public class MainContainerActivity extends AppCompatActivity implements SeshDial
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RequestActivity.LEARN_REQUEST_CREATE_SUCCESS) {
+            sideMenuFragment.setStatusFlag(SideMenuFragment.MENU_OPEN_DISPLAY_NEW_REQUEST);
+            Handler handler = new Handler();
+            Runnable openSideMenu = new Runnable() {
+                @Override
+                public void run() {
+                    slidingMenu.toggle(true);
+                }
+            };
+
+            // hacky, but delay menu open animation to account for activity transition
+            handler.postDelayed(openSideMenu, 300);
+        }
     }
+
 
     public void onNetworkError() {
         Log.e(TAG, "Network Error");

@@ -4,17 +4,20 @@ import android.content.Context;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.ListFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.seshtutoring.seshapp.R;
+import com.seshtutoring.seshapp.model.LearnRequest;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
 import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.HomeFragment;
 import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.PaymentFragment;
@@ -22,7 +25,9 @@ import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.ProfileFra
 import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.PromoteFragment;
 import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.SettingsFragment;
 
-public class SideMenuFragment extends ListFragment {
+import java.util.Iterator;
+
+public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenedListener {
     public static enum MenuOption {
         HOME("Home", R.drawable.home, new HomeFragment()),
         PROFILE("Profile", R.drawable.profile, new ProfileFragment()),
@@ -42,35 +47,47 @@ public class SideMenuFragment extends ListFragment {
     }
 
     public static final String MAIN_WRAPPER_STATE_KEY = "main_wrapper_state";
+    public static final String MENU_OPEN_DISPLAY_NEW_REQUEST = "display_new_request";
+
     private MainContainerActivity mainContainerActivity;
-    private TextView selectedTextView;
+    private SideMenuItem selectedItem;
     private ListView menu;
+    private ListView openRequestsList;
+    private View dividerAboveOpenRequests;
+    private OpenRequestsListAdapter openRequestsListAdapter;
+    private String menuOpenFlag;
+
+    private TextView[] menuOptionTitles;
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        menu = (ListView) inflater.inflate(R.layout.side_menu_list, container, false);
+        View view = inflater.inflate(R.layout.side_menu_fragment, container, false);
+        menu = (ListView) view.findViewById(R.id.side_menu_list);
+        openRequestsList = (ListView) view.findViewById(R.id.open_requests_list);
+        dividerAboveOpenRequests = (View) view.findViewById(R.id.divider_above_requests);
         mainContainerActivity = (MainContainerActivity) getActivity();
-        return menu;
+        return view;
     }
 
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        MenuOption selectedItem = mainContainerActivity.getCurrentState();
+        final MenuOption initialSelectedItem = mainContainerActivity.getCurrentState();
 
-        SideMenuAdapter adapter = new SideMenuAdapter(getActivity());
+        menuOptionTitles = new TextView[MenuOption.values().length];
+
+        final SideMenuAdapter sideMenuAdapter = new SideMenuAdapter(getActivity());
         for (MenuOption menuOption : MenuOption.values()) {
-            adapter.add(new SideMenuItem(menuOption.title, menuOption.iconRes,
-                    (selectedItem == menuOption) ? true : false));
+            sideMenuAdapter.add(new SideMenuItem(menuOption.title, menuOption.iconRes,
+                    (initialSelectedItem == menuOption) ? true : false));
         }
 
-        setListAdapter(adapter);
+        menu.setAdapter(sideMenuAdapter);
 
         menu.setOnItemClickListener(new ListView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapter, View view, int position, long id) {
-                TextView newSelectedTextView = (TextView) view.findViewById(R.id.row_title);
-                selectItem(newSelectedTextView);
-                deselectItem(selectedTextView);
-                selectedTextView = newSelectedTextView;
+                selectedItem.isSelected = false;
+                selectedItem = sideMenuAdapter.getItem(position);
+                selectedItem.isSelected = true;
 
                 switch (position) {
                     case 0:
@@ -93,9 +110,14 @@ public class SideMenuFragment extends ListFragment {
                         break;
                 }
 
+                sideMenuAdapter.notifyDataSetChanged();
                 mainContainerActivity.closeDrawer();
             }
         });
+
+        openRequestsListAdapter = new OpenRequestsListAdapter(getActivity());
+        openRequestsList.setAdapter(openRequestsListAdapter);
+
     }
 
     private class SideMenuItem {
@@ -126,11 +148,36 @@ public class SideMenuFragment extends ListFragment {
             title.setText(getItem(position).tag);
             if (getItem(position).isSelected) {
                 selectItem(title);
-                selectedTextView = title;
+                selectedItem = getItem(position);
+            } else {
+                deselectItem(title);
             }
             return convertView;
         }
 
+    }
+
+    public class OpenRequestsListAdapter extends ArrayAdapter<LearnRequest> {
+        public OpenRequestsListAdapter(Context context) { super(context, 0); }
+
+        public View getView(int position, View convertView, ViewGroup parent) {
+            if (convertView == null) {
+                convertView = LayoutInflater.from(getContext()).inflate(R.layout.open_request_list_row,
+                        null);
+            }
+
+            TextView classAbbrvTextView = (TextView) convertView.findViewById(R.id.open_request_list_row_class);
+            classAbbrvTextView.setText(getItem(position).classString);
+
+            // if view represents the newest request and side menu was opened in context of a new
+            // request being created, animate row in to emphasize it to user.
+            if (menuOpenFlag == MENU_OPEN_DISPLAY_NEW_REQUEST && position == getCount() - 1) {
+                Animation newItemAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.fade_and_slide_in);
+                convertView.startAnimation(newItemAnimation);
+                menuOpenFlag = null;
+            }
+            return convertView;
+        }
     }
 
     public void selectItem(TextView title) {
@@ -141,5 +188,37 @@ public class SideMenuFragment extends ListFragment {
     public void deselectItem(TextView title) {
         Typeface light = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Gotham-Light.otf");
         title.setTypeface(light);
+    }
+
+    public OpenRequestsListAdapter getOpenRequestsAdapter() {
+        return openRequestsListAdapter;
+    }
+
+    public void setStatusFlag(String flag) {
+        this.menuOpenFlag = flag;
+    }
+
+
+    @Override
+    public void onOpened() {
+        if (menuOpenFlag == MENU_OPEN_DISPLAY_NEW_REQUEST) {
+            updateLearnRequestList();
+        }
+    }
+
+    private void updateLearnRequestList() {
+        Iterator<LearnRequest> learnRequests = LearnRequest.findAll(LearnRequest.class);
+
+        openRequestsListAdapter.clear();
+        while (learnRequests.hasNext()) {
+            openRequestsListAdapter.add(learnRequests.next());
+        }
+        if (openRequestsListAdapter.getCount() > 0 && dividerAboveOpenRequests.getAlpha() == 0f) {
+            dividerAboveOpenRequests.animate().alpha(1f).setDuration(300).setStartDelay(500);
+        } else if (openRequestsListAdapter.getCount() == 0 && dividerAboveOpenRequests.getAlpha() == 1f) {
+            dividerAboveOpenRequests.setAlpha(0f);
+        }
+
+        openRequestsListAdapter.notifyDataSetChanged();
     }
 }

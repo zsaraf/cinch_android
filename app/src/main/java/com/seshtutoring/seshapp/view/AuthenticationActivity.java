@@ -28,6 +28,8 @@ import android.widget.Toast;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.Rate;
 import com.seshtutoring.seshapp.model.User;
@@ -169,6 +171,19 @@ public class AuthenticationActivity extends Activity {
         termsAndPrivacyPolicyText.setText(spannable);
 
         setupEntranceType();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        GoogleApiAvailability googleApiAvailability = GoogleApiAvailability.getInstance();
+
+        int code = googleApiAvailability.isGooglePlayServicesAvailable(this);
+        if (code != ConnectionResult.SUCCESS) {
+            googleApiAvailability.getErrorDialog(this, code, 0).show();
+        }
+
     }
 
     private void handleLogin() {
