@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="10dp">
+    <TextView
+        android:id="@+id/student_name"
+        android:textSize="20sp"
+        android:padding="5dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/seshorange"/>
+    <com.seshtutoring.seshapp.view.components.SeshIconTextView
+        android:id="@+id/course"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/student_name"></com.seshtutoring.seshapp.view.components.SeshIconTextView>
+    <com.seshtutoring.seshapp.view.components.SeshIconTextView
+        android:id="@+id/assignment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/course"></com.seshtutoring.seshapp.view.components.SeshIconTextView>
+    <com.seshtutoring.seshapp.view.components.SeshIconTextView
+        android:id="@+id/distance"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/assignment"></com.seshtutoring.seshapp.view.components.SeshIconTextView>
+    <com.seshtutoring.seshapp.view.components.SeshIconTextView
+        android:id="@+id/duration"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/distance"></com.seshtutoring.seshapp.view.components.SeshIconTextView>
+
+</RelativeLayout>

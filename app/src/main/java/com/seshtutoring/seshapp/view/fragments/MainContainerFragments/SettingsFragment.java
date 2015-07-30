@@ -59,7 +59,7 @@ public class SettingsFragment extends ListFragment {
         LOGOUT("Logout", 2, "", null),
         NOTIFICATIONS("Notifications", 1, "", null),
         PING("Tutor Offline Ping", 2, "", null),
-        EXPLAINATION("Would you like to be notified when students who have favorited you need help, even when you're offline?", 3, "", null),
+        EXPLANATION("Would you like to be notified when students who have favorited you need help, even when you're offline?", 3, "", null),
         ABOUT("About", 1, "", AboutActivity.class),
         TERMS("Terms of Use", 2, "", TermsActivity.class),
         PRIVACY("Privacy Policy", 2, "", PrivacyActivity.class),

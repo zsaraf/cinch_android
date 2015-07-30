@@ -93,6 +93,7 @@ public class PaymentFragment extends ListFragment {
         }
     }
 
+
     private void updateCards() {
 
         SeshNetworking seshNetworking = new SeshNetworking(getActivity());

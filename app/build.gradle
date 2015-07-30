@@ -1,9 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
+//    signingConfigs {
+//        debug {
+//            storeFile file('/Users/lillioetting/Android/seshandroid/keystore/debug.keystore')
+//        }
+//    }
     compileSdkVersion 22
     buildToolsVersion "22.0.1"
-
     defaultConfig {
         applicationId "com.seshtutoring.seshapp"
         minSdkVersion 15
@@ -13,7 +17,6 @@ android {
         renderscriptTargetApi 22
         renderscriptSupportModeEnabled true
     }
-
     buildTypes {
         release {
             minifyEnabled false
@@ -28,7 +31,7 @@ android {
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
+    compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.github.satyan:sugar:1.3.1'
     compile 'com.android.support:appcompat-v7:22.2.0'
     compile 'com.android.support:support-v4:22.2.0'
