@@ -2,12 +2,14 @@ package com.seshtutoring.seshapp.view.fragments;
 
 import android.app.Activity;
 import android.app.DownloadManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Criteria;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -55,6 +57,9 @@ public class LearnViewFragment extends Fragment implements OnMapReadyCallback {
     public static final String BLURRED_MAP_BITMAP_PATH_KEY = "blurred_map_bitmap";
     public static final String CHOSEN_LOCATION_LAT = "chosen_location_lat";
     public static final String CHOSEN_LOCATION_LONG = "chosen_location_long";
+    private LocationManager locationManager;
+    private LocationListener locationListener;
+    private Location currentBestLocation;
 
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
         View view = layoutInflater.inflate(R.layout.learn_view_fragment, container, false);
@@ -62,7 +67,7 @@ public class LearnViewFragment extends Fragment implements OnMapReadyCallback {
 
         LayoutUtils utils = new LayoutUtils(getActivity());
 
-        ImageButton currentLocationButton = (ImageButton) view.findViewById(R.id.current_location_button);
+        final ImageButton currentLocationButton = (ImageButton) view.findViewById(R.id.current_location_button);
         LinearLayout.MarginLayoutParams margins = (LinearLayout.MarginLayoutParams) currentLocationButton.getLayoutParams();
         margins.topMargin += utils.getActionBarHeightPx();
         currentLocationButton.setLayoutParams(margins);
@@ -73,7 +78,7 @@ public class LearnViewFragment extends Fragment implements OnMapReadyCallback {
                 Location currentLocation = getCurrentLocation();
                 if (currentLocation != null) {
                     mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(
-                            new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), 16), 500, null);
+                            new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), 18), 500, null);
                 }
             }
         });
@@ -87,7 +92,48 @@ public class LearnViewFragment extends Fragment implements OnMapReadyCallback {
                 startRequestActivityWithBlurTransition();
             }
         });
+
+        locationManager =
+                (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+        locationListener = new LocationListener() {
+            @Override
+            public void onLocationChanged(Location location) {
+                currentBestLocation = location;
+            }
+
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+//                do nothing
+            }
+
+            @Override
+            public void onProviderEnabled(String provider) {
+//                do nothing
+
+            }
+
+            @Override
+            public void onProviderDisabled(String provider) {
+//                do nothing
+
+            }
+        };
+
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 30, locationListener);
+    }
+
+    @Override
+    public void onPause()
+    {
+        super.onPause();
+        Log.d(TAG, "Removing location updates");
+        locationManager.removeUpdates(locationListener);
     }
 
     private void startRequestActivityWithBlurTransition() {
@@ -170,9 +216,12 @@ public class LearnViewFragment extends Fragment implements OnMapReadyCallback {
     }
 
     private Location getCurrentLocation() {
-        LocationManager locationManager = (LocationManager) getActivity().getSystemService(getActivity().LOCATION_SERVICE);
-        Criteria criteria = new Criteria();
-
-        return locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
+        if (currentBestLocation != null) {
+            return currentBestLocation;
+        } else {
+            Criteria criteria = new Criteria();
+            criteria.setAccuracy(Criteria.ACCURACY_FINE);
+            return locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
+        }
     }
 }

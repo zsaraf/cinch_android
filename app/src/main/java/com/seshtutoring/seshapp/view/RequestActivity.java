@@ -38,6 +38,7 @@ import com.seshtutoring.seshapp.model.AvailableBlock;
 import com.seshtutoring.seshapp.model.Course;
 import com.seshtutoring.seshapp.model.LearnRequest;
 import com.seshtutoring.seshapp.model.User;
+import com.seshtutoring.seshapp.util.ApplicationLifecycleTracker;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.components.LearnRequestProgressBar;
 import com.seshtutoring.seshapp.view.components.RequestFlowViewPager;
@@ -165,7 +166,7 @@ public class RequestActivity extends FragmentActivity implements EditText.OnEdit
     @Override
     public void onResume() {
         super.onResume();
-        User.fetchUserInfoFromServer(this);
+        ApplicationLifecycleTracker.applicationResumed(this);
     }
 
     private class LearnRequestPagerAdapter extends FragmentStatePagerAdapter {

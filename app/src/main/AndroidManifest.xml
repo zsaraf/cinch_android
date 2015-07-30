@@ -58,6 +58,9 @@
         <service
             android:name="com.seshtutoring.seshapp.services.GCMRegistrationIntentService"
             android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
+            </intent-filter>
         </service>
 
         <activity

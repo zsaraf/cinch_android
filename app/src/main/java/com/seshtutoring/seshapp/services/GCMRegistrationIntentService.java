@@ -31,6 +31,7 @@ public class GCMRegistrationIntentService extends IntentService {
 
     public static final String GCM_STATUS_SHARED_PREFS = "gcm_status_shared_prefs";
     public static final String GCM_TOKEN_KEY = "gcm_token";
+    public static final String GCM_REGISTRATION_ID_KEY = "registration_id";
     public static final String RETRY_INTERVAL_KEY = "retry_interval";
     public static final String TOKEN_REGISTRATION_COMPLETE = "registration_complete";
 
@@ -70,17 +71,24 @@ public class GCMRegistrationIntentService extends IntentService {
                 // [END get_token]
                 Log.i(TAG, "GCM Registration Token: " + token);
 
-                gcmSharedPreferences.edit().putString(GCM_TOKEN_KEY, token).apply();
-
-                sendRegistrationToServer(token);
+                tokenFound(token, gcmSharedPreferences);
             }
         } catch (Exception e) {
-            Log.d(TAG, "Failed to complete token refresh", e);
-            // If an exception happens while fetching the new token or updating our registration data
-            // on a third-party server, this ensures that we'll attempt the update at a later time.
-
-            retryWithExponentialBackoff();
+            if (intent.hasExtra(GCM_REGISTRATION_ID_KEY)) {
+//                fix for GCM bug where exception is thrown every time on certain devices
+                tokenFound(intent.getStringExtra(GCM_REGISTRATION_ID_KEY), gcmSharedPreferences);
+            } else {
+                Log.d(TAG, "Failed to complete token refresh", e);
+                // If an exception happens while fetching the new token or updating our registration data
+                // on a third-party server, this ensures that we'll attempt the update at a later time.
+                retryWithExponentialBackoff();
+            }
         }
+    }
+
+    private void tokenFound(String token, SharedPreferences gcmSharedPreferences) {
+        gcmSharedPreferences.edit().putString(GCM_TOKEN_KEY, token).apply();
+        sendRegistrationToServer(token);
     }
 
     /**
@@ -102,16 +110,16 @@ public class GCMRegistrationIntentService extends IntentService {
                         Intent registrationComplete = new Intent(TOKEN_REGISTRATION_COMPLETE);
                         LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(registrationComplete);
                     } else {
-                        Log.e(TAG, "Failed to update device token on server: " + jsonObject.getString("message"));
+                        Log.e(TAG, "GCM ERROR: Failed to update device token on server: " + jsonObject.getString("message"));
                     }
                 } catch (JSONException e) {
-                    Log.e(TAG, "Failed to update device token on server; response malformed: " + e);
+                    Log.e(TAG, "GCM ERROR: Failed to update device token on server; response malformed: " + e);
                 }
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-
+                retryWithExponentialBackoff();
             }
         });
     }
@@ -129,5 +137,19 @@ public class GCMRegistrationIntentService extends IntentService {
                 (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,
                 SystemClock.elapsedRealtime() + retryInterval, alarmIntent);
+    }
+
+    public static void clearGCMRegistrationToken(Context context) {
+        SharedPreferences gcmSharedPreferences = context.getSharedPreferences(GCM_STATUS_SHARED_PREFS, 0);
+        gcmSharedPreferences.edit().clear().apply();
+    }
+
+    public static String getSavedGCMToken(Context context) {
+        SharedPreferences gcmSharedPreferences = context.getSharedPreferences(GCM_STATUS_SHARED_PREFS, 0);
+        if (gcmSharedPreferences.contains(GCM_TOKEN_KEY)) {
+            return gcmSharedPreferences.getString(GCM_TOKEN_KEY, null);
+        } else {
+            return null;
+        }
     }
 }

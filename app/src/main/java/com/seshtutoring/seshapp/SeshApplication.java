@@ -1,6 +1,7 @@
 package com.seshtutoring.seshapp;
 
 import android.app.Application;
+import android.content.SharedPreferences;
 import android.util.Log;
 
 import com.android.volley.Request;
@@ -22,10 +23,10 @@ import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
  * Created by nadavhollander on 7/7/15.
  */
 public class SeshApplication extends SugarApp {
+    private static final String TAG = SeshApplication.class.getName();
+
     public static final boolean IS_LIVE = false;
     public static final boolean IS_DEV = true;
-
-    private static final String TAG = SeshApplication.class.getName();
 
     @Override
     public void onCreate() {

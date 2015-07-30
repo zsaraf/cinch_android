@@ -3,12 +3,14 @@ package com.seshtutoring.seshapp.view;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.content.ComponentName;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.content.Context;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -27,6 +29,8 @@ import com.google.android.gms.common.GoogleApiAvailability;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.LearnRequest;
+import com.seshtutoring.seshapp.services.GCMRegistrationIntentService;
+import com.seshtutoring.seshapp.util.ApplicationLifecycleTracker;
 import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
@@ -97,7 +101,7 @@ public class MainContainerActivity extends AppCompatActivity implements SeshDial
     @Override
     public void onResume() {
         super.onResume();
-        User.fetchUserInfoFromServer(this);
+        ApplicationLifecycleTracker.applicationResumed(this);
 
         GoogleApiAvailability googleApiAvailability = GoogleApiAvailability.getInstance();
 
