@@ -22,6 +22,9 @@ android {
     }
     compileOptions {
     }
+
+    apply plugin: 'com.google.gms.google-services'
+    apply plugin: 'com.google.gms.google-services'
 }
 
 dependencies {

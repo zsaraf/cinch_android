@@ -18,8 +18,10 @@ import com.seshtutoring.seshapp.model.LearnRequest;
 import com.seshtutoring.seshapp.model.Rate;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.tz.DateTimeZoneBuilder;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -30,6 +32,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.SimpleTimeZone;
+import java.util.TimeZone;
 
 /**
  * Wrapper for any asynchronous interactions with the API.
@@ -43,6 +47,7 @@ public class SeshNetworking {
     private static final String SESSION_ID_PARAM = "session_id";
     private static final String SEARCH_QUERY_PARAM = "search_query";
     private static final String DEVICE_TOKEN_PARAM = "device_token";
+    private static final String DEVICE_TYPE_PARAM = "type";
     private static final String IS_DEV_PARAM = "is_dev";
     private static final String MAJOR_PARAM = "major";
     private static final String BIO_PARAM = "bio";
@@ -72,6 +77,7 @@ public class SeshNetworking {
     private static final String AVAILABLE_BLOCKS_PARAM = "available_blocks";
     private static final String IS_INSTANT_PARAM = "is_instant";
     private static final String EXPIRATION_TIME_PARAM = "expiration_time";
+    private static final String TIMEZONE_OFFSET_PARAM = "timezone_offset";
 
     private Context mContext;
 
@@ -159,7 +165,13 @@ public class SeshNetworking {
         Map<String, String> params = new HashMap<>();
         params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
         params.put(DEVICE_TOKEN_PARAM, deviceToken);
+        params.put(DEVICE_TYPE_PARAM, "android");
         params.put(IS_DEV_PARAM, SeshApplication.IS_DEV ? "1" : "0");
+
+        TimeZone timezone = TimeZone.getDefault();
+        int timeZoneOffset = timezone.getOffset(new Date().getTime()) / 1000 / 60 / 60;
+
+        params.put(TIMEZONE_OFFSET_PARAM, Integer.toString(timeZoneOffset));
 
         postWithRelativeUrl("update_device_token.php", params, successListener, errorListener);
     }

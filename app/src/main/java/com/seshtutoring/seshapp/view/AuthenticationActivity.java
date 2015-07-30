@@ -33,6 +33,7 @@ import com.google.android.gms.common.GoogleApiAvailability;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.Rate;
 import com.seshtutoring.seshapp.model.User;
+import com.seshtutoring.seshapp.services.GCMRegistrationIntentService;
 import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.components.SeshButton;
@@ -235,8 +236,13 @@ public class AuthenticationActivity extends Activity {
             if (responseJson.get("status").equals("SUCCESS")) {
                 User.createOrUpdateUserWithObject(responseJson, this);
                 Rate.fetchHourlyRateFromServer(this);
-                Intent intent = new Intent(this, MainContainerActivity.class);
-                startActivity(intent);
+
+                // Initialize Google Cloud Messaging (fetch token, send to server, etc.)
+                Intent gcmIntent = new Intent(this, GCMRegistrationIntentService.class);
+                startService(gcmIntent);
+
+                Intent mainContainerIntent = new Intent(this, MainContainerActivity.class);
+                startActivity(mainContainerIntent);
             } else if (responseJson.get("status").equals("UNVERIFIED")) {
                 Toast.makeText(this, "unverified account", Toast.LENGTH_LONG).show();
             } else {
