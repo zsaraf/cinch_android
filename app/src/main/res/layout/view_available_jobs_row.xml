@@ -6,12 +6,29 @@
     android:layout_height="match_parent"
     android:padding="10dp">
     <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/overlay_text"
+        android:background="@color/seshorangeopaque"
+        android:textColor="@color/white"
+        android:textSize="30sp"
+        android:padding="10dp"
+        android:gravity="center"/>
+    <TextView
         android:id="@+id/student_name"
         android:textSize="20sp"
         android:padding="5dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textColor="@color/seshorange"/>
+    <TextView
+        android:id="@+id/hourly_rate"
+        android:textSize="20sp"
+        android:padding="5dp"
+        android:gravity="right"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/seshlightgray"/>
     <com.seshtutoring.seshapp.view.components.SeshIconTextView
         android:id="@+id/course"
         android:layout_width="match_parent"
@@ -22,15 +39,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/course"></com.seshtutoring.seshapp.view.components.SeshIconTextView>
-    <com.seshtutoring.seshapp.view.components.SeshIconTextView
-        android:id="@+id/distance"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/assignment"></com.seshtutoring.seshapp.view.components.SeshIconTextView>
+    <!--<com.seshtutoring.seshapp.view.components.SeshIconTextView-->
+        <!--android:id="@+id/distance"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_below="@id/assignment"></com.seshtutoring.seshapp.view.components.SeshIconTextView>-->
     <com.seshtutoring.seshapp.view.components.SeshIconTextView
         android:id="@+id/duration"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/distance"></com.seshtutoring.seshapp.view.components.SeshIconTextView>
+        android:layout_below="@id/assignment"></com.seshtutoring.seshapp.view.components.SeshIconTextView>
 
 </RelativeLayout>

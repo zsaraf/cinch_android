@@ -28,6 +28,26 @@ public class Course {
         this.classId = classId;
     }
 
+    public static Course fromClassRowJson(JSONObject json) {
+        Course courseInstance = null;
+
+        String classNameVal;
+        String classNumberVal;
+        String deptAbbrevVal;
+        int classIdVal;
+
+        try {
+            classNameVal = json.getString("name");
+            classNumberVal = json.getString("number");
+            deptAbbrevVal = json.getJSONObject("department").getString("abbrev");
+            classIdVal = json.getInt("id");
+            courseInstance = new Course(classNameVal, classNumberVal, deptAbbrevVal, classIdVal);
+        } catch (JSONException e) {
+            Log.e(TAG, e.getMessage());
+        }
+        return courseInstance;
+    }
+
     public static Course fromJson(JSONObject json) {
         Course courseInstance = null;
 
@@ -51,4 +71,9 @@ public class Course {
     public String formatForTextView() {
         return deptAbbrev + " " + classNumber + ": " + className;
     }
+
+    public String shortFormatForTextView() {
+        return deptAbbrev + " " + classNumber;
+    }
+
 }

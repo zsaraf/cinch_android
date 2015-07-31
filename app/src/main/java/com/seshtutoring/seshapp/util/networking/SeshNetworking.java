@@ -11,6 +11,7 @@ import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Response;
 import com.seshtutoring.seshapp.SeshApplication;
 import com.seshtutoring.seshapp.model.AvailableBlock;
+import com.seshtutoring.seshapp.model.Course;
 import com.seshtutoring.seshapp.model.LearnRequest;
 import com.seshtutoring.seshapp.model.Rate;
 import com.seshtutoring.seshapp.model.AvailableBlock;
@@ -28,6 +29,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -78,6 +80,7 @@ public class SeshNetworking {
     private static final String IS_INSTANT_PARAM = "is_instant";
     private static final String EXPIRATION_TIME_PARAM = "expiration_time";
     private static final String TIMEZONE_OFFSET_PARAM = "timezone_offset";
+    private static final String TUTOR_COURSES_PARAM = "courses";
 
     private Context mContext;
 
@@ -488,6 +491,28 @@ public class SeshNetworking {
         }
 
         postWithRelativeUrl("create_request.php", params, successListener, errorListener);
+    }
+
+    public void getTutorCourses(Response.Listener<JSONObject> successListener,
+                         Response.ErrorListener errorListener) {
+        Map<String, String> params = new HashMap<>();
+        params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
+
+        postWithRelativeUrl("get_tutor_classes.php", params, successListener,
+                errorListener);
+    }
+
+    public void getAvailableJobs(ArrayList<Course> courses, Response.Listener<JSONObject> successListener,
+                                Response.ErrorListener errorListener) {
+        Map<String, String> params = new HashMap<>();
+        params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
+
+        for (int i = 0; i < courses.size(); i++) {
+            params.put(TUTOR_COURSES_PARAM + "[" + i + "]", String.valueOf(courses.get(i).classId));
+        }
+
+        postWithRelativeUrl("get_possible_jobs.php", params, successListener,
+                errorListener);
     }
 
 
