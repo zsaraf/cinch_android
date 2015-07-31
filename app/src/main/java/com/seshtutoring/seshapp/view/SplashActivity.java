@@ -57,7 +57,6 @@ public class SplashActivity extends Activity {
         }
 
         setContentView(R.layout.splash_activity);
-
     }
 
     private void startInitialActivity() {

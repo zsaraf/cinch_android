@@ -22,7 +22,7 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ic_sesh"
+        android:icon="@mipmap/android_launchicon"
         android:label="@string/app_name"
         android:theme="@style/SeshActionBarTheme"
         android:name=".SeshApplication">
