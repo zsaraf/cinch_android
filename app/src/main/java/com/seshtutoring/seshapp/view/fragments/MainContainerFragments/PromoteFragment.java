@@ -10,11 +10,14 @@ import android.widget.RelativeLayout;
 
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.util.LayoutUtils;
+import com.seshtutoring.seshapp.view.MainContainerActivity.FragmentFlagReceiver;
 
 /**
  * Created by nadavhollander on 7/14/15.
  */
-public class PromoteFragment extends Fragment {
+public class PromoteFragment extends Fragment implements FragmentFlagReceiver {
+    private String fragmentFlag;
+
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
         View v = layoutInflater.inflate(R.layout.promote_fragment, null);
 
@@ -26,4 +29,13 @@ public class PromoteFragment extends Fragment {
         return v;
     }
 
+    @Override
+    public void updateFragmentFlag(String flag) {
+        this.fragmentFlag = flag;
+    }
+
+    @Override
+    public void clearFragmentFlag() {
+        this.fragmentFlag = null;
+    }
 }

@@ -7,7 +7,7 @@ import android.view.MenuItem;
 
 import com.seshtutoring.seshapp.R;
 
-public class AboutActivity extends ActionBarActivity {
+public class AboutActivity extends SeshActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

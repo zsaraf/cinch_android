@@ -1,19 +1,14 @@
 package com.seshtutoring.seshapp.view;
 
 import android.app.ActionBar;
-import android.app.Activity;
+import android.app.NotificationManager;
+import android.content.BroadcastReceiver;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.os.Build;
-import android.content.ComponentName;
+import android.content.IntentFilter;
 import android.os.Handler;
-import android.support.v4.app.Fragment;
 import android.content.Context;
-import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -28,14 +23,11 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.seshtutoring.seshapp.R;
-import com.seshtutoring.seshapp.model.LearnRequest;
 import com.seshtutoring.seshapp.services.GCMRegistrationIntentService;
-import com.seshtutoring.seshapp.util.ApplicationLifecycleTracker;
-import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.model.User;
+import com.seshtutoring.seshapp.services.SeshGCMListenerService;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.components.SeshDialog;
-import com.seshtutoring.seshapp.view.fragments.LearnViewFragment;
 import com.seshtutoring.seshapp.view.fragments.SideMenuFragment;
 import com.seshtutoring.seshapp.view.fragments.SideMenuFragment.MenuOption;
 
@@ -44,12 +36,47 @@ import org.json.JSONObject;
 
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
-public class MainContainerActivity extends AppCompatActivity implements SeshDialog.OnSelectionListener {
+public class MainContainerActivity extends SeshActivity implements SeshDialog.OnSelectionListener {
     private static final String TAG = MainContainerActivity.class.getName();
+    public static final String MAIN_CONTAINER_STATE_KEY = "main_container_state";
+    public static final String FRAGMENT_FLAG_KEY = "fragment_flags";
+    public static final String UPDATE_CONTAINER_STATE_ACTION =
+            "com.seshtutoring.seshapp.UPDATE_CONTAINER_STATE";
+
+    private BroadcastReceiver notificationActionReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.hasExtra(SeshGCMListenerService.NOTIFICATION_ID_EXTRA)) {
+                int notificationId = intent.getIntExtra(SeshGCMListenerService.NOTIFICATION_ID_EXTRA, -1);
+                ((NotificationManager)
+                        getSystemService(NOTIFICATION_SERVICE)).cancel(notificationId);
+            }
+
+            if (intent.getAction().equals(UPDATE_CONTAINER_STATE_ACTION)) {
+                Bundle extras = intent.getExtras();
+                MenuOption containerState = (MenuOption) extras.getSerializable(MAIN_CONTAINER_STATE_KEY);
+                String flag = extras.getString(FRAGMENT_FLAG_KEY);
+
+                setCurrentState(containerState, flag);
+                sideMenuFragment.updateSelectedItem();
+            }
+        }
+    };
+
+    /**
+     * All fragments inserted in the Main Container must implement this interface.  This allows
+     * flags to be passed to Fragments contained within the container via Intents sent to
+     * MainContainerActivity (eg. Intent wants to show available jobs to tutor, flag is passed to
+     * TeachViewFragment to show the appropriate fragment)
+     */
+    public interface FragmentFlagReceiver {
+        void updateFragmentFlag(String flag);
+        void clearFragmentFlag();
+    }
 
     private SlidingMenu slidingMenu;
     private SideMenuFragment sideMenuFragment;
-    private MenuOption selectedMenuOption;
+    private MenuOption currentSelectedMenuOption;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,8 +92,6 @@ public class MainContainerActivity extends AppCompatActivity implements SeshDial
         ImageButton backButton = (ImageButton) findViewById(R.id.action_bar_back_button);
         ViewGroup layout = (ViewGroup) backButton.getParent();
         layout.removeView(backButton);
-
-        setCurrentState(MenuOption.HOME);
 
         sideMenuFragment = new SideMenuFragment();
 
@@ -96,12 +121,17 @@ public class MainContainerActivity extends AppCompatActivity implements SeshDial
                 return false;
             }
         });
+
+        setCurrentState(MenuOption.HOME, null);
+        registerReceiver(notificationActionReceiver, new IntentFilter(UPDATE_CONTAINER_STATE_ACTION));
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        ApplicationLifecycleTracker.applicationResumed(this);
+
+        User.fetchUserInfoFromServer(this);
+        updateDeviceOnServer(this);
 
         GoogleApiAvailability googleApiAvailability = GoogleApiAvailability.getInstance();
 
@@ -110,6 +140,11 @@ public class MainContainerActivity extends AppCompatActivity implements SeshDial
         if (code != ConnectionResult.SUCCESS) {
             googleApiAvailability.getErrorDialog(this, code, 0).show();
         }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
     }
 
     public void onDialogSelection(int selection, String type) {
@@ -189,19 +224,45 @@ public class MainContainerActivity extends AppCompatActivity implements SeshDial
     }
 
     public MenuOption getCurrentState() {
-        return selectedMenuOption;
+        return currentSelectedMenuOption;
     }
 
-    public void setCurrentState(MenuOption selectedMenuOption) {
-        this.selectedMenuOption = selectedMenuOption;
-        TextView title = (TextView) findViewById(R.id.action_bar_title);
+    /**
+     * Convenience method for setting current state without flags
+     * @param menuOption
+     */
+    public void setCurrentState(MenuOption menuOption) {
+        setCurrentState(menuOption, null);
+    }
 
-        title.setText(selectedMenuOption.title);
+    public void setCurrentState(MenuOption selectedMenuOption, String flag) {
+        if (!(selectedMenuOption.fragment instanceof FragmentFlagReceiver)) {
+            Log.e(TAG, "Invalid Fragment: All fragments within MainContainerActivity must implement FragmentFlagReceiver");
+            return;
+        }
 
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.main_container, selectedMenuOption.fragment)
-                .commit();
+        if (currentSelectedMenuOption != selectedMenuOption) {
+            if (currentSelectedMenuOption != null) {
+                FragmentFlagReceiver flagReceiver = (FragmentFlagReceiver) currentSelectedMenuOption.fragment;
+                flagReceiver.clearFragmentFlag();
+            }
+
+            currentSelectedMenuOption = selectedMenuOption;
+
+            TextView title = (TextView) findViewById(R.id.action_bar_title);
+
+            title.setText(selectedMenuOption.title);
+
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.main_container, currentSelectedMenuOption.fragment)
+                    .commitAllowingStateLoss();
+        }
+
+        if (flag != null) {
+            FragmentFlagReceiver flagReceiver = (FragmentFlagReceiver) currentSelectedMenuOption.fragment;
+            flagReceiver.updateFragmentFlag(flag);
+        }
     }
 
     public void closeDrawer() {
@@ -254,6 +315,37 @@ public class MainContainerActivity extends AppCompatActivity implements SeshDial
         }
     }
 
+    /**
+     * Updates the Device row of the server database for user's phone.  Called everytime user
+     * opens main container (onResume).  Will not send update request if we do not have a GCM registration
+     * token locally saved -- device row data is only used to push information (via GCM), so any
+     * update would be irrelevant if user device does not have a valid GCM token.
+     */
+    private static void updateDeviceOnServer(Context context) {
+        String savedToken = GCMRegistrationIntentService.getSavedGCMToken(context);
+        if (savedToken != null) {
+            SeshNetworking seshNetworking = new SeshNetworking(context);
+            seshNetworking.updateDeviceToken(savedToken, new Response.Listener<JSONObject>() {
+                @Override
+                public void onResponse(JSONObject jsonObject) {
+                    try {
+                        if (jsonObject.getString("status").equals("SUCCESS")) {
+                            Log.i(TAG, "Updated device on server");
+                        } else {
+                            Log.e(TAG, "Failed to update device on server: " + jsonObject.getString("message"));
+                        }
+                    } catch (JSONException e) {
+                        Log.e(TAG, "Failed to update device on server; response malformed: " + e);
+                    }
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Log.e(TAG, "Failed to update device on server; network error: " + error);
+                }
+            });
+        }
+    }
 
     public void onNetworkError() {
         Log.e(TAG, "Network Error");

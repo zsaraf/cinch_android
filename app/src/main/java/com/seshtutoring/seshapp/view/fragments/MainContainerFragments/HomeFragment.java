@@ -1,5 +1,6 @@
 package com.seshtutoring.seshapp.view.fragments.MainContainerFragments;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Parcelable;
@@ -8,6 +9,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -17,19 +19,38 @@ import android.widget.LinearLayout;
 
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.util.LayoutUtils;
+import com.seshtutoring.seshapp.view.MainContainerActivity;
 import com.seshtutoring.seshapp.view.fragments.LearnViewFragment;
 import com.seshtutoring.seshapp.view.fragments.TeachViewFragment;
+import com.seshtutoring.seshapp.view.MainContainerActivity.FragmentFlagReceiver;
 
 /**
  * Created by nadavhollander on 7/14/15.
  */
-public class HomeFragment extends Fragment {
+public class HomeFragment extends Fragment implements FragmentFlagReceiver {
+    private static final String TAG = HomeFragment.class.getName();
+    private enum TabItem {
+        LEARN_TAB(0), TEACH_TAB(1);
+
+        public int viewPagerPosition;
+
+        TabItem(int position) {
+            this.viewPagerPosition = position;
+        }
+    };
+
+    private View homeView;
     private ViewPager viewPager;
     private LearnViewFragment learnViewFragment;
     private TeachViewFragment teachViewFragment;
+    private Button learnTabButton;
+    private Button teachTabButton;
+    private String fragmentFlag;
+
+    public final static String SHOW_AVAILABLE_JOBS_FLAG = "show_available_jobs";
 
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
-        View homeView = layoutInflater.inflate(R.layout.home_fragment, container, false);
+        homeView = layoutInflater.inflate(R.layout.home_fragment, container, false);
 
         this.learnViewFragment = new LearnViewFragment();
         this.teachViewFragment = new TeachViewFragment();
@@ -44,17 +65,14 @@ public class HomeFragment extends Fragment {
         margins.topMargin = utils.getActionBarHeightPx();
         tabButtons.setLayoutParams(margins);
 
-        final Button learnTabButton = (Button) homeView.findViewById(R.id.learn_button);
-        final Button teachTabButton = (Button) homeView.findViewById(R.id.teach_button);
+        learnTabButton = (Button) homeView.findViewById(R.id.learn_button);
+        teachTabButton = (Button) homeView.findViewById(R.id.teach_button);
 
         learnTabButton.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                viewPager.setCurrentItem(0, true);
-                learnTabButton.setTextColor(getResources().getColor(R.color.seshorange));
-                teachTabButton.setTextColor(getResources().getColor(R.color.seshcharcoal));
-
                 learnTabButton.setPressed(true);
+                setCurrentTabItem(TabItem.LEARN_TAB, true);
                 return false;
             }
         });
@@ -62,23 +80,42 @@ public class HomeFragment extends Fragment {
         teachTabButton.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                viewPager.setCurrentItem(1, true);
-                teachTabButton.setTextColor(getResources().getColor(R.color.seshorange));
-                learnTabButton.setTextColor(getResources().getColor(R.color.seshcharcoal));
-
                 teachTabButton.setPressed(true);
+                setCurrentTabItem(TabItem.TEACH_TAB, true);
                 return false;
             }
         });
 
-        int currentItem = this.viewPager.getCurrentItem();
-        if (currentItem == 0) {
-            learnTabButton.setTextColor(getResources().getColor(R.color.seshorange));
+
+        if (fragmentFlag != null && fragmentFlag.equals(SHOW_AVAILABLE_JOBS_FLAG)) {
+            setCurrentTabItem(TabItem.TEACH_TAB, false);
         } else {
-            teachTabButton.setTextColor(getResources().getColor(R.color.seshorange));
+            setCurrentTabItem(TabItem.LEARN_TAB, false);
         }
 
         return homeView;
+    }
+
+
+    private void setCurrentTabItem(TabItem tabItem, boolean withAnimation) {
+        viewPager.setCurrentItem(tabItem.viewPagerPosition, withAnimation);
+        if (tabItem == TabItem.LEARN_TAB) {
+            learnTabButton.setTextColor(getResources().getColor(R.color.seshorange));
+            teachTabButton.setTextColor(getResources().getColor(R.color.seshcharcoal));
+        } else if (tabItem == TabItem.TEACH_TAB) {
+            teachTabButton.setTextColor(getResources().getColor(R.color.seshorange));
+            learnTabButton.setTextColor(getResources().getColor(R.color.seshcharcoal));
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (fragmentFlag != null && fragmentFlag.equals(SHOW_AVAILABLE_JOBS_FLAG)) {
+            setCurrentTabItem(TabItem.TEACH_TAB, false);
+            Log.d(TAG, "Fragment flag worked");
+            // show available jobs view
+        }
     }
 
     private class HomeViewPagerAdapter extends FragmentStatePagerAdapter {
@@ -109,5 +146,20 @@ public class HomeFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         learnViewFragment.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
+    public void updateFragmentFlag(String flag) {
+        this.fragmentFlag = flag;
+        if (flag.equals(SHOW_AVAILABLE_JOBS_FLAG)) {
+            if (isAdded()) {
+                setCurrentTabItem(TabItem.TEACH_TAB, false);
+            }
+        }
+    }
+
+    @Override
+    public void clearFragmentFlag() {
+        this.fragmentFlag = null;
     }
 }

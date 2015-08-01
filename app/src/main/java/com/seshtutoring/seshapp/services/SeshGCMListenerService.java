@@ -13,7 +13,13 @@ import android.util.Log;
 import com.google.android.gms.gcm.GcmListenerService;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.SeshStateManager;
+import com.seshtutoring.seshapp.util.ApplicationLifecycleTracker;
+import com.seshtutoring.seshapp.view.MainContainerActivity;
 import com.seshtutoring.seshapp.view.SplashActivity;
+import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.HomeFragment;
+import com.seshtutoring.seshapp.view.fragments.SideMenuFragment;
+import com.seshtutoring.seshapp.view.fragments.SideMenuFragment.MenuOption;
+import com.seshtutoring.seshapp.view.fragments.TeachViewFragment;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -45,6 +51,7 @@ public class SeshGCMListenerService extends GcmListenerService {
     @Override
     public void onMessageReceived(String from, Bundle data) {
         String identifier = data.getString(IDENTIFIER_KEY);
+        Intent intent;
 
         switch (identifier) {
                 case "UPDATE_STATE":
@@ -62,14 +69,37 @@ public class SeshGCMListenerService extends GcmListenerService {
                 case "MESSAGE":
                     break;
                 case "NOTIFY_TUTOR":
+                    // ignore silent push
+                    if (data.getString(ALERT_KEY).equals("")) return;
 
+                    if (ApplicationLifecycleTracker.applicationInForeground()) {
+                        intent = new Intent(MainContainerActivity.UPDATE_CONTAINER_STATE_ACTION);
+                    } else {
+                        intent = new Intent(this, MainContainerActivity.class);
+                    }
+
+                    Bundle bundle = new Bundle();
+                    bundle.putSerializable(MainContainerActivity.MAIN_CONTAINER_STATE_KEY, MenuOption.HOME);
+                    bundle.putString(MainContainerActivity.FRAGMENT_FLAG_KEY, HomeFragment.SHOW_AVAILABLE_JOBS_FLAG);
+                    bundle.putInt(NOTIFICATION_ID_EXTRA, DEFAULT_NOTIFICATION_ID);
+                    intent.putExtras(bundle);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+
+                    PendingIntent pendingIntent;
+                    if (ApplicationLifecycleTracker.applicationInForeground()) {
+                        pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                    } else {
+                        pendingIntent = pendingIntentForIntent(intent, MainContainerActivity.class, DEFAULT_NOTIFICATION_ID);
+                    }
+                    
+                    showNotification(data.getString(ALERT_KEY), pendingIntent);
                     break;
-                case "FOUND_TUTOR":
+            case "FOUND_TUTOR":
                     break;
             default:
-                Intent intent = new Intent(this, SplashActivity.class);
+                intent = new Intent(this, SplashActivity.class);
                 showNotification(data.getString(ALERT_KEY),
-                        pendingIntentForIntent(intent, DEFAULT_NOTIFICATION_ID));
+                        pendingIntentForIntent(intent, SplashActivity.class, DEFAULT_NOTIFICATION_ID));
                 break;
         }
     }
@@ -88,14 +118,13 @@ public class SeshGCMListenerService extends GcmListenerService {
         notificationManager.notify(DEFAULT_NOTIFICATION_ID, notificationBuilder.build());
     }
 
-    private PendingIntent pendingIntentForIntent(Intent intent, int notificationId) {
-        Intent resultIntent = new Intent(this, intent.getClass());
-        resultIntent.putExtra(NOTIFICATION_ID_EXTRA, notificationId);
+    private PendingIntent pendingIntentForIntent(Intent intent, Class<?> activityClass, int notificationId) {
+        intent.putExtra(NOTIFICATION_ID_EXTRA, notificationId);
 
         // ensures back button will lead to home screen
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-        stackBuilder.addParentStack(intent.getClass());
-        stackBuilder.addNextIntent(resultIntent);
+        stackBuilder.addParentStack(activityClass);
+        stackBuilder.addNextIntent(intent);
 
         return stackBuilder.getPendingIntent(
                         0,

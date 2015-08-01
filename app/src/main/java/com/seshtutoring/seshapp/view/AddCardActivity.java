@@ -33,7 +33,7 @@ import org.json.JSONObject;
 import me.brendanweinstein.util.ToastUtils;
 import me.brendanweinstein.views.FieldHolder;
 
-public class AddCardActivity extends ActionBarActivity {
+public class AddCardActivity extends SeshActivity {
 
     private static final String TAG = SettingsFragment.class.getName();
 

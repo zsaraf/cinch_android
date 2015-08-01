@@ -44,7 +44,7 @@ import org.json.JSONObject;
 
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
-public class AuthenticationActivity extends Activity {
+public class AuthenticationActivity extends SeshActivity {
     private static final String TAG = AuthenticationActivity.class.getName();
     public static enum EntranceType { LOGIN, SIGNUP }
     public static final String ENTRANCE_TYPE_KEY = "entrance_type";
@@ -84,13 +84,6 @@ public class AuthenticationActivity extends Activity {
             Log.e(TAG, "Intent does not specify EntranceType for AuthenticationActivity");
             this.entranceType = EntranceType.LOGIN;
         }
-
-        //Remove title bar
-        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-
-        //Remove notification bar
-        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
 
         setContentView(R.layout.authentication_activity);
 

@@ -23,6 +23,7 @@ import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.AddCardActivity;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
+import com.seshtutoring.seshapp.view.MainContainerActivity.FragmentFlagReceiver;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -34,7 +35,7 @@ import java.util.ArrayList;
  * Created by nadavhollander on 7/14/15.
  */
 
-public class PaymentFragment extends ListFragment {
+public class PaymentFragment extends ListFragment implements FragmentFlagReceiver {
     //private SeshNetworking seshNetworking;
     private static final String TAG = SettingsFragment.class.getName();
     //private static final int RESULT_OK = 1;
@@ -45,6 +46,7 @@ public class PaymentFragment extends ListFragment {
     private ListView menu;
     private User user;
     private PaymentMenuAdapter adapter;
+    private String fragmentFlag;
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         menu = (ListView) inflater.inflate(R.layout.settings_menu_list, null);
@@ -245,4 +247,13 @@ public class PaymentFragment extends ListFragment {
 
     }
 
+    @Override
+    public void updateFragmentFlag(String flag) {
+        this.fragmentFlag = flag;
+    }
+
+    @Override
+    public void clearFragmentFlag() {
+        this.fragmentFlag = null;
+    }
 }

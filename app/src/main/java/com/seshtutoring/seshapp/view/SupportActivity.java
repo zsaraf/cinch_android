@@ -15,9 +15,10 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.seshtutoring.seshapp.R;
+import com.seshtutoring.seshapp.model.Sesh;
 import com.seshtutoring.seshapp.util.LayoutUtils;
 
-public class SupportActivity extends ActionBarActivity {
+public class SupportActivity extends SeshActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -39,6 +39,7 @@ import com.seshtutoring.seshapp.view.PrivacyActivity;
 import com.seshtutoring.seshapp.view.SupportActivity;
 import com.seshtutoring.seshapp.view.components.SeshDialog;
 import com.seshtutoring.seshapp.view.fragments.CashoutDialogFragment;
+import com.seshtutoring.seshapp.view.MainContainerActivity.FragmentFlagReceiver;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -47,9 +48,10 @@ import org.json.JSONObject;
  * Created by nadavhollander on 7/14/15.
  */
 
-public class SettingsFragment extends ListFragment {
+public class SettingsFragment extends ListFragment implements FragmentFlagReceiver {
     //private SeshNetworking seshNetworking;
     private static final String TAG = SettingsFragment.class.getName();
+    private String fragmentFlag;
 
     public static enum RowObject {
         ACCOUNT("Account", 1, "", null),
@@ -227,4 +229,13 @@ public class SettingsFragment extends ListFragment {
 
     }
 
+    @Override
+    public void updateFragmentFlag(String flag) {
+        this.fragmentFlag = flag;
+    }
+
+    @Override
+    public void clearFragmentFlag() {
+        this.fragmentFlag = null;
+    }
 }

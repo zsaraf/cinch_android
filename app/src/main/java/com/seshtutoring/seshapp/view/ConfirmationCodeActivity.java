@@ -29,7 +29,7 @@ import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 /**
  * Created by nadavhollander on 7/17/15.
  */
-public class ConfirmationCodeActivity extends Activity {
+public class ConfirmationCodeActivity extends SeshActivity {
     private static final String TAG = ConfirmationCodeActivity.class.getName();
 
     private String email;

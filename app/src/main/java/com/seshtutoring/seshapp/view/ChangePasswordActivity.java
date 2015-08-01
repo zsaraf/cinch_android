@@ -18,6 +18,7 @@ import android.widget.Toast;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.seshtutoring.seshapp.R;
+import com.seshtutoring.seshapp.model.Sesh;
 import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
@@ -27,7 +28,7 @@ import com.seshtutoring.seshapp.view.components.SeshEditText;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class ChangePasswordActivity extends ActionBarActivity {
+public class ChangePasswordActivity extends SeshActivity {
 
     private static final String TAG = ChangePasswordActivity.class.getName();
 

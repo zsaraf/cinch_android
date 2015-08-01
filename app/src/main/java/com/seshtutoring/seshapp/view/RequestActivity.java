@@ -1,6 +1,7 @@
 package com.seshtutoring.seshapp.view;
 
 import android.animation.TimeInterpolator;
+import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -60,7 +61,7 @@ import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 /**
  * Created by nadavhollander on 7/20/15.
  */
-public class RequestActivity extends FragmentActivity implements EditText.OnEditorActionListener,
+public class RequestActivity extends SeshActivity implements EditText.OnEditorActionListener,
         SeshDialog.OnSelectionListener {
     private static final String TAG = RequestActivity.class.getName();
     private LearnRequestProgressBar progressBar;
@@ -161,12 +162,6 @@ public class RequestActivity extends FragmentActivity implements EditText.OnEdit
                 showKeyboard();
             }
         }, 500);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        ApplicationLifecycleTracker.applicationResumed(this);
     }
 
     private class LearnRequestPagerAdapter extends FragmentStatePagerAdapter {

@@ -19,6 +19,7 @@ import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.LearnRequest;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
+import com.seshtutoring.seshapp.view.MainContainerActivity.FragmentFlagReceiver;
 import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.HomeFragment;
 import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.PaymentFragment;
 import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.ProfileFragment;
@@ -29,20 +30,22 @@ import java.util.Iterator;
 
 public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenedListener {
     public static enum MenuOption {
-        HOME("Home", R.drawable.home, new HomeFragment()),
-        PROFILE("Profile", R.drawable.profile, new ProfileFragment()),
-        PAYMENT("Payment", R.drawable.payment, new PaymentFragment()),
-        SETTINGS("Settings", R.drawable.settings, new SettingsFragment()),
-        PROMOTE("Promote", R.drawable.share, new PromoteFragment());
+        HOME("Home", R.drawable.home, new HomeFragment(), 0),
+        PROFILE("Profile", R.drawable.profile, new ProfileFragment(), 1),
+        PAYMENT("Payment", R.drawable.payment, new PaymentFragment(), 2),
+        SETTINGS("Settings", R.drawable.settings, new SettingsFragment(), 3),
+        PROMOTE("Promote", R.drawable.share, new PromoteFragment(), 4);
 
         public String title;
         public int iconRes;
         public Fragment fragment;
+        public int position;
 
-        MenuOption(String title, int iconRes, Fragment fragment) {
+        MenuOption(String title, int iconRes, Fragment fragment, int position) {
             this.title = title;
             this.iconRes = iconRes;
             this.fragment = fragment;
+            this.position = position;
         }
     }
 
@@ -56,6 +59,7 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenedLi
     private View dividerAboveOpenRequests;
     private OpenRequestsListAdapter openRequestsListAdapter;
     private String menuOpenFlag;
+    private SideMenuAdapter sideMenuAdapter;
 
     private TextView[] menuOptionTitles;
 
@@ -70,54 +74,61 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenedLi
 
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        final MenuOption initialSelectedItem = mainContainerActivity.getCurrentState();
 
         menuOptionTitles = new TextView[MenuOption.values().length];
 
-        final SideMenuAdapter sideMenuAdapter = new SideMenuAdapter(getActivity());
-        for (MenuOption menuOption : MenuOption.values()) {
-            sideMenuAdapter.add(new SideMenuItem(menuOption.title, menuOption.iconRes,
-                    (initialSelectedItem == menuOption) ? true : false));
-        }
+        sideMenuAdapter = new SideMenuAdapter(getActivity());
 
         menu.setAdapter(sideMenuAdapter);
 
         menu.setOnItemClickListener(new ListView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapter, View view, int position, long id) {
-                selectedItem.isSelected = false;
-                selectedItem = sideMenuAdapter.getItem(position);
-                selectedItem.isSelected = true;
-
+                MenuOption selectedMenuOption = MenuOption.HOME;
                 switch (position) {
                     case 0:
-                        mainContainerActivity.setCurrentState(MenuOption.HOME);
+                        selectedMenuOption = MenuOption.HOME;
                         break;
                     case 1:
-                        mainContainerActivity.setCurrentState(MenuOption.PROFILE);
+                        selectedMenuOption = MenuOption.PROFILE;
                         break;
                     case 2:
-                        mainContainerActivity.setCurrentState(MenuOption.PAYMENT);
+                        selectedMenuOption = MenuOption.PAYMENT;
                         break;
                     case 3:
-                        mainContainerActivity.setCurrentState(MenuOption.SETTINGS);
+                        selectedMenuOption = MenuOption.SETTINGS;
                         break;
                     case 4:
-                        mainContainerActivity.setCurrentState(MenuOption.PROMOTE);
+                        selectedMenuOption = MenuOption.PROMOTE;
                         break;
                     default:
-                        mainContainerActivity.setCurrentState(MenuOption.HOME);
+                        selectedMenuOption = MenuOption.HOME;
                         break;
                 }
 
-                sideMenuAdapter.notifyDataSetChanged();
+                mainContainerActivity.setCurrentState(selectedMenuOption, null);
+                updateSelectedItem();
+
                 mainContainerActivity.closeDrawer();
             }
         });
 
+        updateSelectedItem();
+
         openRequestsListAdapter = new OpenRequestsListAdapter(getActivity());
         openRequestsList.setAdapter(openRequestsListAdapter);
+    }
 
+    public void updateSelectedItem() {
+        MenuOption selectedMenuOption = mainContainerActivity.getCurrentState();
+        sideMenuAdapter.clear();
+
+        for (MenuOption menuOption : MenuOption.values()) {
+            sideMenuAdapter.add(new SideMenuItem(menuOption.title, menuOption.iconRes,
+                    (selectedMenuOption == menuOption) ? true : false));
+        }
+
+        sideMenuAdapter.notifyDataSetChanged();
     }
 
     private class SideMenuItem {

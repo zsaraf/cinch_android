@@ -7,8 +7,9 @@ import android.view.MenuItem;
 import android.support.v4.app.NavUtils;
 
 import com.seshtutoring.seshapp.R;
+import com.seshtutoring.seshapp.model.Sesh;
 
-public class TermsActivity extends ActionBarActivity {
+public class TermsActivity extends SeshActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

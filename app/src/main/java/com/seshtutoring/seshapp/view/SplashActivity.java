@@ -20,18 +20,11 @@ import com.seshtutoring.seshapp.view.AuthenticationActivity.EntranceType;
 /**
  * Created by nadavhollander on 7/10/15.
  */
-public class SplashActivity extends Activity {
+public class SplashActivity extends SeshActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-
-        //Remove title bar
-        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-
-        //Remove notification bar
-        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+    super.onCreate(savedInstanceState);
 
         Thread timerThread = new Thread(){
             public void run(){
