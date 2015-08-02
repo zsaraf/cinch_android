@@ -22,6 +22,8 @@ import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+
 /**
  * Created by nadavhollander on 7/29/15.
  */
@@ -37,8 +39,10 @@ public class GCMRegistrationIntentService extends IntentService {
 
     private static final int MAX_RETRY_INTERVAL = 1000 * 32;
 
+    private SharedPreferences gcmSharedPreferences;
     private AlarmManager alarmManager;
     private int retryInterval;
+    private Intent intent;
 
     public GCMRegistrationIntentService() {
         super(TAG);
@@ -46,34 +50,47 @@ public class GCMRegistrationIntentService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        SharedPreferences gcmSharedPreferences = getSharedPreferences(GCM_STATUS_SHARED_PREFS, 0);
+        gcmSharedPreferences = getSharedPreferences(GCM_STATUS_SHARED_PREFS, 0);
 
         // Device token cannot be refreshed without user being logged in
         if (!SeshAuthManager.sharedManager(getApplicationContext()).isValidSession()) return;
 
-        if (intent.hasExtra(RETRY_INTERVAL_KEY)) {
-            retryInterval = intent.getIntExtra(RETRY_INTERVAL_KEY, -1);
-        } else {
-            retryInterval = 1000;
-        }
+        this.intent = intent;
+        this.retryInterval = 1000;
 
-        try {
-            // In the (unlikely) event that multiple refresh operations occur simultaneously,
-            // ensure that they are processed sequentially.
-            synchronized (TAG) {
-                // [START register_for_gcm]
-                // Initially this call goes out to the network to retrieve the token, subsequent calls
-                // are local.
-                // [START get_token]
-                InstanceID instanceID = InstanceID.getInstance(this);
-                String token = instanceID.getToken(getString(R.string.gcm_defaultSenderId),
-                        GoogleCloudMessaging.INSTANCE_ID_SCOPE, null);
-                // [END get_token]
-                Log.i(TAG, "GCM Registration Token: " + token);
+        // Multiple sources in the application can try to refresh our server's current token at the same time
+        // We ensure such requests only happen sequentially
+        synchronized (TAG) {
 
-                tokenFound(token, gcmSharedPreferences);
+            // IS_TOKEN_STALE determines if we need to refresh a registration token from Google
+            // before sending it to the server.  If not stale and we have a cached token, we send the cached token.
+            // For instance, at Login, we refresh our server's token with IS_TOKEN_STALE true, to account
+            // for any tokenRefresh() calls from Google that might have been triggered while the user
+            // was logged out (and didn't follow through because our implementation cannot refresh server
+            // tokens when user's logged out).  On the other hand, every time MainContainer resumes,
+            // we refresh with IS_TOKEN_STALE false, so that we can send a cached token, if it's available.
+            if (!intent.getBooleanExtra(SeshInstanceIDListenerService.IS_TOKEN_STALE_KEY, true)) {
+                if (gcmSharedPreferences.contains(GCM_TOKEN_KEY)) {
+                    sendRegistrationToServer(gcmSharedPreferences.getString(GCM_TOKEN_KEY, null));
+                    return;
+                }
             }
-        } catch (Exception e) {
+
+            gcmSharedPreferences.edit().clear().apply();
+            pullGCMRegistrationToken();
+        }
+    }
+
+    private void pullGCMRegistrationToken() {
+        try {
+            InstanceID instanceID = InstanceID.getInstance(this);
+            String token = instanceID.getToken(getString(R.string.gcm_defaultSenderId),
+                    GoogleCloudMessaging.INSTANCE_ID_SCOPE, null);
+            // [END get_token]
+            Log.i(TAG, "GCM Registration Token: " + token);
+
+            tokenFound(token, gcmSharedPreferences);
+        }  catch (Exception e) {
             if (intent.hasExtra(GCM_REGISTRATION_ID_KEY)) {
 //                fix for GCM bug where exception is thrown every time on certain devices
                 tokenFound(intent.getStringExtra(GCM_REGISTRATION_ID_KEY), gcmSharedPreferences);
@@ -84,6 +101,7 @@ public class GCMRegistrationIntentService extends IntentService {
                 retryWithExponentialBackoff();
             }
         }
+
     }
 
     private void tokenFound(String token, SharedPreferences gcmSharedPreferences) {
@@ -125,18 +143,16 @@ public class GCMRegistrationIntentService extends IntentService {
     }
 
     private void retryWithExponentialBackoff() {
-        if (retryInterval > MAX_RETRY_INTERVAL) return;
+        Log.d(TAG, "RETRY INTERVAL: " + retryInterval);
+        SystemClock.sleep(retryInterval);
 
-        Context context = getApplicationContext();
+        if (retryInterval > MAX_RETRY_INTERVAL) {
+            return;
+        }
 
-        Intent intent = new Intent(context, this.getClass());
-        intent.putExtra(RETRY_INTERVAL_KEY, retryInterval * 2);
-        PendingIntent alarmIntent = PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        retryInterval *= 2;
 
-        AlarmManager  alarmManager =
-                (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                SystemClock.elapsedRealtime() + retryInterval, alarmIntent);
+        pullGCMRegistrationToken();
     }
 
     public static void clearGCMRegistrationToken(Context context) {

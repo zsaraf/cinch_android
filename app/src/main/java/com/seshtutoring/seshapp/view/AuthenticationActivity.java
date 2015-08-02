@@ -34,6 +34,7 @@ import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.Rate;
 import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.services.GCMRegistrationIntentService;
+import com.seshtutoring.seshapp.services.SeshInstanceIDListenerService;
 import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.components.SeshButton;
@@ -230,8 +231,9 @@ public class AuthenticationActivity extends SeshActivity {
                 User.createOrUpdateUserWithObject(responseJson, this);
                 Rate.fetchHourlyRateFromServer(this);
 
-                // Initialize Google Cloud Messaging (fetch token, send to server, etc.)
+                //         Refresh device on server via GCM service
                 Intent gcmIntent = new Intent(this, GCMRegistrationIntentService.class);
+                gcmIntent.putExtra(SeshInstanceIDListenerService.IS_TOKEN_STALE_KEY, true);
                 startService(gcmIntent);
 
                 Intent mainContainerIntent = new Intent(this, MainContainerActivity.class);

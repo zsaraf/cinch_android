@@ -26,6 +26,7 @@ import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.services.GCMRegistrationIntentService;
 import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.services.SeshGCMListenerService;
+import com.seshtutoring.seshapp.services.SeshInstanceIDListenerService;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.components.SeshDialog;
 import com.seshtutoring.seshapp.view.fragments.SideMenuFragment;
@@ -131,7 +132,11 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
         super.onResume();
 
         User.fetchUserInfoFromServer(this);
-        updateDeviceOnServer(this);
+
+        // Refresh device token on server via GCM service
+        Intent gcmIntent = new Intent(this, GCMRegistrationIntentService.class);
+        gcmIntent.putExtra(SeshInstanceIDListenerService.IS_TOKEN_STALE_KEY, false);
+        startService(gcmIntent);
 
         GoogleApiAvailability googleApiAvailability = GoogleApiAvailability.getInstance();
 
@@ -312,38 +317,6 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
 
             // hacky, but delay menu open animation to account for activity transition
             handler.postDelayed(openSideMenu, 300);
-        }
-    }
-
-    /**
-     * Updates the Device row of the server database for user's phone.  Called everytime user
-     * opens main container (onResume).  Will not send update request if we do not have a GCM registration
-     * token locally saved -- device row data is only used to push information (via GCM), so any
-     * update would be irrelevant if user device does not have a valid GCM token.
-     */
-    private static void updateDeviceOnServer(Context context) {
-        String savedToken = GCMRegistrationIntentService.getSavedGCMToken(context);
-        if (savedToken != null) {
-            SeshNetworking seshNetworking = new SeshNetworking(context);
-            seshNetworking.updateDeviceToken(savedToken, new Response.Listener<JSONObject>() {
-                @Override
-                public void onResponse(JSONObject jsonObject) {
-                    try {
-                        if (jsonObject.getString("status").equals("SUCCESS")) {
-                            Log.i(TAG, "Updated device on server");
-                        } else {
-                            Log.e(TAG, "Failed to update device on server: " + jsonObject.getString("message"));
-                        }
-                    } catch (JSONException e) {
-                        Log.e(TAG, "Failed to update device on server; response malformed: " + e);
-                    }
-                }
-            }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    Log.e(TAG, "Failed to update device on server; network error: " + error);
-                }
-            });
         }
     }
 
