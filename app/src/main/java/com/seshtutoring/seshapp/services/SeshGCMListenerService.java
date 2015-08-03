@@ -53,6 +53,8 @@ public class SeshGCMListenerService extends GcmListenerService {
         String identifier = data.getString(IDENTIFIER_KEY);
         Intent intent;
 
+        boolean appInForeground = ApplicationLifecycleTracker.applicationInForeground();
+
         switch (identifier) {
                 case "UPDATE_STATE":
                     String stateIdentifier = null;
@@ -72,10 +74,11 @@ public class SeshGCMListenerService extends GcmListenerService {
                     // ignore silent push
                     if (data.getString(ALERT_KEY).equals("")) return;
 
-                    if (ApplicationLifecycleTracker.applicationInForeground()) {
+                    if (appInForeground) {
                         intent = new Intent(MainContainerActivity.UPDATE_CONTAINER_STATE_ACTION);
                     } else {
-                        intent = new Intent(this, MainContainerActivity.class);
+                        intent = new Intent(MainContainerActivity.UPDATE_CONTAINER_STATE_ACTION, null,
+                                this, MainContainerActivity.class);
                     }
 
                     Bundle bundle = new Bundle();
@@ -83,10 +86,9 @@ public class SeshGCMListenerService extends GcmListenerService {
                     bundle.putString(MainContainerActivity.FRAGMENT_FLAG_KEY, HomeFragment.SHOW_AVAILABLE_JOBS_FLAG);
                     bundle.putInt(NOTIFICATION_ID_EXTRA, DEFAULT_NOTIFICATION_ID);
                     intent.putExtras(bundle);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
                     PendingIntent pendingIntent;
-                    if (ApplicationLifecycleTracker.applicationInForeground()) {
+                    if (appInForeground) {
                         pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
                     } else {
                         pendingIntent = pendingIntentForIntent(intent, MainContainerActivity.class, DEFAULT_NOTIFICATION_ID);
@@ -94,13 +96,26 @@ public class SeshGCMListenerService extends GcmListenerService {
                     
                     showNotification(data.getString(ALERT_KEY), pendingIntent);
                     break;
-            case "FOUND_TUTOR":
+                case "FOUND_TUTOR":
+                    // ignore silent push
+                    if (data.getString(ALERT_KEY).equals("")) return;
+
+                    if (appInForeground) {
+                        intent = new Intent(MainContainerActivity.FOUND_TUTOR_ACTION);
+                        sendBroadcast(intent);
+                    } else {
+                        intent = new Intent(MainContainerActivity.FOUND_TUTOR_ACTION, null,
+                                this, MainContainerActivity.class);
+
+                        showNotification(data.getString(ALERT_KEY),
+                                pendingIntentForIntent(intent, MainContainerActivity.class, DEFAULT_NOTIFICATION_ID));
+                    }
                     break;
-            default:
-                intent = new Intent(this, SplashActivity.class);
-                showNotification(data.getString(ALERT_KEY),
+                default:
+                    intent = new Intent(this, SplashActivity.class);
+                    showNotification(data.getString(ALERT_KEY),
                         pendingIntentForIntent(intent, SplashActivity.class, DEFAULT_NOTIFICATION_ID));
-                break;
+                    break;
         }
     }
 

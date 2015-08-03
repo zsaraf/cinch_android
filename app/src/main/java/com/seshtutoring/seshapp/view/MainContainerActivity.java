@@ -5,9 +5,11 @@ import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
 import android.os.Handler;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -21,14 +23,17 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.maps.GoogleMap;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.services.GCMRegistrationIntentService;
 import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.services.SeshGCMListenerService;
 import com.seshtutoring.seshapp.services.SeshInstanceIDListenerService;
+import com.seshtutoring.seshapp.util.ApplicationLifecycleTracker;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.components.SeshDialog;
+import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.HomeFragment;
 import com.seshtutoring.seshapp.view.fragments.SideMenuFragment;
 import com.seshtutoring.seshapp.view.fragments.SideMenuFragment.MenuOption;
 
@@ -41,26 +46,18 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
     private static final String TAG = MainContainerActivity.class.getName();
     public static final String MAIN_CONTAINER_STATE_KEY = "main_container_state";
     public static final String FRAGMENT_FLAG_KEY = "fragment_flags";
+    private static final String DIALOG_TYPE_FOUND_TUTOR = "dialog_type_found_tutor";
+    private static final String INTENT_HANDLED = "intent_handled";
     public static final String UPDATE_CONTAINER_STATE_ACTION =
             "com.seshtutoring.seshapp.UPDATE_CONTAINER_STATE";
+    public static final String FOUND_TUTOR_ACTION =
+            "com.seshtutoring.seshapp.FOUND_TUTOR";
+
 
     private BroadcastReceiver notificationActionReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent.hasExtra(SeshGCMListenerService.NOTIFICATION_ID_EXTRA)) {
-                int notificationId = intent.getIntExtra(SeshGCMListenerService.NOTIFICATION_ID_EXTRA, -1);
-                ((NotificationManager)
-                        getSystemService(NOTIFICATION_SERVICE)).cancel(notificationId);
-            }
-
-            if (intent.getAction().equals(UPDATE_CONTAINER_STATE_ACTION)) {
-                Bundle extras = intent.getExtras();
-                MenuOption containerState = (MenuOption) extras.getSerializable(MAIN_CONTAINER_STATE_KEY);
-                String flag = extras.getString(FRAGMENT_FLAG_KEY);
-
-                setCurrentState(containerState, flag);
-                sideMenuFragment.updateSelectedItem();
-            }
+            handleNotificationIntent(intent);
         }
     };
 
@@ -124,7 +121,11 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
         });
 
         setCurrentState(MenuOption.HOME, null);
-        registerReceiver(notificationActionReceiver, new IntentFilter(UPDATE_CONTAINER_STATE_ACTION));
+
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(UPDATE_CONTAINER_STATE_ACTION);
+        intentFilter.addAction(FOUND_TUTOR_ACTION);
+        registerReceiver(notificationActionReceiver, intentFilter);
     }
 
     @Override
@@ -145,11 +146,70 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
         if (code != ConnectionResult.SUCCESS) {
             googleApiAvailability.getErrorDialog(this, code, 0).show();
         }
+
+        Intent intent = getIntent();
+        if (intent.hasExtra(SeshGCMListenerService.NOTIFICATION_ID_EXTRA)) {
+            handleNotificationIntent(intent);
+        }
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
+    private void handleNotificationIntent(Intent intent) {
+        if (intent.hasExtra(INTENT_HANDLED) && intent.getBooleanExtra(INTENT_HANDLED, false)) {
+            return;
+        }
+
+        if (intent.hasExtra(SeshGCMListenerService.NOTIFICATION_ID_EXTRA)) {
+            int notificationId = intent.getIntExtra(SeshGCMListenerService.NOTIFICATION_ID_EXTRA, -1);
+            ((NotificationManager)
+                    getSystemService(NOTIFICATION_SERVICE)).cancel(notificationId);
+        }
+
+        if (intent.getAction().equals(UPDATE_CONTAINER_STATE_ACTION)) {
+            Bundle extras = intent.getExtras();
+            MenuOption containerState = (MenuOption) extras.getSerializable(MAIN_CONTAINER_STATE_KEY);
+            String flag = extras.getString(FRAGMENT_FLAG_KEY);
+
+            setCurrentState(containerState, flag);
+
+            if (ApplicationLifecycleTracker.applicationInForeground()) {
+                sideMenuFragment.updateSelectedItem();
+            }
+        } else if (intent.getAction().equals(FOUND_TUTOR_ACTION)) {
+            showNotificationDialog("Help is on the way",
+                    "You've been matched with a tutor and your Sesh has been scheduled!",
+                    "See details", DIALOG_TYPE_FOUND_TUTOR);
+        }
+
+        intent.putExtra(INTENT_HANDLED, true);
+    }
+
+    private void showNotificationDialog(final String title, final String content, final String confirmButtonText, final String type) {
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (currentSelectedMenuOption == MenuOption.HOME) {
+                    HomeFragment homeFragment = (HomeFragment)currentSelectedMenuOption.fragment;
+                    if (homeFragment.getCurrTabItem() == HomeFragment.TabItem.LEARN_TAB) {
+                        homeFragment.getLearnViewMap().snapshot(new GoogleMap.SnapshotReadyCallback() {
+                            @Override
+                            public void onSnapshotReady(Bitmap bitmap) {
+                                SeshDialog.showDialog(getFragmentManager(), title, content, confirmButtonText, null, bitmap,
+                                        type);
+                                Vibrator v = (Vibrator) getApplicationContext().getSystemService(Context.VIBRATOR_SERVICE);
+                                v.vibrate(300);
+                            }
+                        });
+                    }
+                } else {
+                    SeshDialog.showDialog(getFragmentManager(), title, content,
+                            confirmButtonText, null, null,
+                            type);
+                    Vibrator v = (Vibrator) getApplicationContext().getSystemService(Context.VIBRATOR_SERVICE);
+                    v.vibrate(300);
+                }
+            }
+        }, 500);
     }
 
     public void onDialogSelection(int selection, String type) {
@@ -225,7 +285,7 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
 
     private void onLogoutFailure(String errorMessage) {
         Log.e(TAG, "NETWORK ERROR: " + errorMessage);
-        Toast.makeText(this, "We couldn't reach the network, sorry!", Toast.LENGTH_LONG).show();
+        Toast.makeText(this, "We couldn't reach the network, sorrys!", Toast.LENGTH_LONG).show();
     }
 
     public MenuOption getCurrentState() {
@@ -246,23 +306,21 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
             return;
         }
 
-        if (currentSelectedMenuOption != selectedMenuOption) {
-            if (currentSelectedMenuOption != null) {
-                FragmentFlagReceiver flagReceiver = (FragmentFlagReceiver) currentSelectedMenuOption.fragment;
-                flagReceiver.clearFragmentFlag();
-            }
-
-            currentSelectedMenuOption = selectedMenuOption;
-
-            TextView title = (TextView) findViewById(R.id.action_bar_title);
-
-            title.setText(selectedMenuOption.title);
-
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.main_container, currentSelectedMenuOption.fragment)
-                    .commitAllowingStateLoss();
+        if (currentSelectedMenuOption != null) {
+            FragmentFlagReceiver flagReceiver = (FragmentFlagReceiver) currentSelectedMenuOption.fragment;
+            flagReceiver.clearFragmentFlag();
         }
+
+        currentSelectedMenuOption = selectedMenuOption;
+
+        TextView title = (TextView) findViewById(R.id.action_bar_title);
+
+        title.setText(selectedMenuOption.title);
+
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.main_container, currentSelectedMenuOption.fragment)
+                .commitAllowingStateLoss();
 
         if (flag != null) {
             FragmentFlagReceiver flagReceiver = (FragmentFlagReceiver) currentSelectedMenuOption.fragment;

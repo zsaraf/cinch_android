@@ -17,6 +17,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 
+import com.google.android.gms.maps.GoogleMap;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
@@ -29,7 +30,7 @@ import com.seshtutoring.seshapp.view.MainContainerActivity.FragmentFlagReceiver;
  */
 public class HomeFragment extends Fragment implements FragmentFlagReceiver {
     private static final String TAG = HomeFragment.class.getName();
-    private enum TabItem {
+    public enum TabItem {
         LEARN_TAB(0), TEACH_TAB(1);
 
         public int viewPagerPosition;
@@ -46,6 +47,7 @@ public class HomeFragment extends Fragment implements FragmentFlagReceiver {
     private Button learnTabButton;
     private Button teachTabButton;
     private String fragmentFlag;
+    private TabItem currTabItem;
 
     public final static String SHOW_AVAILABLE_JOBS_FLAG = "show_available_jobs";
 
@@ -106,8 +108,20 @@ public class HomeFragment extends Fragment implements FragmentFlagReceiver {
             teachTabButton.setTextColor(getResources().getColor(R.color.seshorange));
             learnTabButton.setTextColor(getResources().getColor(R.color.seshcharcoal));
         }
+        currTabItem = tabItem;
     }
 
+    public TabItem getCurrTabItem() {
+        return currTabItem;
+    }
+
+    public GoogleMap getLearnViewMap() {
+        if (currTabItem != TabItem.LEARN_TAB) {
+            Log.e(TAG, "Cannot pull learn view map when learn tab is not selected.");
+            return null;
+        }
+        return learnViewFragment.getMap();
+    }
     @Override
     public void onResume() {
         super.onResume();

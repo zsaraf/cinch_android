@@ -159,6 +159,10 @@ public class LearnViewFragment extends Fragment implements OnMapReadyCallback {
         });
     }
 
+    public GoogleMap getMap() {
+        return mMap;
+    }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode,
                                     Intent data) {

@@ -16,17 +16,31 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:id="@+id/open_requests_list"
+        android:id="@+id/learn_list"
         android:divider="@color/seshcharcoal">
     </ListView>
-    <View
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:id="@+id/divider_above_requests"
+        android:layout_height="wrap_content"
         android:layout_above="@id/open_requests_list"
-        android:background="@color/seshlightgray"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:alpha="0" />
+        android:id="@+id/learn_divider">
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/seshlightgray"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:alpha="0" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Learn"
+            android:layout_center="true"
+            android:textSize="18sp"
+            android:textColor="#FFFFFF"
+            android:paddingLeft="15dp"
+            android:paddingRight="15dp"/>
+    </RelativeLayout>
+
 
 </RelativeLayout>

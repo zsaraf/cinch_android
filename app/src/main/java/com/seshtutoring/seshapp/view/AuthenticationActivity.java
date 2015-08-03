@@ -268,8 +268,8 @@ public class AuthenticationActivity extends SeshActivity {
     }
 
     private void onNetworkError(VolleyError volleyError) {
-        Log.e(TAG, "NETWORK ERROR: " + volleyError.getMessage());
-        Toast.makeText(getApplicationContext(), "We couldn't reach the network, sorry!", Toast.LENGTH_LONG);
+        Log.e(TAG, "NETWORK ERROR: " + volleyError);
+        Toast.makeText(getApplicationContext(), "We couldn't reach the network, sorry!", Toast.LENGTH_LONG).show();
         loginSignupButton.setEnabled(true);
     }
 
