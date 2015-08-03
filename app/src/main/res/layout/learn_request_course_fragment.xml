@@ -15,7 +15,7 @@
         android:layout_centerHorizontal="true"
         custom:editTextType="choose_class"
         custom:imeOptions="next"
-        custom:hint="Class"/>
+        custom:editTextHint="Class"/>
     <ListView
         android:listSelector="@drawable/sesh_list_view_selector"
         android:layout_marginTop="1dp"

@@ -10,6 +10,6 @@
         android:textSize="20sp"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:textColor="@color/white"
-        android:background="@drawable/sesh_button" />
+        android:textColor="@color/sesh_gray_button_text_color"
+        android:background="@drawable/sesh_gray_button" />
 </LinearLayout>

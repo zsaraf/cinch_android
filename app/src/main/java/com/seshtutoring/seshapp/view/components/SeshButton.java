@@ -20,10 +20,28 @@ public class SeshButton extends LinearLayout {
     public SeshButton(Context context, AttributeSet attrs) {
         super(context, attrs);
         LayoutInflater mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        mInflater.inflate(R.layout.sesh_button_layout, this, true);
+//        mInflater.inflate(R.layout.sesh_red_button_layout, this, true);
+
+        TypedArray a = context.getTheme().obtainStyledAttributes(
+                attrs,
+                R.styleable.SeshButton,
+                0, 0);
+
+        int buttonType;
+        try {
+            buttonType = a.getInt(R.styleable.SeshButton_buttonType, 0);
+        } finally {
+            a.recycle();
+        }
+
+        if (buttonType == 0) {
+            mInflater.inflate(R.layout.sesh_red_button_layout, this, true);
+        } else {
+            mInflater.inflate(R.layout.sesh_gray_button_layout, this, true);
+        }
 
         int[] attrSet = { android.R.attr.text };
-        TypedArray a = context.obtainStyledAttributes(attrs, attrSet);
+        a = context.obtainStyledAttributes(attrs, attrSet);
         CharSequence text = a.getText(0);
 
         this.button = (Button) findViewById(R.id.sesh_button);

@@ -39,32 +39,32 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 custom:editTextType="choose_class"
-                custom:transparentMode="true"
-                custom:editable="false"
+                custom:editTextTransparentMode="true"
+                custom:editTextEditable="false"
                 android:layout_marginTop="10dp"/>
             <com.seshtutoring.seshapp.view.components.SeshEditText
                 android:id="@+id/assignment_confirmation_box"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                custom:editable="false"
-                custom:transparentMode="true"
+                custom:editTextEditable="false"
+                custom:editTextTransparentMode="true"
                 custom:editTextType="assignment"/>
             <com.seshtutoring.seshapp.view.components.SeshEditText
                 android:id="@+id/num_students_confirmation_box"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                custom:editable="false"
-                custom:transparentMode="true"
+                custom:editTextEditable="false"
+                custom:editTextTransparentMode="true"
                 custom:editTextType="number"/>
             <com.seshtutoring.seshapp.view.components.SeshEditText
                 android:id="@+id/duration_confirmation_box"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                custom:editable="false"
-                custom:transparentMode="true"
+                custom:editTextEditable="false"
+                custom:editTextTransparentMode="true"
                 custom:editTextType="time"/>
         </LinearLayout>
 </RelativeLayout>

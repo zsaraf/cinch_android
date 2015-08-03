@@ -13,9 +13,14 @@
     <color name="learn_request_progress_unselected">#9EA69E</color>
     <color name="learn_request_progress_selected">#B334495E</color>
 
-    <color name="sesh_button_normal">#F57F6E</color>
-    <color name="sesh_button_pressed">#DF7364</color>
-    <color name="sesh_button_disabled">#6bff8e79</color>
+    <color name="sesh_red_button_normal">#F57F6E</color>
+    <color name="sesh_red_button_pressed">#DF7364</color>
+    <color name="sesh_red_button_disabled">#6bff8e79</color>
+
+    <color name="sesh_gray_button_normal">#E6E6E6</color>
+    <color name="sesh_gray_button_pressed">#7F7F7F</color>
+    <color name="sesh_gray_button_disabled">#7F7F7F</color>
+    <color name="sesh_gray_button_text_color">#666666</color>
 
     <color name="light_gray">#ffdedede</color>
     <color name="ios_gray">#C7C7CC</color>
@@ -23,5 +28,6 @@
     <color name="tableview_background">#F7F7F7</color>
     <color name="white_opaque">#9FFFFFFF</color>
 
+    <color name="white_slight_transparency">#FFFFFFE6</color>
     <color name="transparent">#00000000</color>
 </resources>

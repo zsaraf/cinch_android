@@ -10,7 +10,7 @@
         android:layout_marginLeft="35dp"
         android:layout_marginRight="35dp"
         android:layout_centerHorizontal="true"
-        custom:hint="Assignment"
+        custom:editTextHint="Assignment"
         custom:editTextType="assignment"
         custom:imeOptions="next" />
 </RelativeLayout>

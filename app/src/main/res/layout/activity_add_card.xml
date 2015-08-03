@@ -34,7 +34,7 @@
     <com.seshtutoring.seshapp.view.components.SeshEditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        custom:hint="Enter full legal name"
+        custom:editTextHint="Enter full legal name"
         custom:editTextType="fullname"
         android:layout_below="@id/field_holder"
         android:id="@+id/full_name_field"

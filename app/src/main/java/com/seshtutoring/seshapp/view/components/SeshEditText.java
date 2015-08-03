@@ -1,26 +1,17 @@
 package com.seshtutoring.seshapp.view.components;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.res.TypedArray;
-import android.graphics.Canvas;
 import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
-import android.text.method.PasswordTransformationMethod;
 import android.util.AttributeSet;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewTreeObserver;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import com.seshtutoring.seshapp.R;
 
@@ -83,11 +74,11 @@ public class SeshEditText extends RelativeLayout {
 
         try {
             editTextTypeIndex = a.getInt(R.styleable.SeshEditText_editTextType, 0);
-            hint = a.getString(R.styleable.SeshEditText_hint);
+            hint = a.getString(R.styleable.SeshEditText_editTextHint);
             imeOptionsIndex = a.getInt(R.styleable.SeshEditText_imeOptions, -1);
-            transparentMode = a.getBoolean(R.styleable.SeshEditText_transparentMode, false);
-            text = a.getString(R.styleable.SeshEditText_text);
-            editable = a.getBoolean(R.styleable.SeshEditText_editable, true);
+            transparentMode = a.getBoolean(R.styleable.SeshEditText_editTextTransparentMode, false);
+            text = a.getString(R.styleable.SeshEditText_editTextText);
+            editable = a.getBoolean(R.styleable.SeshEditText_editTextEditable, true);
         } finally {
             a.recycle();
         }

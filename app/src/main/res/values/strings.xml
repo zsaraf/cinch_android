@@ -128,4 +128,7 @@ If You have any questions about this privacy statement, the practices of Sesh, o
     <string name="end_early_reminder">*Remember, you can end early if you want. (Min. 30 minutes)</string>
     <string name="review_details_text">Always check your answers!  Review the details for your upcoming Sesh.</string>
     <string name="title_activity_add_card">AddCard</string>
+
+<!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

@@ -107,7 +107,7 @@
         android:layout_marginRight="25dp"
         android:layout_above="@id/loginSignupButton"
         custom:editTextType="reenter_password"
-        custom:hint="Re-enter Password" />
+        custom:editTextHint="Re-enter Password" />
 
     <com.seshtutoring.seshapp.view.components.SeshEditText
         android:layout_width="match_parent"
@@ -118,7 +118,7 @@
         android:layout_marginRight="25dp"
         android:layout_above="@id/loginSignupButton"
         custom:editTextType="password"
-        custom:hint="Password"/>
+        custom:editTextHint="Password"/>
 
     <com.seshtutoring.seshapp.view.components.SeshEditText
         android:layout_width="match_parent"
@@ -128,7 +128,7 @@
         android:layout_marginRight="25dp"
         android:id="@+id/emailEditText"
         custom:editTextType="email"
-        custom:hint="College Email"
+        custom:editTextHint="College Email"
         android:layout_above="@id/passwordEditText"
         android:layout_centerHorizontal="true" />
 
@@ -141,7 +141,7 @@
         android:layout_marginRight="25dp"
         android:id="@+id/dummyEditText"
         custom:editTextType="fullname"
-        custom:hint="Full Name"
+        custom:editTextHint="Full Name"
         android:layout_above="@id/emailEditText"
         android:layout_centerHorizontal="true"
         android:visibility="invisible"/>
@@ -154,7 +154,7 @@
         android:layout_marginRight="25dp"
         android:id="@+id/fullNameEditText"
         custom:editTextType="fullname"
-        custom:hint="Full Name"
+        custom:editTextHint="Full Name"
         android:layout_above="@id/dummyEditText"
         android:layout_centerHorizontal="true" />
 

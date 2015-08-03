@@ -9,6 +9,7 @@ import android.util.Log;
 import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.seshtutoring.seshapp.SeshApplication;
 import com.seshtutoring.seshapp.model.AvailableBlock;
 import com.seshtutoring.seshapp.model.Course;
@@ -17,12 +18,14 @@ import com.seshtutoring.seshapp.model.Rate;
 import com.seshtutoring.seshapp.model.AvailableBlock;
 import com.seshtutoring.seshapp.model.LearnRequest;
 import com.seshtutoring.seshapp.model.Rate;
+import com.seshtutoring.seshapp.model.Sesh;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.tz.DateTimeZoneBuilder;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -513,6 +516,45 @@ public class SeshNetworking {
 
         postWithRelativeUrl("get_possible_jobs.php", params, successListener,
                 errorListener);
+    }
+
+    public void fetchSeshInfoFromServer(final Context context) {
+        this.getSeshInformation(new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject jsonObject) {
+                try {
+                    if (jsonObject.get("status").equals("SUCCESS")) {
+                        JSONArray seshes = jsonObject.getJSONArray(("open_seshes"));
+                        for (int i = 0; i < seshes.length(); i++) {
+                            JSONObject seshObject = seshes.getJSONObject(i);
+                            Sesh.createOrUpdateSeshWithObject(seshObject, context);
+                        }
+
+                        JSONArray openRequests = jsonObject.getJSONArray(("open_requests"));
+                        for (int i = 0; i < openRequests.length(); i++) {
+                            JSONObject openRequestObject = openRequests.getJSONObject(i);
+                            // DO SOMETHING
+                        }
+
+                        JSONArray unseenPastRequests = jsonObject.getJSONArray(("unseen_past_requests"));
+                        for (int i = 0; i < unseenPastRequests.length(); i++) {
+                            JSONObject unseenPastRequestObject = unseenPastRequests.getJSONObject(i);
+                            // DO SOMETHING
+                        }
+                    } else {
+                        Log.e(TAG, "Failed to fetch full user info from server.");
+                    }
+
+                } catch (JSONException e) {
+                    Log.e(TAG, "Failed to fetch user info from server; response malformed");
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+                Log.e(TAG, "Failed to fetch user info from server; network error");
+            }
+        });
     }
 
 

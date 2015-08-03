@@ -20,15 +20,25 @@
             <enum name="time" value="6" />
             <enum name="number" value="7" />
         </attr>
-        <attr name="hint" format="string" />
+        <attr name="editTextHint" format="string" />
         <attr name="imeOptions" format="enum">
             <enum name="next" value="0" />
             <enum name="go" value="1" />
             <enum name="done" value="2" />
         </attr>
-        <attr name="transparentMode" format="boolean" />
-        <attr name="text" format="string" />
-        <attr name="editable" format="boolean" />
+        <attr name="editTextTransparentMode" format="boolean" />
+        <attr name="editTextText" format="string" />
+        <attr name="editTextEditable" format="boolean" />
+    </declare-styleable>
+    <declare-styleable name="SeshButton">
+        <attr name="buttonType" format="enum">
+            <enum name="red" value="0" />
+            <enum name="gray" value="1" />
+        </attr>
+    </declare-styleable>
+    <declare-styleable name="SeshInformationLabel">
+        <attr name="informationLabelText" format="string" />
+        <attr name="informationLabelIcon" format="color|reference" />
     </declare-styleable>
 
     <!--<declare-styleable name="AnimatedEllipsisTextView">-->

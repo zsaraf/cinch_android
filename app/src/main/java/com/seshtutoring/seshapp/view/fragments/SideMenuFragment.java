@@ -25,7 +25,6 @@ import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.PaymentFra
 import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.ProfileFragment;
 import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.PromoteFragment;
 import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.SettingsFragment;
-
 import java.util.Iterator;
 
 public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenedListener {
