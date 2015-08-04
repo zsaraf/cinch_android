@@ -1,53 +1,102 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<com.daimajia.swipe.SwipeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="10dp">
-    <TextView
+    android:id="@+id/swipe_view"
+    tools:context="com.getkeepsafe.android.multistateanimation.samples.ThreeStateSampleActivity">
+    <!-- Underneath view of swipe layout-->
+    <RelativeLayout
+        android:id="@+id/bottom_wrapper"
+        android:layout_gravity="right"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/overlay_text"
-        android:background="@color/seshorangeopaque"
-        android:textColor="@color/white"
-        android:textSize="30sp"
-        android:padding="10dp"
-        android:gravity="center"/>
-    <TextView
-        android:id="@+id/student_name"
-        android:textSize="20sp"
-        android:padding="5dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textColor="@color/seshorange"/>
-    <TextView
-        android:id="@+id/hourly_rate"
-        android:textSize="20sp"
-        android:padding="5dp"
-        android:gravity="right"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textColor="@color/seshlightgray"/>
-    <com.seshtutoring.seshapp.view.components.SeshIconTextView
-        android:id="@+id/course"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/student_name"></com.seshtutoring.seshapp.view.components.SeshIconTextView>
-    <com.seshtutoring.seshapp.view.components.SeshIconTextView
-        android:id="@+id/assignment"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/course"></com.seshtutoring.seshapp.view.components.SeshIconTextView>
-    <!--<com.seshtutoring.seshapp.view.components.SeshIconTextView-->
-        <!--android:id="@+id/distance"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_below="@id/assignment"></com.seshtutoring.seshapp.view.components.SeshIconTextView>-->
-    <com.seshtutoring.seshapp.view.components.SeshIconTextView
-        android:id="@+id/duration"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/assignment"></com.seshtutoring.seshapp.view.components.SeshIconTextView>
+        android:layout_height="match_parent"
+        android:background="@color/seshgreen">
+    </RelativeLayout>
 
-</RelativeLayout>
+    <!-- Top view of swipe layout-->
+    <RelativeLayout
+        android:id="@+id/top_wrapper"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="10dp"
+        android:background="@color/white">
+        <!--loading view-->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true">
+            <ImageView
+                android:id="@+id/animation"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                tools:src="@drawable/loading_animation_end_023"/>
+            <TextView
+                android:id="@+id/loading_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_below="@id/animation"
+                android:text=""
+                android:textColor="@color/white"/>
+        </RelativeLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/position_field"
+            android:visibility="gone"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/overlay_text"
+            android:background="@color/seshorangeopaque"
+            android:textColor="@color/white"
+            android:textSize="30sp"
+            android:padding="10dp"
+            android:gravity="center"/>
+        <TextView
+            android:id="@+id/student_name"
+            android:textSize="20sp"
+            android:padding="5dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/seshorange"/>
+        <TextView
+            android:id="@+id/hourly_rate"
+            android:textSize="20sp"
+            android:padding="5dp"
+            android:gravity="right"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/seshlightgray"/>
+        <com.seshtutoring.seshapp.view.components.SeshIconTextView
+            android:id="@+id/course"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/student_name"></com.seshtutoring.seshapp.view.components.SeshIconTextView>
+        <com.seshtutoring.seshapp.view.components.SeshIconTextView
+            android:id="@+id/assignment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/course"></com.seshtutoring.seshapp.view.components.SeshIconTextView>
+        <!--<com.seshtutoring.seshapp.view.components.SeshIconTextView-->
+            <!--android:id="@+id/distance"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_below="@id/assignment"></com.seshtutoring.seshapp.view.components.SeshIconTextView>-->
+        <com.seshtutoring.seshapp.view.components.SeshIconTextView
+            android:id="@+id/duration"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/assignment"></com.seshtutoring.seshapp.view.components.SeshIconTextView>
+        <com.seshtutoring.seshapp.view.components.SeshIconTextView
+            android:id="@+id/available_blocks"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/duration"></com.seshtutoring.seshapp.view.components.SeshIconTextView>
+    </RelativeLayout>
+
+</com.daimajia.swipe.SwipeLayout>

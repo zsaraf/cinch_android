@@ -59,6 +59,29 @@ public class AvailableBlock extends SugarRecord<AvailableBlock> {
         return availableBlock;
     }
 
+    public static AvailableBlock createAvailableBlockForJob(JSONObject availableBlockJson) {
+
+        AvailableBlock availableBlock = new AvailableBlock();
+        try {
+            DateTimeFormatter formatter = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss Z");
+
+            String endTimeString = availableBlockJson.getString("end_time");
+            availableBlock.endTime = formatter.parseDateTime(endTimeString).toDate();
+            String startTimeString = availableBlockJson.getString("start_time");
+            availableBlock.startTime = formatter.parseDateTime(startTimeString).toDate();
+
+            availableBlock.learnRequest = null;
+
+            availableBlock.save();
+        } catch (JSONException e) {
+            Log.e(TAG, "Failed to create available block; " + e.getMessage());
+        } catch (Exception e) {
+            Log.e(TAG, "Error; " + e.getMessage());
+        }
+        return availableBlock;
+
+    }
+
 //    TEMP FIX UNTIL SCHEDULING IMPLEMENTED
     public static AvailableBlock availableBlockForInstantRequest(LearnRequest instantRequest) {
         DateTime startTime = new DateTime(instantRequest.timestamp);

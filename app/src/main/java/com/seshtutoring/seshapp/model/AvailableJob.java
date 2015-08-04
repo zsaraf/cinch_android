@@ -6,12 +6,19 @@ package com.seshtutoring.seshapp.model;
 
 import android.util.Log;
 
+import org.joda.time.DateTime;
+import org.joda.time.Days;
+import org.joda.time.JodaTimePermission;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.TimeZone;
 
 import com.seshtutoring.seshapp.model.AvailableBlock;
 
@@ -39,6 +46,7 @@ public class AvailableJob {
     public Set<AvailableBlock> availableBlocks;
     public Course course;
     public double rate;
+    public String[] days;
 
     public AvailableJob(String description, String studentName, int numPeople, double latitude, double longitude,
                         double maxTime, int requestId, Set<AvailableBlock> availableBlocks, Course course, double rate) {
@@ -52,6 +60,59 @@ public class AvailableJob {
         this.availableBlocks = availableBlocks;
         this.course = course;
         this.rate = rate;
+        String[] days = {"Sun", "Mon", "Tues", "Wed", "Thurs", "Fri", "Sat"};
+        this.days = days;
+    }
+
+    public String getReadableBlocks() {
+
+        DateTime now = new DateTime();
+        int today = now.getDayOfWeek();
+
+        String blockStr = "";
+
+        for (AvailableBlock block : availableBlocks) {
+            DateTime st = new DateTime(block.startTime);
+            int day = st.getDayOfWeek();
+            String dayStr = days[day];
+            if (day == today) {
+                dayStr = "TODAY";
+            }else if (day == today + 1) {
+                dayStr = "TMRW";
+            }
+            dayStr = "<b>" + dayStr + "</b>";
+            String ampm = "a";
+            int hour = st.getHourOfDay();
+            if (hour > 12) {
+                hour = hour - 12;
+                ampm = "p";
+            }
+            int min = st.getMinuteOfHour();
+            String minStr = "";
+            if (min > 15 && min < 45) {
+                minStr = ":30";
+            }
+            String startStr = dayStr + ": " + hour + minStr + ampm;
+            DateTime et = new DateTime(block.endTime);
+//            day = et.getDayOfWeek();
+//            dayStr = days[day];
+            ampm = "a";
+            hour = et.getHourOfDay() + 1;
+            if (hour > 12) {
+                hour = hour - 12;
+                ampm = "p";
+            }
+            min = et.getMinuteOfHour();
+            minStr = "";
+            if (min > 15 && min < 45) {
+                minStr = ":30";
+            }
+            String endStr = hour + minStr + ampm;
+            blockStr += startStr + "-" + endStr + "<br />";
+        }
+
+
+        return blockStr;
     }
 
     public static AvailableJob fromJson(JSONObject json) {
@@ -83,7 +144,7 @@ public class AvailableJob {
             for (int i = 0; i < availableBlocksJson.length(); i++) {
 
                 JSONObject availableBlockJson = availableBlocksJson.getJSONObject(i);
-                AvailableBlock availableBlockObj = AvailableBlock.createAvailableBlock(availableBlockJson);
+                AvailableBlock availableBlockObj = AvailableBlock.createAvailableBlockForJob(availableBlockJson);
                 availableBlocksVal.add(availableBlockObj);
 
             }

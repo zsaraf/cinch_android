@@ -6,6 +6,7 @@ import android.graphics.Typeface;
 import android.media.Image;
 import android.text.Editable;
 import android.text.InputType;
+import android.text.Spanned;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -48,6 +49,10 @@ public class SeshIconTextView extends RelativeLayout {
 
     public void setText(String text) {
         textView.setText(text);
+    }
+
+    public void setText(Spanned html) {
+        textView.setText(html);
     }
 
 }

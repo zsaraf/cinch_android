@@ -1,9 +1,13 @@
 package com.seshtutoring.seshapp.view.fragments.MainContainerFragments;
 
+import android.animation.LayoutTransition;
+import android.app.ActionBar;
 import android.app.ListFragment;
 import android.content.Context;
 import android.graphics.Typeface;
+import android.media.Image;
 import android.os.Bundle;
+import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,10 +15,16 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.daimajia.swipe.SwipeLayout;
+import com.daimajia.swipe.adapters.ArraySwipeAdapter;
+import com.getkeepsafe.android.multistateanimation.MultiStateAnimation;
 import com.seshtutoring.seshapp.R;
+import com.seshtutoring.seshapp.model.AvailableBlock;
 import com.seshtutoring.seshapp.model.AvailableJob;
 import com.seshtutoring.seshapp.model.Course;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
@@ -24,10 +34,13 @@ import com.seshtutoring.seshapp.view.components.SeshIconTextView;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.Locale;
+import java.util.Queue;
 
 /**
  * Created by lillioetting on 7/14/15.
@@ -42,14 +55,25 @@ public class ViewAvailableJobsFragment extends ListFragment {
     private ArrayList<Course> tutorCourses;
     private ViewAvailableJobsAdapter availableJobsAdapter;
     private SeshNetworking seshNetworking;
+    private Queue<ViewHolder> bidQueue;
 
     private class JobHolder {
         public AvailableJob job;
         public int type;
+        public int status;
+
+        public void pending() {
+            this.status = 1;
+        }
+
+        public void submitted() {
+            this.status = 2;
+        }
 
         public JobHolder(AvailableJob job, int type) {
             this.type = type;
             this.job = job;
+            this.status = 0;
         }
     }
 
@@ -58,9 +82,9 @@ public class ViewAvailableJobsFragment extends ListFragment {
         mainContainerActivity = (MainContainerActivity) getActivity();
         boldTypeFace = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Gotham-Book.otf");
         this.seshNetworking = new SeshNetworking(getActivity());
+        this.bidQueue = new LinkedList<ViewHolder>();
 
         this.availableJobs = new ArrayList<JobHolder>();
-
         this.tutorCourses = new ArrayList<Course>();
         this.availableJobsAdapter = new ViewAvailableJobsAdapter(getActivity(), availableJobs);
         menu.setAdapter(availableJobsAdapter);
@@ -73,6 +97,8 @@ public class ViewAvailableJobsFragment extends ListFragment {
                         tutorCourses.clear();
                         JSONArray tutorCoursesArrayJson = jsonResponse.getJSONArray("classes");
                         for (int i = 0; i < tutorCoursesArrayJson.length(); i++) {
+                            JSONObject obj = tutorCoursesArrayJson.getJSONObject(i);
+                            Course c = Course.fromJson(obj);
                             tutorCourses.add(Course.fromJson((tutorCoursesArrayJson.getJSONObject(i))));
                         }
 
@@ -127,14 +153,30 @@ public class ViewAvailableJobsFragment extends ListFragment {
         public TextView nameTextView;
         public TextView rateTextView;
         public TextView overlayTextView;
+        public TextView loadingTextView;
+        public ImageView animationView;
         public SeshIconTextView courseTextView;
         public SeshIconTextView assignmentTextView;
         //public SeshIconTextView distanceTextView;
         public SeshIconTextView durationTextView;
+        public SeshIconTextView availableBlocksTextView;
+
+        public ViewGroup topGroup;
+
+        public MultiStateAnimation animation;
+        public int status;
+
+        public void pending() {
+            this.status = 1;
+        }
+
+        public void finished() {
+            this.status = 2;
+        }
 
     }
 
-    public class ViewAvailableJobsAdapter extends ArrayAdapter<JobHolder> {
+    public class ViewAvailableJobsAdapter extends ArraySwipeAdapter<JobHolder> {
 
         private Context mContext;
         private LayoutInflater layoutInflater;
@@ -145,16 +187,22 @@ public class ViewAvailableJobsFragment extends ListFragment {
             layoutInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         }
 
+        public int getSwipeLayoutResourceId(int position) {
+            return position;
+        }
+
         public View getView(int position, View convertView, ViewGroup parent) {
 
-            JobHolder holder = getItem(position);
-            AvailableJob item = holder.job;
-            ViewHolder viewHolder;
+            final JobHolder holder = (JobHolder) getItem(position);
+            final AvailableJob item = holder.job;
+            final ViewHolder viewHolder;
 
             if (convertView == null) {
                 convertView = LayoutInflater.from(getContext()).inflate(R.layout.view_available_jobs_row, null);
 
                 viewHolder = new ViewHolder();
+
+                viewHolder.topGroup = (ViewGroup) convertView.findViewById(R.id.top_wrapper);
 
                 viewHolder.overlayTextView = (TextView) convertView.findViewById(R.id.overlay_text);
 
@@ -173,20 +221,101 @@ public class ViewAvailableJobsFragment extends ListFragment {
                 viewHolder.durationTextView = (SeshIconTextView) convertView.findViewById(R.id.duration);
                 viewHolder.durationTextView.setIconResourceId(R.drawable.clock_orange);
 
+                viewHolder.availableBlocksTextView = (SeshIconTextView) convertView.findViewById(R.id.available_blocks);
+                viewHolder.availableBlocksTextView.setIconResourceId(R.drawable.calendar_unfilled);
+
+                viewHolder.loadingTextView = (TextView) convertView.findViewById(R.id.loading_text);
+
+                viewHolder.animationView = (ImageView) convertView.findViewById(R.id.animation);
+                viewHolder.animation = MultiStateAnimation.fromJsonResource(getActivity(), viewHolder.animationView, R.raw.sample_animation);
+
+                viewHolder.status = 0;
+
                 convertView.setTag(viewHolder);
 
             }else {
                 viewHolder = (ViewHolder) convertView.getTag();
             }
 
-            if (holder.type == 2) {
+            //if (viewHolder.isSelected) {
+            if (viewHolder.status == 1) {
+                //viewHolder.nameTextView.setTextColor(getResources().getColor(R.color.seshgreen));
+                viewHolder.topGroup.setBackgroundColor(getResources().getColor(R.color.seshgreen));
+                viewHolder.nameTextView.setVisibility(View.INVISIBLE);
+                viewHolder.assignmentTextView.setVisibility(View.INVISIBLE);
+                viewHolder.durationTextView.setVisibility(View.INVISIBLE);
+                viewHolder.rateTextView.setVisibility(View.INVISIBLE);
+                viewHolder.courseTextView.setVisibility(View.INVISIBLE);
+                viewHolder.availableBlocksTextView.setVisibility(View.INVISIBLE);
+                viewHolder.animation.transitionNow("loading");
+                viewHolder.loadingTextView.setVisibility(View.VISIBLE);
+                viewHolder.loadingTextView.setText("requesting job...");
+            }else if (viewHolder.status == 2) {
+                viewHolder.animation.transitionNow("finished");
+                viewHolder.loadingTextView.setText("submitted! you'll receive a notification if you get the job.");
+            }else if (holder.type == 2) {
                 viewHolder.overlayTextView.setText("no available jobs");
                 viewHolder.nameTextView.setVisibility(View.GONE);
                 viewHolder.assignmentTextView.setVisibility(View.GONE);
                 viewHolder.durationTextView.setVisibility(View.GONE);
                 viewHolder.rateTextView.setVisibility(View.GONE);
                 viewHolder.courseTextView.setVisibility(View.GONE);
+                viewHolder.availableBlocksTextView.setVisibility(View.GONE);
             }else {
+
+                SwipeLayout swipeView = (SwipeLayout) convertView.findViewById(R.id.swipe_view);
+                swipeView.setShowMode(SwipeLayout.ShowMode.LayDown);
+
+                swipeView.addSwipeListener(new SwipeLayout.SwipeListener() {
+
+                    @Override
+                    public void onClose(SwipeLayout layout) {
+                        //when the SurfaceView totally cover the BottomView.
+                    }
+
+                    @Override
+                    public void onUpdate(SwipeLayout layout, int leftOffset, int topOffset) {
+                        //you are swiping.
+                    }
+
+                    @Override
+                    public void onStartOpen(SwipeLayout layout) {
+
+                    }
+
+                    @Override
+                    public void onOpen(SwipeLayout layout) {
+                        layout.setSwipeEnabled(false);
+                        ((ViewHolder)layout.getTag()).pending();
+                        availableJobsAdapter.notifyDataSetChanged();
+                        bidQueue.add((ViewHolder) layout.getTag());
+                        seshNetworking.createBid(item.requestId, 2, 2,
+                                new Response.Listener<JSONObject>() {
+                                    @Override
+                                    public void onResponse(JSONObject responseJson) {
+                                        onJobResponse(responseJson);
+                                    }
+                                }, new Response.ErrorListener() {
+                                    @Override
+                                    public void onErrorResponse(VolleyError volleyError) {
+                                        onJobFailure(volleyError.getMessage());
+                                    }
+                                });
+                        //replace 2s with lat/long
+
+                    }
+
+                    @Override
+                    public void onStartClose(SwipeLayout layout) {
+
+                    }
+
+                    @Override
+                    public void onHandRelease(SwipeLayout layout, float xvel, float yvel) {
+
+                    }
+                });
+
                 viewHolder.overlayTextView.setVisibility(View.GONE);
 
                 viewHolder.nameTextView.setText(item.studentName);
@@ -208,10 +337,35 @@ public class ViewAvailableJobsFragment extends ListFragment {
 
                 viewHolder.durationTextView.setText(item.maxTime + " hours");
                 viewHolder.durationTextView.setVisibility(View.VISIBLE);
+
+                viewHolder.availableBlocksTextView.setText(Html.fromHtml(item.getReadableBlocks()));
+                viewHolder.availableBlocksTextView.setVisibility(View.VISIBLE);
+
+                viewHolder.loadingTextView.setVisibility(View.GONE);
             }
 
             return convertView;
         }
+
+    }
+
+    private void onJobResponse(JSONObject responseJson) {
+        try {
+            if (responseJson.get("status").equals("SUCCESS")) {
+                Thread.sleep(1000);
+                bidQueue.remove().finished();
+                availableJobsAdapter.notifyDataSetChanged();
+            } else if (responseJson.get("status").equals("FAILURE")) {
+
+            }
+        } catch (JSONException e) {
+
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void onJobFailure(String errorMessage) {
 
     }
 

@@ -24,6 +24,7 @@ import android.widget.Toast;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.getkeepsafe.android.multistateanimation.MultiStateAnimation;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.maps.GoogleMap;
@@ -367,6 +368,22 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
     protected void attachBaseContext(Context newBase) {
         super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
     }
+
+//    @Override
+//    public void onAnimationFinished() {
+//        if (mAnimation1.getCurrentDrawable().isOneShot()) {
+//            mCurrentStateTextView.setText("Showing: " + mAnimation1.getCurrentSectionId());
+//        }
+//    }
+//
+//    @Override
+//    public void onAnimationStarting() {
+//        if (mAnimation1.getTransitioningFromId() != null) {
+//            mCurrentStateTextView.setText("Transitioning to: " + mAnimation1.getCurrentSectionId());
+//        } else if (!mAnimation1.getCurrentDrawable().isOneShot()) {
+//            mCurrentStateTextView.setText("Current state: " + mAnimation1.getCurrentSectionId());
+//        }
+//    }
 
 //    @Override
 //    public void onSaveInstanceState(Bundle outState) {

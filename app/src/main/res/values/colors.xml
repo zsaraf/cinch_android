@@ -9,6 +9,7 @@
     <color name="seshlightgray">#7F7F7F</color>
     <color name="terms_text_light_gray">#CCCCCC</color>
     <color name="confirmation_code_activity_gray">#999999</color>
+    <color name="seshgreen">#66FF99</color>
 
     <color name="learn_request_progress_unselected">#9EA69E</color>
     <color name="learn_request_progress_selected">#B334495E</color>

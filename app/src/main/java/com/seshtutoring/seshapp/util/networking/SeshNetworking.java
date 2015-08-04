@@ -67,6 +67,7 @@ public class SeshNetworking {
     private static final String EXPIRATION_TIME_PARAM = "expiration_time";
     private static final String TIMEZONE_OFFSET_PARAM = "timezone_offset";
     private static final String TUTOR_COURSES_PARAM = "courses";
+    private static final String REQUEST_ID_PARAM = "request_id";
 
     private Context mContext;
 
@@ -507,6 +508,18 @@ public class SeshNetworking {
         }
 
         postWithRelativeUrl("get_possible_jobs.php", params, successListener,
+                errorListener);
+    }
+
+    public void createBid(int request_id, double latitude, double longitude, Response.Listener<JSONObject> successListener,
+                                Response.ErrorListener errorListener) {
+        Map<String, String> params = new HashMap<>();
+        params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
+        params.put(LATITUDE_PARAM, Double.toString(latitude));
+        params.put(LONGITUDE_PARAM, Double.toString(longitude));
+        params.put(REQUEST_ID_PARAM, Integer.toString(request_id));
+
+        postWithRelativeUrl("create_bid.php", params, successListener,
                 errorListener);
     }
 
