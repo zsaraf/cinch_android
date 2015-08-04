@@ -228,11 +228,15 @@ public class RequestActivity extends SeshActivity implements EditText.OnEditorAc
             public void onResponse(JSONObject jsonObject) {
                 try {
                     if (jsonObject.getString("status").equals("SUCCESS")) {
-                        LearnRequest.createOrUpdateLearnRequest(jsonObject);
-                        SeshDialog.showDialog(getFragmentManager(), "Request Created",
-                                "Help is on the way! We'll notify you as soon as a tutor has accepted your Sesh request.  Hold tight!",
-                                "Got it", null, mapBackgroundInstance,
-                                DIALOG_TYPE_LEARN_REQUEST_SUCCESS);
+                        try {
+                            LearnRequest.createOrUpdateLearnRequest(jsonObject.getJSONObject("learn_request"));
+                            SeshDialog.showDialog(getFragmentManager(), "Request Created",
+                                    "Help is on the way! We'll notify you as soon as a tutor has accepted your Sesh request.  Hold tight!",
+                                    "Got it", null, mapBackgroundInstance,
+                                    DIALOG_TYPE_LEARN_REQUEST_SUCCESS);
+                        } catch (JSONException e) {
+                            Log.e(TAG, e.toString());
+                        }
                     } else {
                         SeshDialog.showDialog(getFragmentManager(), "Whoops!",
                                 "Something went wrong.  Try again later.",

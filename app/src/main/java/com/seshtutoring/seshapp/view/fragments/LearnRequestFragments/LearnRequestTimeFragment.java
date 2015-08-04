@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.seshtutoring.seshapp.R;
-import com.seshtutoring.seshapp.model.Rate;
+import com.seshtutoring.seshapp.model.Constants;
 import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.util.CostUtils;
 import com.seshtutoring.seshapp.view.RequestActivity;
@@ -41,7 +41,7 @@ public class LearnRequestTimeFragment extends Fragment implements RequestActivit
         timeCostLabel = (TextView) v.findViewById(R.id.time_cost_label);
         timeCostNumber = (TextView) v.findViewById(R.id.time_cost_number);
 
-        hourlyRate = Rate.getCurrentHourlyRate(getActivity()).getHourlyRate();
+        hourlyRate = Constants.getHourlyRate(getActivity());
         String perMinuteString = CostUtils.floatToString(hourlyRate / 60, 2).substring(1);
         timeCostLabel.setText("Time X Cost ($" + perMinuteString + "/min)");
 

@@ -1,43 +1,26 @@
 package com.seshtutoring.seshapp.util.networking;
 
-import android.accounts.NetworkErrorException;
 import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.util.Log;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.seshtutoring.seshapp.SeshApplication;
 import com.seshtutoring.seshapp.model.AvailableBlock;
+import com.seshtutoring.seshapp.model.Constants;
 import com.seshtutoring.seshapp.model.Course;
 import com.seshtutoring.seshapp.model.LearnRequest;
-import com.seshtutoring.seshapp.model.Rate;
-import com.seshtutoring.seshapp.model.AvailableBlock;
-import com.seshtutoring.seshapp.model.LearnRequest;
-import com.seshtutoring.seshapp.model.Rate;
-import com.seshtutoring.seshapp.model.Sesh;
 
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.tz.DateTimeZoneBuilder;
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.SimpleTimeZone;
 import java.util.TimeZone;
 
 /**
@@ -366,6 +349,15 @@ public class SeshNetworking {
         postWithRelativeUrl("get_rate.php", params, successListener, errorListener);
     }
 
+    public void getConstants(Response.Listener<JSONObject> successListener,
+                             Response.ErrorListener errorListener) {
+        Map<String, String> params = new HashMap<>();
+        params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
+
+        postWithRelativeUrl("get_constants.php", params, successListener, errorListener);
+    }
+
+
     public void getPastSeshes(Response.Listener<JSONObject> successListener,
                               Response.ErrorListener errorListener) {
         Map<String, String> params = new HashMap<>();
@@ -478,7 +470,7 @@ public class SeshNetworking {
         params.put(CLASS_ID_PARAM, learnRequest.classId);
         params.put(DESCRIPTION_PARAM, learnRequest.descr);
         params.put(EST_TIME_PARAM, Integer.toString(learnRequest.estTime));
-        params.put(RATE_PARAM, Float.toString(Rate.getCurrentHourlyRate(mContext).getHourlyRate()));
+        params.put(RATE_PARAM, Float.toString(Constants.getHourlyRate(mContext)));
         params.put(FAVORITES_PARAM, "[]");  // until Favorites implemented....
         params.put(IS_INSTANT_PARAM, learnRequest.isInstant() ? "1" : "0");
         params.put(EXPIRATION_TIME_PARAM, formatter.print(new DateTime(expirationTime)));
@@ -517,46 +509,6 @@ public class SeshNetworking {
         postWithRelativeUrl("get_possible_jobs.php", params, successListener,
                 errorListener);
     }
-
-    public void fetchSeshInfoFromServer(final Context context) {
-        this.getSeshInformation(new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject jsonObject) {
-                try {
-                    if (jsonObject.get("status").equals("SUCCESS")) {
-                        JSONArray seshes = jsonObject.getJSONArray(("open_seshes"));
-                        for (int i = 0; i < seshes.length(); i++) {
-                            JSONObject seshObject = seshes.getJSONObject(i);
-                            Sesh.createOrUpdateSeshWithObject(seshObject, context);
-                        }
-
-                        JSONArray openRequests = jsonObject.getJSONArray(("open_requests"));
-                        for (int i = 0; i < openRequests.length(); i++) {
-                            JSONObject openRequestObject = openRequests.getJSONObject(i);
-                            // DO SOMETHING
-                        }
-
-                        JSONArray unseenPastRequests = jsonObject.getJSONArray(("unseen_past_requests"));
-                        for (int i = 0; i < unseenPastRequests.length(); i++) {
-                            JSONObject unseenPastRequestObject = unseenPastRequests.getJSONObject(i);
-                            // DO SOMETHING
-                        }
-                    } else {
-                        Log.e(TAG, "Failed to fetch full user info from server.");
-                    }
-
-                } catch (JSONException e) {
-                    Log.e(TAG, "Failed to fetch user info from server; response malformed");
-                }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError volleyError) {
-                Log.e(TAG, "Failed to fetch user info from server; network error");
-            }
-        });
-    }
-
 
 //    @TODO: implement once Stripe functionality in place
 //    public void addCardWithCustomerToken(...)

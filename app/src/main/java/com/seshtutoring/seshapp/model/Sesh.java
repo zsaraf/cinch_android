@@ -10,10 +10,19 @@ import com.orm.dsl.Ignore;
 import com.seshtutoring.seshapp.util.networking.SeshAuthManager;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeConstants;
+import org.joda.time.LocalDate;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.sql.Date;
+import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -25,30 +34,30 @@ public class Sesh extends SugarRecord<Sesh> {
     @Ignore
     private static final String TAG = Sesh.class.getName();
 
-    public String class_name;
-    public boolean has_been_seen;
-    public boolean has_started;
-    public boolean is_student;
+    public int seshId;
+    public String className;
+    public boolean hasBeenSeen;
+    public boolean hasStarted;
+    public boolean isStudent;
     public double latitude;
     public String locationNotes;
     public double longitude;
-    public int past_request_id;
-    public String sesh_description;
-    public int sesh_est_time;
-    public int sesh_id;
-    public int sesh_num_students;
-    public Date sesh_set_time;
-    public Date start_time;
-    public double tutor_latitude;
-    public double tutor_longitude;
-    public String user_description;
-    public String user_image_url;
-    public String user_major;
-    public String user_name;
-    public String user_school;
-    public boolean is_instant;
-    public Set<AvailableBlock> availableBlocks;
-    public Set<String> messages;
+    public int pastRequestId;
+    public String seshDescription;
+    public int seshEstTime;
+    public int seshNumStudents;
+    public Timestamp seshSetTime;
+    public Timestamp startTime;
+    public double tutorLatitude;
+    public double tutorLongitude;
+    public String userDescription;
+    public String userImageUrl;
+    public String userMajor;
+    public String userName;
+    public String userSchool;
+    public boolean isInstant;
+//    public Set<AvailableBlock> availableBlocks;
+//    public Set<String> messages;
 
     // empty constructor necessary for SugarORM to work
     public Sesh() {
@@ -57,35 +66,34 @@ public class Sesh extends SugarRecord<Sesh> {
     public Sesh(String class_name, boolean has_been_seen, boolean has_started, boolean is_student,
                 double latitude, String locationNotes, double longitude, int past_request_id,
                 String sesh_description, int sesh_est_time, int sesh_id, int sesh_num_students,
-                Date sesh_set_time, Date start_time, double tutor_latitude, double tutor_longitude,
+                Timestamp sesh_set_time, Timestamp start_time, double tutor_latitude, double tutor_longitude,
                 String user_description, String user_image_url, String user_major, String user_name,
-                String user_school, boolean is_instant, Set<AvailableBlock> availableBlocks,
-                Set<String> messages) {
+                String user_school, boolean is_instant) {
 
-        this.class_name = class_name;
-        this.has_been_seen = has_been_seen;
-        this.has_started = has_started;
-        this.is_student = is_student;
+        this.className = class_name;
+        this.hasBeenSeen = has_been_seen;
+        this.hasStarted = has_started;
+        this.isStudent = is_student;
         this.latitude = latitude;
         this.locationNotes = locationNotes;
         this.longitude = longitude;
-        this.past_request_id = past_request_id;
-        this.sesh_description = sesh_description;
-        this.sesh_est_time = sesh_est_time;
-        this.sesh_id = sesh_id;
-        this.sesh_num_students = sesh_num_students;
-        this.sesh_set_time = sesh_set_time;
-        this.start_time = start_time;
-        this.tutor_latitude = tutor_latitude;
-        this.tutor_longitude = tutor_longitude;
-        this.user_description = user_description;
-        this.user_image_url = user_image_url;
-        this.user_major = user_major;
-        this.user_name = user_name;
-        this.user_school = user_school;
-        this.is_instant = is_instant;
-        this.availableBlocks = availableBlocks;
-        this.messages = messages;
+        this.pastRequestId = past_request_id;
+        this.seshDescription = sesh_description;
+        this.seshEstTime = sesh_est_time;
+        this.seshId = sesh_id;
+        this.seshNumStudents = sesh_num_students;
+        this.seshSetTime = sesh_set_time;
+        this.startTime = start_time;
+        this.tutorLatitude = tutor_latitude;
+        this.tutorLongitude = tutor_longitude;
+        this.userDescription = user_description;
+        this.userImageUrl = user_image_url;
+        this.userMajor = user_major;
+        this.userName = user_name;
+        this.userSchool = user_school;
+        this.isInstant = is_instant;
+//        this.availableBlocks = availableBlocks;
+//        this.messages = messages;
     }
 
 
@@ -108,33 +116,117 @@ public class Sesh extends SugarRecord<Sesh> {
                 sesh = new Sesh();
             }
 
-            sesh.class_name = seshJson.getString("class_name");
-            sesh.has_started = seshJson.getBoolean("has_started");
-            sesh.is_student = isStudent;
+            DateTimeFormatter formatter = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ssZ");
+
+            sesh.className = seshJson.getString("class_name");
+            sesh.hasStarted = (seshJson.getInt("has_started") == 1) ? true : false;
+            sesh.isStudent = isStudent;
             sesh.latitude = seshJson.getDouble("latitude");
             sesh.locationNotes = seshJson.getString("location_notes");
             sesh.longitude = seshJson.getDouble("longitude");
-            sesh.past_request_id = seshJson.getInt("past_request_id");
-            sesh.sesh_description = seshJson.getString("description");
-            sesh.sesh_est_time = seshJson.getInt("est_time");
-            sesh.sesh_id = seshId;
-            sesh.sesh_num_students = seshJson.getInt("num_students");
-//            sesh.sesh_set_time = seshJson.get;
-//            sesh.start_time = start_time;
-            sesh.user_description = otherPersonRow.getString("bio");
-            sesh.user_image_url = otherPersonRow.getString("profile_picture");
-            sesh.user_major = otherPersonRow.getString("major");
-            sesh.user_name = otherPersonRow.getString("full_name");
-            sesh.is_instant = seshJson.getBoolean("is_instant");
-//            sesh.availableBlocks = availableBlocks;
-//            sesh.messages = messages;
+            sesh.pastRequestId = seshJson.getInt("past_request_id");
+            sesh.seshDescription = seshJson.getString("description");
+            sesh.seshEstTime = seshJson.getInt("est_time");
+            sesh.seshId = seshId;
+            sesh.seshNumStudents = seshJson.getInt("num_students");
+            sesh.userDescription = otherPersonRow.getString("bio");
+            sesh.userImageUrl = otherPersonRow.getString("profile_picture");
+            sesh.userMajor = otherPersonRow.getString("major");
+            sesh.userName = otherPersonRow.getString("full_name");
+            sesh.isInstant = (seshJson.getInt("is_instant") == 1) ? true : false;
+
+            String seshSetTime = seshJson.getString("set_time");
+            if (!seshSetTime.equals("null")) {
+                sesh.seshSetTime = new Timestamp(formatter.parseDateTime(seshSetTime).getMillis());
+            }
+            String startTime = seshJson.getString("start_time");
+            if (!startTime.equals("null")) {
+                sesh.startTime = new Timestamp(formatter.parseDateTime(startTime).getMillis());
+            }
 
             sesh.save();
         } catch (JSONException e) {
-            Log.e(TAG, "Failed to create or update user in db; JSON user object from server is malformed.");
+            Log.e(TAG, "Failed to create or update user in db; JSON user object from server is malformed: " + e.getMessage());
             return null;
         }
         return sesh;
     }
 
+    public String getTimeAbbrvString() {
+            if (seshSetTime == null) {
+                return "Time TBD";
+            }
+
+            DateTime setTime = new DateTime(seshSetTime);
+
+            String day = "";
+            String time = "";
+
+            if (setTime.toLocalDate().equals(new LocalDate())) {
+                day = "TODAY";
+            } else if (setTime.minusDays(1).equals(new LocalDate())) {
+                day = "TMRW";
+            } else {
+                int dayOfWeek = setTime.getDayOfWeek();
+                switch (dayOfWeek) {
+                    case DateTimeConstants.SUNDAY:
+                        day = "SUN";
+                        break;
+                    case DateTimeConstants.MONDAY:
+                        day = "MON";
+                        break;
+                    case DateTimeConstants.TUESDAY:
+                        day = "TUES";
+                        break;
+                    case DateTimeConstants.WEDNESDAY:
+                        day = "WED";
+                        break;
+                    case DateTimeConstants.THURSDAY:
+                        day = "THURS";
+                        break;
+                    case DateTimeConstants.FRIDAY:
+                        day = "FRI";
+                        break;
+                    case DateTimeConstants.SATURDAY:
+                        day = "SAT";
+                        break;
+                }
+            }
+
+        DateFormat hourMinute = new SimpleDateFormat("hh:mm a");
+        time = hourMinute.format(setTime.toDate());
+
+        return String.format("%s %s", day, time);
+    }
+
+    public static void updateSeshInfoWithObject(Context context, JSONObject jsonObject) {
+        try {
+            if (jsonObject.get("status").equals("SUCCESS")) {
+                JSONArray seshes = jsonObject.getJSONArray(("open_seshes"));
+                Sesh.deleteAll(Sesh.class);
+                for (int i = 0; i < seshes.length(); i++) {
+                    JSONObject seshObject = seshes.getJSONObject(i);
+                    Sesh.createOrUpdateSeshWithObject(seshObject, context);
+                }
+
+                JSONArray openRequests = jsonObject.getJSONArray(("open_requests"));
+                LearnRequest.deleteAll(LearnRequest.class);
+                for (int i = 0; i < openRequests.length(); i++) {
+                    JSONObject openRequestObject = openRequests.getJSONObject(i);
+                    LearnRequest.createOrUpdateLearnRequest(openRequestObject);
+                }
+
+//                        JSONArray unseenPastRequests = jsonObject.getJSONArray(("unseen_past_requests"));
+//                        for (int i = 0; i < unseenPastRequests.length(); i++) {
+//                            JSONObject unseenPastRequestObject = unseenPastRequests.getJSONObject(i);
+//                            // DO SOMETHING
+//                        }
+            } else {
+                Log.e(TAG, "Failed to fetch full user info from server: " + jsonObject.getString("message"));
+            }
+
+        } catch (JSONException e) {
+            Log.e(TAG, "Failed to fetch user info from server; response malformed: " + e.getMessage());
+        }
+    }
 }

@@ -1,28 +1,17 @@
 package com.seshtutoring.seshapp.view;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.Spanned;
-import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
-import android.view.animation.DecelerateInterpolator;
-import android.view.animation.TranslateAnimation;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,10 +20,10 @@ import com.android.volley.VolleyError;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.seshtutoring.seshapp.R;
-import com.seshtutoring.seshapp.model.Rate;
 import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.services.GCMRegistrationIntentService;
 import com.seshtutoring.seshapp.services.SeshInstanceIDListenerService;
+import com.seshtutoring.seshapp.util.LaunchPrerequisiteUtil;
 import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.components.SeshButton;
@@ -229,15 +218,20 @@ public class AuthenticationActivity extends SeshActivity {
         try {
             if (responseJson.get("status").equals("SUCCESS")) {
                 User.createOrUpdateUserWithObject(responseJson, this);
-                Rate.fetchHourlyRateFromServer(this);
 
-                //         Refresh device on server via GCM service
+                // Refresh device on server via GCM service
                 Intent gcmIntent = new Intent(this, GCMRegistrationIntentService.class);
                 gcmIntent.putExtra(SeshInstanceIDListenerService.IS_TOKEN_STALE_KEY, true);
                 startService(gcmIntent);
 
-                Intent mainContainerIntent = new Intent(this, MainContainerActivity.class);
-                startActivity(mainContainerIntent);
+                LaunchPrerequisiteUtil.asyncPrepareForLaunch(this, new Runnable() {
+                    @Override
+                    public void run() {
+                        Intent mainContainerIntent = new Intent(getApplicationContext(), MainContainerActivity.class);
+                        startActivity(mainContainerIntent);
+                        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+                    }
+                });
             } else if (responseJson.get("status").equals("UNVERIFIED")) {
                 Toast.makeText(this, "unverified account", Toast.LENGTH_LONG).show();
             } else {

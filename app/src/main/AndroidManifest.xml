@@ -43,6 +43,14 @@
             </intent-filter>
         </receiver>
 
+        <receiver
+            android:name="com.seshtutoring.seshapp.services.FetchSeshInfoBroadcastReceiver"
+            android:exported="false" >
+            <intent-filter>
+                <action android:name="com.seshtutoring.seshapp.services.FETCH_SESH_INFO" />
+            </intent-filter>
+        </receiver>
+
         <service
             android:name="com.seshtutoring.seshapp.services.SeshGCMListenerService"
             android:exported="false" >

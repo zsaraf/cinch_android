@@ -71,11 +71,9 @@ public class LearnRequest extends SugarRecord<LearnRequest> {
         }
     }
 
-    public static LearnRequest createOrUpdateLearnRequest(JSONObject jsonObject) {
+    public static LearnRequest createOrUpdateLearnRequest(JSONObject learnRequestJson) {
         LearnRequest learnRequest = null;
         try {
-            JSONObject learnRequestJson = jsonObject.getJSONObject("learn_request");
-
             if (learnRequestJson.has("id")) {
                 int learnRequestId = learnRequestJson.getInt("id");
 

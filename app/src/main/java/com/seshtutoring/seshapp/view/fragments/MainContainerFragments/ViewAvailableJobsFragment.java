@@ -2,17 +2,13 @@ package com.seshtutoring.seshapp.view.fragments.MainContainerFragments;
 
 import android.app.ListFragment;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -21,16 +17,8 @@ import com.android.volley.VolleyError;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.AvailableJob;
 import com.seshtutoring.seshapp.model.Course;
-import com.seshtutoring.seshapp.model.Rate;
-import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
-import com.seshtutoring.seshapp.view.AboutActivity;
-import com.seshtutoring.seshapp.view.ChangePasswordActivity;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
-import com.seshtutoring.seshapp.view.PrivacyActivity;
-import com.seshtutoring.seshapp.view.SupportActivity;
-import com.seshtutoring.seshapp.view.TermsActivity;
-import com.seshtutoring.seshapp.view.components.SeshDialog;
 import com.seshtutoring.seshapp.view.components.SeshIconTextView;
 
 import org.json.JSONArray;
@@ -39,8 +27,6 @@ import org.json.JSONObject;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Currency;
-import java.util.List;
 import java.util.Locale;
 
 /**
