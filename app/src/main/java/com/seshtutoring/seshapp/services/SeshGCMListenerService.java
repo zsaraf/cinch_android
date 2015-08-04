@@ -18,7 +18,6 @@ import com.seshtutoring.seshapp.view.MainContainerActivity;
 import com.seshtutoring.seshapp.view.SplashActivity;
 import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.HomeFragment;
 import com.seshtutoring.seshapp.view.fragments.SideMenuFragment;
-import com.seshtutoring.seshapp.view.fragments.SideMenuFragment.MenuOption;
 import com.seshtutoring.seshapp.view.fragments.TeachViewFragment;
 
 import org.json.JSONException;
@@ -82,7 +81,7 @@ public class SeshGCMListenerService extends GcmListenerService {
                     }
 
                     Bundle bundle = new Bundle();
-                    bundle.putSerializable(MainContainerActivity.MAIN_CONTAINER_STATE_KEY, MenuOption.HOME);
+                    bundle.putInt(MainContainerActivity.MAIN_CONTAINER_STATE_INDEX, 0);
                     bundle.putString(MainContainerActivity.FRAGMENT_FLAG_KEY, HomeFragment.SHOW_AVAILABLE_JOBS_FLAG);
                     bundle.putInt(NOTIFICATION_ID_EXTRA, DEFAULT_NOTIFICATION_ID);
                     intent.putExtras(bundle);

@@ -13,6 +13,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.os.Vibrator;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -40,20 +41,25 @@ import com.seshtutoring.seshapp.util.ApplicationLifecycleTracker;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.components.SeshDialog;
 import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.HomeFragment;
+import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.PaymentFragment;
+import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.ProfileFragment;
+import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.PromoteFragment;
+import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.SettingsFragment;
 import com.seshtutoring.seshapp.view.fragments.SideMenuFragment;
-import com.seshtutoring.seshapp.view.fragments.SideMenuFragment.MenuOption;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Serializable;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 public class MainContainerActivity extends SeshActivity implements SeshDialog.OnSelectionListener {
     private static final String TAG = MainContainerActivity.class.getName();
-    public static final String MAIN_CONTAINER_STATE_KEY = "main_container_state";
+    public static final String MAIN_CONTAINER_STATE_INDEX = "main_container_state_index";
     public static final String FRAGMENT_FLAG_KEY = "fragment_flags";
     private static final String DIALOG_TYPE_FOUND_TUTOR = "dialog_type_found_tutor";
     private static final String INTENT_HANDLED = "intent_handled";
@@ -81,17 +87,50 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
         void clearFragmentOptions();
     }
 
+    public class ContainerState {
+        public String title;
+        public int iconRes;
+        public Fragment fragment;
+
+        ContainerState(String title, int iconRes, Fragment fragment) {
+            this.title = title;
+            this.iconRes = iconRes;
+            this.fragment = fragment;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (o instanceof ContainerState) {
+                return ((ContainerState) o).title == title &&
+                        ((ContainerState) o).iconRes == iconRes &&
+                        ((ContainerState) o).fragment.getClass() == fragment.getClass();
+            } else return false;
+        }
+    }
+
     private SlidingMenu slidingMenu;
     private SideMenuFragment sideMenuFragment;
-    private MenuOption currentSelectedMenuOption;
     private AlarmManager fetchSeshInfoAlarm;
     private PendingIntent fetchSeshInfoPendingIntent;
+    private ContainerState currentContainerState;
+
+    public final ContainerState HOME = new ContainerState("Home", R.drawable.home, new HomeFragment());
+    public final ContainerState PROFILE = new ContainerState("Profile", R.drawable.profile, new ProfileFragment());
+    public final ContainerState PAYMENT = new ContainerState("Payment", R.drawable.payment, new PaymentFragment());
+    public final ContainerState SETTINGS = new ContainerState("Settings", R.drawable.settings, new SettingsFragment());
+    public final ContainerState PROMOTE = new ContainerState("Promote", R.drawable.share, new PromoteFragment());
+
+    public ContainerState[] containerStates = new ContainerState[] {
+            HOME, PROFILE, PAYMENT, SETTINGS, PROMOTE
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.main_container_activity);
+
+
 
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -131,7 +170,7 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
             }
         });
 
-        setCurrentState(MenuOption.HOME, null);
+        setCurrentState(HOME, null);
 
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(UPDATE_CONTAINER_STATE_ACTION);
@@ -193,7 +232,7 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
 
         if (intent.getAction().equals(UPDATE_CONTAINER_STATE_ACTION)) {
             Bundle extras = intent.getExtras();
-            MenuOption containerState = (MenuOption) extras.getSerializable(MAIN_CONTAINER_STATE_KEY);
+            ContainerState containerState = containerStates[extras.getInt(MAIN_CONTAINER_STATE_INDEX)];
             String flag = extras.getString(FRAGMENT_FLAG_KEY);
 
             HashMap<String, Object> options = new HashMap<>();
@@ -218,8 +257,8 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                if (currentSelectedMenuOption == MenuOption.HOME) {
-                    HomeFragment homeFragment = (HomeFragment)currentSelectedMenuOption.fragment;
+                if (currentContainerState == HOME) {
+                    HomeFragment homeFragment = (HomeFragment)currentContainerState.fragment;
                     if (homeFragment.getCurrTabItem() == HomeFragment.TabItem.LEARN_TAB) {
                         homeFragment.getLearnViewMap().snapshot(new GoogleMap.SnapshotReadyCallback() {
                             @Override
@@ -320,30 +359,30 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
         Toast.makeText(this, "We couldn't reach the network, sorrys!", Toast.LENGTH_LONG).show();
     }
 
-    public MenuOption getCurrentState() {
-        return currentSelectedMenuOption;
+    public ContainerState getCurrentState() {
+        return currentContainerState;
     }
 
     /**
      * Convenience method for setting current state without flags
-     * @param menuOption
+     * @param state
      */
-    public void setCurrentState(MenuOption menuOption) {
-        setCurrentState(menuOption, null);
+    public void setCurrentState(ContainerState state) {
+        setCurrentState(state, null);
     }
 
-    public void setCurrentState(MenuOption selectedMenuOption, Map<String, Object> options) {
+    public void setCurrentState(ContainerState selectedMenuOption, Map<String, Object> options) {
         if (!(selectedMenuOption.fragment instanceof FragmentOptionsReceiver)) {
             Log.e(TAG, "Invalid Fragment: All fragments within MainContainerActivity must implement FragmentFlagReceiver");
             return;
         }
 
-        if (currentSelectedMenuOption != null) {
-            FragmentOptionsReceiver optionsReceiver = (FragmentOptionsReceiver) currentSelectedMenuOption.fragment;
+        if (currentContainerState != null) {
+            FragmentOptionsReceiver optionsReceiver = (FragmentOptionsReceiver) currentContainerState.fragment;
             optionsReceiver.clearFragmentOptions();
         }
 
-        currentSelectedMenuOption = selectedMenuOption;
+        currentContainerState = selectedMenuOption;
 
         TextView title = (TextView) findViewById(R.id.action_bar_title);
 
@@ -351,11 +390,11 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
 
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.main_container, currentSelectedMenuOption.fragment)
+                .replace(R.id.main_container, currentContainerState.fragment)
                 .commitAllowingStateLoss();
 
         if (options != null) {
-            FragmentOptionsReceiver flagReceiver = (FragmentOptionsReceiver) currentSelectedMenuOption.fragment;
+            FragmentOptionsReceiver flagReceiver = (FragmentOptionsReceiver) currentContainerState.fragment;
             flagReceiver.updateFragmentOptions(options);
         }
     }

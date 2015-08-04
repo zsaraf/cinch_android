@@ -18,7 +18,7 @@
         android:layout_alignParentBottom="true"
         android:layout_below="@id/side_menu_list"
         android:stackFromBottom="true"
-        android:id="@+id/learn_list"
+        android:id="@+id/open_requests_and_seshes_list"
         android:divider="@null">
     </ListView>
 
