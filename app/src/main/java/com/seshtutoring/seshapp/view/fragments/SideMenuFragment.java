@@ -212,7 +212,7 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenedLi
                     convertView = LayoutInflater.from(getContext()).inflate(R.layout.open_sesh_list_row,
                             null);
                 }
-                
+
                 TextView classAbbrvTextView = (TextView) convertView.findViewById(R.id.open_sesh_list_row_class);
                 classAbbrvTextView.setText(item.sesh.className);
 

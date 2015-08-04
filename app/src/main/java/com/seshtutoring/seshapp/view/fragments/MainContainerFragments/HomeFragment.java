@@ -23,12 +23,14 @@ import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
 import com.seshtutoring.seshapp.view.fragments.LearnViewFragment;
 import com.seshtutoring.seshapp.view.fragments.TeachViewFragment;
-import com.seshtutoring.seshapp.view.MainContainerActivity.FragmentFlagReceiver;
+import com.seshtutoring.seshapp.view.MainContainerActivity.FragmentOptionsReceiver;
+
+import java.util.Map;
 
 /**
  * Created by nadavhollander on 7/14/15.
  */
-public class HomeFragment extends Fragment implements FragmentFlagReceiver {
+public class HomeFragment extends Fragment implements FragmentOptionsReceiver {
     private static final String TAG = HomeFragment.class.getName();
     public enum TabItem {
         LEARN_TAB(0), TEACH_TAB(1);
@@ -46,8 +48,9 @@ public class HomeFragment extends Fragment implements FragmentFlagReceiver {
     private TeachViewFragment teachViewFragment;
     private Button learnTabButton;
     private Button teachTabButton;
-    private String fragmentFlag;
     private TabItem currTabItem;
+
+    private Map<String, Object> options;
 
     public final static String SHOW_AVAILABLE_JOBS_FLAG = "show_available_jobs";
 
@@ -89,7 +92,8 @@ public class HomeFragment extends Fragment implements FragmentFlagReceiver {
         });
 
 
-        if (fragmentFlag != null && fragmentFlag.equals(SHOW_AVAILABLE_JOBS_FLAG)) {
+        if (options != null && options.containsKey(SHOW_AVAILABLE_JOBS_FLAG) &&
+                (boolean) options.get(SHOW_AVAILABLE_JOBS_FLAG)) {
             setCurrentTabItem(TabItem.TEACH_TAB, false);
         } else {
             setCurrentTabItem(TabItem.LEARN_TAB, false);
@@ -125,7 +129,8 @@ public class HomeFragment extends Fragment implements FragmentFlagReceiver {
     @Override
     public void onResume() {
         super.onResume();
-        if (fragmentFlag != null && fragmentFlag.equals(SHOW_AVAILABLE_JOBS_FLAG)) {
+        if (options != null && options.containsKey(SHOW_AVAILABLE_JOBS_FLAG) &&
+                (boolean) options.get(SHOW_AVAILABLE_JOBS_FLAG)) {
             setCurrentTabItem(TabItem.TEACH_TAB, false);
             Log.d(TAG, "Fragment flag worked");
             // show available jobs view
@@ -163,9 +168,10 @@ public class HomeFragment extends Fragment implements FragmentFlagReceiver {
     }
 
     @Override
-    public void updateFragmentFlag(String flag) {
-        this.fragmentFlag = flag;
-        if (flag.equals(SHOW_AVAILABLE_JOBS_FLAG)) {
+    public void updateFragmentOptions(Map<String, Object> options) {
+        this.options = options;
+
+        if (options.containsKey(SHOW_AVAILABLE_JOBS_FLAG) && (boolean)options.get(SHOW_AVAILABLE_JOBS_FLAG)) {
             if (isAdded()) {
                 setCurrentTabItem(TabItem.TEACH_TAB, false);
             }
@@ -173,7 +179,7 @@ public class HomeFragment extends Fragment implements FragmentFlagReceiver {
     }
 
     @Override
-    public void clearFragmentFlag() {
-        this.fragmentFlag = null;
+    public void clearFragmentOptions() {
+        this.options = null;
     }
 }

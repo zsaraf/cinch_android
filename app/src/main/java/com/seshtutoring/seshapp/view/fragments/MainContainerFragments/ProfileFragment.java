@@ -10,13 +10,15 @@ import android.widget.RelativeLayout;
 
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.util.LayoutUtils;
-import com.seshtutoring.seshapp.view.MainContainerActivity.FragmentFlagReceiver;
+import com.seshtutoring.seshapp.view.MainContainerActivity.FragmentOptionsReceiver;
+
+import java.util.Map;
 
 /**
  * Created by nadavhollander on 7/14/15.
  */
-public class ProfileFragment extends Fragment implements FragmentFlagReceiver {
-    private String fragmentFlag;
+public class ProfileFragment extends Fragment implements FragmentOptionsReceiver {
+    private Map<String, Object> options;
 
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
         View v = layoutInflater.inflate(R.layout.profile_fragment, null);
@@ -30,12 +32,12 @@ public class ProfileFragment extends Fragment implements FragmentFlagReceiver {
     }
 
     @Override
-    public void updateFragmentFlag(String flag) {
-        this.fragmentFlag = flag;
+    public void updateFragmentOptions(Map<String, Object> options) {
+        this.options = options;
     }
 
     @Override
-    public void clearFragmentFlag() {
-        this.fragmentFlag = null;
+    public void clearFragmentOptions() {
+        this.options = null;
     }
 }

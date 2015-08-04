@@ -45,6 +45,9 @@ import com.seshtutoring.seshapp.view.fragments.SideMenuFragment.MenuOption;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 public class MainContainerActivity extends SeshActivity implements SeshDialog.OnSelectionListener {
@@ -72,9 +75,9 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
      * MainContainerActivity (eg. Intent wants to show available jobs to tutor, flag is passed to
      * TeachViewFragment to show the appropriate fragment)
      */
-    public interface FragmentFlagReceiver {
-        void updateFragmentFlag(String flag);
-        void clearFragmentFlag();
+    public interface FragmentOptionsReceiver {
+        void updateFragmentOptions(Map<String, Object> options);
+        void clearFragmentOptions();
     }
 
     private SlidingMenu slidingMenu;
@@ -192,7 +195,10 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
             MenuOption containerState = (MenuOption) extras.getSerializable(MAIN_CONTAINER_STATE_KEY);
             String flag = extras.getString(FRAGMENT_FLAG_KEY);
 
-            setCurrentState(containerState, flag);
+            HashMap<String, Object> options = new HashMap<>();
+            options.put(flag, true);
+
+            setCurrentState(containerState, options);
 
             if (ApplicationLifecycleTracker.applicationInForeground()) {
                 sideMenuFragment.updateSelectedItem();
@@ -325,15 +331,15 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
         setCurrentState(menuOption, null);
     }
 
-    public void setCurrentState(MenuOption selectedMenuOption, String flag) {
-        if (!(selectedMenuOption.fragment instanceof FragmentFlagReceiver)) {
+    public void setCurrentState(MenuOption selectedMenuOption, Map<String, Object> options) {
+        if (!(selectedMenuOption.fragment instanceof FragmentOptionsReceiver)) {
             Log.e(TAG, "Invalid Fragment: All fragments within MainContainerActivity must implement FragmentFlagReceiver");
             return;
         }
 
         if (currentSelectedMenuOption != null) {
-            FragmentFlagReceiver flagReceiver = (FragmentFlagReceiver) currentSelectedMenuOption.fragment;
-            flagReceiver.clearFragmentFlag();
+            FragmentOptionsReceiver optionsReceiver = (FragmentOptionsReceiver) currentSelectedMenuOption.fragment;
+            optionsReceiver.clearFragmentOptions();
         }
 
         currentSelectedMenuOption = selectedMenuOption;
@@ -347,9 +353,9 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
                 .replace(R.id.main_container, currentSelectedMenuOption.fragment)
                 .commitAllowingStateLoss();
 
-        if (flag != null) {
-            FragmentFlagReceiver flagReceiver = (FragmentFlagReceiver) currentSelectedMenuOption.fragment;
-            flagReceiver.updateFragmentFlag(flag);
+        if (options != null) {
+            FragmentOptionsReceiver flagReceiver = (FragmentOptionsReceiver) currentSelectedMenuOption.fragment;
+            flagReceiver.updateFragmentOptions(options);
         }
     }
 
