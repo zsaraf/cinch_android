@@ -33,7 +33,7 @@ public class Constants {
                         float hourlyRate = (float) jsonObject.getDouble("rate");
                         float userShareRate = (float) jsonObject.getDouble("user_share_rate");
                         float friendShareRate = (float) jsonObject.getDouble("friend_share_rate");
-                        int instantRequestTimeout = jsonObject.getInt("instant_request_time");
+                        int instantRequestTimeout = jsonObject.getInt("instant_request_timeout");
 
                         SharedPreferences sharedPreferences =
                                 context.getSharedPreferences(CONSTANTS_SHARED_PREFS, 0);

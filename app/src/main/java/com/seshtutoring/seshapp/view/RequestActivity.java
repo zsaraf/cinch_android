@@ -216,7 +216,7 @@ public class RequestActivity extends SeshActivity implements EditText.OnEditorAc
 
     public void createLearnRequest() {
         // temp until scheduling implemented
-        currentLearnRequest.setIsInstant(true);
+        currentLearnRequest.setIsInstant(false);
 
         if (currentLearnRequest.availableBlocks.size() == 0) {
             currentLearnRequest.createAvailableBlockForNow();

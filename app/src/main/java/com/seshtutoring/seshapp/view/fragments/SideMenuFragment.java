@@ -2,8 +2,10 @@ package com.seshtutoring.seshapp.view.fragments;
 
 import android.content.Context;
 import android.graphics.Typeface;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,30 +15,27 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.seshtutoring.seshapp.R;
-import com.seshtutoring.seshapp.model.AvailableBlock;
 import com.seshtutoring.seshapp.model.LearnRequest;
 import com.seshtutoring.seshapp.model.Sesh;
 import com.seshtutoring.seshapp.services.FetchSeshInfoBroadcastReceiver;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
-import com.seshtutoring.seshapp.view.MainContainerActivity.FragmentFlagReceiver;
 import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.HomeFragment;
 import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.PaymentFragment;
 import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.ProfileFragment;
 import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.PromoteFragment;
 import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.SettingsFragment;
 
-import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
-
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
 public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenedListener, FetchSeshInfoBroadcastReceiver.SeshInfoUpdateListener {
+    private static final String TAG = SideMenuFragment.class.getName();
+
     public static enum MenuOption {
         HOME("Home", R.drawable.home, new HomeFragment(), 0),
         PROFILE("Profile", R.drawable.profile, new ProfileFragment(), 1),
@@ -64,7 +63,6 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenedLi
     private SideMenuItem selectedItem;
     private ListView menu;
     private ListView learnList;
-    private RelativeLayout learnDivider;
     private LearnListAdapter learnListAdapter;
     private String menuOpenFlag;
     private SideMenuAdapter sideMenuAdapter;
@@ -75,7 +73,6 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenedLi
         View view = inflater.inflate(R.layout.side_menu_fragment, container, false);
         menu = (ListView) view.findViewById(R.id.side_menu_list);
         learnList = (ListView) view.findViewById(R.id.learn_list);
-        learnDivider = (RelativeLayout) view.findViewById(R.id.learn_divider);
         mainContainerActivity = (MainContainerActivity) getActivity();
         return view;
     }
@@ -180,12 +177,17 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenedLi
 
     private class LearnListItem {
         public boolean isSesh;
+        public boolean isDivider;
         public LearnRequest learnRequest;
         public Sesh sesh;
-        public LearnListItem(boolean isSesh, LearnRequest learnRequest, Sesh sesh) {
+        public String dividerText;
+        public LearnListItem(boolean isSesh, boolean isDivider, LearnRequest learnRequest, Sesh sesh,
+                             String dividerText) {
             this.isSesh = isSesh;
+            this.isDivider = isDivider;
             this.learnRequest = learnRequest;
             this.sesh = sesh;
+            this.dividerText = dividerText;
         }
     }
 
@@ -193,19 +195,56 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenedLi
         public LearnListAdapter(Context context) { super(context, 0); }
 
         public View getView(int position, View convertView, ViewGroup parent) {
+            Log.d(TAG, "refreshing position " + position);
             LearnListItem item = getItem(position);
-            if (item.isSesh) {
-                convertView = LayoutInflater.from(getContext()).inflate(R.layout.open_sesh_list_row,
-                        null);
+            if (item.isDivider) {
+                // if convertView is not instantiated, or is of the wrong type, we re-instantiate
+                if (convertView == null || isOpenRequestRow(convertView) || isOpenSeshRow(convertView)) {
+                    convertView = LayoutInflater.from(getContext()).inflate(R.layout.open_request_divider,
+                            null);
+                }
+
+                TextView dividerText = (TextView) convertView.findViewById(R.id.divider_text);
+                dividerText.setText(item.dividerText);
+            } else if (item.isSesh) {
+                // if convertView is not instantiated, or is of the wrong type, we re-instantiate
+                if (convertView == null || isOpenRequestRow(convertView)) {
+                    convertView = LayoutInflater.from(getContext()).inflate(R.layout.open_sesh_list_row,
+                            null);
+                }
+
+                item.sesh.isStudent = false; // debug
 
                 TextView classAbbrvTextView = (TextView) convertView.findViewById(R.id.open_sesh_list_row_class);
                 classAbbrvTextView.setText(item.sesh.className);
 
+                Typeface  medium = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Gotham-Medium.otf");
+                classAbbrvTextView.setTypeface(medium);
+
                 TextView timeAbbrvTextView = (TextView) convertView.findViewById(R.id.open_sesh_list_row_time);
                 timeAbbrvTextView.setText(item.sesh.getTimeAbbrvString());
+
+                if (!item.sesh.isStudent) {
+                    ImageView icon = (ImageView)convertView.findViewById(R.id.open_sesh_list_row_status_icon);
+                    int drawableId;
+
+                    if (item.sesh.seshSetTime == null) {
+                        drawableId = R.drawable.alert;
+                    } else {
+                        drawableId = R.drawable.check_green;
+                    }
+
+                    if (Build.VERSION.SDK_INT < 21) {
+                        icon.setImageDrawable(getResources().getDrawable(drawableId));
+                    } else  {
+                        icon.setImageDrawable(getResources().getDrawable(drawableId, null));
+                    }
+                }
             } else {
-                convertView = LayoutInflater.from(getContext()).inflate(R.layout.open_request_list_row,
-                        null);
+                // if convertView is not instantiated, or is of the wrong type, we re-instantiate
+                if (convertView == null || isOpenSeshRow(convertView))
+                    convertView = LayoutInflater.from(getContext()).inflate(R.layout.open_request_list_row,
+                            null);
 
                 TextView classAbbrvTextView = (TextView) convertView.findViewById(R.id.open_request_list_row_class);
                 classAbbrvTextView.setText(item.learnRequest.classString);
@@ -214,12 +253,28 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenedLi
             // if view represents the newest request and side menu was opened in context of a new
             // request being created, animate row in to emphasize it to user.
             if (menuOpenFlag == MENU_OPEN_DISPLAY_NEW_REQUEST && position == getCount() - 1) {
+                Log.d("meh", "allegadly animating");
                 Animation newItemAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.fade_and_slide_in);
                 convertView.startAnimation(newItemAnimation);
-                menuOpenFlag = null;
+                Log.d(TAG, "bout to set this null:");
+                setStatusFlag(null);
             }
             return convertView;
         }
+
+        @Override
+        public void notifyDataSetChanged() {
+            super.notifyDataSetChanged();
+            Log.d(TAG, "notify data set changed");
+        }
+    }
+
+    private boolean isOpenRequestRow(View view) {
+        return (view.findViewById(R.id.open_request_list_row_class) != null);
+    }
+
+    private boolean isOpenSeshRow(View view) {
+        return (view.findViewById(R.id.open_sesh_list_row_class) != null);
     }
 
     public void selectItem(TextView title) {
@@ -237,12 +292,13 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenedLi
     }
 
     public void setStatusFlag(String flag) {
+        Log.d(TAG, "SETTING MENUOPTIONFLAG " + flag);
         this.menuOpenFlag = flag;
     }
 
-
     @Override
     public void onOpened() {
+        Log.d(TAG, "onOpened called w/ menuOpenFlag: " + menuOpenFlag);
         if (menuOpenFlag == MENU_OPEN_DISPLAY_NEW_REQUEST) {
             updateLearnList();
         }
@@ -253,7 +309,8 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenedLi
         updateLearnList();
     }
 
-    public void updateLearnList() {
+    public synchronized void updateLearnList() {
+        Log.d(TAG, "updateLearnList() begin " + new Date().toString() + " with instance " + this.getId());
         List<Sesh> studentSeshes = Sesh.find(Sesh.class, "is_student = ?", Integer.toString(1));
         Iterator<LearnRequest> learnRequests = LearnRequest.findAll(LearnRequest.class);
 
@@ -262,21 +319,23 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenedLi
         learnListAdapter.clear();
 
         for (Sesh sesh : studentSeshes) {
-            LearnListItem seshItem = new LearnListItem(true, null, sesh);
+            LearnListItem seshItem = new LearnListItem(true, false, null, sesh, null);
             learnListAdapter.add(seshItem);
         }
 
         while (learnRequests.hasNext()) {
-            LearnListItem requestItem = new LearnListItem(false, learnRequests.next(), null);
+            LearnListItem requestItem = new LearnListItem(false, false, learnRequests.next(), null, null);
             learnListAdapter.add(requestItem);
         }
 
-        if (beforeCount == 0 && learnListAdapter.getCount() > 0 && learnDivider.getAlpha() == 0f) {
-            learnDivider.animate().alpha(1f).setDuration(300).setStartDelay(500);
-        } else if (learnListAdapter.getCount() == 0 && learnDivider.getAlpha() == 1f) {
-            learnDivider.setAlpha(0f);
+        if (learnListAdapter.getCount() > 0) {
+            LearnListItem learnDivider = new LearnListItem(false, true, null, null, "Learn");
+
+            learnListAdapter.insert(learnDivider, 0);
         }
 
         learnListAdapter.notifyDataSetChanged();
+        Log.d(TAG, "updateLearnList() end " + new Date().toString());
+
     }
 }

@@ -268,6 +268,8 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
                         }
                     });
 
+        } else if (type.equals(DIALOG_TYPE_FOUND_TUTOR)) {
+            Toast.makeText(this, "showing activity", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -386,7 +388,9 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        Log.d(TAG, "Activity Result: " + resultCode);
         if (resultCode == RequestActivity.LEARN_REQUEST_CREATE_SUCCESS) {
+            Log.d(TAG, "INSIDE LEARN_REQUEST_CREATE_SUCCESS");
             sideMenuFragment.setStatusFlag(SideMenuFragment.MENU_OPEN_DISPLAY_NEW_REQUEST);
             Handler handler = new Handler();
             Runnable openSideMenu = new Runnable() {
