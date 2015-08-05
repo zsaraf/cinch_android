@@ -139,16 +139,17 @@ public class AvailableJob {
             requestIdVal = json.getInt(REQUEST_ID_KEY);
             rateVal = json.getDouble(RATE_KEY);
             courseVal = Course.fromClassRowJson(json.getJSONObject(CLASS_KEY));
-            JSONArray availableBlocksJson = json.getJSONArray(AVAILABLE_BLOCKS_KEY);
             availableBlocksVal = new HashSet<AvailableBlock>();
-            for (int i = 0; i < availableBlocksJson.length(); i++) {
+            if (json.get(AVAILABLE_BLOCKS_KEY) == null) {
+                JSONArray availableBlocksJson = json.getJSONArray(AVAILABLE_BLOCKS_KEY);
+                for (int i = 0; i < availableBlocksJson.length(); i++) {
 
-                JSONObject availableBlockJson = availableBlocksJson.getJSONObject(i);
-                AvailableBlock availableBlockObj = AvailableBlock.createAvailableBlockForJob(availableBlockJson);
-                availableBlocksVal.add(availableBlockObj);
+                    JSONObject availableBlockJson = availableBlocksJson.getJSONObject(i);
+                    AvailableBlock availableBlockObj = AvailableBlock.createAvailableBlockForJob(availableBlockJson);
+                    availableBlocksVal.add(availableBlockObj);
 
+                }
             }
-
             availableJobInstance = new AvailableJob(descriptionVal, studentNameVal, numPeopleVal, latitudeVal, longitudeVal,
                     maxTimeVal, requestIdVal, availableBlocksVal, courseVal, rateVal);
         } catch (JSONException e) {
