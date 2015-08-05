@@ -87,27 +87,6 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
         void clearFragmentOptions();
     }
 
-    public class ContainerState {
-        public String title;
-        public int iconRes;
-        public Fragment fragment;
-
-        ContainerState(String title, int iconRes, Fragment fragment) {
-            this.title = title;
-            this.iconRes = iconRes;
-            this.fragment = fragment;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (o instanceof ContainerState) {
-                return ((ContainerState) o).title == title &&
-                        ((ContainerState) o).iconRes == iconRes &&
-                        ((ContainerState) o).fragment.getClass() == fragment.getClass();
-            } else return false;
-        }
-    }
-
     private SlidingMenu slidingMenu;
     private SideMenuFragment sideMenuFragment;
     private AlarmManager fetchSeshInfoAlarm;
@@ -129,8 +108,6 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.main_container_activity);
-
-
 
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);

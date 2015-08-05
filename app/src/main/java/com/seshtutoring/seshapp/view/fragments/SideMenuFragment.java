@@ -24,7 +24,7 @@ import com.seshtutoring.seshapp.model.LearnRequest;
 import com.seshtutoring.seshapp.model.Sesh;
 import com.seshtutoring.seshapp.services.FetchSeshInfoBroadcastReceiver;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
-import com.seshtutoring.seshapp.view.MainContainerActivity.ContainerState;
+import com.seshtutoring.seshapp.view.ContainerState;
 import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.DummyRequestSeshFragment;
 import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.HomeFragment;
 import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.PaymentFragment;
@@ -113,18 +113,18 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenedLi
         openRequestsAndSeshesMenu.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//                RequestsAndSeshesListItem item = openRequestsAndSeshesAdapter.getItem(position);
-//                if (item.isDivider) return;
-//
-//                Map<String, Object> options = new HashMap<String, Object>();
-//
-//                if(item.isSesh) {
-//                    options.put(DummyRequestSeshFragment.SESH_DUMMY_KEY, "SeshID = " + item.sesh.seshId);
-//                    mainContainerActivity.setCurrentState(MenuOption(item.sesh.className, 0, new DummyRequestSeshFragment()));
-//                } else {
-//                    options.put(DummyRequestSeshFragment.REQUEST_DUMMY_KEY, "RequestId = " + item.learnRequest.learnRequestId);
-//                    mainContainerActivity.setCurrentState();
-//                }
+                RequestsAndSeshesListItem item = openRequestsAndSeshesAdapter.getItem(position);
+                if (item.isDivider) return;
+
+                Map<String, Object> options = new HashMap<String, Object>();
+
+                if(item.isSesh) {
+                    options.put(DummyRequestSeshFragment.SESH_DUMMY_KEY, "SeshID = " + item.sesh.seshId);
+                    mainContainerActivity.setCurrentState(new ContainerState("Sesh!", 0, new DummyRequestSeshFragment()));
+                } else {
+                    options.put(DummyRequestSeshFragment.REQUEST_DUMMY_KEY, "RequestId = " + item.learnRequest.learnRequestId);
+                    mainContainerActivity.setCurrentState(new ContainerState("Request!", 0, new DummyRequestSeshFragment()));
+                }
 
             }
         });
