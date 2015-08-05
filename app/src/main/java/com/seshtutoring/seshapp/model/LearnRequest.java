@@ -104,14 +104,16 @@ public class LearnRequest extends SugarRecord<LearnRequest> {
             learnRequest.timestamp = formatter.parseDateTime(learnRequestJson.getString("timestamp")).toDate();
             learnRequest.locationNotes = learnRequestJson.getString("location_notes");
 
-            JSONArray availableBlockObjects = learnRequestJson.getJSONArray("available_blocks");
             learnRequest.save();
 
-            for (int i = 0; i < learnRequest.availableBlocks.size(); i++) {
-                JSONObject availableBlockJson = availableBlockObjects.getJSONObject(i);
-                AvailableBlock.createAvailableBlock(availableBlockJson);
-            }
+            if(!learnRequest.isInstant) {
+                JSONArray availableBlockObjects = learnRequestJson.getJSONArray("available_blocks");
 
+                for (int i = 0; i < learnRequest.availableBlocks.size(); i++) {
+                    JSONObject availableBlockJson = availableBlockObjects.getJSONObject(i);
+                    AvailableBlock.createAvailableBlock(availableBlockJson);
+                }
+            }
         } catch (JSONException e) {
             Log.e(TAG, "Failed to create or update learn request; " + e.getMessage());
             return null;
