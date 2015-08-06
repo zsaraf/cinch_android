@@ -12,6 +12,7 @@ import android.util.Log;
 
 import com.google.android.gms.gcm.GcmListenerService;
 import com.seshtutoring.seshapp.R;
+import com.seshtutoring.seshapp.SeshApplication;
 import com.seshtutoring.seshapp.SeshStateManager;
 import com.seshtutoring.seshapp.util.ApplicationLifecycleTracker;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
@@ -52,7 +53,8 @@ public class SeshGCMListenerService extends GcmListenerService {
         String identifier = data.getString(IDENTIFIER_KEY);
         Intent intent;
 
-        boolean appInForeground = ApplicationLifecycleTracker.applicationInForeground();
+        boolean appInForeground =
+                ((SeshApplication)getApplication()).getApplicationLifecycleTracker().applicationInForeground();
 
         switch (identifier) {
                 case "UPDATE_STATE":
@@ -64,7 +66,7 @@ public class SeshGCMListenerService extends GcmListenerService {
                         Log.e(TAG, "Failed to update Sesh State; push data malformed:" + e);
                     }
                     if (stateIdentifier != null) {
-                        SeshStateManager.updateSeshState(stateIdentifier);
+                        SeshStateManager.sharedInstance(getApplicationContext()).updateSeshState(stateIdentifier);
                     }
                     break;
                 case "MESSAGE":

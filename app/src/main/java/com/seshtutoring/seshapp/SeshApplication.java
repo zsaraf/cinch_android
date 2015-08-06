@@ -9,6 +9,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.orm.SugarApp;
 import com.seshtutoring.seshapp.model.User;
+import com.seshtutoring.seshapp.util.ApplicationLifecycleTracker;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 
 import org.json.JSONException;
@@ -24,6 +25,7 @@ import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
  */
 public class SeshApplication extends SugarApp {
     private static final String TAG = SeshApplication.class.getName();
+    private ApplicationLifecycleTracker applicationLifecycleTracker;
 
     public static final boolean IS_LIVE = false;
     public static final boolean IS_DEV = true;
@@ -32,10 +34,16 @@ public class SeshApplication extends SugarApp {
     public void onCreate() {
         super.onCreate();
 
+        this.applicationLifecycleTracker = new ApplicationLifecycleTracker(this);
+
         // initialize default font
         CalligraphyConfig.initDefault(new CalligraphyConfig.Builder()
                 .setDefaultFontPath("fonts/Gotham-Light.otf")
                 .setFontAttrId(R.attr.fontPath)
                 .build());
+    }
+
+    public ApplicationLifecycleTracker getApplicationLifecycleTracker() {
+        return applicationLifecycleTracker;
     }
 }

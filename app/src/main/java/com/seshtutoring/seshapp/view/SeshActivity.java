@@ -2,6 +2,7 @@ package com.seshtutoring.seshapp.view;
 
 import android.support.v7.app.AppCompatActivity;
 
+import com.seshtutoring.seshapp.SeshApplication;
 import com.seshtutoring.seshapp.util.ApplicationLifecycleTracker;
 
 /**
@@ -11,12 +12,16 @@ public class SeshActivity extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
-        ApplicationLifecycleTracker.activityResumed(this);
+        getApplicationLifecycleTracker().activityResumed();
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        ApplicationLifecycleTracker.activityPaused(this);
+        getApplicationLifecycleTracker().activityPaused();
+    }
+
+    public ApplicationLifecycleTracker getApplicationLifecycleTracker() {
+        return ((SeshApplication)getApplication()).getApplicationLifecycleTracker();
     }
 }

@@ -17,20 +17,14 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.google.android.gms.tagmanager.Container;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.LearnRequest;
 import com.seshtutoring.seshapp.model.Sesh;
-import com.seshtutoring.seshapp.services.FetchSeshInfoBroadcastReceiver;
+import com.seshtutoring.seshapp.services.PeriodicFetchBroadcastReceiver;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
 import com.seshtutoring.seshapp.view.ContainerState;
 import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.DummyRequestSeshFragment;
-import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.HomeFragment;
-import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.PaymentFragment;
-import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.ProfileFragment;
-import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.PromoteFragment;
-import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.SettingsFragment;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -38,7 +32,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenedListener, FetchSeshInfoBroadcastReceiver.SeshInfoUpdateListener {
+public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenedListener {
     private static final String TAG = SideMenuFragment.class.getName();
 
     public static final String MAIN_WRAPPER_STATE_KEY = "main_wrapper_state";
@@ -126,6 +120,7 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenedLi
                     mainContainerActivity.setCurrentState(new ContainerState("Request!", 0, new DummyRequestSeshFragment()));
                 }
 
+                mainContainerActivity.closeDrawer();
             }
         });
 
@@ -309,11 +304,6 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenedLi
         if (menuOpenFlag == MENU_OPEN_DISPLAY_NEW_REQUEST) {
             updateLearnList();
         }
-    }
-
-    @Override
-    public void onSeshInfoUpdate() {
-        updateLearnList();
     }
 
     public synchronized void updateLearnList() {

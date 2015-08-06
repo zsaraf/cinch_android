@@ -13,8 +13,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.os.Vibrator;
-import android.support.v4.app.Fragment;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -25,14 +23,14 @@ import android.widget.Toast;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.getkeepsafe.android.multistateanimation.MultiStateAnimation;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.maps.GoogleMap;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.seshtutoring.seshapp.R;
-import com.seshtutoring.seshapp.services.FetchSeshInfoBroadcastReceiver;
-import com.seshtutoring.seshapp.services.FetchSeshInfoBroadcastReceiver.SeshInfoUpdateListener;
+import com.seshtutoring.seshapp.SeshApplication;
+import com.seshtutoring.seshapp.SeshStateManager;
+import com.seshtutoring.seshapp.services.PeriodicFetchBroadcastReceiver;
 import com.seshtutoring.seshapp.services.GCMRegistrationIntentService;
 import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.services.SeshGCMListenerService;
@@ -50,14 +48,13 @@ import com.seshtutoring.seshapp.view.fragments.SideMenuFragment;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.Serializable;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
-public class MainContainerActivity extends SeshActivity implements SeshDialog.OnSelectionListener {
+public class MainContainerActivity extends SeshActivity implements SeshDialog.OnSelectionListener,
+        SeshStateManager.ViewRefreshListener {
     private static final String TAG = MainContainerActivity.class.getName();
     public static final String MAIN_CONTAINER_STATE_INDEX = "main_container_state_index";
     public static final String FRAGMENT_FLAG_KEY = "fragment_flags";
@@ -67,7 +64,6 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
             "com.seshtutoring.seshapp.UPDATE_CONTAINER_STATE";
     public static final String FOUND_TUTOR_ACTION =
             "com.seshtutoring.seshapp.FOUND_TUTOR";
-    private static final int FIFTEEN_SECONDS = 1000 * 15;
 
     private BroadcastReceiver notificationActionReceiver = new BroadcastReceiver() {
         @Override
@@ -92,6 +88,7 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
     private AlarmManager fetchSeshInfoAlarm;
     private PendingIntent fetchSeshInfoPendingIntent;
     private ContainerState currentContainerState;
+    private SeshStateManager seshStateManager;
 
     public final ContainerState HOME = new ContainerState("Home", R.drawable.home, new HomeFragment());
     public final ContainerState PROFILE = new ContainerState("Profile", R.drawable.profile, new ProfileFragment());
@@ -154,11 +151,8 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
         intentFilter.addAction(FOUND_TUTOR_ACTION);
         registerReceiver(notificationActionReceiver, intentFilter);
 
-        fetchSeshInfoAlarm = (AlarmManager) getSystemService(ALARM_SERVICE);
-        Intent intent = new Intent(FetchSeshInfoBroadcastReceiver.FETCH_SESH_INFO_ACTION);
-        fetchSeshInfoPendingIntent =
-                PendingIntent.getBroadcast(this, 1, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        FetchSeshInfoBroadcastReceiver.setSeshInfoUpdateListener((SeshInfoUpdateListener)sideMenuFragment);
+        this.seshStateManager = SeshStateManager.sharedInstance(this);
+        seshStateManager.setViewRefreshListener(this);
     }
 
     @Override
@@ -166,6 +160,7 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
         super.onResume();
 
         User.fetchUserInfoFromServer(this);
+        seshStateManager.validateActiveSeshState();
 
         // Refresh device token on server via GCM service
         Intent gcmIntent = new Intent(this, GCMRegistrationIntentService.class);
@@ -184,16 +179,6 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
         if (intent.hasExtra(SeshGCMListenerService.NOTIFICATION_ID_EXTRA)) {
             handleNotificationIntent(intent);
         }
-
-        fetchSeshInfoAlarm.
-                setRepeating(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime(),
-                        FIFTEEN_SECONDS, fetchSeshInfoPendingIntent);
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        fetchSeshInfoAlarm.cancel(fetchSeshInfoPendingIntent);
     }
 
     private void handleNotificationIntent(Intent intent) {
@@ -217,7 +202,7 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
 
             setCurrentState(containerState, options);
 
-            if (ApplicationLifecycleTracker.applicationInForeground()) {
+            if (getApplicationLifecycleTracker().applicationInForeground()) {
                 sideMenuFragment.updateSelectedItem();
             }
         } else if (intent.getAction().equals(FOUND_TUTOR_ACTION)) {
@@ -442,6 +427,11 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
             // hacky, but delay menu open animation to account for activity transition
             handler.postDelayed(openSideMenu, 300);
         }
+    }
+
+    @Override
+    public void refreshView() {
+        sideMenuFragment.updateLearnList();
     }
 
     public void onNetworkError() {

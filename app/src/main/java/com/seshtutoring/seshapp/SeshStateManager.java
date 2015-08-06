@@ -1,57 +1,133 @@
 package com.seshtutoring.seshapp;
 
+import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
+
+import com.seshtutoring.seshapp.model.Sesh;
+import com.seshtutoring.seshapp.services.PeriodicFetchBroadcastReceiver;
+import com.seshtutoring.seshapp.services.PeriodicFetchBroadcastReceiver.FetchUpdateListener;
+import com.seshtutoring.seshapp.services.SeshInfoFetcher;
+import com.seshtutoring.seshapp.services.SeshStateFetcher;
+import com.seshtutoring.seshapp.view.InSeshActivity;
+import com.seshtutoring.seshapp.view.MainContainerActivity;
+
+import org.joda.time.Period;
 
 /**
  * Created by nadavhollander on 7/30/15.
  */
-public class SeshStateManager {
+public class SeshStateManager implements FetchUpdateListener{
     private final static String TAG = SeshStateManager.class.getName();
 
+    public interface ViewRefreshListener {
+        void refreshView();
+    }
+
     public enum SeshState {
-        NONE, STUDENT_REVIEW_SESH, IN_SESH, TUTOR_REVIEW_SESH, TUTOR_CANCELLED_SESH,
-        STUDENT_CANCELLED_SESH
+        NONE("SeshStateNone"), STUDENT_REVIEW_SESH("SeshStateStudentReviewSesh"),
+        IN_SESH("SeshStateInSesh"), TUTOR_REVIEW_SESH("SeshStateTutorReviewSesh"),
+        TUTOR_CANCELLED_SESH("SeshStateTutorCancelledSesh"),
+        STUDENT_CANCELLED_SESH("SeshStateStudentCancelledSesh");
+
+        public String identifier;
+
+        SeshState(String identifier) {
+            this.identifier = identifier;
+        }
     }
 
     private static SeshStateManager mInstance;
     private SeshState currentSeshState;
+    private Context mContext;
+    private ViewRefreshListener viewRefreshListener;
 
-    public static SeshState getCurrentSeshState() {
-        return sharedInstance().currentSeshState;
+    public SeshStateManager(Context context) {
+        this.mContext = context;
+        this.currentSeshState = SeshState.NONE;
+
+        PeriodicFetchBroadcastReceiver.setSeshInfoUpdateListener(this);
+        PeriodicFetchBroadcastReceiver.setSeshStateUpdateListener(this);
     }
 
-    public static void updateSeshState(String seshStateIdentifier) {
-        SeshStateManager stateManager = sharedInstance();
+    public void setViewRefreshListener(ViewRefreshListener viewRefreshListener) {
+        this.viewRefreshListener = viewRefreshListener;
+    }
+
+
+    public static SeshState getCurrentSeshState(Context context) {
+        return sharedInstance(context).currentSeshState;
+    }
+
+    public void updateSeshState(String seshStateIdentifier) {
         switch (seshStateIdentifier) {
             case "SeshStateNone":
-                stateManager.currentSeshState = SeshState.NONE;
+                currentSeshState = SeshState.NONE;
                 break;
             case "SeshStateStudentReviewSesh":
-                stateManager.currentSeshState = SeshState.STUDENT_REVIEW_SESH;
+                currentSeshState = SeshState.STUDENT_REVIEW_SESH;
                 break;
             case "SeshStateInSesh":
-                stateManager.currentSeshState = SeshState.IN_SESH;
+                currentSeshState = SeshState.IN_SESH;
                 break;
             case "SeshStateTutorReviewSesh":
-                stateManager.currentSeshState = SeshState.TUTOR_REVIEW_SESH;
+                currentSeshState = SeshState.TUTOR_REVIEW_SESH;
                 break;
             case "SeshStateTutorCancelledSesh":
-                stateManager.currentSeshState = SeshState.TUTOR_CANCELLED_SESH;
+                currentSeshState = SeshState.TUTOR_CANCELLED_SESH;
                 break;
             case "SeshStateStudentCancelledSesh":
-                stateManager.currentSeshState = SeshState.STUDENT_CANCELLED_SESH;
+                currentSeshState = SeshState.STUDENT_CANCELLED_SESH;
                 break;
             default:
-                stateManager.currentSeshState = SeshState.NONE;
+                currentSeshState = SeshState.NONE;
                 break;
         }
-        Log.d(TAG, "Sesh state updated to " + stateManager.currentSeshState.name());
+        Log.d(TAG, "Sesh state updated to " + currentSeshState.name());
+
+        onSeshStateUpdate();
     }
 
-    private static SeshStateManager sharedInstance() {
+    @Override
+    public void onFetchUpdate(String type) {
+        if (type.equals(SeshStateFetcher.FETCH_TYPE_STATE)) {
+            onSeshStateUpdate();
+            viewRefreshListener.refreshView();
+        } else if (type.equals(SeshInfoFetcher.FETCH_TYPE_INFO)) {
+            viewRefreshListener.refreshView();
+        }
+    }
+
+    private void onSeshStateUpdate() {
+        switch (currentSeshState) {
+            case IN_SESH:
+                if (Sesh.getCurrentSesh() == null) {
+                    SeshInfoFetcher seshInfoFetcher = new SeshInfoFetcher(mContext);
+                    seshInfoFetcher.fetch(new FetchUpdateListener() {
+                        @Override
+                        public void onFetchUpdate(String type) {
+                            startInSeshActivity();
+                        }
+                    });
+                } else {
+                    startInSeshActivity();
+                }
+        }
+    }
+
+    private void startInSeshActivity() {
+        Intent intent = new Intent(mContext, InSeshActivity.class);
+        mContext.startActivity(intent);
+    }
+
+    public static SeshStateManager sharedInstance(Context context) {
         if (mInstance == null) {
-            mInstance = new SeshStateManager();
+            mInstance = new SeshStateManager(context);
         }
         return mInstance;
+    }
+
+    public void validateActiveSeshState() {
+        onSeshStateUpdate();
     }
  }

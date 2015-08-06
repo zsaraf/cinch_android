@@ -12,6 +12,7 @@ import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
+import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -19,13 +20,14 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.TimeZone;
 
 /**
  * Created by nadavhollander on 7/25/15.
@@ -46,8 +48,8 @@ public class Sesh extends SugarRecord<Sesh> {
     public String seshDescription;
     public int seshEstTime;
     public int seshNumStudents;
-    public Timestamp seshSetTime;
-    public Timestamp startTime;
+    public Date seshSetTime; // DUE TO SUGARORM BUG, CANNOT BE SET NULL
+    public Date startTime; // DUE TO SUGARORM BUG, CANNOT BE SET NULL
     public double tutorLatitude;
     public double tutorLongitude;
     public String userDescription;
@@ -56,8 +58,6 @@ public class Sesh extends SugarRecord<Sesh> {
     public String userName;
     public String userSchool;
     public boolean isInstant;
-//    public Set<AvailableBlock> availableBlocks;
-//    public Set<String> messages;
 
     // empty constructor necessary for SugarORM to work
     public Sesh() {
@@ -66,7 +66,7 @@ public class Sesh extends SugarRecord<Sesh> {
     public Sesh(String class_name, boolean has_been_seen, boolean has_started, boolean is_student,
                 double latitude, String locationNotes, double longitude, int past_request_id,
                 String sesh_description, int sesh_est_time, int sesh_id, int sesh_num_students,
-                Timestamp sesh_set_time, Timestamp start_time, double tutor_latitude, double tutor_longitude,
+                Date sesh_set_time, Date start_time, double tutor_latitude, double tutor_longitude,
                 String user_description, String user_image_url, String user_major, String user_name,
                 String user_school, boolean is_instant) {
 
@@ -116,8 +116,6 @@ public class Sesh extends SugarRecord<Sesh> {
                 sesh = new Sesh();
             }
 
-            DateTimeFormatter formatter = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ssZ");
-
             sesh.className = seshJson.getString("class_name");
             sesh.hasStarted = (seshJson.getInt("has_started") == 1) ? true : false;
             sesh.isStudent = isStudent;
@@ -137,11 +135,17 @@ public class Sesh extends SugarRecord<Sesh> {
 
             String seshSetTime = seshJson.getString("set_time");
             if (!seshSetTime.equals("null")) {
-                sesh.seshSetTime = new Timestamp(formatter.parseDateTime(seshSetTime).getMillis());
+                sesh.seshSetTime = formattedTime(seshSetTime);
+            } else {
+                // DUE TO SUGARORM BUG, WE CANNOT SET DATE TO NULL, SO WE SET DATE TO UNIX EPOCH TIME
+                sesh.seshSetTime = new Date(0);
             }
             String startTime = seshJson.getString("start_time");
             if (!startTime.equals("null")) {
-                sesh.startTime = new Timestamp(formatter.parseDateTime(startTime).getMillis());
+                sesh.startTime = formattedTime(startTime);
+            } else {
+                // DUE TO SUGARORM BUG, WE CANNOT SET DATE TO NULL, SO WE SET DATE TO UNIX EPOCH TIME
+                sesh.startTime = new Date(0);
             }
 
             sesh.save();
@@ -150,6 +154,23 @@ public class Sesh extends SugarRecord<Sesh> {
             return null;
         }
         return sesh;
+    }
+
+    private static Date formattedTime(String rawTimeString) {
+        DateTimeFormatter formatter = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss").withZoneUTC();
+        return formatter.parseDateTime(rawTimeString).toDate();
+    }
+
+    public static synchronized Sesh getCurrentSesh() {
+        List<Sesh> startedSeshes = Sesh.find(Sesh.class, "has_started = ?", "1");
+
+        if (startedSeshes.size() > 1) {
+            Log.e(TAG, "There should not be more than one Sesh in the server.");
+        } else if (startedSeshes.size() == 0) {
+            return null;
+        }
+
+        return startedSeshes.get(0);
     }
 
     public String getTimeAbbrvString() {
@@ -199,7 +220,7 @@ public class Sesh extends SugarRecord<Sesh> {
         return String.format("%s %s", day, time);
     }
 
-    public static void updateSeshInfoWithObject(Context context, JSONObject jsonObject) {
+    public static synchronized void updateSeshInfoWithObject(Context context, JSONObject jsonObject) {
         try {
             if (jsonObject.get("status").equals("SUCCESS")) {
                 JSONArray seshes = jsonObject.getJSONArray(("open_seshes"));

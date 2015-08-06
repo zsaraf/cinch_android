@@ -44,10 +44,10 @@
         </receiver>
 
         <receiver
-            android:name="com.seshtutoring.seshapp.services.FetchSeshInfoBroadcastReceiver"
+            android:name=".services.PeriodicFetchBroadcastReceiver"
             android:exported="false" >
             <intent-filter>
-                <action android:name="com.seshtutoring.seshapp.services.FETCH_SESH_INFO" />
+                <action android:name="com.seshtutoring.seshapp.services.PERIODIC_FETCH" />
             </intent-filter>
         </receiver>
 
@@ -175,6 +175,12 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.seshtutoring.seshapp.view.MainContainerActivity" />
         </activity>
+        <activity
+            android:name=".view.InSeshActivity"
+            android:label="@string/title_activity_in_sesh"
+            android:screenOrientation="portrait"
+            android:parentActivityName=".view.MainContainerActivity" />
+
     </application>
 
 </manifest>

@@ -30,7 +30,7 @@ public class DummyRequestSeshFragment extends Fragment implements FragmentOption
     }
 
     public void onActivityCreated(Bundle savedInstanceState) {
-
+        super.onActivityCreated(savedInstanceState);
     }
 
     @Override
