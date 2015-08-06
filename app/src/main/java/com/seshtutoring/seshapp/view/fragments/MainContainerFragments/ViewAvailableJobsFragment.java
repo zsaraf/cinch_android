@@ -7,6 +7,7 @@ import android.content.Context;
 import android.graphics.Typeface;
 import android.media.Image;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -48,6 +49,8 @@ import java.util.Queue;
 public class ViewAvailableJobsFragment extends ListFragment {
     private static final String TAG =ViewAvailableJobsFragment.class.getName();
 
+    private static final int REFRESH_INTERVAL_MILI = 15000;
+
     private MainContainerActivity mainContainerActivity;
     private ListView menu;
     private Typeface boldTypeFace;
@@ -56,33 +59,40 @@ public class ViewAvailableJobsFragment extends ListFragment {
     private ViewAvailableJobsAdapter availableJobsAdapter;
     private SeshNetworking seshNetworking;
     private Queue<ViewHolder> bidQueue;
+    private Handler handler;
 
     private class JobHolder {
         public AvailableJob job;
         public int type;
         public int status;
+        public boolean selected;
 
-        public void pending() {
-            this.status = 1;
-        }
-
-        public void submitted() {
-            this.status = 2;
+        public void select() {
+            this.selected = true;
         }
 
         public JobHolder(AvailableJob job, int type) {
             this.type = type;
             this.job = job;
-            this.status = 0;
+            this.selected = false;
         }
     }
+
+    Runnable mStatusChecker = new Runnable() {
+        @Override
+        public void run() {
+            getAvailableJobs();
+            handler.postDelayed(mStatusChecker, REFRESH_INTERVAL_MILI);
+        }
+    };
 
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
         menu = (ListView) layoutInflater.inflate(R.layout.view_available_jobs_fragment, null);
         mainContainerActivity = (MainContainerActivity) getActivity();
         boldTypeFace = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Gotham-Book.otf");
         this.seshNetworking = new SeshNetworking(getActivity());
-        this.bidQueue = new LinkedList<ViewHolder>();
+        //this.bidQueue = new LinkedList<ViewHolder>();
+        this.handler = new Handler();
 
         this.availableJobs = new ArrayList<JobHolder>();
         this.tutorCourses = new ArrayList<Course>();
@@ -103,34 +113,7 @@ public class ViewAvailableJobsFragment extends ListFragment {
                         }
 
                         //get available jobs from server
-                        seshNetworking.getAvailableJobs(tutorCourses, new Response.Listener<JSONObject>() {
-                            public void onResponse(JSONObject jsonResponse) {
-                                try {
-                                    if (jsonResponse.get("status").equals("SUCCESS")) {
-                                        availableJobs.clear();
-                                        JSONArray availableJobsArrayJson = jsonResponse.getJSONArray("courses");
-                                        for (int i = 0; i < availableJobsArrayJson.length(); i++) {
-                                            JobHolder jobHolder = new JobHolder(AvailableJob.fromJson((availableJobsArrayJson.getJSONObject(i))), 1);
-                                            availableJobs.add(jobHolder);
-                                        }
-                                        if (availableJobs.size() == 0) {
-                                            //No available jobs
-                                            availableJobs.add(new JobHolder(null, 2));
-                                        }
-                                        availableJobsAdapter.notifyDataSetChanged();
-                                    } else {
-                                        Log.e(TAG, jsonResponse.getString("message"));
-                                    }
-                                } catch (JSONException e) {
-                                    Log.e(TAG, e.getMessage());
-                                }
-                            }
-                        }, new Response.ErrorListener() {
-                            public void onErrorResponse(VolleyError volleyError) {
-                                Log.e(TAG, volleyError.getMessage());
-                            }
-                        });
-
+                        getAvailableJobs();
 
                     } else {
                         Log.e(TAG, jsonResponse.getString("message"));
@@ -153,8 +136,8 @@ public class ViewAvailableJobsFragment extends ListFragment {
         public TextView nameTextView;
         public TextView rateTextView;
         public TextView overlayTextView;
-        public TextView loadingTextView;
-        public ImageView animationView;
+        //public TextView loadingTextView;
+        public ImageView checkImageView;
         public SeshIconTextView courseTextView;
         public SeshIconTextView assignmentTextView;
         //public SeshIconTextView distanceTextView;
@@ -163,16 +146,7 @@ public class ViewAvailableJobsFragment extends ListFragment {
 
         public ViewGroup topGroup;
 
-        public MultiStateAnimation animation;
-        public int status;
-
-        public void pending() {
-            this.status = 1;
-        }
-
-        public void finished() {
-            this.status = 2;
-        }
+        //public MultiStateAnimation animation;
 
     }
 
@@ -224,12 +198,10 @@ public class ViewAvailableJobsFragment extends ListFragment {
                 viewHolder.availableBlocksTextView = (SeshIconTextView) convertView.findViewById(R.id.available_blocks);
                 viewHolder.availableBlocksTextView.setIconResourceId(R.drawable.calendar_unfilled);
 
-                viewHolder.loadingTextView = (TextView) convertView.findViewById(R.id.loading_text);
+                //viewHolder.loadingTextView = (TextView) convertView.findViewById(R.id.loading_text);
 
-                viewHolder.animationView = (ImageView) convertView.findViewById(R.id.animation);
-                viewHolder.animation = MultiStateAnimation.fromJsonResource(getActivity(), viewHolder.animationView, R.raw.sample_animation);
-
-                viewHolder.status = 0;
+                viewHolder.checkImageView = (ImageView) convertView.findViewById(R.id.check_mark);
+                //viewHolder.animation = MultiStateAnimation.fromJsonResource(getActivity(), viewHolder.animationView, R.raw.sample_animation);
 
                 convertView.setTag(viewHolder);
 
@@ -237,23 +209,23 @@ public class ViewAvailableJobsFragment extends ListFragment {
                 viewHolder = (ViewHolder) convertView.getTag();
             }
 
-            //if (viewHolder.isSelected) {
-            if (viewHolder.status == 1) {
-                //viewHolder.nameTextView.setTextColor(getResources().getColor(R.color.seshgreen));
-                viewHolder.topGroup.setBackgroundColor(getResources().getColor(R.color.seshgreen));
-                viewHolder.nameTextView.setVisibility(View.INVISIBLE);
-                viewHolder.assignmentTextView.setVisibility(View.INVISIBLE);
-                viewHolder.durationTextView.setVisibility(View.INVISIBLE);
-                viewHolder.rateTextView.setVisibility(View.INVISIBLE);
-                viewHolder.courseTextView.setVisibility(View.INVISIBLE);
-                viewHolder.availableBlocksTextView.setVisibility(View.INVISIBLE);
-                viewHolder.animation.transitionNow("loading");
-                viewHolder.loadingTextView.setVisibility(View.VISIBLE);
-                viewHolder.loadingTextView.setText("requesting job...");
-            }else if (viewHolder.status == 2) {
-                viewHolder.animation.transitionNow("finished");
-                viewHolder.loadingTextView.setText("submitted! you'll receive a notification if you get the job.");
-            }else if (holder.type == 2) {
+//            if (viewHolder.status == 1) {
+//                //viewHolder.nameTextView.setTextColor(getResources().getColor(R.color.seshgreen));
+//                viewHolder.topGroup.setBackgroundColor(getResources().getColor(R.color.seshgreen));
+//                viewHolder.nameTextView.setVisibility(View.INVISIBLE);
+//                viewHolder.assignmentTextView.setVisibility(View.INVISIBLE);
+//                viewHolder.durationTextView.setVisibility(View.INVISIBLE);
+//                viewHolder.rateTextView.setVisibility(View.INVISIBLE);
+//                viewHolder.courseTextView.setVisibility(View.INVISIBLE);
+//                viewHolder.availableBlocksTextView.setVisibility(View.INVISIBLE);
+//                viewHolder.animation.transitionNow("loading");
+//                viewHolder.loadingTextView.setVisibility(View.VISIBLE);
+//                viewHolder.loadingTextView.setText("requesting job...");
+//            }else if (viewHolder.status == 2) {
+//                viewHolder.animation.transitionNow("finished");
+//                viewHolder.loadingTextView.setText("submitted! you'll receive a notification if you get the job.");
+
+            if (holder.type == 2) {
                 viewHolder.overlayTextView.setText("no available jobs");
                 viewHolder.nameTextView.setVisibility(View.GONE);
                 viewHolder.assignmentTextView.setVisibility(View.GONE);
@@ -285,11 +257,13 @@ public class ViewAvailableJobsFragment extends ListFragment {
 
                     @Override
                     public void onOpen(SwipeLayout layout) {
+
+                        layout.close();
                         layout.setSwipeEnabled(false);
-                        ((ViewHolder)layout.getTag()).pending();
-                        availableJobsAdapter.notifyDataSetChanged();
-                        bidQueue.add((ViewHolder) layout.getTag());
-                        seshNetworking.createBid(item.requestId, 2, 2,
+                        ViewHolder viewHolder = (ViewHolder) layout.getTag();
+                        ((JobHolder)viewHolder.nameTextView.getTag()).select();
+                        viewHolder.nameTextView.setTextColor(getResources().getColor(R.color.seshgreen));
+                        seshNetworking.createBid(((JobHolder)viewHolder.nameTextView.getTag()).job.requestId, 2, 2,
                                 new Response.Listener<JSONObject>() {
                                     @Override
                                     public void onResponse(JSONObject responseJson) {
@@ -316,14 +290,25 @@ public class ViewAvailableJobsFragment extends ListFragment {
                     }
                 });
 
+                if (holder.selected) {
+                    viewHolder.nameTextView.setTextColor(getResources().getColor(R.color.seshgreen));
+                    viewHolder.checkImageView.setVisibility(View.VISIBLE);
+                    viewHolder.rateTextView.setVisibility(View.GONE);
+                    viewHolder.checkImageView.setImageResource(R.drawable.check_green);
+                }else {
+                    viewHolder.nameTextView.setTextColor(getResources().getColor(R.color.seshorange));
+                    viewHolder.checkImageView.setVisibility(View.GONE);
+                    viewHolder.rateTextView.setVisibility(View.VISIBLE);
+                    NumberFormat money = NumberFormat.getCurrencyInstance(Locale.US);
+                    viewHolder.rateTextView.setText(money.format(item.rate * item.maxTime));
+                }
+
+                viewHolder.nameTextView.setTag(holder);
+
                 viewHolder.overlayTextView.setVisibility(View.GONE);
 
                 viewHolder.nameTextView.setText(item.studentName);
                 viewHolder.nameTextView.setVisibility(View.VISIBLE);
-
-                //calcualte estimated price
-                NumberFormat money = NumberFormat.getCurrencyInstance(Locale.US);
-                viewHolder.rateTextView.setText(money.format(item.rate * item.maxTime));
 
                 viewHolder.courseTextView.setText(item.course.shortFormatForTextView());
                 viewHolder.courseTextView.setVisibility(View.VISIBLE);
@@ -341,7 +326,7 @@ public class ViewAvailableJobsFragment extends ListFragment {
                 viewHolder.availableBlocksTextView.setText(Html.fromHtml(item.getReadableBlocks()));
                 viewHolder.availableBlocksTextView.setVisibility(View.VISIBLE);
 
-                viewHolder.loadingTextView.setVisibility(View.GONE);
+                //viewHolder.loadingTextView.setVisibility(View.GONE);
             }
 
             return convertView;
@@ -352,21 +337,56 @@ public class ViewAvailableJobsFragment extends ListFragment {
     private void onJobResponse(JSONObject responseJson) {
         try {
             if (responseJson.get("status").equals("SUCCESS")) {
-                Thread.sleep(1000);
-                bidQueue.remove().finished();
-                availableJobsAdapter.notifyDataSetChanged();
-            } else if (responseJson.get("status").equals("FAILURE")) {
 
+            } else if (responseJson.get("status").equals("FAILURE")) {
+                Log.e(TAG, responseJson.getString("message"));
             }
         } catch (JSONException e) {
-
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+            Log.e(TAG, e.getMessage());
         }
     }
 
     private void onJobFailure(String errorMessage) {
 
+    }
+
+    private void getAvailableJobs() {
+        Log.e(TAG, "REFRESHING JOBS");
+        seshNetworking.getAvailableJobs(tutorCourses, new Response.Listener<JSONObject>() {
+            public void onResponse(JSONObject jsonResponse) {
+                try {
+                    if (jsonResponse.get("status").equals("SUCCESS")) {
+                        availableJobsAdapter.clear();
+                        JSONArray availableJobsArrayJson = jsonResponse.getJSONArray("courses");
+                        for (int i = 0; i < availableJobsArrayJson.length(); i++) {
+                            JobHolder jobHolder = new JobHolder(AvailableJob.fromJson((availableJobsArrayJson.getJSONObject(i))), 1);
+                            availableJobs.add(jobHolder);
+                        }
+                        if (availableJobs.size() == 0) {
+                            //No available jobs
+                            availableJobs.add(new JobHolder(null, 2));
+                        }
+                        availableJobsAdapter.notifyDataSetChanged();
+                    } else {
+                        Log.e(TAG, jsonResponse.getString("message"));
+                    }
+                } catch (JSONException e) {
+                    Log.e(TAG, e.getMessage());
+                }
+            }
+        }, new Response.ErrorListener() {
+            public void onErrorResponse(VolleyError volleyError) {
+                Log.e(TAG, volleyError.getMessage());
+            }
+        });
+    }
+
+    public void startRepeatingTask() {
+        mStatusChecker.run();
+    }
+
+    public void stopRepeatingTask() {
+        handler.removeCallbacks(mStatusChecker);
     }
 
 }

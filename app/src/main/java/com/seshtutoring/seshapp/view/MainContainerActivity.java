@@ -13,6 +13,8 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.os.Vibrator;
+import android.support.v4.view.ViewPager;
+import android.support.v4.view.ViewPager.SimpleOnPageChangeListener;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -26,6 +28,7 @@ import com.android.volley.VolleyError;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.maps.GoogleMap;
+import com.jeremyfeinstein.slidingmenu.lib.CustomViewAbove;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.SeshApplication;
@@ -65,6 +68,8 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
     public static final String FOUND_TUTOR_ACTION =
             "com.seshtutoring.seshapp.FOUND_TUTOR";
 
+    public boolean pullJobs;
+
     private BroadcastReceiver notificationActionReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -95,6 +100,14 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
     public final ContainerState PAYMENT = new ContainerState("Payment", R.drawable.payment, new PaymentFragment());
     public final ContainerState SETTINGS = new ContainerState("Settings", R.drawable.settings, new SettingsFragment());
     public final ContainerState PROMOTE = new ContainerState("Promote", R.drawable.share, new PromoteFragment());
+
+    private final ViewPager.OnPageChangeListener pageChangeListener = new SimpleOnPageChangeListener() {
+        @Override
+        public void onPageSelected(int position) {
+            super.onPageSelected(position);
+
+        }
+    };
 
     public ContainerState[] containerStates = new ContainerState[] {
             HOME, PROFILE, PAYMENT, SETTINGS, PROMOTE

@@ -106,9 +106,19 @@ public class HomeFragment extends Fragment implements FragmentOptionsReceiver {
     private void setCurrentTabItem(TabItem tabItem, boolean withAnimation) {
         viewPager.setCurrentItem(tabItem.viewPagerPosition, withAnimation);
         if (tabItem == TabItem.LEARN_TAB) {
+            //turn off calls to refresh open jobs when we leave the teach tab
+            ViewAvailableJobsFragment viewJobsFragment = (ViewAvailableJobsFragment)getActivity().getFragmentManager().findFragmentByTag("ViewJobsFragment");
+            if (viewJobsFragment != null) {
+                viewJobsFragment.stopRepeatingTask();
+            }
             learnTabButton.setTextColor(getResources().getColor(R.color.seshorange));
             teachTabButton.setTextColor(getResources().getColor(R.color.seshcharcoal));
         } else if (tabItem == TabItem.TEACH_TAB) {
+            //turn on calls to refresh open jobs when we enter the teach tab
+            ViewAvailableJobsFragment viewJobsFragment = (ViewAvailableJobsFragment)getActivity().getFragmentManager().findFragmentByTag("ViewJobsFragment");
+            if (viewJobsFragment != null) {
+                viewJobsFragment.startRepeatingTask();
+            }
             teachTabButton.setTextColor(getResources().getColor(R.color.seshorange));
             learnTabButton.setTextColor(getResources().getColor(R.color.seshcharcoal));
         }
@@ -181,5 +191,17 @@ public class HomeFragment extends Fragment implements FragmentOptionsReceiver {
     @Override
     public void clearFragmentOptions() {
         this.options = null;
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        //turn off calls to refresh open jobs when we leave the teach tab
+        if (getCurrTabItem() == TabItem.TEACH_TAB) {
+            ViewAvailableJobsFragment viewJobsFragment = (ViewAvailableJobsFragment) getActivity().getFragmentManager().findFragmentByTag("ViewJobsFragment");
+            if (viewJobsFragment != null) {
+                viewJobsFragment.stopRepeatingTask();
+            }
+        }
     }
 }

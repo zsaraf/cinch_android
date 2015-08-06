@@ -111,7 +111,9 @@ public class AvailableJob {
             blockStr += startStr + "-" + endStr + "<br />";
         }
 
-
+        if(availableBlocks.size() == 0) {
+            blockStr = "<b>" + "NOW" + "</b>";
+        }
         return blockStr;
     }
 

@@ -65,19 +65,16 @@ public class TeachViewFragment extends Fragment {
     private void setCurrentView() {
 
         if (canSeeClasses) {
-
-            classesButtonText.setText(R.string.view_classes_on_text);
             getActivity().getFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.tutor_view_frame, new ViewClassesFragment())
+                    .replace(R.id.tutor_view_frame, new ViewClassesFragment(), "ViewClassesFragment")
                     .commit();
 
         }else {
-
             classesButtonText.setText(R.string.view_classes_off_text);
             getActivity().getFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.tutor_view_frame, new ViewAvailableJobsFragment())
+                    .replace(R.id.tutor_view_frame, new ViewAvailableJobsFragment(), "ViewJobsFragment")
                     .commit();
 
         }
