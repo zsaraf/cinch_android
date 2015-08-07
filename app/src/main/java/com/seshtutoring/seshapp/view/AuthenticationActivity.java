@@ -162,6 +162,20 @@ public class AuthenticationActivity extends SeshActivity {
         passwordEditText.setOnTouchListener(onTouchAnimateUpListener(passwordEditText));
         reenterPasswordEditText.setOnTouchListener(onTouchAnimateUpListener(reenterPasswordEditText));
 
+        Runnable editTextKeyDownListener = new Runnable() {
+            @Override
+            public void run() {
+                if (editDetailsMode) {
+                    animateEditTextsDown();
+                }
+            }
+        };
+
+        fullnameEditText.setKeyDownListener(editTextKeyDownListener);
+        emailEditText.setKeyDownListener(editTextKeyDownListener);
+        passwordEditText.setKeyDownListener(editTextKeyDownListener);
+        reenterPasswordEditText.setKeyDownListener(editTextKeyDownListener);
+
         Spannable spannable = new SpannableString(getResources().getString(R.string.terms_label));
 
         LayoutUtils.NoUnderlineClickableSpan termsLinkClickableSpan = new LayoutUtils.NoUnderlineClickableSpan() {

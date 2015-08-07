@@ -3,10 +3,12 @@ package com.seshtutoring.seshapp.view.components;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Typeface;
+import android.support.v7.widget.AppCompatEditText;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -51,7 +53,7 @@ public class SeshEditText extends RelativeLayout {
 
     private SeshEditTextType editTextType;
     private String hint;
-    private EditText editText;
+    private EditTextWithKeyDownListener editText;
     private ImageView icon;
     private boolean filledIconActive = false;
     private int visibleHeight;
@@ -125,7 +127,7 @@ public class SeshEditText extends RelativeLayout {
             }
         }
 
-        editText = (EditText) findViewById(R.id.editText);
+        editText = (EditTextWithKeyDownListener) findViewById(R.id.editText);
         icon = (ImageView) findViewById(R.id.icon);
 
         editText.setHint(hint);
@@ -225,5 +227,8 @@ public class SeshEditText extends RelativeLayout {
     public void setEditTextEnabled(boolean enabled) {
         editText.setEnabled(enabled);
     }
-    
+
+    public void setKeyDownListener(Runnable listener) {
+        editText.setKeyDownListener(listener);
+    }
 }
