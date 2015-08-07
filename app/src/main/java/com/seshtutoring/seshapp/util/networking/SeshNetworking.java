@@ -444,10 +444,10 @@ public class SeshNetworking {
 
     private String baseUrl() {
         String baseUrl;
-        if (SeshApplication.IS_LIVE) {
-            baseUrl = "https://www.seshtutoring.com/ios-php/";
-        } else {
+        if (SeshApplication.IS_DEV) {
             baseUrl = "https://www.cinchtutoring.com/ios-php/";
+        } else {
+            baseUrl = "https://www.seshtutoring.com/ios-php/";
         }
         return baseUrl;
     }

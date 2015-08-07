@@ -91,6 +91,7 @@
             android:label="@string/title_activity_login"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize"
             android:theme="@style/SeshFullScreen">
         </activity>
         <activity

@@ -112,6 +112,7 @@ public class SeshStateManager implements FetchUpdateListener{
                 } else {
                     startInSeshActivity();
                 }
+                break;
         }
     }
 

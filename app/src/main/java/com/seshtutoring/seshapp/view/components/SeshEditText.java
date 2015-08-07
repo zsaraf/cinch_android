@@ -8,6 +8,7 @@ import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -54,6 +55,7 @@ public class SeshEditText extends RelativeLayout {
     private ImageView icon;
     private boolean filledIconActive = false;
     private int visibleHeight;
+    private Runnable keyBackAction;
 
 
     public SeshEditText(Context context, AttributeSet attrs) {
@@ -131,7 +133,6 @@ public class SeshEditText extends RelativeLayout {
             editText.setText(text);
         }
 
-        editText.setMovementMethod(null);
         icon.setImageResource(editTextType.iconResource);
 
         if (!editable) {
@@ -154,20 +155,14 @@ public class SeshEditText extends RelativeLayout {
 
         if (editTextType.isPassword) {
             editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-
-            // hacky fix for font changing whenever input type is set to 'password'
-            Typeface light = Typeface.createFromAsset(context.getAssets(), "fonts/Gotham-Light.otf");
-            editText.setTypeface(light);
         }
 
         if (editTextType.isEmail) {
             editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
         }
 
-        if (editTextType == SeshEditTextType.FULLNAME) {
-            Typeface light = Typeface.createFromAsset(context.getAssets(), "fonts/Gotham-Light.otf");
-            editText.setTypeface(light);
-        }
+        Typeface light = Typeface.createFromAsset(context.getAssets(), "fonts/Gotham-Light.otf");
+        editText.setTypeface(light);
 
         editText.addTextChangedListener(new TextWatcher() {
             @Override
@@ -203,6 +198,10 @@ public class SeshEditText extends RelativeLayout {
         editText.setOnEditorActionListener(input);
     }
 
+    public void setOnTouchListener(View.OnTouchListener listener) {
+        editText.setOnTouchListener(listener);
+    }
+
     public String getText() {
         return editText.getText().toString();
     }
@@ -214,4 +213,17 @@ public class SeshEditText extends RelativeLayout {
     public boolean requestEditTextFocus() {
         return editText.requestFocus();
     }
+
+    public void clearEditTextFocus() {
+        editText.clearFocus();
+    }
+
+    public void setImeOptions(int imeOptions) {
+        editText.setImeOptions(imeOptions);
+    }
+
+    public void setEditTextEnabled(boolean enabled) {
+        editText.setEnabled(enabled);
+    }
+    
 }

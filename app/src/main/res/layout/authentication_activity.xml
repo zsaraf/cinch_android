@@ -5,8 +5,18 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@color/seshbackground"
+    android:id="@+id/container"
+    android:isScrollContainer="false"
     tools:context="com.seshtutoring.seshapp.view.AuthenticationActivity">
 
+    <LinearLayout
+        android:focusable="true" android:focusableInTouchMode="true"
+        android:layout_width="0px" android:layout_height="0px"/>
+    <com.seshtutoring.seshapp.view.components.SeshEditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:alpha="0"
+        android:id="@+id/dummyEditTextTop"/>
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -98,6 +108,22 @@
         android:layout_marginLeft="25dp"
         android:layout_marginRight="25dp" />
 
+
+
+    <ImageView
+        android:layout_width="130dp"
+        android:layout_height="130dp"
+        android:id="@+id/seshLogo"
+        android:background="@drawable/sesh_logo_simple"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="350dp" />
+    <View
+        android:id="@+id/black_overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/black"
+        android:alpha="0"/>
     <com.seshtutoring.seshapp.view.components.SeshEditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -130,7 +156,7 @@
         custom:editTextType="email"
         custom:editTextHint="College Email"
         android:layout_above="@id/passwordEditText"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"/>
 
     <!--Dummy block for animation-->
     <com.seshtutoring.seshapp.view.components.SeshEditText
@@ -157,14 +183,5 @@
         custom:editTextHint="Full Name"
         android:layout_above="@id/dummyEditText"
         android:layout_centerHorizontal="true" />
-
-    <ImageView
-        android:layout_width="130dp"
-        android:layout_height="130dp"
-        android:id="@+id/seshLogo"
-        android:background="@drawable/sesh_logo_simple"
-        android:layout_centerHorizontal="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="350dp" />
-
+xt"/>
 </RelativeLayout>
