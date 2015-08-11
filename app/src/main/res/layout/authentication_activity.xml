@@ -118,6 +118,15 @@
         android:layout_centerHorizontal="true"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="350dp" />
+    <ImageView
+        android:layout_width="130dp"
+        android:layout_height="130dp"
+        android:id="@+id/seshBlurredLogo"
+        android:background="@drawable/sesh_logo_simple_blurred"
+        android:alpha="0"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="350dp" />
     <View
         android:id="@+id/black_overlay"
         android:layout_width="match_parent"

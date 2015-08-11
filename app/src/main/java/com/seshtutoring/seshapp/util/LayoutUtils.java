@@ -55,13 +55,6 @@ public class LayoutUtils {
 
     public int getActionBarHeightPx() {
         return dpToPixels(56f);
-//        TypedValue tv = new TypedValue();
-//        if (mContext.getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true)) {
-//            return TypedValue.complexToDimensionPixelSize(tv.data, mContext.getResources().getDisplayMetrics());
-//        } else {
-//            Log.e(TAG, "Couldn't programatically retrieve ActionBarHeight");
-//            return dpToPixels(48f);
-//        }
     }
 
     public Bitmap blurScreenshot(Bitmap screenshot) {
@@ -79,43 +72,4 @@ public class LayoutUtils {
         return stackBlurManager.returnBlurredImage();
     }
 
-    public int getKeyboardHeight(View viewMain) {
-        // viewMain <-- findViewById( android.R.id.content).getRootView();
-        int iSoftkeyboardHeight = viewMain.getHeight();
-
-        int y = iSoftkeyboardHeight - 2;
-        int x = 10;
-        int counter = 0;
-        int height = y;
-        int iSoftkeyboardHeightNow = 0;
-        Instrumentation instrumentation = new Instrumentation();
-        while (true) {
-            final MotionEvent m = MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(), MotionEvent.ACTION_DOWN, x, y, 0);
-            final MotionEvent m1 = MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(), MotionEvent.ACTION_UP, x, y, 0);
-            boolean ePointerOnSoftkeyboard = false;
-
-            try {
-                instrumentation.sendPointerSync(m);
-                instrumentation.sendPointerSync(m1);
-            } catch (SecurityException e) {
-                ePointerOnSoftkeyboard = true;
-            }
-            if (!ePointerOnSoftkeyboard) {
-                if (y == height) {
-                    if (counter++ < 100) {
-                        Thread.yield();
-                        continue;
-                    }
-                } else if (y > 0)
-                    iSoftkeyboardHeightNow = iSoftkeyboardHeight - y;
-                break;
-            }
-            y--;
-            m.recycle();
-            m1.recycle();
-        }
-        if (iSoftkeyboardHeightNow > 0) iSoftkeyboardHeight = iSoftkeyboardHeightNow;
-        else iSoftkeyboardHeight = 0;
-        return iSoftkeyboardHeight;
-    }
 }

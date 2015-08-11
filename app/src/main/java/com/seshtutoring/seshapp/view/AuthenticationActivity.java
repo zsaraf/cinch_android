@@ -22,6 +22,7 @@ import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.DecelerateInterpolator;
+import android.view.animation.LinearInterpolator;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
@@ -70,6 +71,7 @@ public class AuthenticationActivity extends SeshActivity {
     private TextView termsAndPrivacyPolicyText;
     private SeshButton loginSignupButton;
     private ImageView seshLogo;
+    private ImageView seshBlurredLogo;
     private View blackOverlay;
     private boolean editDetailsMode;
 
@@ -77,6 +79,9 @@ public class AuthenticationActivity extends SeshActivity {
     private int emailOriginalYPosition;
     private int passwordOriginalYPosition;
     private int reenterPasswordOriginalYPosition;
+
+    private DecelerateInterpolator decelerateInterpolator;
+    private LinearInterpolator linearInterpolator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,6 +97,7 @@ public class AuthenticationActivity extends SeshActivity {
         setContentView(R.layout.authentication_activity);
 
         this.seshLogo = (ImageView) findViewById(R.id.seshLogo);
+        this.seshBlurredLogo = (ImageView) findViewById(R.id.seshBlurredLogo);
 
         loginSignupButton = (SeshButton) findViewById(R.id.loginSignupButton);
 
@@ -201,6 +207,8 @@ public class AuthenticationActivity extends SeshActivity {
 
         termsAndPrivacyPolicyText.setText(spannable);
 
+        this.decelerateInterpolator = new DecelerateInterpolator(1.8f);
+
         setupEntranceType();
     }
 
@@ -244,7 +252,11 @@ public class AuthenticationActivity extends SeshActivity {
 
                 int resizedScreenCenter = resizedScreenHeight / 2;
 
-                blackOverlay.animate().alpha(0.8f).setStartDelay(0).setDuration(300).start();
+                blackOverlay.animate()
+                        .alpha(0.8f)
+                        .setStartDelay(0)
+                        .setInterpolator(decelerateInterpolator)
+                        .setDuration(500).start();
 
                 float emailYRelativeToCenter = 0 - (EDITTEXT_BOTTOM_MARGIN_DP / 2) - SeshEditText.SESH_EDIT_TEXT_HEIGHT_DP;
                 float fullNameYRelativeToCenter =
@@ -260,31 +272,45 @@ public class AuthenticationActivity extends SeshActivity {
 
                 fullnameEditText
                         .animate()
-                        .setDuration(300)
+                        .setDuration(500)
                         .setStartDelay(0)
                         .y(fullNameY)
-                        .setInterpolator(new DecelerateInterpolator())
+                        .setInterpolator(decelerateInterpolator)
                         .start();
                 emailEditText
                         .animate()
-                        .setDuration(300)
+                        .setDuration(500)
                         .setStartDelay(0)
                         .y(emailY)
-                        .setInterpolator(new DecelerateInterpolator())
+                        .setInterpolator(decelerateInterpolator)
                         .start();
                 passwordEditText
                         .animate()
-                        .setDuration(300)
+                        .setDuration(500)
                         .setStartDelay(0)
                         .y(passwordY)
-                        .setInterpolator(new DecelerateInterpolator())
+                        .setInterpolator(decelerateInterpolator)
                         .start();
                 reenterPasswordEditText
                         .animate()
-                        .setDuration(300)
+                        .setDuration(500)
                         .setStartDelay(0)
                         .y(reenterPasswordY)
-                        .setInterpolator(new DecelerateInterpolator())
+                        .setInterpolator(decelerateInterpolator)
+                        .start();
+                seshLogo
+                        .animate()
+                        .setInterpolator(decelerateInterpolator)
+                        .setDuration(500)
+                        .setStartDelay(0)
+                        .alpha(0f)
+                        .start();
+                seshBlurredLogo
+                        .animate()
+                        .setInterpolator(decelerateInterpolator)
+                        .setStartDelay(0)
+                        .setDuration(500)
+                        .alpha(1f)
                         .start();
 
                 final ViewTreeObserver.OnGlobalLayoutListener thisListener = this;
@@ -326,12 +352,54 @@ public class AuthenticationActivity extends SeshActivity {
 
         getWindow().getCurrentFocus().clearFocus();
 
-        blackOverlay.animate().alpha(0f).setStartDelay(300).setDuration(300).start();
-
-        fullnameEditText.animate().y(fullnameOriginalYPosition).setStartDelay(300).setDuration(300).start();
-        emailEditText.animate().y(emailOriginalYPosition).setStartDelay(300).setDuration(300).start();
-        passwordEditText.animate().y(passwordOriginalYPosition).setStartDelay(300).setDuration(300).start();
-        reenterPasswordEditText.animate().y(reenterPasswordOriginalYPosition).setStartDelay(300).setDuration(300).start();
+        blackOverlay
+                .animate()
+                .alpha(0f)
+                .setStartDelay(300)
+                .setDuration(500)
+                .start();
+        fullnameEditText
+                .animate()
+                .y(fullnameOriginalYPosition)
+                .setStartDelay(300)
+                .setDuration(500)
+                .setInterpolator(decelerateInterpolator)
+                .start();
+        emailEditText
+                .animate()
+                .y(emailOriginalYPosition)
+                .setStartDelay(300)
+                .setDuration(500)
+                .setInterpolator(decelerateInterpolator)
+                .start();
+        passwordEditText
+                .animate()
+                .y(passwordOriginalYPosition)
+                .setStartDelay(300)
+                .setDuration(500)
+                .setInterpolator(decelerateInterpolator)
+                .start();
+        reenterPasswordEditText
+                .animate()
+                .y(reenterPasswordOriginalYPosition)
+                .setStartDelay(300)
+                .setInterpolator(decelerateInterpolator)
+                .setDuration(500)
+                .start();
+        seshLogo
+                .animate()
+                .setInterpolator(decelerateInterpolator)
+                .setDuration(500)
+                .setStartDelay(300)
+                .alpha(1f)
+                .start();
+        seshBlurredLogo
+                .animate()
+                .setInterpolator(decelerateInterpolator)
+                .setStartDelay(300)
+                .setDuration(500)
+                .alpha(0f)
+                .start();
 
         fullnameEditText.setOnTouchListener(onTouchAnimateUpListener(fullnameEditText));
         emailEditText.setOnTouchListener(onTouchAnimateUpListener(emailEditText));
@@ -501,6 +569,7 @@ public class AuthenticationActivity extends SeshActivity {
 
             int seshLogoY = (int) (emailEditText.getY() / 2) - (seshLogo.getHeight() / 2);
             seshLogo.setY(seshLogoY);
+            seshBlurredLogo.setY(seshLogoY);
 
             loginSignupButton.setText("Log in");
         } else if (entranceType == EntranceType.SIGNUP) {
@@ -519,6 +588,7 @@ public class AuthenticationActivity extends SeshActivity {
             emailEditText.animate().setDuration(0).y(emailEditTextY);
             passwordEditText.animate().setDuration(0).y(passwordEditTextY);
             seshLogo.animate().setDuration(0).y(seshLogoY);
+            seshBlurredLogo.animate().setDuration(0).y(seshLogoY);
 
             fullnameEditText.setEditTextEnabled(true);
             reenterPasswordEditText.setEditTextEnabled(true);
@@ -612,12 +682,45 @@ public class AuthenticationActivity extends SeshActivity {
 
             loginSignupButton.animate().setDuration(300).setStartDelay(0).y(loginSignupY);
             alreadyHaveAccountText.animate().setDuration(300).setStartDelay(0).y(alreadyHaveAccountY);
-            emailEditText.animate().setDuration(300).setStartDelay(0).y(emailEditTextY);
-            passwordEditText.animate().setDuration(300).setStartDelay(0).y(passwordEditTextY);
-            seshLogo.animate().setDuration(300).y(seshLogoY);
 
-            fullnameEditText.animate().setStartDelay(300).setDuration(300).alpha(1);
-            reenterPasswordEditText.animate().setStartDelay(300).setDuration(300).alpha(1);
+            emailEditText
+                    .animate()
+                    .setDuration(300)
+                    .setStartDelay(0)
+                    .y(emailEditTextY)
+                    .setInterpolator(linearInterpolator);
+            passwordEditText
+                    .animate()
+                    .setDuration(300)
+                    .setStartDelay(0)
+                    .y(passwordEditTextY)
+                    .setInterpolator(linearInterpolator);
+
+            seshLogo
+                    .animate()
+                    .setDuration(300)
+                    .setStartDelay(0)
+                    .y(seshLogoY)
+                    .setInterpolator(linearInterpolator);
+            seshBlurredLogo
+                    .animate()
+                    .setDuration(300)
+                    .setStartDelay(0)
+                    .y(seshLogoY)
+                    .setInterpolator(linearInterpolator);
+
+            fullnameEditText
+                    .animate()
+                    .setStartDelay(300)
+                    .setDuration(300)
+                    .alpha(1)
+                    .setInterpolator(linearInterpolator);
+            reenterPasswordEditText
+                    .animate()
+                    .setStartDelay(300)
+                    .setDuration(300)
+                    .alpha(1)
+                    .setInterpolator(linearInterpolator);
 
             fullnameEditText.setEditTextEnabled(true);
             reenterPasswordEditText.setEditTextEnabled(true);
@@ -640,9 +743,31 @@ public class AuthenticationActivity extends SeshActivity {
 
             loginSignupButton.animate().setStartDelay(0).setDuration(300).y(loginSignupY);
             alreadyHaveAccountText.animate().setStartDelay(0).setDuration(300).y(alreadyHaveAccountY);
-            emailEditText.animate().setStartDelay(0).setDuration(300).y(emailEditTextY);
-            passwordEditText.animate().setStartDelay(0).setDuration(300).y(passwordEditTextY);
-            seshLogo.animate().setDuration(300).y(seshLogoY);
+
+            emailEditText
+                    .animate()
+                    .setStartDelay(0)
+                    .setDuration(300)
+                    .y(emailEditTextY)
+                    .setInterpolator(linearInterpolator);
+            passwordEditText
+                    .animate()
+                    .setStartDelay(0)
+                    .setDuration(300)
+                    .y(passwordEditTextY)
+                    .setInterpolator(linearInterpolator);
+            seshLogo
+                    .animate()
+                    .setDuration(300)
+                    .setStartDelay(0)
+                    .y(seshLogoY)
+                    .setInterpolator(linearInterpolator);
+            seshBlurredLogo
+                    .animate()
+                    .setDuration(300)
+                    .setStartDelay(0)
+                    .y(seshLogoY)
+                    .setInterpolator(linearInterpolator);
 
             fullnameEditText.setEditTextEnabled(false);
             reenterPasswordEditText.setEditTextEnabled(false);
