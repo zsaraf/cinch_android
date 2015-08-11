@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import com.seshtutoring.seshapp.R;
+import com.seshtutoring.seshapp.SeshApplication;
 import com.seshtutoring.seshapp.services.SeshGCMListenerService;
 import com.seshtutoring.seshapp.util.LaunchPrerequisiteUtil;
 import com.seshtutoring.seshapp.util.networking.SeshAuthManager;
@@ -47,7 +48,11 @@ public class SplashActivity extends SeshActivity {
     }
 
     private void startInitialActivity() {
-        if (SeshAuthManager.sharedManager(this).isValidSession()) {
+        if (!SeshApplication.IS_LIVE) {
+            Intent warmWelcomeIntent = new Intent(getApplicationContext(), WarmWelcomeActivity.class);
+            startActivity(warmWelcomeIntent);
+            overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+        } else if (SeshAuthManager.sharedManager(this).isValidSession()) {
             LaunchPrerequisiteUtil.asyncPrepareForLaunch(this, new Runnable() {
                 @Override
                 public void run() {
