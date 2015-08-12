@@ -133,8 +133,10 @@ public class SeshDialog extends BlurDialogFragment {
 //                });
         // Create the AlertDialog object and return it
         builder.setView(view);
+        Dialog dialog = builder.create();
+        dialog.getWindow().getAttributes().windowAnimations = R.style.SeshDialogAnimation;
 
-        return builder.create();
+        return dialog;
     }
 
     public static void showDialog(FragmentManager manager, String title, String message,

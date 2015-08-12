@@ -30,4 +30,9 @@
         <item name="android:backgroundDimEnabled">false</item>
         <item name="numberPickerStyle">@style/NPWidget.Holo.NumberPicker</item>
     </style>
+
+    <style name="SeshDialogAnimation" parent="@android:style/Animation.Activity">
+        <item name="android:windowEnterAnimation">@anim/slide_up</item>
+        <item name="android:windowExitAnimation">@anim/default_dialog_out</item>
+    </style>
 </resources>

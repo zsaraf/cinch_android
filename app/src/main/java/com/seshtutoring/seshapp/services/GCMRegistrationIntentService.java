@@ -6,6 +6,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Handler;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
@@ -36,6 +37,7 @@ public class GCMRegistrationIntentService extends IntentService {
     public static final String GCM_REGISTRATION_ID_KEY = "registration_id";
     public static final String RETRY_INTERVAL_KEY = "retry_interval";
     public static final String TOKEN_REGISTRATION_COMPLETE = "registration_complete";
+    public static final String ANONYMOUS_TOKEN_REFRESH = "anonymous_token_refresh";
 
     private static final int MAX_RETRY_INTERVAL = 1000 * 32;
 
@@ -53,10 +55,22 @@ public class GCMRegistrationIntentService extends IntentService {
         gcmSharedPreferences = getSharedPreferences(GCM_STATUS_SHARED_PREFS, 0);
 
         // Device token cannot be refreshed without user being logged in
-        if (!SeshAuthManager.sharedManager(getApplicationContext()).isValidSession()) return;
+        if (!SeshAuthManager.sharedManager(getApplicationContext()).isValidSession()
+                && !(intent.getBooleanExtra(ANONYMOUS_TOKEN_REFRESH, false))) return;
 
         this.intent = intent;
-        this.retryInterval = 1000;
+
+        if (intent.hasExtra(RETRY_INTERVAL_KEY)) {
+            this.retryInterval = intent.getIntExtra(RETRY_INTERVAL_KEY, 1000);
+
+            if (retryInterval > MAX_RETRY_INTERVAL) {
+                return;
+            }
+
+            SystemClock.sleep(retryInterval);
+        } else {
+            this.retryInterval = 1000;
+        }
 
         // Multiple sources in the application can try to refresh our server's current token at the same time
         // We ensure such requests only happen sequentially
@@ -71,7 +85,8 @@ public class GCMRegistrationIntentService extends IntentService {
             // we refresh with IS_TOKEN_STALE false, so that we can send a cached token, if it's available.
             if (!intent.getBooleanExtra(SeshInstanceIDListenerService.IS_TOKEN_STALE_KEY, true)) {
                 if (gcmSharedPreferences.contains(GCM_TOKEN_KEY)) {
-                    sendRegistrationToServer(gcmSharedPreferences.getString(GCM_TOKEN_KEY, null));
+                    sendRegistrationToServer(gcmSharedPreferences.getString(GCM_TOKEN_KEY, null),
+                            intent.getBooleanExtra(ANONYMOUS_TOKEN_REFRESH, false));
                     return;
                 }
             }
@@ -106,7 +121,11 @@ public class GCMRegistrationIntentService extends IntentService {
 
     private void tokenFound(String token, SharedPreferences gcmSharedPreferences) {
         gcmSharedPreferences.edit().putString(GCM_TOKEN_KEY, token).apply();
-        sendRegistrationToServer(token);
+        if (intent.hasExtra(ANONYMOUS_TOKEN_REFRESH) && intent.getBooleanExtra(ANONYMOUS_TOKEN_REFRESH, false)) {
+            sendRegistrationToServer(token, true);
+        } else {
+            sendRegistrationToServer(token, false);
+        }
     }
 
     /**
@@ -117,42 +136,62 @@ public class GCMRegistrationIntentService extends IntentService {
      *
      * @param token The new token.
      */
-    private void sendRegistrationToServer(String token) {
+    private void sendRegistrationToServer(String token, boolean anonymous) {
         SeshNetworking seshNetworking = new SeshNetworking(this);
-        seshNetworking.updateDeviceToken(token, new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject jsonObject) {
-                try {
-                    if (jsonObject.getString("status").equals("SUCCESS")) {
-                        Log.i(TAG, "REGISTERED TOKEN TO SERVER");
-                        Intent registrationComplete = new Intent(TOKEN_REGISTRATION_COMPLETE);
-                        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(registrationComplete);
-                    } else {
-                        Log.e(TAG, "GCM ERROR: Failed to update device token on server: " + jsonObject.getString("message"));
+        if (!anonymous) {
+            seshNetworking.updateDeviceToken(token, new Response.Listener<JSONObject>() {
+                @Override
+                public void onResponse(JSONObject jsonObject) {
+                    try {
+                        if (jsonObject.getString("status").equals("SUCCESS")) {
+                            Log.i(TAG, "REGISTERED TOKEN TO SERVER");
+                            Intent registrationComplete = new Intent(TOKEN_REGISTRATION_COMPLETE);
+                            LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(registrationComplete);
+                        } else {
+                            Log.e(TAG, "GCM ERROR: Failed to update device token on server: " + jsonObject.getString("message"));
+                        }
+                    } catch (JSONException e) {
+                        Log.e(TAG, "GCM ERROR: Failed to update device token on server; response malformed: " + e);
                     }
-                } catch (JSONException e) {
-                    Log.e(TAG, "GCM ERROR: Failed to update device token on server; response malformed: " + e);
                 }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                retryWithExponentialBackoff();
-            }
-        });
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    retryWithExponentialBackoff();
+                }
+            });
+        } else {
+            seshNetworking.updateAnonymousToken(token, new Response.Listener<JSONObject>() {
+                @Override
+                public void onResponse(JSONObject jsonObject) {
+                    try {
+                        if (jsonObject.getString("status").equals("SUCCESS")) {
+                            Log.i(TAG, "REGISTERED TOKEN TO SERVER");
+                            Intent registrationComplete = new Intent(TOKEN_REGISTRATION_COMPLETE);
+                            LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(registrationComplete);
+                        } else {
+                            Log.e(TAG, "GCM ERROR: Failed to update device token on server: " + jsonObject.getString("message"));
+                        }
+                    } catch (JSONException e) {
+                        Log.e(TAG, "GCM ERROR: Failed to update device token on server; response malformed: " + e);
+                    }
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    retryWithExponentialBackoff();
+                }
+            });
+        }
     }
 
     private void retryWithExponentialBackoff() {
         Log.d(TAG, "RETRY INTERVAL: " + retryInterval);
-        SystemClock.sleep(retryInterval);
-
-        if (retryInterval > MAX_RETRY_INTERVAL) {
-            return;
-        }
 
         retryInterval *= 2;
 
-        pullGCMRegistrationToken();
+        intent.putExtra(RETRY_INTERVAL_KEY, retryInterval);
+        startService(intent);
     }
 
     public static void clearGCMRegistrationToken(Context context) {

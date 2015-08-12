@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -28,8 +29,10 @@ public class SeshButton extends LinearLayout {
                 0, 0);
 
         int buttonType;
+        int textSize;
         try {
             buttonType = a.getInt(R.styleable.SeshButton_buttonType, 0);
+            textSize = a.getInteger(R.styleable.SeshButton_textSize, 14);
         } finally {
             a.recycle();
         }
@@ -50,6 +53,8 @@ public class SeshButton extends LinearLayout {
             this.button.setText(text);
         }
 
+        button.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize);
+
         Typeface medium = Typeface.createFromAsset(context.getAssets(), "fonts/Gotham-Medium.otf");
         button.setTypeface(medium);
     }
@@ -64,6 +69,7 @@ public class SeshButton extends LinearLayout {
 
     public void setEnabled(boolean enabled) {
         button.setEnabled(enabled);
+        button.setTextColor(getResources().getColor(R.color.white));
     }
 
     public Button getButton() {

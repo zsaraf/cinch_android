@@ -46,5 +46,6 @@ dependencies {
     compile project(':stripe')
     compile project(':pk-library')
     compile 'com.github.KeepSafe:MultiStateAnimation:1.1.0@aar'
+    compile 'com.android.support:cardview-v7:21.0.+'
 }
 

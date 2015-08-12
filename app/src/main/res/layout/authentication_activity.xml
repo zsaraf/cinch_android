@@ -127,6 +127,12 @@
         android:layout_centerHorizontal="true"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="350dp" />
+    <com.seshtutoring.seshapp.view.components.SeshActivityIndicator
+        android:id="@+id/login_signup_activity_indicator"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_centerInParent="true"
+        android:alpha="0"/>
     <View
         android:id="@+id/black_overlay"
         android:layout_width="match_parent"

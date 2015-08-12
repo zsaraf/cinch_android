@@ -41,6 +41,7 @@ import com.seshtutoring.seshapp.services.SeshInstanceIDListenerService;
 import com.seshtutoring.seshapp.util.LaunchPrerequisiteUtil;
 import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
+import com.seshtutoring.seshapp.view.components.SeshActivityIndicator;
 import com.seshtutoring.seshapp.view.components.SeshButton;
 import com.seshtutoring.seshapp.view.components.SeshEditText;
 
@@ -72,6 +73,7 @@ public class AuthenticationActivity extends SeshActivity {
     private SeshButton loginSignupButton;
     private ImageView seshLogo;
     private ImageView seshBlurredLogo;
+    private SeshActivityIndicator seshActivityIndicator;
     private View blackOverlay;
     private boolean editDetailsMode;
 
@@ -98,6 +100,8 @@ public class AuthenticationActivity extends SeshActivity {
 
         this.seshLogo = (ImageView) findViewById(R.id.seshLogo);
         this.seshBlurredLogo = (ImageView) findViewById(R.id.seshBlurredLogo);
+
+        this.seshActivityIndicator = (SeshActivityIndicator) findViewById(R.id.login_signup_activity_indicator);
 
         loginSignupButton = (SeshButton) findViewById(R.id.loginSignupButton);
 
@@ -129,7 +133,7 @@ public class AuthenticationActivity extends SeshActivity {
 
         loginSignupButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                loginSignupButton.setEnabled(false);
+                setNetworkOperationInProgress(true);
                 if (entranceType == EntranceType.LOGIN) {
                     handleLogin();
                 } else if (entranceType == EntranceType.SIGNUP) {
@@ -453,7 +457,6 @@ public class AuthenticationActivity extends SeshActivity {
                         @Override
                         public void onErrorResponse(VolleyError volleyError) {
                             onNetworkError(volleyError);
-                            loginSignupButton.setEnabled(true);
                         }
                     });
         }
@@ -489,6 +492,7 @@ public class AuthenticationActivity extends SeshActivity {
                 // Refresh device on server via GCM service
                 Intent gcmIntent = new Intent(this, GCMRegistrationIntentService.class);
                 gcmIntent.putExtra(SeshInstanceIDListenerService.IS_TOKEN_STALE_KEY, true);
+                gcmIntent.putExtra(GCMRegistrationIntentService.ANONYMOUS_TOKEN_REFRESH, false);
                 startService(gcmIntent);
 
                 LaunchPrerequisiteUtil.asyncPrepareForLaunch(this, new Runnable() {
@@ -500,21 +504,24 @@ public class AuthenticationActivity extends SeshActivity {
                     }
                 });
             } else if (responseJson.get("status").equals("UNVERIFIED")) {
-                Toast.makeText(this, "unverified account", Toast.LENGTH_LONG).show();
+//                showErrorDialog("Unverified", "Your account is unverified.  Make sure to click the little link in your email!");
+                setNetworkOperationInProgress(false);
             } else {
                 Toast.makeText(this, "Login Failed.", Toast.LENGTH_LONG).show();
+                setNetworkOperationInProgress(false);
             }
         } catch (JSONException e) {
             Log.e(TAG, e.toString());
             Toast.makeText(this, "Login Failed.", Toast.LENGTH_LONG).show();
+            setNetworkOperationInProgress(false);
         }
-        loginSignupButton.setEnabled(true);
     }
 
     private void onSignupResponse(JSONObject responseJson) {
         try {
             if (responseJson.get("status").equals("FAILURE")) {
                 Toast.makeText(this, responseJson.getString("message"), Toast.LENGTH_LONG).show();
+                setNetworkOperationInProgress(false);
             } else {
                 Intent intent = new Intent(this, ConfirmationCodeActivity.class);
                 intent.putExtra(SIGN_UP_EMAIL_KEY, emailEditText.getText());
@@ -524,14 +531,14 @@ public class AuthenticationActivity extends SeshActivity {
         } catch (JSONException e) {
             Log.e(TAG, e.toString());
             Toast.makeText(this, "Signup Failed.", Toast.LENGTH_LONG).show();
+            setNetworkOperationInProgress(false);
         }
-        loginSignupButton.setEnabled(true);
     }
 
     private void onNetworkError(VolleyError volleyError) {
         Log.e(TAG, "NETWORK ERROR: " + volleyError);
         Toast.makeText(getApplicationContext(), "We couldn't reach the network, sorry!", Toast.LENGTH_LONG).show();
-        loginSignupButton.setEnabled(true);
+        setNetworkOperationInProgress(false);
     }
 
 
@@ -778,5 +785,85 @@ public class AuthenticationActivity extends SeshActivity {
         }
 
         setupFocusHandlingForPassword();
+    }
+
+    private void setNetworkOperationInProgress(boolean inProgress) {
+        if (inProgress) {
+            loginSignupButton.setEnabled(false);
+
+            fullnameEditText
+                    .animate()
+                    .alpha(0f)
+                    .setDuration(300)
+                    .setStartDelay(0)
+                    .start();
+            emailEditText
+                    .animate()
+                    .alpha(0f)
+                    .setDuration(300)
+                    .setStartDelay(0)
+                    .start();
+            passwordEditText
+                    .animate()
+                    .alpha(0f)
+                    .setDuration(300)
+                    .setStartDelay(0)
+                    .start();
+            reenterPasswordEditText
+                    .animate()
+                    .alpha(0f)
+                    .setDuration(300)
+                    .setStartDelay(0)
+                    .start();
+
+            float seshLogoBottomY = seshLogo.getY() + seshLogo.getHeight();
+            float activityIndicatorY =
+                    loginSignupButton.getY() - ((loginSignupButton.getY() - seshLogoBottomY) / 2) - (seshActivityIndicator.getHeight() / 2);
+
+            seshActivityIndicator.setY(activityIndicatorY);
+            seshActivityIndicator
+                    .animate()
+                    .alpha(1f)
+                    .setDuration(300)
+                    .setStartDelay(0)
+                    .start();
+        } else {
+            loginSignupButton.setEnabled(true);
+
+            if (entranceType == EntranceType.SIGNUP) {
+                fullnameEditText
+                        .animate()
+                        .alpha(1f)
+                        .setDuration(300)
+                        .setStartDelay(0)
+                        .start();
+                reenterPasswordEditText
+                        .animate()
+                        .alpha(1f)
+                        .setDuration(300)
+                        .setStartDelay(0)
+                        .start();
+            }
+
+            emailEditText
+                    .animate()
+                    .alpha(1f)
+                    .setDuration(300)
+                    .setStartDelay(0)
+                    .start();
+            passwordEditText
+                    .animate()
+                    .alpha(1f)
+                    .setDuration(300)
+                    .setStartDelay(0)
+                    .start();
+
+            seshActivityIndicator
+                    .animate()
+                    .alpha(0f)
+                    .setDuration(300)
+                    .setStartDelay(0)
+                    .start();
+        }
     }
 }

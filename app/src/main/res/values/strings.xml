@@ -134,15 +134,16 @@ If You have any questions about this privacy statement, the practices of Sesh, o
 <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
-    <string name="first_fragment_title">Welcome!</string>
-    <string name="first_fragment_content">Thank you for joining the Sesh community! We can\'t wait to let you get started learning and earning with Sesh.</string>
+    <string name="first_fragment_title">Welcome</string>
+    <string name="first_fragment_content">Sesh is a mobile peer-to-peer tutoring marketplace for college students looking to learn and earn at the tap of a button.</string>
 
-    <string name="second_fragment_title">About</string>
-    <string name="second_fragment_content">Everybody has succeeded in certain subjects and struggled in others.  Sesh is here to take advantage of everyone\'s uniqueness through its emphasis on peer-to-peer, collaborative learning.</string>
+    <string name="second_fragment_title">Students</string>
+    <string name="second_fragment_content">Get help with assignments any time, any place.  Tutors who\'ve taken the class before will come directly to you.</string>
 
-    <string name="third_fragment_title">How it Works</string>
-    <string name="third_fragment_content">Get help with assignments any time, wherever you are.  Sign up to tutor on your campus and start earning great money.  Ace your class and meet some new people on campus.</string>
+    <string name="third_fragment_title">Tutors</string>
+    <string name="third_fragment_content">Sign up to tutor on your campus and start earning cash on your own schedule.</string>
+
 
     <string name="fourth_fragment_title">Sept.14th</string>
-    <string name="fourth_fragment_content">In the meantime upload your transcript on our website to become a Sesh tutor!  The first 50 tutors at your school get a free Sesh backpack!</string>
+    <string name="fourth_fragment_content">Thanks for your patience as we finish building Sesh for Android! By pushing the button below, you literally trigger a noise maker in the office.  It is completely anonymous, but extremely helpful!</string>
 </resources>

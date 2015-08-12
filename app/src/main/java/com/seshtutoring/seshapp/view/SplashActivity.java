@@ -3,6 +3,10 @@ package com.seshtutoring.seshapp.view;
 import android.app.NotificationManager;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.view.animation.AccelerateInterpolator;
+import android.widget.ImageView;
 
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.SeshApplication;
@@ -11,24 +15,41 @@ import com.seshtutoring.seshapp.util.LaunchPrerequisiteUtil;
 import com.seshtutoring.seshapp.util.networking.SeshAuthManager;
 import com.seshtutoring.seshapp.view.AuthenticationActivity.EntranceType;
 
+
 /**
  * Created by nadavhollander on 7/10/15.
  */
 public class SplashActivity extends SeshActivity {
     private static final String TAG = SplashActivity.class.getName();
+    private ImageView logo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
+        super.onCreate(savedInstanceState);
+
+        setContentView(R.layout.splash_activity);
+        this.logo = (ImageView) findViewById(R.id.logo);
 
         Thread timerThread = new Thread(){
             public void run(){
                 try{
-                        sleep(1500);
+                        sleep(1200);
                 }catch(InterruptedException e){
                     e.printStackTrace();
                 }finally{
-                    startInitialActivity();
+                    final Handler handler = new Handler(Looper.getMainLooper());
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            logo.animate().yBy(-1000f).setInterpolator(new AccelerateInterpolator(2f)).setDuration(300).start();
+                            handler.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    startInitialActivity();
+                                }
+                            }, 300);
+                        }
+                    });
                 }
             }
         };
@@ -43,8 +64,6 @@ public class SplashActivity extends SeshActivity {
                     getSystemService(NOTIFICATION_SERVICE)).cancel(notificationId);
             startInitialActivity();
         }
-
-        setContentView(R.layout.splash_activity);
     }
 
     private void startInitialActivity() {

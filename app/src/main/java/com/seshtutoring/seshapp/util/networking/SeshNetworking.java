@@ -1,6 +1,7 @@
 package com.seshtutoring.seshapp.util.networking;
 
 import android.content.Context;
+import android.os.Build;
 import android.util.Log;
 
 import com.android.volley.DefaultRetryPolicy;
@@ -68,6 +69,7 @@ public class SeshNetworking {
     private static final String TIMEZONE_OFFSET_PARAM = "timezone_offset";
     private static final String TUTOR_COURSES_PARAM = "courses";
     private static final String REQUEST_ID_PARAM = "request_id";
+    private static final String VERSION_NUMBER_PARAM = "version_number";
 
     private Context mContext;
 
@@ -125,6 +127,7 @@ public class SeshNetworking {
         params.put(FORMAT_PARAM, "json");
         params.put(EMAIL_PARAM, email);
         params.put(PASSWORD_PARAM, password);
+        params.put(VERSION_NUMBER_PARAM, "2.0");
 
         postWithRelativeUrl("login.php", params, successListener, errorListener);
     }
@@ -164,6 +167,16 @@ public class SeshNetworking {
         params.put(TIMEZONE_OFFSET_PARAM, Integer.toString(timeZoneOffset));
 
         postWithRelativeUrl("update_device_token.php", params, successListener, errorListener);
+    }
+
+    public void updateAnonymousToken(String deviceToken,
+                                  Response.Listener<JSONObject> successListener,
+                                  Response.ErrorListener errorListener) {
+        Map<String, String> params = new HashMap<>();
+        params.put("token", deviceToken);
+        params.put(DEVICE_TYPE_PARAM, "android");
+
+        postWithRelativeUrl("update_anonymous_device_token.php", params, successListener, errorListener);
     }
 
     public void updateUserInformationWithMajorAndBio(String major, String bio,
@@ -445,7 +458,7 @@ public class SeshNetworking {
     private String baseUrl() {
         String baseUrl;
         if (SeshApplication.IS_DEV) {
-            baseUrl = "https://www.cinchtutoring.com/ios-php/";
+            baseUrl = "https://www.cinchtutoring.com/users/franz/";
         } else {
             baseUrl = "https://www.seshtutoring.com/ios-php/";
         }

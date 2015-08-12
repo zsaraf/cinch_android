@@ -1,53 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:custom="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <ImageView
+    <com.seshtutoring.seshapp.view.components.TextureVideoView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:src="@drawable/walkthrough_background4"
-        android:id="@+id/background_image"
-        android:scaleType="centerCrop"/>
+        android:id="@+id/office_time_lapse"/>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/black"
+        android:alpha="0.4"/>
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/content_area">
-        <RelativeLayout
+        <TextView
             android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:layout_alignParentBottom="true">
-            <TextView
-                android:id="@+id/welcome_fragment_title"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="40sp"
-                android:layout_marginLeft="35dp"
-                android:layout_marginRight="35dp"
-                android:gravity="center"
-                android:textColor="@color/white"
-                android:text="@string/fourth_fragment_title"
-                android:layout_alignParentTop="true"/>
-            <TextView
-                android:id="@+id/content_text"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="14sp"
-                android:layout_marginLeft="35dp"
-                android:layout_marginRight="35dp"
-                android:layout_marginTop="10dp"
-                android:gravity="center"
-                android:textColor="@color/white"
-                android:text="@string/fourth_fragment_content"
-                android:layout_below="@id/welcome_fragment_title"/>
-            <com.seshtutoring.seshapp.view.components.SeshButton
-                android:id="@+id/signup_button"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="sign up TO SEE MORE"
-                android:layout_marginLeft="35dp"
-                android:layout_marginRight="35dp"
-                android:layout_marginTop="20dp"
-                android:layout_below="@id/content_text"/>
-        </RelativeLayout>
+            android:layout_height="wrap_content"
+            android:textColor="@color/white"
+            android:text="Hold Tight!"
+            android:gravity="center_horizontal"
+            android:textSize="28sp"
+            android:layout_marginTop="45dp"
+            />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/white"
+            android:text="22"
+            android:gravity="center_horizontal"
+            android:textSize="120sp"
+            android:layout_marginTop="105dp"
+            />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/white"
+            android:text="Days Until Android Launch"
+            android:gravity="center_horizontal"
+            android:textSize="14sp"
+            android:layout_marginTop="235dp"
+            />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/white"
+            android:text="@string/fourth_fragment_content"
+            android:gravity="center_horizontal"
+            android:textSize="16sp"
+            android:layout_marginBottom="100dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginLeft="20dp"
+            android:layout_alignParentBottom="true"
+            />
+        <com.seshtutoring.seshapp.view.components.SeshButton
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="35dp"
+            android:layout_marginRight="35dp"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="35dp"
+            android:text="Sign up For early Access"/>
     </RelativeLayout>
 </FrameLayout>
