@@ -16,7 +16,12 @@ import com.seshtutoring.seshapp.R;
  * Created by nadavhollander on 7/15/15.
  */
 public class SeshButton extends LinearLayout {
+    public enum ButtonType {
+        RED, GRAY
+    }
+
     private Button button;
+    private ButtonType buttonType;
 
     public SeshButton(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -39,8 +44,10 @@ public class SeshButton extends LinearLayout {
 
         if (buttonType == 0) {
             mInflater.inflate(R.layout.sesh_red_button_layout, this, true);
+            this.buttonType = ButtonType.RED;
         } else {
             mInflater.inflate(R.layout.sesh_gray_button_layout, this, true);
+            this.buttonType = ButtonType.GRAY;
         }
 
         int[] attrSet = { android.R.attr.text };
@@ -69,7 +76,11 @@ public class SeshButton extends LinearLayout {
 
     public void setEnabled(boolean enabled) {
         button.setEnabled(enabled);
-        button.setTextColor(getResources().getColor(R.color.white));
+        if (buttonType == ButtonType.GRAY && !enabled) {
+            button.setTextColor(getResources().getColor(R.color.sesh_gray_button_disabled_text));
+        } else {
+            button.setTextColor(getResources().getColor(R.color.white));
+        }
     }
 
     public Button getButton() {

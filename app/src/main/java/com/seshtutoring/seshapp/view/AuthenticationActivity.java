@@ -2,9 +2,12 @@ package com.seshtutoring.seshapp.view;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.graphics.Point;
 import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
@@ -14,6 +17,7 @@ import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
 import android.util.Log;
+import android.view.Display;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -43,6 +47,7 @@ import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.components.SeshActivityIndicator;
 import com.seshtutoring.seshapp.view.components.SeshButton;
+import com.seshtutoring.seshapp.view.components.SeshDialog;
 import com.seshtutoring.seshapp.view.components.SeshEditText;
 
 import org.json.JSONException;
@@ -50,7 +55,7 @@ import org.json.JSONObject;
 
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
-public class AuthenticationActivity extends SeshActivity {
+public class AuthenticationActivity extends SeshActivity implements SeshDialog.OnSelectionListener {
     private static final String TAG = AuthenticationActivity.class.getName();
     public static enum EntranceType { LOGIN, SIGNUP }
     public static final String ENTRANCE_TYPE_KEY = "entrance_type";
@@ -58,6 +63,8 @@ public class AuthenticationActivity extends SeshActivity {
     public static final String SIGN_UP_PASSWORD_KEY = "password";
     private static final int EDITTEXT_BOTTOM_MARGIN_DP = 10;
     private static final int TERMS_TEXT_OFFSET_DP = 30;
+    private static final int ACCOUNT_TEXT_OFFSET_DP = 102;
+    private static final String DIALOG_TYPE_ERROR = "dialog_type_error";
 
     private SeshNetworking seshNetworking;
     private EntranceType entranceType;
@@ -86,7 +93,7 @@ public class AuthenticationActivity extends SeshActivity {
     private LinearInterpolator linearInterpolator;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         this.entranceType = (EntranceType) getIntent().getSerializableExtra(ENTRANCE_TYPE_KEY);
@@ -133,7 +140,7 @@ public class AuthenticationActivity extends SeshActivity {
 
         loginSignupButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                setNetworkOperationInProgress(true);
+                setNetworkOperationInProgress(true, null);
                 if (entranceType == EntranceType.LOGIN) {
                     handleLogin();
                 } else if (entranceType == EntranceType.SIGNUP) {
@@ -456,7 +463,7 @@ public class AuthenticationActivity extends SeshActivity {
                     }, new Response.ErrorListener() {
                         @Override
                         public void onErrorResponse(VolleyError volleyError) {
-                            onNetworkError(volleyError);
+                            onLoginSignupError("Network Error", "Something went wrong.  Try again later.");
                         }
                     });
         }
@@ -478,7 +485,7 @@ public class AuthenticationActivity extends SeshActivity {
                     }, new Response.ErrorListener() {
                         @Override
                         public void onErrorResponse(VolleyError volleyError) {
-                            onNetworkError(volleyError);
+                            onLoginSignupError("Network Error", "Something went wrong.  Try again later.");
                         }
                     });
         }
@@ -495,6 +502,8 @@ public class AuthenticationActivity extends SeshActivity {
                 gcmIntent.putExtra(GCMRegistrationIntentService.ANONYMOUS_TOKEN_REFRESH, false);
                 startService(gcmIntent);
 
+
+
                 LaunchPrerequisiteUtil.asyncPrepareForLaunch(this, new Runnable() {
                     @Override
                     public void run() {
@@ -504,24 +513,24 @@ public class AuthenticationActivity extends SeshActivity {
                     }
                 });
             } else if (responseJson.get("status").equals("UNVERIFIED")) {
-//                showErrorDialog("Unverified", "Your account is unverified.  Make sure to click the little link in your email!");
-                setNetworkOperationInProgress(false);
+                onLoginSignupError("Unverified",
+                                "Your account is unverified.  Make sure to click the little link in your email!");
             } else {
-                Toast.makeText(this, "Login Failed.", Toast.LENGTH_LONG).show();
-                setNetworkOperationInProgress(false);
+                onLoginSignupError("Error!",
+                                responseJson.getString("message"));
             }
         } catch (JSONException e) {
             Log.e(TAG, e.toString());
-            Toast.makeText(this, "Login Failed.", Toast.LENGTH_LONG).show();
-            setNetworkOperationInProgress(false);
+            onLoginSignupError("Network Error",
+                            "Something went wrong.  Try again later.");
         }
     }
 
     private void onSignupResponse(JSONObject responseJson) {
         try {
             if (responseJson.get("status").equals("FAILURE")) {
-                Toast.makeText(this, responseJson.getString("message"), Toast.LENGTH_LONG).show();
-                setNetworkOperationInProgress(false);
+                onLoginSignupError("Error!",
+                                responseJson.getString("message"));
             } else {
                 Intent intent = new Intent(this, ConfirmationCodeActivity.class);
                 intent.putExtra(SIGN_UP_EMAIL_KEY, emailEditText.getText());
@@ -530,17 +539,9 @@ public class AuthenticationActivity extends SeshActivity {
             }
         } catch (JSONException e) {
             Log.e(TAG, e.toString());
-            Toast.makeText(this, "Signup Failed.", Toast.LENGTH_LONG).show();
-            setNetworkOperationInProgress(false);
+            onLoginSignupError("Network Error", "Something went wrong.  Try again later.");
         }
     }
-
-    private void onNetworkError(VolleyError volleyError) {
-        Log.e(TAG, "NETWORK ERROR: " + volleyError);
-        Toast.makeText(getApplicationContext(), "We couldn't reach the network, sorry!", Toast.LENGTH_LONG).show();
-        setNetworkOperationInProgress(false);
-    }
-
 
     // @TODO: Implement some sort of verification that Login info formatted correctly
     private boolean validateLoginDetails(String email, String password) {
@@ -559,56 +560,61 @@ public class AuthenticationActivity extends SeshActivity {
     }
 
     public void setupEntranceType() {
-        LayoutUtils utils = new LayoutUtils(this);
-        final int yDeltaEmailAndPassword =
-                utils.dpToPixels(EDITTEXT_BOTTOM_MARGIN_DP + TERMS_TEXT_OFFSET_DP +
-                        SeshEditText.SESH_EDIT_TEXT_HEIGHT_DP);
-        final int yDeltaTextAndButton = utils.dpToPixels(TERMS_TEXT_OFFSET_DP);
+        final View content = findViewById(android.R.id.content);
+        final LayoutUtils utils = new LayoutUtils(this);
 
-        if (entranceType == EntranceType.LOGIN) {
-            fullnameEditText.setAlpha(0);
-            reenterPasswordEditText.setAlpha(0);
-            alreadyHaveAccountText.setAlpha(0);
-            termsAndPrivacyPolicyText.setAlpha(0);
+        content.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
 
-            fullnameEditText.setEditTextEnabled(false);
-            reenterPasswordEditText.setEditTextEnabled(false);
+                if (entranceType == EntranceType.LOGIN) {
+                    fullnameEditText.setAlpha(0);
+                    reenterPasswordEditText.setAlpha(0);
+                    alreadyHaveAccountText.setAlpha(0);
+                    termsAndPrivacyPolicyText.setAlpha(0);
 
-            int seshLogoY = (int) (emailEditText.getY() / 2) - (seshLogo.getHeight() / 2);
-            seshLogo.setY(seshLogoY);
-            seshBlurredLogo.setY(seshLogoY);
+                    fullnameEditText.setEditTextEnabled(false);
+                    reenterPasswordEditText.setEditTextEnabled(false);
 
-            loginSignupButton.setText("Log in");
-        } else if (entranceType == EntranceType.SIGNUP) {
-            int yDelta =
-                    utils.dpToPixels(EDITTEXT_BOTTOM_MARGIN_DP + TERMS_TEXT_OFFSET_DP +
-                            SeshEditText.SESH_EDIT_TEXT_HEIGHT_DP);
+                    int seshLogoY = (int) (emailEditText.getY() / 2) - (seshLogo.getHeight() / 2);
+                    seshLogo.setY(seshLogoY);
+                    seshBlurredLogo.setY(seshLogoY);
 
-            int loginSignupY = (int) loginSignupButton.getY() - yDeltaTextAndButton;
-            int alreadyHaveAccountY = (int) alreadyHaveAccountText.getY() - yDeltaTextAndButton;
-            int emailEditTextY = (int) emailEditText.getY() - yDeltaEmailAndPassword;
-            int passwordEditTextY = (int) passwordEditText.getY() - yDeltaEmailAndPassword;
-            int seshLogoY = (fullnameEditText.getTop() / 2) - (seshLogo.getHeight() / 2);
+                    loginSignupButton.setText("Log in");
+                } else if (entranceType == EntranceType.SIGNUP) {
+                    int alreadyHaveAccountY = content.getHeight() - utils.dpToPixels(ACCOUNT_TEXT_OFFSET_DP);
+                    int loginSignupY = alreadyHaveAccountY - utils.dpToPixels(EDITTEXT_BOTTOM_MARGIN_DP + SeshEditText.SESH_EDIT_TEXT_HEIGHT_DP);
+                    int passwordEditTextY = loginSignupY - (utils.dpToPixels(EDITTEXT_BOTTOM_MARGIN_DP + SeshEditText.SESH_EDIT_TEXT_HEIGHT_DP) * 2);
+                    int emailEditTextY = passwordEditTextY - utils.dpToPixels(EDITTEXT_BOTTOM_MARGIN_DP + SeshEditText.SESH_EDIT_TEXT_HEIGHT_DP);
+                    int seshLogoY = (fullnameEditText.getTop() / 2) - (seshLogo.getHeight() / 2);
 
-            loginSignupButton.animate().setDuration(0).y(loginSignupY);
-            alreadyHaveAccountText.animate().y(alreadyHaveAccountY);
-            emailEditText.animate().setDuration(0).y(emailEditTextY);
-            passwordEditText.animate().setDuration(0).y(passwordEditTextY);
-            seshLogo.animate().setDuration(0).y(seshLogoY);
-            seshBlurredLogo.animate().setDuration(0).y(seshLogoY);
+                    loginSignupButton.setY(loginSignupY);
+                    alreadyHaveAccountText.setY(alreadyHaveAccountY);
+                    emailEditText.setY(emailEditTextY);
+                    passwordEditText.setY(passwordEditTextY);
+                    seshLogo.setY(seshLogoY);
+                    seshBlurredLogo.setY(seshLogoY);
 
-            fullnameEditText.setEditTextEnabled(true);
-            reenterPasswordEditText.setEditTextEnabled(true);
+                    fullnameEditText.setEditTextEnabled(true);
+                    reenterPasswordEditText.setEditTextEnabled(true);
 
-            dontHaveAccountText.setAlpha(0);
-            forgotPasswordLink.setAlpha(0);
-            loginSignupButton.setText("Sign up");
-        } else {
-            Log.e(TAG, "EntranceType malformed in intent to start AuthenticationActivity");
-        }
+                    dontHaveAccountText.setAlpha(0);
+                    forgotPasswordLink.setAlpha(0);
+                    loginSignupButton.setText("Sign up");
+                } else {
+                    Log.e(TAG, "EntranceType malformed in intent to start AuthenticationActivity");
+                }
 
-        setupFocusHandlingForEmailAndReenterPassword();
-        setupFocusHandlingForPassword();
+                setupFocusHandlingForEmailAndReenterPassword();
+                setupFocusHandlingForPassword();
+
+                if (Build.VERSION.SDK_INT < 16) {
+                    content.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                } else {
+                    content.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                }
+            }
+        });
     }
 
     public void setupFocusHandlingForEmailAndReenterPassword() {
@@ -788,6 +794,10 @@ public class AuthenticationActivity extends SeshActivity {
     }
 
     private void setNetworkOperationInProgress(boolean inProgress) {
+        setNetworkOperationInProgress(inProgress, null);
+    }
+
+    private void setNetworkOperationInProgress(boolean inProgress, final Runnable completionCallback) {
         if (inProgress) {
             loginSignupButton.setEnabled(false);
 
@@ -826,6 +836,15 @@ public class AuthenticationActivity extends SeshActivity {
                     .alpha(1f)
                     .setDuration(300)
                     .setStartDelay(0)
+                    .setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            super.onAnimationEnd(animation);
+                            if (completionCallback != null) {
+                                completionCallback.run();
+                            }
+                        }
+                    })
                     .start();
         } else {
             loginSignupButton.setEnabled(true);
@@ -834,13 +853,13 @@ public class AuthenticationActivity extends SeshActivity {
                 fullnameEditText
                         .animate()
                         .alpha(1f)
-                        .setDuration(300)
+                        .setDuration(150)
                         .setStartDelay(0)
                         .start();
                 reenterPasswordEditText
                         .animate()
                         .alpha(1f)
-                        .setDuration(300)
+                        .setDuration(150)
                         .setStartDelay(0)
                         .start();
             }
@@ -848,22 +867,50 @@ public class AuthenticationActivity extends SeshActivity {
             emailEditText
                     .animate()
                     .alpha(1f)
-                    .setDuration(300)
+                    .setDuration(150)
                     .setStartDelay(0)
                     .start();
             passwordEditText
                     .animate()
                     .alpha(1f)
-                    .setDuration(300)
+                    .setDuration(150)
                     .setStartDelay(0)
                     .start();
 
             seshActivityIndicator
                     .animate()
                     .alpha(0f)
-                    .setDuration(300)
+                    .setDuration(150)
                     .setStartDelay(0)
+                    .setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            super.onAnimationEnd(animation);
+                            if (completionCallback != null) {
+                                completionCallback.run();
+                            }
+                        }
+                    })
                     .start();
         }
+    }
+
+    private void onLoginSignupError(String dialogTitle, String dialogContent) {
+        final SeshDialog errorDialog = new SeshDialog();
+        errorDialog.firstChoice = "OKAY";
+        errorDialog.dialogType = SeshDialog.SeshDialogType.ONE_BUTTON;
+        errorDialog.type = DIALOG_TYPE_ERROR;
+        errorDialog.title = dialogTitle;
+        errorDialog.message = dialogContent;
+
+        setNetworkOperationInProgress(false, new Runnable() {
+            @Override
+            public void run() {
+                errorDialog.show(getFragmentManager(), "error");
+            }
+        });
+    }
+
+    public void onDialogSelection(int selection, String type) {
     }
 }

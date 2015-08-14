@@ -12,6 +12,7 @@ import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.util.ApplicationLifecycleTracker;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 
+import org.joda.time.DateTime;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -30,6 +31,9 @@ public class SeshApplication extends SugarApp {
     public static final boolean IS_LIVE = false;
     public static final boolean IS_DEV = true;
 
+    //    Pre-reg app functionality -- to be deleted v1
+    private DateTime androidReleaseDate;
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -45,5 +49,19 @@ public class SeshApplication extends SugarApp {
 
     public ApplicationLifecycleTracker getApplicationLifecycleTracker() {
         return applicationLifecycleTracker;
+    }
+
+    //    Pre-reg app functionality -- to be deleted v1
+    public void setAndroidReleaseDate(DateTime releaseDate) {
+        this.androidReleaseDate = releaseDate;
+    }
+
+    //    Pre-reg app functionality -- to be deleted v1
+    public DateTime getAndroidReleaseDate() {
+        if (androidReleaseDate != null) {
+            return androidReleaseDate;
+        } else {
+            return new DateTime(2015, 9, 12, 9, 0);
+        }
     }
 }

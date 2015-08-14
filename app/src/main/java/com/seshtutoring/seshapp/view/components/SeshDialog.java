@@ -1,5 +1,7 @@
 package com.seshtutoring.seshapp.view.components;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -9,18 +11,29 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.Typeface;
+import android.os.Build;
 import android.os.Bundle;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.facebook.rebound.SimpleSpringListener;
+import com.facebook.rebound.Spring;
+import com.facebook.rebound.SpringConfig;
+import com.facebook.rebound.SpringListener;
+import com.facebook.rebound.SpringSystem;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 
+import android.os.Handler;
+import android.support.v7.widget.CardView;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.animation.AccelerateInterpolator;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -54,9 +67,26 @@ public class SeshDialog extends BlurDialogFragment {
     public String type;
     public SeshDialogType dialogType = SeshDialogType.TWO_BUTTON;
 
+    private View contentLayout;
+    private View dialogView;
+    private CardView dialogCard;
+    private Activity mActivity;
+    private SpringSystem springSystem;
+
+    private View.OnClickListener firstButtonClickListener;
+    private View.OnClickListener secondButtonClickListener;
+
+    private float screenHeight;
+
     // Container Activity must implement this interface
     public interface OnSelectionListener {
-        public void onDialogSelection(int selected, String type);
+        void onDialogSelection(int selected, String type);
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setStyle(STYLE_NORMAL, R.style.SeshFullScreenDialog);
     }
 
     @Override
@@ -71,72 +101,107 @@ public class SeshDialog extends BlurDialogFragment {
             throw new ClassCastException(activity.toString()
                     + " must implement OnHeadlineSelectedListener");
         }
+
+        this.mActivity = activity;
     }
 
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
-
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstance) {
         final SeshNetworking seshNetworking = new SeshNetworking(getActivity());
         Typeface bold = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Gotham-Medium.otf");
 
-        // Use the Builder class for convenient dialog construction
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        dialogView = inflater.inflate(R.layout.sesh_dialog_layout, null);
 
-        View view = getActivity().getLayoutInflater().inflate(R.layout.sesh_dialog_layout, null);
+        if (contentLayout == null) {
+            contentLayout = inflater.inflate(R.layout.sesh_dialog_content_default, null);
+        }
 
-        TextView titleText = (TextView) view.findViewById(R.id.dialog_title);
-        titleText.setText(title);
-        titleText.setTypeface(bold);
+        ViewGroup contentContainer = (ViewGroup) dialogView.findViewById(R.id.dialog_content_area);
+        contentContainer.addView(contentLayout);
 
-        TextView text = (TextView) view.findViewById(R.id.dialog_text);
-        text.setText(message);
+        TextView titleText = (TextView) dialogView.findViewById(R.id.dialog_title);
+        if (titleText != null) {
+            titleText.setText(title);
+        }
 
-        Button affirmativeButton = (Button) view.findViewById(R.id.dialog_first_button);
-        affirmativeButton.setText(firstChoice);
-        affirmativeButton.setTypeface(bold);
+        TextView text = (TextView) dialogView.findViewById(R.id.dialog_text);
+        if (text != null) {
+            text.setText(message);
+        }
 
-        affirmativeButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                mCallback.onDialogSelection(1, type);
-                dismiss();
-            }
-        });
+        Button firstButton = (Button) dialogView.findViewById(R.id.dialog_first_button);
+        firstButton.setText(firstChoice);
+        firstButton.setTypeface(bold);
 
-        Button negativeButton = (Button) view.findViewById(R.id.dialog_second_button);
-
-        if (dialogType == SeshDialogType.ONE_BUTTON) {
-            negativeButton.setVisibility(View.GONE);
+        if (firstButtonClickListener != null) {
+            firstButton.setOnClickListener(firstButtonClickListener);
         } else {
-            negativeButton.setText(secondChoice);
-            negativeButton.setTypeface(bold);
-
-            negativeButton.setOnClickListener(new View.OnClickListener() {
+            firstButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-                    mCallback.onDialogSelection(2, type);
+                    mCallback.onDialogSelection(1, type);
                     dismiss();
                 }
             });
         }
 
-//        builder.setTitle("Cash Out?")
-//                        //.setView() - set view to new view created above
-//                .setPositiveButton(R.string.affirmative, new DialogInterface.OnClickListener() {
-//                    public void onClick(DialogInterface dialog, int id) {
-//                        //yes, proceed to cashout
-//                        Log.e(TAG, "YES BUTTON PRESS");
-//                    }
-//                })
-//                .setNegativeButton(R.string.negative, new DialogInterface.OnClickListener() {
-//                    public void onClick(DialogInterface dialog, int id) {
-//                        //no, cancel cashout
-//                        Log.e(TAG, "NO BUTTON PRESS");
-//                    }
-//                });
-        // Create the AlertDialog object and return it
-        builder.setView(view);
-        Dialog dialog = builder.create();
-        dialog.getWindow().getAttributes().windowAnimations = R.style.SeshDialogAnimation;
+        Button secondButton = (Button) dialogView.findViewById(R.id.dialog_second_button);
 
-        return dialog;
+        if (dialogType == SeshDialogType.ONE_BUTTON) {
+            secondButton.setVisibility(View.GONE);
+        } else {
+            secondButton.setText(secondChoice);
+            secondButton.setTypeface(bold);
+
+            if (secondButtonClickListener != null) {
+                secondButton.setOnClickListener(secondButtonClickListener);
+            } else {
+                secondButton.setOnClickListener(new View.OnClickListener() {
+                    public void onClick(View v) {
+                        mCallback.onDialogSelection(2, type);
+                        dismiss();
+                    }
+                });
+            }
+        }
+
+        this.dialogCard = (CardView) dialogView.findViewById(R.id.card_view);
+
+        this.springSystem = SpringSystem.create();
+        final Spring spring = springSystem.createSpring();
+
+        spring.setSpringConfig(SpringConfig.fromBouncinessAndSpeed(9.0, 6.0));
+        spring.addListener(new SimpleSpringListener(){
+            @Override
+            public void onSpringUpdate(Spring spring) {
+                float y = (float) spring.getCurrentValue();
+                dialogCard.setY(y);
+            }
+        });
+
+        final View content = mActivity.findViewById(android.R.id.content);
+        content.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+
+                LayoutUtils utils = new LayoutUtils(mActivity);
+                screenHeight = utils.getScreenHeightPx(mActivity);
+                double centeredDialogY = dialogCard.getY();
+
+                dialogCard.setY((float)screenHeight);
+                dialogCard.setAlpha(1);
+
+                spring.setCurrentValue(screenHeight);
+                spring.setEndValue(centeredDialogY);
+
+                if (Build.VERSION.SDK_INT < 16) {
+                    content.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                } else {
+                    content.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                }
+            }
+        });
+
+        return dialogView;
     }
 
     public static void showDialog(FragmentManager manager, String title, String message,
@@ -163,15 +228,13 @@ public class SeshDialog extends BlurDialogFragment {
     @Override
     public void onStart() {
         super.onStart();
-        if (getDialog() == null) {
-            return;
+        Dialog dialog = getDialog();
+
+        if (dialog != null) {
+            int width = ViewGroup.LayoutParams.MATCH_PARENT;
+            int height = ViewGroup.LayoutParams.MATCH_PARENT;
+            dialog.getWindow().setLayout(width, height);
         }
-
-        LayoutUtils utils = new LayoutUtils(getActivity());
-
-        WindowManager.LayoutParams params = getDialog().getWindow().getAttributes();
-        params.width = utils.dpToPixels(330f);
-        getDialog().getWindow().setAttributes(params);
     }
 
     @Override
@@ -198,6 +261,28 @@ public class SeshDialog extends BlurDialogFragment {
         return backgroundOverlayBitmap;
     }
 
+    @Override
+    protected View getOverlayView() {
+        LayoutInflater inflater = mActivity.getLayoutInflater();
+        return inflater.inflate(R.layout.opaque_white_overlay_view, null);
+    }
+
+    @Override
+    public void dismiss() {
+        dialogCard
+                .animate()
+                .y(screenHeight)
+                .setDuration(150)
+                .setInterpolator(new AccelerateInterpolator())
+                .setListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                super.onAnimationEnd(animation);
+                SeshDialog.super.dismiss();
+            }
+        }).start();
+    }
+
     /**
      * Overrides blur dialog's default behavior - instead of blurring the background
      * before showing dialog, Bitmap that is passed in will be blurred and placed in the background
@@ -205,6 +290,18 @@ public class SeshDialog extends BlurDialogFragment {
      */
     public void setCustomBackgroundBitmap(Bitmap overlay) {
         backgroundOverlayBitmap = overlay;
+    }
+
+    public void setContentLayout(View contentLayout) {
+        this.contentLayout = contentLayout;
+    }
+
+    public void setFirstButtonClickListener(View.OnClickListener clickListener) {
+        this.firstButtonClickListener = clickListener;
+    }
+
+    public void setSecondButtonClickListener(View.OnClickListener clickListener) {
+        this.secondButtonClickListener = clickListener;
     }
 }
 

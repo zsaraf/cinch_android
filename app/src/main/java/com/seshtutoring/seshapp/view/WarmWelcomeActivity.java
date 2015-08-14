@@ -1,13 +1,20 @@
 package com.seshtutoring.seshapp.view;
 
+import android.app.NotificationManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Point;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.os.Handler;
+import android.support.v13.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.Display;
 import android.view.View;
@@ -17,41 +24,48 @@ import android.widget.LinearLayout;
 
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.services.GCMRegistrationIntentService;
+import com.seshtutoring.seshapp.services.SeshGCMListenerService;
 import com.seshtutoring.seshapp.services.SeshInstanceIDListenerService;
 import com.seshtutoring.seshapp.util.LayoutUtils;
+import com.seshtutoring.seshapp.view.components.SeshDialog;
 import com.seshtutoring.seshapp.view.fragments.WarmWelcomeFragments.FirstWelcomeFragment;
 import com.seshtutoring.seshapp.view.fragments.WarmWelcomeFragments.FourthWelcomeFragment;
 import com.seshtutoring.seshapp.view.fragments.WarmWelcomeFragments.SecondWelcomeFragment;
 import com.seshtutoring.seshapp.view.fragments.WarmWelcomeFragments.ThirdWelcomeFragment;
+
+import java.util.HashMap;
 
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 /**
  * Created by nadavhollander on 8/10/15.
  */
-public class WarmWelcomeActivity extends SeshActivity {
+public class WarmWelcomeActivity extends SeshActivity implements SeshDialog.OnSelectionListener {
+
     private ViewPager viewPager;
     private FragmentPagerAdapter pagerAdapter;
     private ImageView[] viewPagerDots;
     private LinearLayout progressDots;
 
-
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.warm_welcome_activity);
 
-        this.viewPagerDots = new ImageView[5];
+        this.viewPagerDots = new ImageView[4];
         viewPagerDots[0] = (ImageView) findViewById(R.id.progress_dot1);
         viewPagerDots[1] = (ImageView) findViewById(R.id.progress_dot2);
         viewPagerDots[2] = (ImageView) findViewById(R.id.progress_dot3);
         viewPagerDots[3] = (ImageView) findViewById(R.id.progress_dot4);
-        viewPagerDots[4] = (ImageView) findViewById(R.id.progress_dot5);
 
         this.progressDots = (LinearLayout) findViewById(R.id.progress_dots);
 
         this.viewPager = (ViewPager) findViewById(R.id.warm_welcome_view_pager);
-        viewPager.setAdapter(new WarmWelcomePagerAdapter(getSupportFragmentManager()));
-        viewPager.setPageTransformer(true, new FadePageTransformer());
+
+        final WarmWelcomePagerAdapter warmWelcomePagerAdapter =
+                new WarmWelcomePagerAdapter(getFragmentManager());
+
+        viewPager.setAdapter(warmWelcomePagerAdapter);
+        viewPager.setPageTransformer(false, new FadePageTransformer());
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -69,11 +83,16 @@ public class WarmWelcomeActivity extends SeshActivity {
                         }
                     } else {
                         if (Build.VERSION.SDK_INT < 21) {
-                            viewPagerDots[i].setImageDrawable(getResources().getDrawable(R.drawable.dot_unselected));
+                            viewPagerDots[i].setImageDrawable(getResources().getDrawable(R.drawable.dot_gray));
                         } else {
-                            viewPagerDots[i].setImageDrawable(getResources().getDrawable(R.drawable.dot_unselected, null));
+                            viewPagerDots[i].setImageDrawable(getResources().getDrawable(R.drawable.dot_gray, null));
                         }
                     }
+                }
+
+                if (position == 3) {
+                    FourthWelcomeFragment fragment = (FourthWelcomeFragment) warmWelcomePagerAdapter.getItem(position);
+                    fragment.onFragmentVisible();
                 }
             }
 
@@ -82,7 +101,7 @@ public class WarmWelcomeActivity extends SeshActivity {
                 // do nothing
             }
         });
-        viewPager.setOffscreenPageLimit(2);
+        viewPager.setOffscreenPageLimit(3);
 
         // Refresh device token on server via GCM service
         Intent gcmIntent = new Intent(this, GCMRegistrationIntentService.class);
@@ -117,7 +136,7 @@ public class WarmWelcomeActivity extends SeshActivity {
     private class FadePageTransformer implements ViewPager.PageTransformer {
         public void transformPage(View view, float position) {
             int pageWidth = view.getWidth();
-            View imageView = view.findViewById(R.id.background_image);
+            View backgroundView = view.findViewById(R.id.background_image);
             View contentView = view.findViewById(R.id.content_area);
 
             if (position < -1) { // [-Infinity,-1)
@@ -131,9 +150,9 @@ public class WarmWelcomeActivity extends SeshActivity {
                     // But swipe the contentView
                     contentView.setTranslationX(pageWidth * position);
                 }
-                if (imageView != null) {
+                if (backgroundView != null) {
                     // Fade the image in
-                    imageView.setAlpha(1 + position);
+                    backgroundView.setAlpha(1 + position);
                 }
 
             } else if (position <= 1) { // (0,1]
@@ -145,9 +164,9 @@ public class WarmWelcomeActivity extends SeshActivity {
                     // But swipe the contentView
                     contentView.setTranslationX(pageWidth * position);
                 }
-                if (imageView != null) {
+                if (backgroundView != null) {
                     // Fade the image out
-                    imageView.setAlpha(1 - position);
+                    backgroundView.setAlpha(1 - position);
                 }
             } else { // (1,+Infinity]
                 // This page is way off-screen to the right
@@ -155,8 +174,27 @@ public class WarmWelcomeActivity extends SeshActivity {
         }
     }
 
+    public void scrollToWarmWelcomePage(int position) {
+        viewPager.setCurrentItem(position, true);
+    }
+
     @Override
     protected void attachBaseContext(Context newBase) {
         super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
+    }
+
+    @Override
+    public void onDialogSelection(int position, String type) {
+        // do nothing
+    }
+
+    @Override
+    public Bitmap getBlurBackgroundOverrideBitmap() {
+        if (viewPager.getCurrentItem() == 3) {
+            return BitmapFactory.decodeResource(getResources(),
+                    R.drawable.keyframe);
+        } else {
+            return null;
+        }
     }
 }

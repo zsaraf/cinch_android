@@ -1,15 +1,18 @@
 package com.seshtutoring.seshapp.util;
 
+import android.app.Activity;
 import android.app.Instrumentation;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.Point;
 import android.graphics.Rect;
 import android.os.SystemClock;
 import android.text.TextPaint;
 import android.text.style.ClickableSpan;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -70,6 +73,14 @@ public class LayoutUtils {
         stackBlurManager.process(10);
 
         return stackBlurManager.returnBlurredImage();
+    }
+
+    public int getScreenHeightPx(Activity baseActivity) {
+        Display display = baseActivity.getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+
+        return size.y;
     }
 
 }

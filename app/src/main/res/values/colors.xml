@@ -20,7 +20,8 @@
 
     <color name="sesh_gray_button_normal">#E6E6E6</color>
     <color name="sesh_gray_button_pressed">#7F7F7F</color>
-    <color name="sesh_gray_button_disabled">#7F7F7F</color>
+    <color name="sesh_gray_button_disabled">#E6E6E6</color>
+    <color name="sesh_gray_button_disabled_text">#D5D5D6</color>
     <color name="sesh_gray_button_text_color">#666666</color>
 
     <color name="light_gray">#ffdedede</color>
@@ -29,6 +30,7 @@
     <color name="tableview_background">#F7F7F7</color>
     <color name="white_opaque">#9FFFFFFF</color>
 
+    <color name="sesh_dialog_background">#80FFFFFF</color>
     <color name="white_slight_transparency">#FFFFFFE6</color>
     <color name="transparent">#00000000</color>
 </resources>

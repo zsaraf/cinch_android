@@ -24,25 +24,19 @@
             android:id="@+id/progress_dot2"
             android:layout_width="10dp"
             android:layout_height="10dp"
-            android:src="@drawable/dot_unselected"
+            android:src="@drawable/dot_gray"
             android:layout_margin="2dp"/>
         <ImageView
             android:id="@+id/progress_dot3"
             android:layout_width="10dp"
             android:layout_height="10dp"
-            android:src="@drawable/dot_unselected"
+            android:src="@drawable/dot_gray"
             android:layout_margin="2dp"/>
         <ImageView
             android:id="@+id/progress_dot4"
             android:layout_width="10dp"
             android:layout_height="10dp"
-            android:src="@drawable/dot_unselected"
-            android:layout_margin="2dp"/>
-        <ImageView
-            android:id="@+id/progress_dot5"
-            android:layout_width="10dp"
-            android:layout_height="10dp"
-            android:src="@drawable/dot_unselected"
+            android:src="@drawable/dot_gray"
             android:layout_margin="2dp"/>
     </LinearLayout>
 </RelativeLayout>

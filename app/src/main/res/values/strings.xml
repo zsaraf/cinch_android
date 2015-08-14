@@ -145,5 +145,9 @@ If You have any questions about this privacy statement, the practices of Sesh, o
 
 
     <string name="fourth_fragment_title">Sept.14th</string>
-    <string name="fourth_fragment_content">Thanks for your patience as we finish building Sesh for Android! By pushing the button below, you literally trigger a noise maker in the office.  It is completely anonymous, but extremely helpful!</string>
+    <string name="fourth_fragment_content">The Sesh Team is hard at work putting the final touches on our Android app -- we\'ll be sure to notify you as soon as the app is ready.  Sign up below to be the first to get Sesh on Android</string>
+
+    <string name="update_app_dialog_content">Please update Sesh now to start learning and earning today!  Sesh cannot run unless the update is installed.  Happy Seshing!</string>
+
+    <string name="unreleased_launch_thank_you">Thank you for signing up for Sesh.  We can't wait to get you started!</string>
 </resources>

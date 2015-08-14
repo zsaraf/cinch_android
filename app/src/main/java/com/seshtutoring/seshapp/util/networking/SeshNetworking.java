@@ -536,6 +536,21 @@ public class SeshNetworking {
                 errorListener);
     }
 
+    public void motivateTeam(Response.Listener<JSONObject> successListener,
+                          Response.ErrorListener errorListener) {
+        Map<String, String> params = new HashMap<>();
+
+        postWithRelativeUrl("motivate_team.php", params, successListener,
+                errorListener);
+    }
+
+    public void getAndroidLaunchDate(Response.Listener<JSONObject> successListener,
+                                     Response.ErrorListener errorListener) {
+         Map<String, String> params = new HashMap<>();
+
+        postWithRelativeUrl("get_android_launch_date.php", params, successListener, errorListener);
+    }
+
 //    @TODO: implement once Stripe functionality in place
 //    public void addCardWithCustomerToken(...)
 //    public void getCardsForCurrentUserWithSuccess(...)

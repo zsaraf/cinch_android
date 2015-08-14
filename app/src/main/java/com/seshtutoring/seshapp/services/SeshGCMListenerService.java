@@ -16,7 +16,9 @@ import com.seshtutoring.seshapp.SeshApplication;
 import com.seshtutoring.seshapp.SeshStateManager;
 import com.seshtutoring.seshapp.util.ApplicationLifecycleTracker;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
+import com.seshtutoring.seshapp.view.SeshActivity;
 import com.seshtutoring.seshapp.view.SplashActivity;
+import com.seshtutoring.seshapp.view.WarmWelcomeActivity;
 import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.HomeFragment;
 import com.seshtutoring.seshapp.view.fragments.SideMenuFragment;
 import com.seshtutoring.seshapp.view.fragments.TeachViewFragment;
@@ -26,6 +28,7 @@ import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by nadavhollander on 7/29/15.
@@ -33,8 +36,11 @@ import java.util.Map;
 public class SeshGCMListenerService extends GcmListenerService {
     private static final String TAG = SeshGCMListenerService.class.getName();
     public static final String NOTIFICATION_ID_EXTRA = "opened_by_notification";
+    private static final String NOTIFICATION_OBJ_KEY = "notification";
     private static final String IDENTIFIER_KEY = "identifier";
-    private static final String CUSTOM_KEY = "custom";
+    private static final String TITLE_KEY = "title";
+    private static final String MESSAGE_KEY = "message";
+    private static final String DATA_KEY = "data";
     private static final String STATE_KEY = "state";
     private static final String ALERT_KEY = "alert";
     private static final int DEFAULT_NOTIFICATION_ID = 0;
@@ -50,21 +56,25 @@ public class SeshGCMListenerService extends GcmListenerService {
     // [START receive_message]
     @Override
     public void onMessageReceived(String from, Bundle data) {
-        String identifier = data.getString(IDENTIFIER_KEY);
-        Intent intent;
+        String identifier;
+        JSONObject notificationObj;
 
-        boolean appInForeground =
-                ((SeshApplication)getApplication()).getApplicationLifecycleTracker().applicationInForeground();
+        try {
+            notificationObj = new JSONObject(data.getString(NOTIFICATION_OBJ_KEY));
+            identifier = notificationObj.getString(IDENTIFIER_KEY);
 
-        switch (identifier) {
+            Intent intent;
+
+            boolean appInForeground =
+                    ((SeshApplication)getApplication()).getApplicationLifecycleTracker().applicationInForeground();
+
+            switch (identifier) {
                 case "UPDATE_STATE":
                     String stateIdentifier = null;
-                    try {
-                        JSONObject stateObj = new JSONObject(data.getString(CUSTOM_KEY));
-                        stateIdentifier = stateObj.getString(STATE_KEY);
-                    } catch (JSONException e) {
-                        Log.e(TAG, "Failed to update Sesh State; push data malformed:" + e);
-                    }
+
+                    JSONObject stateObj = new JSONObject(notificationObj.getString(DATA_KEY));
+                    stateIdentifier = stateObj.getString(STATE_KEY);
+
                     if (stateIdentifier != null) {
                         SeshStateManager.sharedInstance(getApplicationContext()).updateSeshState(stateIdentifier);
                     }
@@ -72,9 +82,6 @@ public class SeshGCMListenerService extends GcmListenerService {
                 case "MESSAGE":
                     break;
                 case "NOTIFY_TUTOR":
-                    // ignore silent push
-                    if (data.getString(ALERT_KEY).equals("")) return;
-
                     if (appInForeground) {
                         intent = new Intent(MainContainerActivity.UPDATE_CONTAINER_STATE_ACTION);
                     } else {
@@ -94,13 +101,10 @@ public class SeshGCMListenerService extends GcmListenerService {
                     } else {
                         pendingIntent = pendingIntentForIntent(intent, MainContainerActivity.class, DEFAULT_NOTIFICATION_ID);
                     }
-                    
-                    showNotification(data.getString(ALERT_KEY), pendingIntent);
+
+                    showNotification(notificationObj.getString(TITLE_KEY), notificationObj.getString(MESSAGE_KEY), pendingIntent);
                     break;
                 case "FOUND_TUTOR":
-                    // ignore silent push
-                    if (data.getString(ALERT_KEY).equals("")) return;
-
                     if (appInForeground) {
                         intent = new Intent(MainContainerActivity.FOUND_TUTOR_ACTION);
                         sendBroadcast(intent);
@@ -108,22 +112,38 @@ public class SeshGCMListenerService extends GcmListenerService {
                         intent = new Intent(MainContainerActivity.FOUND_TUTOR_ACTION, null,
                                 this, MainContainerActivity.class);
 
-                        showNotification(data.getString(ALERT_KEY),
+                        showNotification(notificationObj.getString(TITLE_KEY), notificationObj.getString(MESSAGE_KEY),
                                 pendingIntentForIntent(intent, MainContainerActivity.class, DEFAULT_NOTIFICATION_ID));
                     }
                     break;
+                case "ANDROID_IS_LIVE":
+                        if (appInForeground) {
+                            intent = new Intent(SeshActivity.APP_IS_LIVE_ACTION);
+                            sendBroadcast(intent);
+                        } else {
+                            intent = new Intent(SeshActivity.APP_IS_LIVE_ACTION, null,
+                                    this, WarmWelcomeActivity.class);
+
+                            showNotification(notificationObj.getString(TITLE_KEY), notificationObj.getString(MESSAGE_KEY),
+                                    pendingIntentForIntent(intent, MainContainerActivity.class, DEFAULT_NOTIFICATION_ID));
+                        }
+                    break;
                 default:
                     intent = new Intent(this, SplashActivity.class);
-                    showNotification(data.getString(ALERT_KEY),
-                        pendingIntentForIntent(intent, SplashActivity.class, DEFAULT_NOTIFICATION_ID));
+                    showNotification(notificationObj.getString(TITLE_KEY), notificationObj.getString(MESSAGE_KEY),
+                            pendingIntentForIntent(intent, SplashActivity.class, DEFAULT_NOTIFICATION_ID));
                     break;
+            }
+        } catch (JSONException e) {
+            Log.e(TAG, "Failed to handle push; push malformed: " + e);
         }
+
     }
 
-    private void showNotification(String subtitle, PendingIntent pendingIntent) {
+    private void showNotification(String title, String subtitle, PendingIntent pendingIntent) {
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.drawable.backpack_white)
-                .setContentTitle("Sesh")
+                .setContentTitle(title)
                 .setContentText(subtitle)
                 .setColor(getResources().getColor(R.color.seshorange))
                 .setDefaults(Notification.DEFAULT_ALL)

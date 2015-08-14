@@ -67,29 +67,32 @@
             android:layout_marginBottom="45dp"
             android:layout_alignParentBottom="true"
             android:text="Motivate the Team"/>
-        <com.seshtutoring.seshapp.view.components.SeshButton
-            android:id="@+id/signupTutorButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="35dp"
-            android:layout_marginRight="35dp"
-            android:layout_above="@id/motivateButton"
-            android:layout_marginBottom="7dp"
-            android:text="Sign up as tutor"/>
-        <com.seshtutoring.seshapp.view.components.SeshButton
-            android:id="@+id/signupStudentButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="35dp"
-            android:layout_marginRight="35dp"
-            android:layout_marginBottom="7dp"
-            android:layout_above="@id/signupTutorButton"
-            android:text="Sign up as student"/>
-        <RelativeLayout
+
+        <LinearLayout
+            android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_above="@id/signupStudentButton"
+            android:layout_above="@id/motivateButton"
             android:layout_below="@id/daysUntilLabel">
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white"
+                android:text="@string/unreleased_launch_thank_you"
+                android:layout_centerInParent="true"
+                android:gravity="center"
+                android:textSize="16sp"
+                android:layout_marginRight="35dp"
+                android:layout_marginLeft="35dp"
+                />
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"/>
             <TextView
                 android:id="@+id/content_string"
                 android:layout_width="match_parent"
@@ -97,11 +100,15 @@
                 android:textColor="@color/white"
                 android:text="@string/fourth_fragment_content"
                 android:layout_centerInParent="true"
-                android:gravity="center_horizontal"
+                android:gravity="center"
                 android:textSize="16sp"
                 android:layout_marginRight="35dp"
                 android:layout_marginLeft="35dp"
                 />
-        </RelativeLayout>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"/>
+        </LinearLayout>
     </RelativeLayout>
 </FrameLayout>

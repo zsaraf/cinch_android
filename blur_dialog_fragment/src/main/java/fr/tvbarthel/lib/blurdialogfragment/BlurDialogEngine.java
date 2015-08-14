@@ -11,6 +11,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
@@ -51,11 +52,6 @@ public class BlurDialogEngine {
      * Radius used to blur the background
      */
     static final int DEFAULT_BLUR_RADIUS = 8;
-
-    /**
-     * Default dimming policy.
-     */
-    static final boolean DEFAULT_DIMMING_POLICY = false;
 
     /**
      * Default debug policy.
@@ -122,6 +118,8 @@ public class BlurDialogEngine {
      * Allow to use a toolbar without set it as action bar.
      */
     private Toolbar mToolbar;
+
+    private View mOverlay;
 
     /**
      * Duration used to animate in and out the blurred image.
@@ -197,6 +195,26 @@ public class BlurDialogEngine {
                             removeBlurredView();
                         }
                     }).start();
+                if (mOverlay != null) {
+                    mOverlay.animate()
+                            .alpha(0f)
+                            .setDuration(mAnimationDuration)
+                            .setInterpolator(new AccelerateInterpolator())
+                            .setListener(new AnimatorListenerAdapter() {
+                                @Override
+                                public void onAnimationEnd(Animator animation) {
+                                    super.onAnimationEnd(animation);
+                                    removeOverlayView();
+                                }
+
+                                @Override
+                                public void onAnimationCancel(Animator animation) {
+                                    super.onAnimationCancel(animation);
+                                    removeOverlayView();
+                                }
+                            }).start();
+                }
+
             } else {
                 removeBlurredView();
             }
@@ -302,6 +320,9 @@ public class BlurDialogEngine {
         mToolbar = toolbar;
     }
 
+    public void setOverlayView(View overlay) {
+        mOverlay = overlay;
+    }
     /**
      * Blur the given bitmap and add it to the activity.
      *
@@ -535,6 +556,16 @@ public class BlurDialogEngine {
         }
     }
 
+    private void removeOverlayView() {
+        if (mOverlay != null) {
+            ViewGroup parent = (ViewGroup) mOverlay.getParent();
+            if (parent != null) {
+                parent.removeView(mOverlay);
+            }
+            mOverlay = null;
+        }
+    }
+
     /**
      * Async task used to process blur out of ui thread
      */
@@ -585,6 +616,7 @@ public class BlurDialogEngine {
             } else {
                 return null;
             }
+
             //clear memory
             mBackground.recycle();
             mBackgroundView.destroyDrawingCache();
@@ -597,19 +629,35 @@ public class BlurDialogEngine {
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
 
+
+
             mHoldingActivity.getWindow().addContentView(
                 mBlurredBackgroundView,
                 mBlurredBackgroundLayoutParams
             );
 
+            if (mOverlay != null) {
+                mHoldingActivity.getWindow().addContentView(
+                        mOverlay,
+                        mBlurredBackgroundLayoutParams
+                );
+            }
+
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR1) {
                 mBlurredBackgroundView.setAlpha(0f);
+                mOverlay.setAlpha(0f);
                 mBlurredBackgroundView
-                    .animate()
-                    .alpha(1f)
-                    .setDuration(mAnimationDuration)
-                    .setInterpolator(new LinearInterpolator())
-                    .start();
+                        .animate()
+                        .alpha(1f)
+                        .setDuration(mAnimationDuration)
+                        .setInterpolator(new LinearInterpolator())
+                        .start();
+                mOverlay
+                        .animate()
+                        .alpha(1f)
+                        .setDuration(mAnimationDuration)
+                        .setInterpolator(new LinearInterpolator())
+                        .start();
             }
             mBackgroundView = null;
             mBackground = null;

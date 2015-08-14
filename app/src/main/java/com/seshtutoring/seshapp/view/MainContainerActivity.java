@@ -68,8 +68,6 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
     public static final String FOUND_TUTOR_ACTION =
             "com.seshtutoring.seshapp.FOUND_TUTOR";
 
-    public boolean pullJobs;
-
     private BroadcastReceiver notificationActionReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -114,7 +112,7 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
     };
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.main_container_activity);

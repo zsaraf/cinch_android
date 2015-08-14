@@ -39,7 +39,7 @@ public class ConfirmationCodeActivity extends SeshActivity {
     private Timer attemptLoginTimer;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         //Remove title bar
@@ -93,7 +93,7 @@ public class ConfirmationCodeActivity extends SeshActivity {
 
     // user navigates to different app, presumably to check email
     @Override
-    protected void onStop() {
+    public void onStop() {
         super.onStop();
         attemptLoginTimer.cancel();
     }

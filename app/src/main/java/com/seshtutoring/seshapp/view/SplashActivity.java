@@ -24,7 +24,7 @@ public class SplashActivity extends SeshActivity {
     private ImageView logo;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.splash_activity);
@@ -86,5 +86,10 @@ public class SplashActivity extends SeshActivity {
             startActivity(i);
             overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         }
+    }
+
+    @Override
+    protected boolean supportsSeshDialog() {
+        return false;
     }
 }

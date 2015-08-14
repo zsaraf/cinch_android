@@ -8,6 +8,8 @@ import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 
 /**
@@ -63,6 +65,8 @@ public abstract class BlurDialogFragment extends DialogFragment {
 
         mBlurEngine.setBlurActionBar(isActionBarBlurred());
 
+        mBlurEngine.setOverlayView(getOverlayView());
+
         mDimmingEffect = isDimmingEnable();
     }
 
@@ -82,6 +86,8 @@ public abstract class BlurDialogFragment extends DialogFragment {
                 dialog.getWindow().getAttributes().windowAnimations
                         = R.style.BlurDialogFragment_Default_Animation;
             }
+
+
         }
         super.onStart();
     }
@@ -176,7 +182,7 @@ public abstract class BlurDialogFragment extends DialogFragment {
      * @return true to enable the dimming effect.
      */
     protected boolean isDimmingEnable() {
-        return BlurDialogEngine.DEFAULT_DIMMING_POLICY;
+        return false;
     }
 
     /**
@@ -216,4 +222,6 @@ public abstract class BlurDialogFragment extends DialogFragment {
     }
 
     protected Bitmap getCustomBackgroundBitmap() { return null; }
+
+    protected View getOverlayView() { return null; }
 }

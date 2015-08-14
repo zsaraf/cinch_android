@@ -170,7 +170,7 @@ public abstract class SupportBlurDialogFragment extends DialogFragment {
      * @return enable true to enable the dimming effect.
      */
     protected boolean isDimmingEnable() {
-        return BlurDialogEngine.DEFAULT_DIMMING_POLICY;
+        return false;
     }
 
     /**

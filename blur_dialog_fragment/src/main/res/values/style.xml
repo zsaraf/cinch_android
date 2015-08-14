@@ -5,5 +5,4 @@
         <item name="android:windowEnterAnimation">@anim/default_dialog_in</item>
         <item name="android:windowExitAnimation">@anim/default_dialog_out</item>
     </style>
-
 </resources>

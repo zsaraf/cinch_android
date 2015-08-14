@@ -45,7 +45,7 @@ public class AddCardActivity extends SeshActivity {
     private boolean isRecipient;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_card);
         seshNetworking = new SeshNetworking(this);
