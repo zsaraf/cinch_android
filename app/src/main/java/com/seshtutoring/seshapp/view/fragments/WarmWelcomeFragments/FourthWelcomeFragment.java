@@ -29,6 +29,7 @@ import com.mixpanel.android.mpmetrics.MixpanelAPI;
 import com.seshtutoring.seshapp.R;
 
 import com.seshtutoring.seshapp.SeshApplication;
+import com.seshtutoring.seshapp.util.SeshMixpanelAPI;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.AuthenticationActivity;
 import com.seshtutoring.seshapp.view.AuthenticationActivity.EntranceType;
@@ -57,7 +58,7 @@ public class FourthWelcomeFragment  extends Fragment
     private SeshButton motivateButton;
     private TextView countUpText;
     private int daysUntilLaunch;
-    private MixpanelAPI mixpanelAPI;
+    private SeshMixpanelAPI seshMixpanelAPI;
 
     private static final String MOTIVATION_BUTTON_LAST_PRESSED = "button_last_pressed";
 
@@ -70,7 +71,7 @@ public class FourthWelcomeFragment  extends Fragment
         videoView.setLooping(true);
         videoView.play();
 
-        this.mixpanelAPI = ((SeshApplication)getActivity().getApplication()).getMixpanelAPI();
+        this.seshMixpanelAPI = ((SeshApplication)getActivity().getApplication()).getSeshMixpanelAPI();
 
         DateTime launchDate =
                 ((SeshApplication) getActivity().getApplication()).getAndroidReleaseDate();
@@ -84,7 +85,7 @@ public class FourthWelcomeFragment  extends Fragment
         signupStudentButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mixpanelAPI.track("Entered Student Signup Flow From Warm Welcome");
+                seshMixpanelAPI.track("Entered Student Signup Flow From Warm Welcome");
 
                 Intent authenticationIntent = new Intent(getActivity(), AuthenticationActivity.class);
                 authenticationIntent.putExtra(AuthenticationActivity.ENTRANCE_TYPE_KEY, EntranceType.SIGNUP);
@@ -95,7 +96,7 @@ public class FourthWelcomeFragment  extends Fragment
         signupTutorButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mixpanelAPI.track("Entered Tutor Signup Flow From Warm Welcome");
+                seshMixpanelAPI.track("Entered Tutor Signup Flow From Warm Welcome");
 
                 Intent browserIntent = new Intent(Intent.ACTION_VIEW);
                 browserIntent.setData(Uri.parse("https://seshtutoring.com/index.html?action=tutor"));
@@ -111,9 +112,6 @@ public class FourthWelcomeFragment  extends Fragment
                 motivateButton.setEnabled(false);
                 defaultSharedPrefs.edit().putLong(MOTIVATION_BUTTON_LAST_PRESSED, (new DateTime()).getMillis()).apply();
 
-                final Bitmap backgroundBitmap = BitmapFactory.decodeResource(getActivity().getResources(),
-                        R.drawable.keyframe);
-
                 SeshNetworking seshNetworking = new SeshNetworking(getActivity());
                 seshNetworking.motivateTeam(new Response.Listener<JSONObject>() {
                     @Override
@@ -122,14 +120,14 @@ public class FourthWelcomeFragment  extends Fragment
                                 "Motivation Sent",
                                 "The Sesh Team has been pinged!  We're working our hardest, we promise!  " + "Don't get tap-happy, though -- motivation can only be sent once a day.",
                                 "Gotcha",
-                                null, backgroundBitmap, "motivate_the_team");
+                                null, "motivate_the_team");
 
                     }
                 }, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError volleyError) {
                         SeshDialog.showDialog(getFragmentManager(), "Network Error",
-                                "We couldn't reach the server.  Try again later.", "Okay", null, backgroundBitmap, "networkError");
+                                "We couldn't reach the server.  Try again later.", "Okay", null, "networkError");
                         motivateButton.setEnabled(true);
                     }
                 });

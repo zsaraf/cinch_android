@@ -19,6 +19,7 @@ import com.android.volley.VolleyError;
 import com.mixpanel.android.mpmetrics.MixpanelAPI;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.SeshApplication;
+import com.seshtutoring.seshapp.util.SeshMixpanelAPI;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.components.SeshButton;
 import com.seshtutoring.seshapp.view.components.SeshDialog;
@@ -40,7 +41,7 @@ public class UnreleasedLaunchActivity extends SeshActivity implements SeshDialog
     private SeshButton motivateButton;
     private TextureVideoView videoView;
     private FrameLayout videoKeyFrame;
-    private MixpanelAPI mixpanelAPI;
+    private SeshMixpanelAPI seshMixpanelAPI;
 
     private static final String MOTIVATION_BUTTON_LAST_PRESSED = "button_last_pressed";
 
@@ -50,7 +51,7 @@ public class UnreleasedLaunchActivity extends SeshActivity implements SeshDialog
 
         setContentView(R.layout.unreleased_launch_activity);
 
-        this.mixpanelAPI = ((SeshApplication)getApplication()).getMixpanelAPI();
+        this.seshMixpanelAPI = ((SeshApplication)getApplication()).getSeshMixpanelAPI();
         this.countUpText = (TextView) findViewById(R.id.countupText);
 
         DateTime launchDate =
@@ -69,9 +70,6 @@ public class UnreleasedLaunchActivity extends SeshActivity implements SeshDialog
                 motivateButton.setEnabled(false);
                 defaultSharedPrefs.edit().putLong(MOTIVATION_BUTTON_LAST_PRESSED, (new DateTime()).getMillis()).apply();
 
-                final Bitmap backgroundBitmap = BitmapFactory.decodeResource(getResources(),
-                        R.drawable.keyframe);
-
                 SeshNetworking seshNetworking = new SeshNetworking(getApplicationContext());
                 seshNetworking.motivateTeam(new Response.Listener<JSONObject>() {
                     @Override
@@ -80,14 +78,14 @@ public class UnreleasedLaunchActivity extends SeshActivity implements SeshDialog
                                 "Motivation Sent",
                                 "The Sesh Team has been pinged!  We're working our hardest, we promise!  " + "Don't get tap-happy, though -- motivation can only be sent once a day.",
                                 "Gotcha",
-                                null, backgroundBitmap, "motivate_the_team");
+                                null, "motivate_the_team");
 
                     }
                 }, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError volleyError) {
                         SeshDialog.showDialog(getFragmentManager(), "Network Error",
-                                "We couldn't reach the server.  Try again later.", "Okay", null, backgroundBitmap, "networkError");
+                                "We couldn't reach the server.  Try again later.", "Okay", null, "networkError");
                         motivateButton.setEnabled(true);
                     }
                 });
@@ -110,7 +108,7 @@ public class UnreleasedLaunchActivity extends SeshActivity implements SeshDialog
 
         this.videoKeyFrame = (FrameLayout) findViewById(R.id.videoKeyframe);
 
-        mixpanelAPI.track("Entered Unreleased Launch Countdown Page");
+        seshMixpanelAPI.track("Entered Unreleased Launch Countdown Page");
     }
 
     //    IF YOU WANT DEFAULT SESH FONTS, INCLUDE THIS METHOD IN YOUR ACTIVITIES

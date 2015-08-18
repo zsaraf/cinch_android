@@ -57,7 +57,6 @@ dependencies {
     compile project(':slidingmenu')
     compile project(':StackBlur')
     compile project(':android_numberpicker')
-    compile project(':blur_dialog_fragment')
     compile 'joda-time:joda-time:2.3'
     compile project(':stripe')
     compile project(':pk-library')

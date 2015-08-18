@@ -232,7 +232,7 @@ public class RequestActivity extends SeshActivity implements EditText.OnEditorAc
                             LearnRequest.createOrUpdateLearnRequest(jsonObject.getJSONObject("learn_request"));
                             SeshDialog.showDialog(getFragmentManager(), "Request Created",
                                     "Help is on the way! We'll notify you as soon as a tutor has accepted your Sesh request.  Hold tight!",
-                                    "Got it", null, mapBackgroundInstance,
+                                    "Got it", null,
                                     DIALOG_TYPE_LEARN_REQUEST_SUCCESS);
                         } catch (JSONException e) {
                             Log.e(TAG, e.toString());
@@ -240,14 +240,14 @@ public class RequestActivity extends SeshActivity implements EditText.OnEditorAc
                     } else {
                         SeshDialog.showDialog(getFragmentManager(), "Whoops!",
                                 "Something went wrong.  Try again later.",
-                                "Got it", null, null,
+                                "Got it", null,
                                 DIALOG_TYPE_LEARN_REQUEST_FAILURE);
                         Log.e(TAG, "Failed to create request, server error: " + jsonObject.getString("message"));
                     }
                 } catch (JSONException e) {
                     SeshDialog.showDialog(getFragmentManager(), "Whoops!",
                             "Something went wrong.  Try again later.",
-                            "Got it", null, null,
+                            "Got it", null,
                             DIALOG_TYPE_LEARN_REQUEST_FAILURE);
                     Log.e(TAG, "Failed to create request, response malformed: " + e.getMessage());
                 }
@@ -257,7 +257,7 @@ public class RequestActivity extends SeshActivity implements EditText.OnEditorAc
             public void onErrorResponse(VolleyError error) {
                 SeshDialog.showDialog(getFragmentManager(), "Network Error",
                         "We couldn't reach the server.  Check your network settings and try again.",
-                        "Got it", null, null,
+                        "Got it", null,
                         DIALOG_TYPE_LEARN_REQUEST_FAILURE);
                 Log.e(TAG, "Network Error: " + error.getMessage());
             }

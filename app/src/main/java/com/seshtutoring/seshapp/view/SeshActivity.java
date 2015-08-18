@@ -147,8 +147,8 @@ public class SeshActivity extends AppCompatActivity {
     private void showAppIsLiveDialog() {
         final SeshDialog seshDialog = new SeshDialog();
         seshDialog.setContentLayout(getLayoutInflater().inflate(R.layout.sesh_dialog_content_update_app, null));
-        seshDialog.dialogType = SeshDialog.SeshDialogType.ONE_BUTTON;
-        seshDialog.firstChoice = "UPDATE NOW";
+        seshDialog.setDialogType(SeshDialog.SeshDialogType.ONE_BUTTON);
+        seshDialog.setFirstChoice("UPDATE NOW");
         seshDialog.setFirstButtonClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -158,7 +158,6 @@ public class SeshActivity extends AppCompatActivity {
             }
         });
 
-        seshDialog.setCustomBackgroundBitmap(getBlurBackgroundOverrideBitmap());
         seshDialog.setCancelable(false);
 
         Handler handler = new Handler();

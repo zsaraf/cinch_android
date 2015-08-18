@@ -240,19 +240,14 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
                 if (currentContainerState == HOME) {
                     HomeFragment homeFragment = (HomeFragment)currentContainerState.fragment;
                     if (homeFragment.getCurrTabItem() == HomeFragment.TabItem.LEARN_TAB) {
-                        homeFragment.getLearnViewMap().snapshot(new GoogleMap.SnapshotReadyCallback() {
-                            @Override
-                            public void onSnapshotReady(Bitmap bitmap) {
-                                SeshDialog.showDialog(getFragmentManager(), title, content, confirmButtonText, null, bitmap,
+                        SeshDialog.showDialog(getFragmentManager(), title, content, confirmButtonText, null,
                                         type);
-                                Vibrator v = (Vibrator) getApplicationContext().getSystemService(Context.VIBRATOR_SERVICE);
-                                v.vibrate(300);
-                            }
-                        });
+                        Vibrator v = (Vibrator) getApplicationContext().getSystemService(Context.VIBRATOR_SERVICE);
+                        v.vibrate(300);
                     }
                 } else {
                     SeshDialog.showDialog(getFragmentManager(), title, content,
-                            confirmButtonText, null, null,
+                            confirmButtonText, null,
                             type);
                     Vibrator v = (Vibrator) getApplicationContext().getSystemService(Context.VIBRATOR_SERVICE);
                     v.vibrate(300);

@@ -25,50 +25,35 @@ import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 
-import android.os.Handler;
 import android.support.v7.widget.CardView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.view.Window;
-import android.view.WindowManager;
 import android.view.animation.AccelerateInterpolator;
 import android.widget.Button;
-import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.seshtutoring.seshapp.R;
-import com.seshtutoring.seshapp.util.networking.SeshNetworking;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import fr.tvbarthel.lib.blurdialogfragment.BlurDialogFragment;
 
 /**
  * Created by lillioetting on 7/20/15.
  */
-public class SeshDialog extends BlurDialogFragment {
+public class SeshDialog extends DialogFragment {
     OnSelectionListener mCallback;
     public enum SeshDialogType { ONE_BUTTON, TWO_BUTTON };
 
     private static final String TAG = SeshDialog.class.getName();
     private Bitmap backgroundOverlayBitmap = null;
 
-    public String firstChoice;
-    public String secondChoice;
-    public String title;
-    public String message;
-    public String type;
-    public SeshDialogType dialogType = SeshDialogType.TWO_BUTTON;
+    private String firstChoice;
+    private String secondChoice;
+    private String title;
+    private String message;
+    private String type;
+    private SeshDialogType dialogType = SeshDialogType.TWO_BUTTON;
 
     private View contentLayout;
     private View dialogView;
+    private View dialogTransparentBackground;
     private CardView dialogCard;
     private Activity mActivity;
     private SpringSystem springSystem;
@@ -111,6 +96,9 @@ public class SeshDialog extends BlurDialogFragment {
         Typeface bold = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Gotham-Medium.otf");
 
         dialogView = inflater.inflate(R.layout.sesh_dialog_layout, null);
+        dialogTransparentBackground = dialogView.findViewById(R.id.dialog_transparent_background);
+
+        dialogTransparentBackground.animate().alpha(1).setDuration(500).start();
 
         if (contentLayout == null) {
             contentLayout = inflater.inflate(R.layout.sesh_dialog_content_default, null);
@@ -182,8 +170,7 @@ public class SeshDialog extends BlurDialogFragment {
             }
         });
 
-        final View content = mActivity.findViewById(android.R.id.content);
-        content.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+        dialogView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
 
@@ -198,9 +185,9 @@ public class SeshDialog extends BlurDialogFragment {
                 spring.setEndValue(centeredDialogY);
 
                 if (Build.VERSION.SDK_INT < 16) {
-                    content.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                    dialogView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
                 } else {
-                    content.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                    dialogView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
                 }
             }
         });
@@ -209,8 +196,7 @@ public class SeshDialog extends BlurDialogFragment {
     }
 
     public static void showDialog(FragmentManager manager, String title, String message,
-                                  String firstChoice, String secondChoice,
-                                  Bitmap customBackground, String type) {
+                                  String firstChoice, String secondChoice, String type) {
         SeshDialog dialog = new SeshDialog();
 
         if (secondChoice != null) {
@@ -223,7 +209,6 @@ public class SeshDialog extends BlurDialogFragment {
         dialog.message = message;
         dialog.firstChoice = firstChoice;
         dialog.secondChoice = secondChoice;
-        dialog.setCustomBackgroundBitmap(customBackground);
         dialog.type = type;
 
         dialog.show(manager, type);
@@ -242,36 +227,6 @@ public class SeshDialog extends BlurDialogFragment {
     }
 
     @Override
-    protected float getDownScaleFactor() {
-        // Allow to customize the down scale factor.
-        return 5;
-    }
-
-    @Override
-    protected int getBlurRadius() {
-        // Allow to customize the blur radius factor.
-        return 7;
-    }
-
-    @Override
-    protected boolean isActionBarBlurred() {
-        // Enable or disable the blur effect on the action bar.
-        // Disabled by default.
-        return true;
-    }
-
-    @Override
-    protected Bitmap getCustomBackgroundBitmap() {
-        return backgroundOverlayBitmap;
-    }
-
-    @Override
-    protected View getOverlayView() {
-        LayoutInflater inflater = mActivity.getLayoutInflater();
-        return inflater.inflate(R.layout.opaque_white_overlay_view, null);
-    }
-
-    @Override
     public void dismiss() {
         dialogCard
                 .animate()
@@ -285,15 +240,7 @@ public class SeshDialog extends BlurDialogFragment {
                 SeshDialog.super.dismiss();
             }
         }).start();
-    }
-
-    /**
-     * Overrides blur dialog's default behavior - instead of blurring the background
-     * before showing dialog, Bitmap that is passed in will be blurred and placed in the background
-     * @param overlay
-     */
-    public void setCustomBackgroundBitmap(Bitmap overlay) {
-        backgroundOverlayBitmap = overlay;
+        dialogTransparentBackground.animate().alpha(0).setDuration(150).start();
     }
 
     public void setContentLayout(View contentLayout) {
@@ -306,6 +253,30 @@ public class SeshDialog extends BlurDialogFragment {
 
     public void setSecondButtonClickListener(View.OnClickListener clickListener) {
         this.secondButtonClickListener = clickListener;
+    }
+
+    public void setFirstChoice(String firstChoice) {
+        this.firstChoice = firstChoice;
+    }
+
+    public void setSecondChoice(String secondChoice) {
+        this.secondChoice = secondChoice;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public void setDialogType(SeshDialogType seshDialogType) {
+        this.dialogType = seshDialogType;
     }
 }
 

@@ -30,7 +30,7 @@
     <color name="tableview_background">#F7F7F7</color>
     <color name="white_opaque">#9FFFFFFF</color>
 
-    <color name="sesh_dialog_background">#80FFFFFF</color>
+    <color name="sesh_dialog_background">#80000000</color>
     <color name="white_slight_transparency">#FFFFFFE6</color>
     <color name="transparent">#00000000</color>
 </resources>

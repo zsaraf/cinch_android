@@ -543,10 +543,10 @@ public class AuthenticationActivity extends SeshActivity implements SeshDialog.O
                 seshMixpanelAPI.track("User Login Failed - Unverified");
 
                 final SeshDialog unverifiedDialog = new SeshDialog();
-                unverifiedDialog.title = "Unverified Account";
-                unverifiedDialog.message = "Your account still hasn't been verified. Check your email for the verification link.";
-                unverifiedDialog.firstChoice = "OKAY";
-                unverifiedDialog.secondChoice = "RESEND EMAIL";
+                unverifiedDialog.setTitle("Unverified Account");
+                unverifiedDialog.setMessage("Your account still hasn't been verified. Check your email for the verification link.");
+                unverifiedDialog.setFirstChoice("OKAY");
+                unverifiedDialog.setSecondChoice("RESEND EMAIL");
 
                 // @TODO: make more robust
                 unverifiedDialog.setSecondButtonClickListener(new View.OnClickListener() {
@@ -978,11 +978,11 @@ public class AuthenticationActivity extends SeshActivity implements SeshDialog.O
 
     private void onLoginSignupError(String dialogTitle, String dialogContent) {
         final SeshDialog errorDialog = new SeshDialog();
-        errorDialog.firstChoice = "OKAY";
-        errorDialog.dialogType = SeshDialog.SeshDialogType.ONE_BUTTON;
-        errorDialog.type = DIALOG_TYPE_ERROR;
-        errorDialog.title = dialogTitle;
-        errorDialog.message = dialogContent;
+        errorDialog.setFirstChoice("OKAY");
+        errorDialog.setDialogType(SeshDialog.SeshDialogType.ONE_BUTTON);
+        errorDialog.setType(DIALOG_TYPE_ERROR);
+        errorDialog.setTitle(dialogTitle);
+        errorDialog.setMessage(dialogContent);
 
         setNetworkOperationInProgress(false, new Runnable() {
             @Override
@@ -999,7 +999,7 @@ public class AuthenticationActivity extends SeshActivity implements SeshDialog.O
         String emailText = emailEditText.getText();
         if (emailText.equals("")) {
             SeshDialog.showDialog(getFragmentManager(), "Whoops!", "Type the email for which you would like to reset the password.",
-                    "Okay", null, null, "forgot_password");
+                    "Okay", null, "forgot_password");
         } else {
             setNetworkOperationInProgress(true);
 
@@ -1011,17 +1011,17 @@ public class AuthenticationActivity extends SeshActivity implements SeshDialog.O
                         if (jsonObject.getString("status").equals("SUCCESS")) {
                             SeshDialog.showDialog(getFragmentManager(), "Success",
                                     jsonObject.getString("message"),
-                                    "Okay", null, null, "forgot_password");
+                                    "Okay", null, "forgot_password");
                         } else {
                             SeshDialog.showDialog(getFragmentManager(), "Whoops",
                                     jsonObject.getString("message"),
-                                    "Okay", null, null, "forgot_password");
+                                    "Okay", null, "forgot_password");
                         }
                     } catch (JSONException e) {
                         Log.e(TAG, "Failed to send password email; JSON malformed: " + e);
                         SeshDialog.showDialog(getFragmentManager(), "Whoops",
                                 "Something went wrong.  Try again later.",
-                                "Okay", null, null, "error");
+                                "Okay", null, "error");
                     }
                 }
             }, new Response.ErrorListener() {
