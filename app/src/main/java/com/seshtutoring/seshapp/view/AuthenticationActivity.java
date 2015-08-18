@@ -2,12 +2,8 @@ package com.seshtutoring.seshapp.view;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.SharedPreferences;
-import android.graphics.Point;
 import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
@@ -15,6 +11,7 @@ import android.os.Handler;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.Spanned;
+import android.text.method.LinkMovementMethod;
 import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.Display;
@@ -38,7 +35,9 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+import com.mixpanel.android.mpmetrics.MixpanelAPI;
 import com.seshtutoring.seshapp.R;
+import com.seshtutoring.seshapp.SeshApplication;
 import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.services.GCMRegistrationIntentService;
 import com.seshtutoring.seshapp.services.SeshInstanceIDListenerService;
@@ -52,6 +51,9 @@ import com.seshtutoring.seshapp.view.components.SeshEditText;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
@@ -92,6 +94,8 @@ public class AuthenticationActivity extends SeshActivity implements SeshDialog.O
     private DecelerateInterpolator decelerateInterpolator;
     private LinearInterpolator linearInterpolator;
 
+    private MixpanelAPI mixpanelAPI;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -104,6 +108,8 @@ public class AuthenticationActivity extends SeshActivity implements SeshDialog.O
         }
 
         setContentView(R.layout.authentication_activity);
+
+        this.mixpanelAPI = ((SeshApplication)getApplication()).getMixpanelAPI();
 
         this.seshLogo = (ImageView) findViewById(R.id.seshLogo);
         this.seshBlurredLogo = (ImageView) findViewById(R.id.seshBlurredLogo);
@@ -153,9 +159,15 @@ public class AuthenticationActivity extends SeshActivity implements SeshDialog.O
 
         TextView registerLink = (TextView) findViewById(R.id.register_link);
         TextView loginLink = (TextView) findViewById(R.id.login_link);
-//        @TODO: implement forgot password link
-//        TextView forgotPasswordLink = (TextView) findViewById(R.id.forgot_password_link);
 
+        forgotPasswordLink.setOnTouchListener(new View.OnTouchListener() {
+            public boolean onTouch(View v, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_UP && entranceType == EntranceType.LOGIN) {
+                    forgotPassword();
+                }
+                return true;
+            }
+        });
         registerLink.setOnTouchListener(new View.OnTouchListener() {
             public boolean onTouch(View v, MotionEvent event) {
                 if (entranceType == EntranceType.LOGIN) {
@@ -198,13 +210,15 @@ public class AuthenticationActivity extends SeshActivity implements SeshDialog.O
         LayoutUtils.NoUnderlineClickableSpan termsLinkClickableSpan = new LayoutUtils.NoUnderlineClickableSpan() {
             @Override
             public void onClick(View widget) {
-                // @TODO: implement terms link
+                Intent intent = new Intent(getApplicationContext(), TermsActivity.class);
+                startActivity(intent);
             }
         };
         LayoutUtils.NoUnderlineClickableSpan privacyPolicyLink = new LayoutUtils.NoUnderlineClickableSpan() {
             @Override
             public void onClick(View widget) {
-                // @TODO: implement privacy policy link
+                Intent intent = new Intent(getApplicationContext(), PrivacyActivity.class);
+                startActivity(intent);
             }
         };
 
@@ -217,6 +231,7 @@ public class AuthenticationActivity extends SeshActivity implements SeshDialog.O
         spannable.setSpan(privacyLinkColor, 96, 110, 0);
 
         termsAndPrivacyPolicyText.setText(spannable);
+        termsAndPrivacyPolicyText.setMovementMethod(LinkMovementMethod.getInstance());
 
         this.decelerateInterpolator = new DecelerateInterpolator(1.8f);
 
@@ -463,7 +478,7 @@ public class AuthenticationActivity extends SeshActivity implements SeshDialog.O
                     }, new Response.ErrorListener() {
                         @Override
                         public void onErrorResponse(VolleyError volleyError) {
-                            onLoginSignupError("Network Error", "Something went wrong.  Try again later.");
+                            onLoginSignupError("Network Error", "We couldn't reach the network, sorry!");
                         }
                     });
         }
@@ -485,7 +500,7 @@ public class AuthenticationActivity extends SeshActivity implements SeshDialog.O
                     }, new Response.ErrorListener() {
                         @Override
                         public void onErrorResponse(VolleyError volleyError) {
-                            onLoginSignupError("Network Error", "Something went wrong.  Try again later.");
+                            onLoginSignupError("Network Error", "We couldn't reach the network, sorry!");
                         }
                     });
         }
@@ -494,52 +509,99 @@ public class AuthenticationActivity extends SeshActivity implements SeshDialog.O
     private void onLoginResponse(JSONObject responseJson) {
         try {
             if (responseJson.get("status").equals("SUCCESS")) {
-                User.createOrUpdateUserWithObject(responseJson, this);
+                mixpanelAPI.track("User Logged In");
 
-                // Refresh device on server via GCM service
-                Intent gcmIntent = new Intent(this, GCMRegistrationIntentService.class);
-                gcmIntent.putExtra(SeshInstanceIDListenerService.IS_TOKEN_STALE_KEY, true);
-                gcmIntent.putExtra(GCMRegistrationIntentService.ANONYMOUS_TOKEN_REFRESH, false);
-                startService(gcmIntent);
-
-
-
-                LaunchPrerequisiteUtil.asyncPrepareForLaunch(this, new Runnable() {
+                (new User.CreateOrUpdateUserAsyncTask()).execute(this, responseJson, new Runnable() {
                     @Override
                     public void run() {
-                        Intent mainContainerIntent = new Intent(getApplicationContext(), MainContainerActivity.class);
-                        startActivity(mainContainerIntent);
-                        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+                        setNetworkOperationInProgress(false);
+
+                        // Refresh device on server via GCM service
+                        Intent gcmIntent = new Intent(getApplicationContext(), GCMRegistrationIntentService.class);
+                        gcmIntent.putExtra(SeshInstanceIDListenerService.IS_TOKEN_STALE_KEY, true);
+                        gcmIntent.putExtra(GCMRegistrationIntentService.ANONYMOUS_TOKEN_REFRESH, false);
+                        startService(gcmIntent);
+
+                        if (SeshApplication.IS_LIVE) {
+                            LaunchPrerequisiteUtil.asyncPrepareForLaunch(getApplicationContext(), new Runnable() {
+                                @Override
+                                public void run() {
+                                    Intent mainContainerIntent = new Intent(getApplicationContext(), MainContainerActivity.class);
+                                    startActivity(mainContainerIntent);
+                                    overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+                                }
+                            });
+                        } else {
+                            Intent unreleasedLaunchIntent = new Intent(getApplicationContext(), UnreleasedLaunchActivity.class);
+                            startActivity(unreleasedLaunchIntent);
+                            overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+                        }
                     }
                 });
             } else if (responseJson.get("status").equals("UNVERIFIED")) {
-                onLoginSignupError("Unverified",
-                                "Your account is unverified.  Make sure to click the little link in your email!");
+                mixpanelAPI.track("User Login Failed - Unverified");
+
+                final SeshDialog unverifiedDialog = new SeshDialog();
+                unverifiedDialog.title = "Unverified Account";
+                unverifiedDialog.message = "Your account still hasn't been verified. Check your email for the verification link.";
+                unverifiedDialog.firstChoice = "OKAY";
+                unverifiedDialog.secondChoice = "RESEND EMAIL";
+
+                // @TODO: make more robust
+                unverifiedDialog.setSecondButtonClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        seshNetworking.resendVerificationEmail(emailEditText.getText(), new Response.Listener<JSONObject>() {
+                            @Override
+                            public void onResponse(JSONObject jsonObject) {
+                                unverifiedDialog.dismiss();
+                            }
+                        }, new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError volleyError) {
+                                unverifiedDialog.dismiss();
+                            }
+                        });
+                    }
+                });
+
+                setNetworkOperationInProgress(false);
+                unverifiedDialog.show(getFragmentManager(), null);
             } else {
-                onLoginSignupError("Error!",
+                Map<String, Object> properties = new HashMap<>();
+                properties.put("error", responseJson.getString("message"));
+                mixpanelAPI.trackMap("User Login Failed - Error", properties);
+
+                onLoginSignupError("Login Error",
                                 responseJson.getString("message"));
             }
         } catch (JSONException e) {
             Log.e(TAG, e.toString());
             onLoginSignupError("Network Error",
-                            "Something went wrong.  Try again later.");
+                            "We couldn't reach the network, sorry!");
         }
     }
 
     private void onSignupResponse(JSONObject responseJson) {
         try {
             if (responseJson.get("status").equals("FAILURE")) {
-                onLoginSignupError("Error!",
-                                responseJson.getString("message"));
+                Map<String, Object> properties = new HashMap<>();
+                properties.put("error", responseJson.getString("message"));
+                mixpanelAPI.trackMap("User Signup Failed - Error", properties);
+
+                onLoginSignupError("Sign Up Failed",
+                        responseJson.getString("message"));
             } else {
                 Intent intent = new Intent(this, ConfirmationCodeActivity.class);
                 intent.putExtra(SIGN_UP_EMAIL_KEY, emailEditText.getText());
                 intent.putExtra(SIGN_UP_PASSWORD_KEY, passwordEditText.getText());
                 startActivity(intent);
+
+                mixpanelAPI.track("User Signed Up Succesfully -- Needs Verification");
             }
         } catch (JSONException e) {
             Log.e(TAG, e.toString());
-            onLoginSignupError("Network Error", "Something went wrong.  Try again later.");
+            onLoginSignupError("Network Error", "We couldn't reach the network, sorry!");
         }
     }
 
@@ -548,9 +610,27 @@ public class AuthenticationActivity extends SeshActivity implements SeshDialog.O
         return true;
     }
 
-    // @TODO: Implement some sort of verification that Login info formatted correctly
     private boolean validateSignupDetails(String fullName, String email,
                                           String password, String reenterPassword) {
+        if (fullName.equals("") || email.equals("") || password.equals("") || reenterPassword.equals("")) {
+            setNetworkOperationInProgress(false);
+            onLoginSignupError("Error!", "You must fill in all fields to sign up for Sesh!");
+            return false;
+        }
+
+        if (!password.equals(reenterPassword)) {
+            setNetworkOperationInProgress(false);
+            onLoginSignupError("Whoops", "The passwords don't match!");
+            return false;
+        }
+
+        String[] splitFullname = fullName.split("\\s+");
+        if (splitFullname.length < 2) {
+            setNetworkOperationInProgress(false);
+            onLoginSignupError("Error!", "You need to add your full name in order to sign up for Sesh!");
+            return false;
+        }
+
         return true;
     }
 
@@ -912,5 +992,44 @@ public class AuthenticationActivity extends SeshActivity implements SeshDialog.O
     }
 
     public void onDialogSelection(int selection, String type) {
+    }
+
+    private void forgotPassword() {
+        String emailText = emailEditText.getText();
+        if (emailText.equals("")) {
+            SeshDialog.showDialog(getFragmentManager(), "Whoops!", "Type the email for which you would like to reset the password.",
+                    "Okay", null, null, "forgot_password");
+        } else {
+            setNetworkOperationInProgress(true);
+
+            seshNetworking.forgotPasswordWithEmail(emailText, new Response.Listener<JSONObject>() {
+                @Override
+                public void onResponse(JSONObject jsonObject) {
+                    setNetworkOperationInProgress(false);
+                    try {
+                        if (jsonObject.getString("status").equals("SUCCESS")) {
+                            SeshDialog.showDialog(getFragmentManager(), "Success",
+                                    jsonObject.getString("message"),
+                                    "Okay", null, null, "forgot_password");
+                        } else {
+                            SeshDialog.showDialog(getFragmentManager(), "Whoops",
+                                    jsonObject.getString("message"),
+                                    "Okay", null, null, "forgot_password");
+                        }
+                    } catch (JSONException e) {
+                        Log.e(TAG, "Failed to send password email; JSON malformed: " + e);
+                        SeshDialog.showDialog(getFragmentManager(), "Whoops",
+                                "Something went wrong.  Try again later.",
+                                "Okay", null, null, "error");
+                    }
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError volleyError) {
+                    onLoginSignupError("Network Error", "We couldn't reach the network, sorry!");
+                }
+            });
+
+        }
     }
 }

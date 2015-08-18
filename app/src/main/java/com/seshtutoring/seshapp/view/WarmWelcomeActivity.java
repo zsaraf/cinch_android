@@ -23,6 +23,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import com.seshtutoring.seshapp.R;
+import com.seshtutoring.seshapp.SeshApplication;
 import com.seshtutoring.seshapp.services.GCMRegistrationIntentService;
 import com.seshtutoring.seshapp.services.SeshGCMListenerService;
 import com.seshtutoring.seshapp.services.SeshInstanceIDListenerService;
@@ -108,6 +109,8 @@ public class WarmWelcomeActivity extends SeshActivity implements SeshDialog.OnSe
         gcmIntent.putExtra(SeshInstanceIDListenerService.IS_TOKEN_STALE_KEY, false);
         gcmIntent.putExtra(GCMRegistrationIntentService.ANONYMOUS_TOKEN_REFRESH, true);
         startService(gcmIntent);
+
+        ((SeshApplication)getApplication()).getMixpanelAPI().track("Entered Warm Welcome Flow");
     }
 
     private class WarmWelcomePagerAdapter extends FragmentPagerAdapter {

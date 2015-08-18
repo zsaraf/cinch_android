@@ -67,24 +67,32 @@ public class SplashActivity extends SeshActivity {
     }
 
     private void startInitialActivity() {
-        if (!SeshApplication.IS_LIVE) {
-            Intent warmWelcomeIntent = new Intent(getApplicationContext(), WarmWelcomeActivity.class);
-            startActivity(warmWelcomeIntent);
-            overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-        } else if (SeshAuthManager.sharedManager(this).isValidSession()) {
-            LaunchPrerequisiteUtil.asyncPrepareForLaunch(this, new Runnable() {
-                @Override
-                public void run() {
-                    Intent mainContainerIntent = new Intent(getApplicationContext(), MainContainerActivity.class);
-                    startActivity(mainContainerIntent);
-                    overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-                }
-            });
+        if (SeshAuthManager.sharedManager(this).isValidSession()) {
+            if (SeshApplication.IS_LIVE) {
+                LaunchPrerequisiteUtil.asyncPrepareForLaunch(this, new Runnable() {
+                    @Override
+                    public void run() {
+                        Intent mainContainerIntent = new Intent(getApplicationContext(), MainContainerActivity.class);
+                        startActivity(mainContainerIntent);
+                        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+                    }
+                });
+            } else {
+                Intent intent = new Intent(getApplicationContext(), UnreleasedLaunchActivity.class);
+                startActivity(intent);
+                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+            }
         } else {
-            Intent i = new Intent(this, AuthenticationActivity.class);
-            i.putExtra(AuthenticationActivity.ENTRANCE_TYPE_KEY, EntranceType.LOGIN);
-            startActivity(i);
-            overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+            if (!SeshApplication.IS_LIVE) {
+                Intent warmWelcomeIntent = new Intent(getApplicationContext(), WarmWelcomeActivity.class);
+                startActivity(warmWelcomeIntent);
+                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+            } else {
+                Intent i = new Intent(this, AuthenticationActivity.class);
+                i.putExtra(AuthenticationActivity.ENTRANCE_TYPE_KEY, EntranceType.LOGIN);
+                startActivity(i);
+                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+            }
         }
     }
 

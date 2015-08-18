@@ -33,7 +33,7 @@
             android:textColor="@color/white"
             android:text="Hold Tight!"
             android:gravity="center_horizontal"
-            android:textSize="28sp"
+            android:textSize="28dp"
             android:layout_marginTop="25dp"
             />
         <TextView
@@ -43,7 +43,7 @@
             android:textColor="@color/white"
             android:text="0"
             android:gravity="center_horizontal"
-            android:textSize="120sp"
+            android:textSize="120dp"
             android:layout_marginTop="15dp"
             android:layout_below="@id/title"
             />
@@ -54,7 +54,7 @@
             android:textColor="@color/white"
             android:text="Days Until Android Launch"
             android:gravity="center_horizontal"
-            android:textSize="12sp"
+            android:textSize="12dp"
             android:layout_marginTop="205dp"
             />
         <com.seshtutoring.seshapp.view.components.SeshButton
@@ -98,7 +98,7 @@
                 android:text="@string/fourth_fragment_content"
                 android:layout_centerInParent="true"
                 android:gravity="center_horizontal"
-                android:textSize="16sp"
+                android:textSize="16dp"
                 android:layout_marginRight="35dp"
                 android:layout_marginLeft="35dp"
                 />

@@ -9,6 +9,7 @@ import android.util.Log;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.seshtutoring.seshapp.SeshApplication;
 import com.seshtutoring.seshapp.SeshStateManager;
 import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.services.GCMRegistrationIntentService;
@@ -43,7 +44,7 @@ public class ApplicationLifecycleTracker  {
     public void activityResumed() {
         someActivityInForeground = true;
 
-        if (SeshAuthManager.sharedManager(mContext).isValidSession()) {
+        if (SeshAuthManager.sharedManager(mContext).isValidSession() && SeshApplication.IS_LIVE) {
             fetchSeshInfoAlarm.
                     setRepeating(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime(),
                             FIFTEEN_SECONDS, fetchSeshInfoPendingIntent);

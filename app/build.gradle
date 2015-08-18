@@ -1,4 +1,19 @@
+buildscript {
+    repositories {
+        maven { url 'https://maven.fabric.io/public' }
+    }
+
+    dependencies {
+        classpath 'io.fabric.tools:gradle:1.+'
+    }
+}
 apply plugin: 'com.android.application'
+apply plugin: 'io.fabric'
+
+repositories {
+    maven { url 'https://maven.fabric.io/public' }
+}
+
 
 android {
 //    signingConfigs {
@@ -6,6 +21,7 @@ android {
 //            storeFile file('/Users/lillioetting/Android/seshandroid/keystore/debug.keystore')
 //        }
 //    }
+
     compileSdkVersion 22
     buildToolsVersion "22.0.1"
     defaultConfig {
@@ -19,7 +35,7 @@ android {
     }
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
@@ -35,7 +51,8 @@ dependencies {
     compile 'com.android.support:appcompat-v7:22.2.0'
     compile 'com.android.support:support-v4:22.2.0'
     compile 'uk.co.chrisjenx:calligraphy:2.1.0'
-    compile 'com.google.android.gms:play-services:7.5.0'
+    compile 'com.google.android.gms:play-services-maps:7.5.0'
+    compile 'com.google.android.gms:play-services-gcm:7.5.0'
     compile 'de.hdodenhof:circleimageview:1.3.0'
     compile project(':slidingmenu')
     compile project(':StackBlur')
@@ -44,9 +61,12 @@ dependencies {
     compile 'joda-time:joda-time:2.3'
     compile project(':stripe')
     compile project(':pk-library')
-    compile 'com.github.KeepSafe:MultiStateAnimation:1.1.0@aar'
     compile 'com.android.support:cardview-v7:21.0.+'
     compile 'com.facebook.rebound:rebound:0.3.8'
     compile 'com.android.support:support-v13:21.0+'
+    compile "com.mixpanel.android:mixpanel-android:4.6.3"
+    compile('com.crashlytics.sdk.android:crashlytics:2.5.1@aar') {
+        transitive = true;
+    }
 }
 

@@ -16,6 +16,7 @@ import android.widget.TextView;
 
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.Sesh;
+import com.seshtutoring.seshapp.util.LayoutUtils;
 
 
 public class TermsActivity extends SeshActivity {
@@ -25,11 +26,14 @@ public class TermsActivity extends SeshActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_terms);
 
+        LayoutUtils layUtils = new LayoutUtils(this);
+        getWindow().getDecorView().findViewById(android.R.id.content).setPadding(0, layUtils.getActionBarHeightPx(), 0, 0);
+
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
         getSupportActionBar().setCustomView(R.layout.sesh_action_bar);
         getSupportActionBar().setElevation(0);
         TextView title = (TextView) findViewById(R.id.action_bar_title);
-        title.setText("Privacy Policy");
+        title.setText("Terms And Conditions");
         title.setTypeface(Typeface.createFromAsset(this.getAssets(), "fonts/Gotham-Book.otf"));
 
         ImageButton menuButton = (ImageButton) findViewById(R.id.action_bar_menu_button);

@@ -43,10 +43,13 @@ public class Tutor extends SugarRecord<Tutor> {
         try {
             int tutorId = tutorJson.getInt("id");
 
-            List<Tutor> tutorsFound = Tutor.find(Tutor.class, "tutor_id = ?", Integer.toString(tutorId));
-
-            if (tutorsFound.size() > 0) {
-                tutor = tutorsFound.get(0);
+            if (Tutor.listAll(Tutor.class).size() > 0) {
+                List<Tutor> tutorsFound = Tutor.find(Tutor.class, "tutor_id = ?", Integer.toString(tutorId));
+                if (tutorsFound.size() > 0) {
+                    tutor = tutorsFound.get(0);
+                } else {
+                    tutor = new Tutor();
+                }
             } else {
                 tutor = new Tutor();
             }

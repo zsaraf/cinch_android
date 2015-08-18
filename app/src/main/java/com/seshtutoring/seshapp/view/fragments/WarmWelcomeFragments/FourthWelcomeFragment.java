@@ -25,6 +25,7 @@ import android.widget.VideoView;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.google.android.gms.auth.api.Auth;
+import com.mixpanel.android.mpmetrics.MixpanelAPI;
 import com.seshtutoring.seshapp.R;
 
 import com.seshtutoring.seshapp.SeshApplication;
@@ -38,6 +39,7 @@ import com.seshtutoring.seshapp.view.components.TextureVideoView;
 
 import org.joda.time.DateTime;
 import org.joda.time.Days;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -55,6 +57,7 @@ public class FourthWelcomeFragment  extends Fragment
     private SeshButton motivateButton;
     private TextView countUpText;
     private int daysUntilLaunch;
+    private MixpanelAPI mixpanelAPI;
 
     private static final String MOTIVATION_BUTTON_LAST_PRESSED = "button_last_pressed";
 
@@ -67,10 +70,12 @@ public class FourthWelcomeFragment  extends Fragment
         videoView.setLooping(true);
         videoView.play();
 
+        this.mixpanelAPI = ((SeshApplication)getActivity().getApplication()).getMixpanelAPI();
+
         DateTime launchDate =
                 ((SeshApplication) getActivity().getApplication()).getAndroidReleaseDate();
-        this.daysUntilLaunch =
-                Days.daysBetween(new DateTime().toLocalDate(), launchDate.toLocalDate()).getDays();
+        this.daysUntilLaunch =  Math.max(0,
+                Days.daysBetween(new DateTime().toLocalDate(), launchDate.toLocalDate()).getDays());
         this.countUpText = (TextView) v.findViewById(R.id.countupText);
         this.signupStudentButton = (SeshButton)v.findViewById(R.id.signupStudentButton);
         this.signupTutorButton = (SeshButton)v.findViewById(R.id.signupTutorButton);
@@ -79,6 +84,8 @@ public class FourthWelcomeFragment  extends Fragment
         signupStudentButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mixpanelAPI.track("Entered Student Signup Flow From Warm Welcome");
+
                 Intent authenticationIntent = new Intent(getActivity(), AuthenticationActivity.class);
                 authenticationIntent.putExtra(AuthenticationActivity.ENTRANCE_TYPE_KEY, EntranceType.SIGNUP);
                 startActivity(authenticationIntent);
@@ -88,6 +95,8 @@ public class FourthWelcomeFragment  extends Fragment
         signupTutorButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mixpanelAPI.track("Entered Tutor Signup Flow From Warm Welcome");
+
                 Intent browserIntent = new Intent(Intent.ACTION_VIEW);
                 browserIntent.setData(Uri.parse("https://seshtutoring.com/index.html?action=tutor"));
                 startActivity(browserIntent);
@@ -129,10 +138,10 @@ public class FourthWelcomeFragment  extends Fragment
 
         if (defaultSharedPrefs.contains(MOTIVATION_BUTTON_LAST_PRESSED)) {
             DateTime lastPressed = new DateTime(defaultSharedPrefs.getLong(MOTIVATION_BUTTON_LAST_PRESSED, 0));
-            if (Days.daysBetween(new DateTime().toLocalDate(), lastPressed.toLocalDate()).getDays() < 1) {
-                motivateButton.setEnabled(false);
-            } else {
+            if (lastPressed.isBefore((new DateTime()).minusDays(1))) {
                 motivateButton.setEnabled(true);
+            } else {
+                motivateButton.setEnabled(false);
             }
         }
 

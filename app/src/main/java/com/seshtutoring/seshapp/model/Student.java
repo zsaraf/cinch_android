@@ -38,10 +38,13 @@ public class Student extends SugarRecord<Student> {
         try {
             int studentId = studentJson.getInt("id");
 
-            List<Student> studentsFound = Student.find(Student.class, "student_id = ?", Integer.toString(studentId));
-
-            if (studentsFound.size() > 0) {
-                student = studentsFound.get(0);
+            if (Student.listAll(Student.class).size() > 0) {
+                List<Student> studentsFound = Student.find(Student.class, "student_id = ?", Integer.toString(studentId));
+                if (studentsFound.size() > 0) {
+                    student = studentsFound.get(0);
+                } else {
+                    student = new Student();
+                }
             } else {
                 student = new Student();
             }

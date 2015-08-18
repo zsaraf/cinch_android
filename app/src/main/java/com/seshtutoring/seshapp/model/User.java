@@ -1,6 +1,8 @@
 package com.seshtutoring.seshapp.model;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 import com.android.volley.Response;
@@ -8,8 +10,10 @@ import com.android.volley.VolleyError;
 import com.orm.SugarRecord;
 import com.orm.dsl.Ignore;
 import com.seshtutoring.seshapp.services.GCMRegistrationIntentService;
+import com.seshtutoring.seshapp.services.PeriodicFetchBroadcastReceiver;
 import com.seshtutoring.seshapp.util.networking.SeshAuthManager;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
+import com.stripe.android.compat.AsyncTask;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -107,10 +111,13 @@ public class User extends SugarRecord<User> {
 
             int userId = userRow.getInt("id");
 
-            List<User> usersFound = User.find(User.class, "user_id = ?", Integer.toString(userId));
-
-            if (usersFound.size() > 0) {
-                user = usersFound.get(0);
+            if (User.listAll(User.class).size() > 0) {
+                List<User> usersFound = User.find(User.class, "user_id = ?", Integer.toString(userId));
+                if (usersFound.size() > 0) {
+                    user = usersFound.get(0);
+                } else {
+                    user = new User();
+                }
             } else {
                 user = new User();
             }
@@ -196,5 +203,24 @@ public class User extends SugarRecord<User> {
 
     public String getShareCode() {
         return shareCode;
+    }
+
+    public static class CreateOrUpdateUserAsyncTask extends AsyncTask<Object, Void, User> {
+        private Runnable runnable;
+
+        @Override
+        protected User doInBackground(Object... params) {
+            Context context = (Context) params[0];
+            JSONObject jsonObject = (JSONObject) params[1];
+            this.runnable = (Runnable) params[2];
+            return User.createOrUpdateUserWithObject(jsonObject, context);
+        }
+
+        @Override
+        protected void onPostExecute(User user) {
+            super.onPostExecute(user);
+            Handler handler = new Handler(Looper.getMainLooper());
+            handler.post(runnable);
+        }
     }
 }

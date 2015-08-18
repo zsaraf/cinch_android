@@ -115,6 +115,12 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        if (!SeshApplication.IS_LIVE) {
+            Intent intent = new Intent(this, SplashActivity.class);
+            startActivity(intent);
+            return;
+        }
+
         setContentView(R.layout.main_container_activity);
 
         getSupportActionBar().setHomeButtonEnabled(true);

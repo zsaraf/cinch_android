@@ -13,7 +13,10 @@ import android.widget.Toast;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.mixpanel.android.mpmetrics.MixpanelAPI;
 import com.seshtutoring.seshapp.R;
+import com.seshtutoring.seshapp.SeshApplication;
+import com.seshtutoring.seshapp.model.Sesh;
 import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.components.SeshButton;
@@ -21,6 +24,8 @@ import com.seshtutoring.seshapp.view.components.SeshButton;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -38,18 +43,15 @@ public class ConfirmationCodeActivity extends SeshActivity {
     private SeshNetworking seshNetworking;
     private Timer attemptLoginTimer;
 
+    private MixpanelAPI mixpanelAPI;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        //Remove title bar
-        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-
-        //Remove notification bar
-        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
-
         setContentView(R.layout.confirmation_code_activity);
+
+        this.mixpanelAPI = ((SeshApplication)getApplication()).getMixpanelAPI();
 
         Bundle extras = getIntent().getExtras();
         this.email = extras.getString(AuthenticationActivity.SIGN_UP_EMAIL_KEY);
@@ -115,9 +117,20 @@ public class ConfirmationCodeActivity extends SeshActivity {
             public void onResponse(JSONObject jsonObject) {
                 try {
                     if (jsonObject.get("status").equals("SUCCESS")) {
-                        User.createOrUpdateUserWithObject(jsonObject, getApplicationContext());
-                        Intent intent = new Intent(getApplicationContext(), MainContainerActivity.class);
-                        startActivity(intent);
+                        (new User.CreateOrUpdateUserAsyncTask()).execute(getApplicationContext(), jsonObject, new Runnable() {
+                            @Override
+                            public void run() {
+                                mixpanelAPI.track("User Verified Signup");
+
+                                if (SeshApplication.IS_LIVE) {
+                                    Intent intent = new Intent(getApplicationContext(), MainContainerActivity.class);
+                                    startActivity(intent);
+                                } else {
+                                    Intent intent = new Intent(getApplicationContext(), UnreleasedLaunchActivity.class);
+                                    startActivity(intent);
+                                }
+                            }
+                        });
                     } else {
                         restartTimer();
                     }

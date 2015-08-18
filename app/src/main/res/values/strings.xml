@@ -149,5 +149,6 @@ If You have any questions about this privacy statement, the practices of Sesh, o
 
     <string name="update_app_dialog_content">Please update Sesh now to start learning and earning today!  Sesh cannot run unless the update is installed.  Happy Seshing!</string>
 
-    <string name="unreleased_launch_thank_you">Thank you for signing up for Sesh.  We can't wait to get you started!</string>
+    <string name="unreleased_launch_thank_you">Thank you for signing up for Sesh.  We can\'t wait to get you started!</string>
+    <string name="unreleased_launch_content">The Sesh Team is hard at work putting the final touches on our Android app -- we\'ll be sure to notify you as soon as the app is ready.</string>
 </resources>

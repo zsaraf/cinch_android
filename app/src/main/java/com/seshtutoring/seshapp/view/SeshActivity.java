@@ -153,7 +153,7 @@ public class SeshActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.setData(Uri.parse("market://details?id=com.facebook.katana"));
+                intent.setData(Uri.parse("market://details?id=com.seshtutoring.seshapp"));
                 startActivity(intent);
             }
         });
@@ -167,7 +167,7 @@ public class SeshActivity extends AppCompatActivity {
             public void run() {
                 seshDialog.show(getFragmentManager(), null);
             }
-        }, 1000);
+        }, 1500);
 
         updateDialogShowing = true;
     }

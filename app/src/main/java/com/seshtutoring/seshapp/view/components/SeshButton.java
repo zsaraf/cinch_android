@@ -57,7 +57,7 @@ public class SeshButton extends LinearLayout {
         this.button = (Button) findViewById(R.id.sesh_button);
 
         if (text != null) {
-            this.button.setText(text);
+            this.button.setText(text.toString().toUpperCase());
         }
 
         button.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize);

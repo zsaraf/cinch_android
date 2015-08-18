@@ -166,6 +166,10 @@ public class SeshDialog extends BlurDialogFragment {
 
         this.dialogCard = (CardView) dialogView.findViewById(R.id.card_view);
 
+        if (Build.VERSION.SDK_INT < 21) {
+            dialogCard.setPreventCornerOverlap(false);
+        }
+
         this.springSystem = SpringSystem.create();
         final Spring spring = springSystem.createSpring();
 

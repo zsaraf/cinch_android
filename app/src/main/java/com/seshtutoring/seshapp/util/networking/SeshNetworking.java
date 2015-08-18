@@ -115,7 +115,7 @@ public class SeshNetworking {
         params.put(EMAIL_PARAM, email);
         params.put(FULL_NAME_PARAM, name);
         params.put(PASSWORD_PARAM, password);
-
+        params.put(VERSION_NUMBER_PARAM, "2.0");
 
         postWithRelativeUrl("create_user.php", params, successListener, errorListener);
     }
@@ -458,7 +458,7 @@ public class SeshNetworking {
     private String baseUrl() {
         String baseUrl;
         if (SeshApplication.IS_DEV) {
-            baseUrl = "https://www.cinchtutoring.com/users/franz/";
+            baseUrl = "https://www.cinchtutoring.com/ios-php/";
         } else {
             baseUrl = "https://www.seshtutoring.com/ios-php/";
         }

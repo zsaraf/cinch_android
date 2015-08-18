@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.seshtutoring.seshapp">
+    package="com.seshtutoring.seshapp"
+    android:versionCode="1"
+    android:versionName="Pre-Reg">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
@@ -20,6 +23,10 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.VIBRATE"/>
+
+    <uses-sdk android:minSdkVersion="15" />
+    <uses-feature android:name="android.hardware.telephony"
+        android:required="true" />
 
     <application
         android:allowBackup="true"
@@ -95,6 +102,13 @@
             android:theme="@style/SeshFullScreen">
         </activity>
         <activity
+            android:name=".view.UnreleasedLaunchActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize"
+            android:theme="@style/SeshFullScreen">
+        </activity>
+        <activity
             android:name=".view.AuthenticationActivity"
             android:label="@string/title_activity_login"
             android:launchMode="singleTop"
@@ -112,7 +126,8 @@
             android:name=".view.ConfirmationCodeActivity"
             android:label="Verify Email"
             android:launchMode="singleTop"
-            android:screenOrientation="portrait" >
+            android:screenOrientation="portrait"
+            android:theme="@style/SeshFullScreen" >
         </activity>
         <activity
             android:name=".view.RequestActivity"
@@ -190,6 +205,9 @@
             android:screenOrientation="portrait"
             android:parentActivityName=".view.MainContainerActivity" />
 
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="91b92731aa93f894988d2de0430634aad345f888" />
     </application>
 
 </manifest>

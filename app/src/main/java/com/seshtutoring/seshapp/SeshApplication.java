@@ -1,23 +1,12 @@
 package com.seshtutoring.seshapp;
 
-import android.app.Application;
-import android.content.SharedPreferences;
-import android.util.Log;
-
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
+import android.content.Context;
+import com.crashlytics.android.Crashlytics;
+import com.mixpanel.android.mpmetrics.MixpanelAPI;
 import com.orm.SugarApp;
-import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.util.ApplicationLifecycleTracker;
-import com.seshtutoring.seshapp.util.networking.SeshNetworking;
-
+import io.fabric.sdk.android.Fabric;
 import org.joda.time.DateTime;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
 
@@ -26,17 +15,21 @@ import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
  */
 public class SeshApplication extends SugarApp {
     private static final String TAG = SeshApplication.class.getName();
+    public static final String MIXPANEL_PROJECT_TOKEN = "ee5da3fa7c3cdc47114fc51794ceb7b6";
+
     private ApplicationLifecycleTracker applicationLifecycleTracker;
 
     public static final boolean IS_LIVE = false;
-    public static final boolean IS_DEV = true;
+    public static final boolean IS_DEV = false;
 
     //    Pre-reg app functionality -- to be deleted v1
     private DateTime androidReleaseDate;
+    private MixpanelAPI mixpanelAPI;
 
     @Override
     public void onCreate() {
         super.onCreate();
+        Fabric.with(this, new Crashlytics());
 
         this.applicationLifecycleTracker = new ApplicationLifecycleTracker(this);
 
@@ -45,6 +38,8 @@ public class SeshApplication extends SugarApp {
                 .setDefaultFontPath("fonts/Gotham-Light.otf")
                 .setFontAttrId(R.attr.fontPath)
                 .build());
+
+        this.mixpanelAPI = MixpanelAPI.getInstance(this, MIXPANEL_PROJECT_TOKEN);
     }
 
     public ApplicationLifecycleTracker getApplicationLifecycleTracker() {
@@ -61,7 +56,11 @@ public class SeshApplication extends SugarApp {
         if (androidReleaseDate != null) {
             return androidReleaseDate;
         } else {
-            return new DateTime(2015, 9, 12, 9, 0);
+            return new DateTime(2015, 8, 10, 9, 0);
         }
+    }
+
+    public MixpanelAPI getMixpanelAPI() {
+        return mixpanelAPI;
     }
 }

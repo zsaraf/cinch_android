@@ -7,15 +7,15 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/background_image">
-        <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scaleType="fitXY"
-            android:src="@drawable/keyframe"/>
         <com.seshtutoring.seshapp.view.components.TextureVideoView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/office_time_lapse" />
+        <FrameLayout
+            android:id="@+id/videoKeyframe"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/keyframe"/>
         <View
             android:layout_width="match_parent"
             android:layout_height="match_parent"
