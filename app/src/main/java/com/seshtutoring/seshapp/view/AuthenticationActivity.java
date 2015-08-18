@@ -43,6 +43,7 @@ import com.seshtutoring.seshapp.services.GCMRegistrationIntentService;
 import com.seshtutoring.seshapp.services.SeshInstanceIDListenerService;
 import com.seshtutoring.seshapp.util.LaunchPrerequisiteUtil;
 import com.seshtutoring.seshapp.util.LayoutUtils;
+import com.seshtutoring.seshapp.util.SeshMixpanelAPI;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.components.SeshActivityIndicator;
 import com.seshtutoring.seshapp.view.components.SeshButton;
@@ -94,7 +95,7 @@ public class AuthenticationActivity extends SeshActivity implements SeshDialog.O
     private DecelerateInterpolator decelerateInterpolator;
     private LinearInterpolator linearInterpolator;
 
-    private MixpanelAPI mixpanelAPI;
+    private SeshMixpanelAPI seshMixpanelAPI;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -109,7 +110,7 @@ public class AuthenticationActivity extends SeshActivity implements SeshDialog.O
 
         setContentView(R.layout.authentication_activity);
 
-        this.mixpanelAPI = ((SeshApplication)getApplication()).getMixpanelAPI();
+        this.seshMixpanelAPI = ((SeshApplication)getApplication()).getSeshMixpanelAPI();
 
         this.seshLogo = (ImageView) findViewById(R.id.seshLogo);
         this.seshBlurredLogo = (ImageView) findViewById(R.id.seshBlurredLogo);
@@ -509,7 +510,7 @@ public class AuthenticationActivity extends SeshActivity implements SeshDialog.O
     private void onLoginResponse(JSONObject responseJson) {
         try {
             if (responseJson.get("status").equals("SUCCESS")) {
-                mixpanelAPI.track("User Logged In");
+                seshMixpanelAPI.track("User Logged In");
 
                 (new User.CreateOrUpdateUserAsyncTask()).execute(this, responseJson, new Runnable() {
                     @Override
@@ -539,7 +540,7 @@ public class AuthenticationActivity extends SeshActivity implements SeshDialog.O
                     }
                 });
             } else if (responseJson.get("status").equals("UNVERIFIED")) {
-                mixpanelAPI.track("User Login Failed - Unverified");
+                seshMixpanelAPI.track("User Login Failed - Unverified");
 
                 final SeshDialog unverifiedDialog = new SeshDialog();
                 unverifiedDialog.title = "Unverified Account";
@@ -570,7 +571,7 @@ public class AuthenticationActivity extends SeshActivity implements SeshDialog.O
             } else {
                 Map<String, Object> properties = new HashMap<>();
                 properties.put("error", responseJson.getString("message"));
-                mixpanelAPI.trackMap("User Login Failed - Error", properties);
+                seshMixpanelAPI.trackMap("User Login Failed - Error", properties);
 
                 onLoginSignupError("Login Error",
                                 responseJson.getString("message"));
@@ -587,7 +588,7 @@ public class AuthenticationActivity extends SeshActivity implements SeshDialog.O
             if (responseJson.get("status").equals("FAILURE")) {
                 Map<String, Object> properties = new HashMap<>();
                 properties.put("error", responseJson.getString("message"));
-                mixpanelAPI.trackMap("User Signup Failed - Error", properties);
+                seshMixpanelAPI.trackMap("User Signup Failed - Error", properties);
 
                 onLoginSignupError("Sign Up Failed",
                         responseJson.getString("message"));
@@ -597,7 +598,7 @@ public class AuthenticationActivity extends SeshActivity implements SeshDialog.O
                 intent.putExtra(SIGN_UP_PASSWORD_KEY, passwordEditText.getText());
                 startActivity(intent);
 
-                mixpanelAPI.track("User Signed Up Succesfully -- Needs Verification");
+                seshMixpanelAPI.track("User Signed Up Succesfully -- Needs Verification");
             }
         } catch (JSONException e) {
             Log.e(TAG, e.toString());

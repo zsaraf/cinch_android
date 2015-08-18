@@ -18,6 +18,7 @@ import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.SeshApplication;
 import com.seshtutoring.seshapp.model.Sesh;
 import com.seshtutoring.seshapp.model.User;
+import com.seshtutoring.seshapp.util.SeshMixpanelAPI;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.components.SeshButton;
 
@@ -43,7 +44,7 @@ public class ConfirmationCodeActivity extends SeshActivity {
     private SeshNetworking seshNetworking;
     private Timer attemptLoginTimer;
 
-    private MixpanelAPI mixpanelAPI;
+    private SeshMixpanelAPI seshMixpanelAPI;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -51,7 +52,7 @@ public class ConfirmationCodeActivity extends SeshActivity {
 
         setContentView(R.layout.confirmation_code_activity);
 
-        this.mixpanelAPI = ((SeshApplication)getApplication()).getMixpanelAPI();
+        this.seshMixpanelAPI = ((SeshApplication)getApplication()).getSeshMixpanelAPI();
 
         Bundle extras = getIntent().getExtras();
         this.email = extras.getString(AuthenticationActivity.SIGN_UP_EMAIL_KEY);
@@ -120,7 +121,7 @@ public class ConfirmationCodeActivity extends SeshActivity {
                         (new User.CreateOrUpdateUserAsyncTask()).execute(getApplicationContext(), jsonObject, new Runnable() {
                             @Override
                             public void run() {
-                                mixpanelAPI.track("User Verified Signup");
+                                seshMixpanelAPI.track("User Verified Signup");
 
                                 if (SeshApplication.IS_LIVE) {
                                     Intent intent = new Intent(getApplicationContext(), MainContainerActivity.class);

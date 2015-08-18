@@ -110,7 +110,7 @@ public class WarmWelcomeActivity extends SeshActivity implements SeshDialog.OnSe
         gcmIntent.putExtra(GCMRegistrationIntentService.ANONYMOUS_TOKEN_REFRESH, true);
         startService(gcmIntent);
 
-        ((SeshApplication)getApplication()).getMixpanelAPI().track("Entered Warm Welcome Flow");
+        ((SeshApplication)getApplication()).getSeshMixpanelAPI().track("Entered Warm Welcome Flow");
     }
 
     private class WarmWelcomePagerAdapter extends FragmentPagerAdapter {

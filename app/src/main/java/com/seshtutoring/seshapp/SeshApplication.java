@@ -5,6 +5,8 @@ import com.crashlytics.android.Crashlytics;
 import com.mixpanel.android.mpmetrics.MixpanelAPI;
 import com.orm.SugarApp;
 import com.seshtutoring.seshapp.util.ApplicationLifecycleTracker;
+import com.seshtutoring.seshapp.util.SeshMixpanelAPI;
+
 import io.fabric.sdk.android.Fabric;
 import org.joda.time.DateTime;
 
@@ -15,16 +17,15 @@ import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
  */
 public class SeshApplication extends SugarApp {
     private static final String TAG = SeshApplication.class.getName();
-    public static final String MIXPANEL_PROJECT_TOKEN = "ee5da3fa7c3cdc47114fc51794ceb7b6";
 
     private ApplicationLifecycleTracker applicationLifecycleTracker;
 
     public static final boolean IS_LIVE = false;
-    public static final boolean IS_DEV = false;
+    public static final boolean IS_DEV = true;
 
     //    Pre-reg app functionality -- to be deleted v1
     private DateTime androidReleaseDate;
-    private MixpanelAPI mixpanelAPI;
+    private SeshMixpanelAPI seshMixpanelAPI;
 
     @Override
     public void onCreate() {
@@ -39,7 +40,7 @@ public class SeshApplication extends SugarApp {
                 .setFontAttrId(R.attr.fontPath)
                 .build());
 
-        this.mixpanelAPI = MixpanelAPI.getInstance(this, MIXPANEL_PROJECT_TOKEN);
+        this.seshMixpanelAPI = SeshMixpanelAPI.getInstance(this);
     }
 
     public ApplicationLifecycleTracker getApplicationLifecycleTracker() {
@@ -60,7 +61,7 @@ public class SeshApplication extends SugarApp {
         }
     }
 
-    public MixpanelAPI getMixpanelAPI() {
-        return mixpanelAPI;
+    public SeshMixpanelAPI getSeshMixpanelAPI() {
+        return seshMixpanelAPI;
     }
 }
