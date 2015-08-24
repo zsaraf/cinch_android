@@ -35,13 +35,14 @@ import java.text.DateFormat;
 /**
  * Created by nadavhollander on 7/31/15.
  */
-public class SeshActivity extends AppCompatActivity {
+public abstract class SeshActivity extends AppCompatActivity implements SeshDialog.OnSelectionListener {
     private static final String TAG = SeshActivity.class.getName();
 
     public static final String APP_IS_LIVE_ACTION = "app_is_live";
     private static final String INTENT_HANDLED = "intent_handled";
 
     private static final boolean DEFAULT_SUPPORTS_SESH_DIALOG = true;
+    private static final boolean DEFAULT_IS_FULLSCREEN = false;
     private static final Bitmap DEFAULT_BLUR_BACKGROUND_OVERRIDE = null;
 
     //    Pre-reg app functionality -- to be deleted v1
@@ -97,6 +98,7 @@ public class SeshActivity extends AppCompatActivity {
 
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(APP_IS_LIVE_ACTION);
+        intentFilter.addAction(MainContainerActivity.UPDATE_CONTAINER_STATE_ACTION);
         registerReceiver(notificationActionReceiver, intentFilter);
 
         Intent intent = getIntent();
@@ -108,17 +110,17 @@ public class SeshActivity extends AppCompatActivity {
             showAppIsLiveDialog();
         }
 
-        getApplicationLifecycleTracker().activityResumed();
+        ApplicationLifecycleTracker.sharedInstance(this).activityResumed(this);
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        getApplicationLifecycleTracker().activityPaused();
+        ApplicationLifecycleTracker.sharedInstance(this).activityPaused();
         unregisterReceiver(notificationActionReceiver);
     }
 
-    private void handleNotificationIntent(Intent intent) {
+    protected void handleNotificationIntent(Intent intent) {
         if (intent.hasExtra(INTENT_HANDLED) && intent.getBooleanExtra(INTENT_HANDLED, false)) {
             return;
         }
@@ -130,17 +132,13 @@ public class SeshActivity extends AppCompatActivity {
         }
 
         //    Pre-reg app functionality -- to be deleted v1
-        if (intent.getAction().equals(APP_IS_LIVE_ACTION)) {
+        if (intent.getAction() != null && intent.getAction().equals(APP_IS_LIVE_ACTION)) {
             if (supportsSeshDialog() && !updateDialogShowing) {
                 showAppIsLiveDialog();
             }
         }
 
         intent.putExtra(INTENT_HANDLED, true);
-    }
-
-    public ApplicationLifecycleTracker getApplicationLifecycleTracker() {
-        return ((SeshApplication)getApplication()).getApplicationLifecycleTracker();
     }
 
     //    Pre-reg app functionality -- to be deleted v1
@@ -182,5 +180,14 @@ public class SeshActivity extends AppCompatActivity {
 
     protected boolean supportsSeshDialog() {
         return DEFAULT_SUPPORTS_SESH_DIALOG;
+    }
+
+    @Override
+    public void onDialogSelection(int i, String type) {
+        // do nothing
+    }
+
+    public boolean isFullscreen() {
+        return DEFAULT_IS_FULLSCREEN;
     }
 }

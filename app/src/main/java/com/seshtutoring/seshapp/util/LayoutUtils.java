@@ -7,6 +7,7 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.graphics.Rect;
+import android.graphics.Typeface;
 import android.os.SystemClock;
 import android.text.TextPaint;
 import android.text.style.ClickableSpan;
@@ -83,4 +84,15 @@ public class LayoutUtils {
         return size.y;
     }
 
+    public Typeface getLightGothamTypeface() {
+        return Typeface.createFromAsset(mContext.getAssets(), "fonts/Gotham-Light.otf");
+    }
+
+    public Typeface getMediumGothamTypeface() {
+        return Typeface.createFromAsset(mContext.getAssets(), "fonts/Gotham-Medium.otf");
+    }
+
+    public Typeface getBookGothamTypeface() {
+        return Typeface.createFromAsset(mContext.getAssets(), "fonts/Gotham-Book.otf");
+    }
 }

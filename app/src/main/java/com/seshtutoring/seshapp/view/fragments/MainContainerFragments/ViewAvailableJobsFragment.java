@@ -350,7 +350,7 @@ public class ViewAvailableJobsFragment extends ListFragment {
     }
 
     private void getAvailableJobs() {
-        Log.e(TAG, "REFRESHING JOBS");
+        Log.d(TAG, "REFRESHING JOBS");
         seshNetworking.getAvailableJobs(tutorCourses, new Response.Listener<JSONObject>() {
             public void onResponse(JSONObject jsonResponse) {
                 try {

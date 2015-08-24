@@ -1033,4 +1033,9 @@ public class AuthenticationActivity extends SeshActivity implements SeshDialog.O
 
         }
     }
+
+    @Override
+    public boolean isFullscreen() {
+        return true;
+    }
 }

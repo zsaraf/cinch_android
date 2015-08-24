@@ -22,30 +22,23 @@ public class PeriodicFetchBroadcastReceiver extends BroadcastReceiver {
     public static final int FETCH_INTERVAL = 1000 * 15;
 
     public interface FetchUpdateListener {
-        void onFetchUpdate(String type);
+        void onFetchUpdate();
     }
 
     private static FetchUpdateListener seshInfoUpdateListener;
-    private static FetchUpdateListener seshStateUpdateListener;
 
     @Override
     public void onReceive(final Context context, Intent intent) {
-        if (seshInfoUpdateListener == null || seshStateUpdateListener == null) {
+        if (seshInfoUpdateListener == null) {
             Log.d(TAG, "At least one updateListener is not yet set, delaying fetch until next alarm call.");
             return;
         }
 
-        SeshStateFetcher stateFetcher = new SeshStateFetcher(context);
         SeshInfoFetcher infoFetcher = new SeshInfoFetcher(context);
-        stateFetcher.fetch(seshStateUpdateListener);
         infoFetcher.fetch(seshInfoUpdateListener);
     }
 
     public static void setSeshInfoUpdateListener(FetchUpdateListener updateListener) {
         seshInfoUpdateListener = updateListener;
-    }
-
-    public static void setSeshStateUpdateListener(FetchUpdateListener updateListener) {
-        seshStateUpdateListener = updateListener;
     }
 }

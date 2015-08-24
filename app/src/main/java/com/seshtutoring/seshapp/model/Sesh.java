@@ -250,4 +250,19 @@ public class Sesh extends SugarRecord<Sesh> {
             Log.e(TAG, "Failed to fetch user info from server; response malformed: " + e.getMessage());
         }
     }
+
+    public String abbreviatedNameForOtherPerson() {
+        String[] components = userName.split("\\s+");
+        String capitalizedFirstName = components[0].substring(0,1).toUpperCase() + components[0].substring(1).toLowerCase();
+        if (components.length > 1) {
+            return capitalizedFirstName + " " + components[components.length-1].substring(0,1).toUpperCase() + ".";
+        } else {
+            return capitalizedFirstName;
+        }
+    }
+
+    public String firstName() {
+        String[] components = userName.split("\\s+");
+        return components[0].substring(0,1).toUpperCase() + components[0].substring(1).toLowerCase();
+    }
 }

@@ -73,6 +73,15 @@
             </intent-filter>
         </service>
         <service
+            android:name="com.seshtutoring.seshapp.services.notifications.SeshNotificationManagerService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.seshtutoring.seshapp.services.notifications.ENQUEUE_NEW_NOTIFICATION"/>
+                <action android:name="com.seshtutoring.seshapp.services.notifications.CURRENT_NOTIFICATION_HAS_BEEN_HANDLED"/>
+                <action android:name="com.seshtutoring.seshapp.services.notifications.REFRESH_NOTIFICATIONS"/>
+            </intent-filter>
+        </service>
+        <service
             android:name="com.seshtutoring.seshapp.services.GCMRegistrationIntentService"
             android:exported="false">
             <intent-filter>

@@ -11,6 +11,7 @@ import com.seshtutoring.seshapp.model.AvailableBlock;
 import com.seshtutoring.seshapp.model.Constants;
 import com.seshtutoring.seshapp.model.Course;
 import com.seshtutoring.seshapp.model.LearnRequest;
+import com.seshtutoring.seshapp.model.Notification;
 
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -21,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
@@ -70,6 +72,8 @@ public class SeshNetworking {
     private static final String TUTOR_COURSES_PARAM = "courses";
     private static final String REQUEST_ID_PARAM = "request_id";
     private static final String VERSION_NUMBER_PARAM = "version_number";
+    private static final String SESH_ID_PARAM = "sesh_id";
+    private static final String IS_PAST_PARAM = "is_past";
 
     private Context mContext;
 
@@ -474,7 +478,7 @@ public class SeshNetworking {
             }
         }
 
-        DateTimeFormatter formatter = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ssZ");
+        DateTimeFormatter formatter = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ssZ").withZoneUTC();
 
         Map<String, String> params = new HashMap<>();
         params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
@@ -516,10 +520,6 @@ public class SeshNetworking {
         Map<String, String> params = new HashMap<>();
         params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
 
-        for (int i = 0; i < courses.size(); i++) {
-            params.put(TUTOR_COURSES_PARAM + "[" + i + "]", String.valueOf(courses.get(i).classId));
-        }
-
         postWithRelativeUrl("get_possible_jobs.php", params, successListener,
                 errorListener);
     }
@@ -549,6 +549,39 @@ public class SeshNetworking {
          Map<String, String> params = new HashMap<>();
 
         postWithRelativeUrl("get_android_launch_date.php", params, successListener, errorListener);
+    }
+
+    public void refreshNotifications(List<Notification> handledNotifications, Response.Listener<JSONObject> successListener,
+                                     Response.ErrorListener errorListener) {
+        Map<String, String> params = new HashMap<>();
+        params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
+
+        for (int i = 0; i < handledNotifications.size(); i++) {
+            params.put("handled_notifications[" + i + "]",
+                    Integer.toString(handledNotifications.get(i).notificationId));
+        }
+
+        postWithRelativeUrl("refresh_notifications.php", params, successListener, errorListener);
+    }
+
+    public void getSeshInformationForSeshId(int seshId, Response.Listener<JSONObject> successListener,
+                                     Response.ErrorListener errorListener) {
+        Map<String, String> params = new HashMap<>();
+        params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
+        params.put(SESH_ID_PARAM, Integer.toString(seshId));
+        params.put(IS_PAST_PARAM, "0");
+
+        postWithRelativeUrl("get_info_for_sesh.php", params, successListener, errorListener);
+    }
+
+    public void getPastRequestInformationForPastRequestId(int pastRequestId, Response.Listener<JSONObject> successListener,
+                                           Response.ErrorListener errorListener) {
+        Map<String, String> params = new HashMap<>();
+        params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
+        params.put(REQUEST_ID_PARAM, Integer.toString(pastRequestId));
+        params.put(IS_PAST_PARAM, "1");
+
+        postWithRelativeUrl("get_info_for_request.php", params, successListener, errorListener);
     }
 
 //    @TODO: implement once Stripe functionality in place

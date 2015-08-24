@@ -73,7 +73,7 @@ public class SeshStateFetcher {
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
-            updateListener.onFetchUpdate(FETCH_TYPE_STATE);
+            updateListener.onFetchUpdate();
         }
     }
 }

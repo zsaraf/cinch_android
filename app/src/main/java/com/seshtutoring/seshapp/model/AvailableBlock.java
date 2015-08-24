@@ -6,6 +6,7 @@ import com.orm.SugarRecord;
 import com.orm.dsl.Ignore;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.json.JSONArray;
@@ -40,7 +41,7 @@ public class AvailableBlock extends SugarRecord<AvailableBlock> {
     public static AvailableBlock createAvailableBlock(JSONObject availableBlockJson) {
         AvailableBlock availableBlock = new AvailableBlock();
         try {
-            DateTimeFormatter formatter = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ssZ");
+            DateTimeFormatter formatter = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ssZ").withZoneUTC();
 
             String endTimeString = availableBlockJson.getString("endTime");
             availableBlock.endTime = formatter.parseDateTime(endTimeString).toDate();
@@ -63,7 +64,7 @@ public class AvailableBlock extends SugarRecord<AvailableBlock> {
 
         AvailableBlock availableBlock = new AvailableBlock();
         try {
-            DateTimeFormatter formatter = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss Z");
+            DateTimeFormatter formatter = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss Z").withZoneUTC();
 
             String endTimeString = availableBlockJson.getString("end_time");
             availableBlock.endTime = formatter.parseDateTime(endTimeString).toDate();
@@ -85,6 +86,7 @@ public class AvailableBlock extends SugarRecord<AvailableBlock> {
 //    TEMP FIX UNTIL SCHEDULING IMPLEMENTED
     public static AvailableBlock availableBlockForInstantRequest(LearnRequest instantRequest) {
         DateTime startTime = new DateTime(instantRequest.timestamp);
+//        DateTime endTime = startTime.plusSeconds(5);
         DateTime endTime = startTime.plusMinutes(instantRequest.estTime + 30);
         return new AvailableBlock(startTime.toDate(), endTime.toDate(), instantRequest);
     }

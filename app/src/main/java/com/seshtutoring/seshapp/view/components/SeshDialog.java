@@ -22,8 +22,10 @@ import com.facebook.rebound.SpringConfig;
 import com.facebook.rebound.SpringListener;
 import com.facebook.rebound.SpringSystem;
 import com.seshtutoring.seshapp.R;
+import com.seshtutoring.seshapp.model.PastRequest;
 import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
+import com.seshtutoring.seshapp.view.SeshActivity;
 
 import android.support.v7.widget.CardView;
 import android.view.LayoutInflater;
@@ -49,6 +51,7 @@ public class SeshDialog extends DialogFragment {
     private String title;
     private String message;
     private String type;
+
     private SeshDialogType dialogType = SeshDialogType.TWO_BUTTON;
 
     private View contentLayout;
@@ -71,7 +74,14 @@ public class SeshDialog extends DialogFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setStyle(STYLE_NORMAL, R.style.SeshFullScreenDialog);
+        SeshActivity currentActivity = (SeshActivity)mActivity;
+
+        if (currentActivity.isFullscreen()) {
+            setStyle(STYLE_NORMAL, R.style.SeshFullScreenDialog);
+        } else {
+            setStyle(STYLE_NORMAL, R.style.SeshNormalDialog);
+        }
+
     }
 
     @Override
@@ -93,9 +103,13 @@ public class SeshDialog extends DialogFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstance) {
         final SeshNetworking seshNetworking = new SeshNetworking(getActivity());
-        Typeface bold = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Gotham-Medium.otf");
+        LayoutUtils utils = new LayoutUtils(getActivity());
 
-        dialogView = inflater.inflate(R.layout.sesh_dialog_layout, null);
+        Typeface medium = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Gotham-Medium.otf");
+        Typeface book = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Gotham-Book.otf");
+        Typeface light = utils.getLightGothamTypeface();
+
+        dialogView = inflater.inflate(R.layout.sesh_dialog_layout, container);
         dialogTransparentBackground = dialogView.findViewById(R.id.dialog_transparent_background);
 
         dialogTransparentBackground.animate().alpha(1).setDuration(500).start();
@@ -110,24 +124,25 @@ public class SeshDialog extends DialogFragment {
         TextView titleText = (TextView) dialogView.findViewById(R.id.dialog_title);
         if (titleText != null) {
             titleText.setText(title);
+            titleText.setTypeface(book);
         }
 
         TextView text = (TextView) dialogView.findViewById(R.id.dialog_text);
         if (text != null) {
             text.setText(message);
+            text.setTypeface(light);
         }
 
         Button firstButton = (Button) dialogView.findViewById(R.id.dialog_first_button);
         firstButton.setText(firstChoice);
-        firstButton.setTypeface(bold);
+        firstButton.setTypeface(medium);
 
         if (firstButtonClickListener != null) {
             firstButton.setOnClickListener(firstButtonClickListener);
         } else {
             firstButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-                    mCallback.onDialogSelection(1, type);
-                    dismiss();
+                    dismiss(1);
                 }
             });
         }
@@ -138,15 +153,14 @@ public class SeshDialog extends DialogFragment {
             secondButton.setVisibility(View.GONE);
         } else {
             secondButton.setText(secondChoice);
-            secondButton.setTypeface(bold);
+            secondButton.setTypeface(medium);
 
             if (secondButtonClickListener != null) {
                 secondButton.setOnClickListener(secondButtonClickListener);
             } else {
                 secondButton.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
-                        mCallback.onDialogSelection(2, type);
-                        dismiss();
+                        dismiss(2);
                     }
                 });
             }
@@ -226,21 +240,26 @@ public class SeshDialog extends DialogFragment {
         }
     }
 
-    @Override
-    public void dismiss() {
+    public void dismiss(final int dialogSelection) {
         dialogCard
                 .animate()
                 .y(screenHeight)
                 .setDuration(150)
                 .setInterpolator(new AccelerateInterpolator())
                 .setListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                super.onAnimationEnd(animation);
-                SeshDialog.super.dismiss();
-            }
-        }).start();
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        super.onAnimationEnd(animation);
+                        SeshDialog.super.dismiss();
+                        mCallback.onDialogSelection(dialogSelection, type);
+                    }
+                }).start();
         dialogTransparentBackground.animate().alpha(0).setDuration(150).start();
+    }
+
+    @Override
+    public void dismiss() {
+        dismiss(1);
     }
 
     public void setContentLayout(View contentLayout) {

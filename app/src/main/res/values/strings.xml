@@ -151,4 +151,9 @@ If You have any questions about this privacy statement, the practices of Sesh, o
 
     <string name="unreleased_launch_thank_you">Thank you for signing up for Sesh.  We can\'t wait to get you started!</string>
     <string name="unreleased_launch_content">The Sesh Team is hard at work putting the final touches on our Android app -- we\'ll be sure to notify you as soon as the app is ready.</string>
+
+    <string name="sesh_created_tutor_dialog_title">You got the Job!</string>
+    <string name="sesh_created_student_dialog_title">You got a Tutor!</string>
+    <string name="sesh_created_tutor_dialog_text">Time to save %1$s\'s day!  Please confirm your meeting location and start time with %1$s.  You can message within the app.</string>
+    <string name="sesh_created_student_dialog_text">%1$s picked up your request!  Please confirm your meeting location and start time with %1$s.  You can message within the app.</string>
 </resources>

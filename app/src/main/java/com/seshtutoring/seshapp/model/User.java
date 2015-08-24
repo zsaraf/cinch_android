@@ -36,7 +36,7 @@ public class User extends SugarRecord<User> {
     public String stripeCustomerId;
     public int classYear;
     public String major;
-    public boolean tutorOfflinePing = false;
+    public boolean notificationsEnabled = false;
     public boolean completedAppTour = false;
     public boolean isVerified = false;
     public String fullLegalName;
@@ -49,7 +49,7 @@ public class User extends SugarRecord<User> {
 
     public User(int userId, String email, String sessionId, String fullName,
                 String profilePictureUrl, String bio, String stripeCustomerId, String major,
-                boolean tutorOfflinePing, boolean completedAppTour, boolean isVerified,
+                boolean notificationsEnabled, boolean completedAppTour, boolean isVerified,
                 String fullLegalName, String shareCode, Student student, Tutor tutor) {
         this.userId = userId;
         this.email = email;
@@ -59,7 +59,7 @@ public class User extends SugarRecord<User> {
         this.bio = bio;
         this.stripeCustomerId = stripeCustomerId;
         this.major = major;
-        this.tutorOfflinePing = tutorOfflinePing;
+        this.notificationsEnabled = notificationsEnabled;
         this.completedAppTour = completedAppTour;
         this.isVerified = isVerified;
         this.fullLegalName = fullLegalName;
@@ -131,7 +131,7 @@ public class User extends SugarRecord<User> {
             user.stripeCustomerId = !userRow.isNull("stripe_customer_id") ?
                     userRow.getString("stripe_customer_id") : "";
             user.major = userRow.getString("major");
-            user.tutorOfflinePing = (userRow.getInt("tutor_offline_ping") == 1) ? true : false;
+            user.notificationsEnabled = (userRow.getInt("notifications_enabled") == 1) ? true : false;
             user.completedAppTour = (userRow.getInt("completed_app_tour") == 1) ? true : false;
             user.isVerified = (userRow.getInt("is_verified") == 1) ? true : false;
             user.fullLegalName = userRow.getString("full_legal_name");
@@ -143,7 +143,7 @@ public class User extends SugarRecord<User> {
             SeshAuthManager.sharedManager(context).foundSessionId(user.sessionId);
 
         } catch (JSONException e) {
-            Log.e(TAG, "Failed to create or update user in db; JSON user object from server is malformed.");
+            Log.e(TAG, "Failed to create or update user in db; JSON user object from server is malformed: " + e);
             return null;
         }
         return user;
@@ -185,8 +185,8 @@ public class User extends SugarRecord<User> {
         return major;
     }
 
-    public boolean isTutorOfflinePing() {
-        return tutorOfflinePing;
+    public boolean isNotificationsEnabled() {
+        return notificationsEnabled;
     }
 
     public boolean completedAppTour() {

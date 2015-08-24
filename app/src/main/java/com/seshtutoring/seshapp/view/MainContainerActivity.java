@@ -57,23 +57,15 @@ import java.util.Map;
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 public class MainContainerActivity extends SeshActivity implements SeshDialog.OnSelectionListener,
-        SeshStateManager.ViewRefreshListener {
+        PeriodicFetchBroadcastReceiver.FetchUpdateListener {
     private static final String TAG = MainContainerActivity.class.getName();
     public static final String MAIN_CONTAINER_STATE_INDEX = "main_container_state_index";
     public static final String FRAGMENT_FLAG_KEY = "fragment_flags";
     private static final String DIALOG_TYPE_FOUND_TUTOR = "dialog_type_found_tutor";
     private static final String INTENT_HANDLED = "intent_handled";
-    public static final String UPDATE_CONTAINER_STATE_ACTION =
-            "com.seshtutoring.seshapp.UPDATE_CONTAINER_STATE";
+    public static final String UPDATE_CONTAINER_STATE_ACTION = "update_main_container_state";
     public static final String FOUND_TUTOR_ACTION =
             "com.seshtutoring.seshapp.FOUND_TUTOR";
-
-    private BroadcastReceiver notificationActionReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            handleNotificationIntent(intent);
-        }
-    };
 
     /**
      * All fragments inserted in the Main Container must implement this interface.  This allows
@@ -83,15 +75,13 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
      */
     public interface FragmentOptionsReceiver {
         void updateFragmentOptions(Map<String, Object> options);
+
         void clearFragmentOptions();
     }
 
     private SlidingMenu slidingMenu;
     private SideMenuFragment sideMenuFragment;
-    private AlarmManager fetchSeshInfoAlarm;
-    private PendingIntent fetchSeshInfoPendingIntent;
     private ContainerState currentContainerState;
-    private SeshStateManager seshStateManager;
 
     public final ContainerState HOME = new ContainerState("Home", R.drawable.home, new HomeFragment());
     public final ContainerState PROFILE = new ContainerState("Profile", R.drawable.profile, new ProfileFragment());
@@ -107,7 +97,7 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
         }
     };
 
-    public ContainerState[] containerStates = new ContainerState[] {
+    public ContainerState[] containerStates = new ContainerState[]{
             HOME, PROFILE, PAYMENT, SETTINGS, PROMOTE
     };
 
@@ -163,13 +153,7 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
 
         setCurrentState(HOME, null);
 
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(UPDATE_CONTAINER_STATE_ACTION);
-        intentFilter.addAction(FOUND_TUTOR_ACTION);
-        registerReceiver(notificationActionReceiver, intentFilter);
-
-        this.seshStateManager = SeshStateManager.sharedInstance(this);
-        seshStateManager.setViewRefreshListener(this);
+        PeriodicFetchBroadcastReceiver.setSeshInfoUpdateListener(this);
     }
 
     @Override
@@ -177,7 +161,6 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
         super.onResume();
 
         User.fetchUserInfoFromServer(this);
-        seshStateManager.validateActiveSeshState();
 
         // Refresh device token on server via GCM service
         Intent gcmIntent = new Intent(this, GCMRegistrationIntentService.class);
@@ -192,45 +175,23 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
         if (code != ConnectionResult.SUCCESS) {
             googleApiAvailability.getErrorDialog(this, code, 0).show();
         }
-
-        Intent intent = getIntent();
-        if (intent.hasExtra(SeshGCMListenerService.NOTIFICATION_ID_EXTRA)) {
-            handleNotificationIntent(intent);
-        }
     }
 
-    private void handleNotificationIntent(Intent intent) {
-        if (intent.hasExtra(INTENT_HANDLED) && intent.getBooleanExtra(INTENT_HANDLED, false)) {
-            return;
-        }
-
-        if (intent.hasExtra(SeshGCMListenerService.NOTIFICATION_ID_EXTRA)) {
-            int notificationId = intent.getIntExtra(SeshGCMListenerService.NOTIFICATION_ID_EXTRA, -1);
-            ((NotificationManager)
-                    getSystemService(NOTIFICATION_SERVICE)).cancel(notificationId);
-        }
-
-        if (intent.getAction().equals(UPDATE_CONTAINER_STATE_ACTION)) {
-            Bundle extras = intent.getExtras();
-            ContainerState containerState = containerStates[extras.getInt(MAIN_CONTAINER_STATE_INDEX)];
-            String flag = extras.getString(FRAGMENT_FLAG_KEY);
+    @Override
+    protected void handleNotificationIntent(Intent intent) {
+        if (intent.getAction() == UPDATE_CONTAINER_STATE_ACTION) {
+            int mainContainerStateIndex = intent.getIntExtra(MAIN_CONTAINER_STATE_INDEX, 0);
+            String fragmentFlag = intent.getStringExtra(FRAGMENT_FLAG_KEY);
 
             HashMap<String, Object> options = new HashMap<>();
-            options.put(flag, true);
+            options.put(fragmentFlag, true);
 
-            setCurrentState(containerState, options);
-
-            if (getApplicationLifecycleTracker().applicationInForeground()) {
-                sideMenuFragment.updateSelectedItem();
-            }
-        } else if (intent.getAction().equals(FOUND_TUTOR_ACTION)) {
-            showNotificationDialog("Help is on the way",
-                    "You've been matched with a tutor and your Sesh has been scheduled!",
-                    "See details", DIALOG_TYPE_FOUND_TUTOR);
+            setCurrentState(containerStates[mainContainerStateIndex], options);
         }
 
-        intent.putExtra(INTENT_HANDLED, true);
+        super.handleNotificationIntent(intent);
     }
+
 
     private void showNotificationDialog(final String title, final String content, final String confirmButtonText, final String type) {
         Handler handler = new Handler();
@@ -443,7 +404,7 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
     }
 
     @Override
-    public void refreshView() {
+    public void onFetchUpdate() {
         sideMenuFragment.updateLearnList();
     }
 

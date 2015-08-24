@@ -55,7 +55,7 @@ public class SeshInfoFetcher {
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
-            updateListener.onFetchUpdate(FETCH_TYPE_INFO);
+            updateListener.onFetchUpdate();
         }
     }
 }
