@@ -26,6 +26,7 @@ import com.seshtutoring.seshapp.view.MainContainerActivity;
 import com.seshtutoring.seshapp.view.ContainerState;
 import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.DummyRequestSeshFragment;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -113,8 +114,7 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenedLi
                 Map<String, Object> options = new HashMap<String, Object>();
 
                 if(item.isSesh) {
-                    options.put(DummyRequestSeshFragment.SESH_DUMMY_KEY, "SeshID = " + item.sesh.seshId);
-                    mainContainerActivity.setCurrentState(new ContainerState("Sesh!", 0, new DummyRequestSeshFragment()));
+                    mainContainerActivity.setCurrentState(new ContainerState("Sesh!", 0, ViewSeshFragment.newInstance(item.sesh.seshId)));
                 } else {
                     options.put(DummyRequestSeshFragment.REQUEST_DUMMY_KEY, "RequestId = " + item.learnRequest.learnRequestId);
                     mainContainerActivity.setCurrentState(new ContainerState("Request!", 0, new DummyRequestSeshFragment()));
@@ -308,7 +308,13 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenedLi
 
     public synchronized void updateLearnList() {
         Log.d(TAG, "updateLearnList() begin " + new Date().toString() + " with instance " + this.getId());
-        List<Sesh> studentSeshes = Sesh.find(Sesh.class, "is_student = ?", Integer.toString(1));
+        List<Sesh> studentSeshes = null;
+        if (Sesh.listAll(Sesh.class).size() > 0) {
+//            studentSeshes = Sesh.find(Sesh.class, "is_student = ?", Integer.toString(1));
+            studentSeshes = Sesh.find(Sesh.class);
+        } else {
+            studentSeshes = new ArrayList<Sesh>();
+        }
         Iterator<LearnRequest> learnRequests = LearnRequest.findAll(LearnRequest.class);
 
         int beforeCount = openRequestsAndSeshesAdapter.getCount();

@@ -1,23 +1,35 @@
 package com.seshtutoring.seshapp.util.networking;
 
 import android.content.Context;
+import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
+import android.widget.ImageView;
 
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Response;
+import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.SeshApplication;
 import com.seshtutoring.seshapp.model.AvailableBlock;
 import com.seshtutoring.seshapp.model.Constants;
 import com.seshtutoring.seshapp.model.Course;
 import com.seshtutoring.seshapp.model.LearnRequest;
 import com.seshtutoring.seshapp.model.Notification;
+import com.squareup.okhttp.Interceptor;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.OkHttpDownloader;
+import com.squareup.picasso.Picasso;
+import com.stripe.android.Stripe;
 
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -81,10 +93,27 @@ public class SeshNetworking {
         this.mContext = context;
     }
 
+    public void downloadProfilePicture(String profilePictureUrl, ImageView imageView, Callback callback) {
+        profilePictureUrl = baseUrl() + "resources/images/profile_pictures/" + profilePictureUrl;
+        OkHttpClient picassoClient = new OkHttpClient();
+        picassoClient.interceptors().add(new Interceptor() {
+            @Override
+            public com.squareup.okhttp.Response intercept(Chain chain) throws IOException {
+                Request newRequest = chain.request().newBuilder()
+                        .addHeader("Authorization", "Basic dGVhbXNlc2g6RWFibHRmMSE=")
+                        .build();
+                return chain.proceed(newRequest);
+            }
+        });
+        Picasso.Builder builder = new Picasso.Builder(mContext);
+        Picasso picasso =  builder.downloader(new OkHttpDownloader(picassoClient)).build();
+        picasso.load(profilePictureUrl).placeholder(R.drawable.default_profile_picture).into(imageView, callback);
+    }
+
     public void postWithRelativeUrl(String relativeUrl, Map<String, String> params,
                                     Response.Listener<JSONObject> successListener,
                                     Response.ErrorListener errorListener) {
-        String absoluteUrl = baseUrl() + relativeUrl;
+        String absoluteUrl = baseUrl() + "/ios-php/" + relativeUrl;
 
         Log.i(TAG, "Issuing POST request to URL:  " + absoluteUrl + " with params: " +
                 params.toString());
@@ -97,7 +126,7 @@ public class SeshNetworking {
     public void postWithLongTimeout(String relativeUrl, Map<String, String> params,
                                           Response.Listener<JSONObject> successListener,
                                           Response.ErrorListener errorListener) {
-        String absoluteUrl = baseUrl() + relativeUrl;
+        String absoluteUrl = baseUrl() + "/ios-php/" + relativeUrl;
 
         Log.i(TAG, "Issuing POST request to URL:  " + absoluteUrl + " with params: " +
                 params.toString());
@@ -462,9 +491,9 @@ public class SeshNetworking {
     private String baseUrl() {
         String baseUrl;
         if (SeshApplication.IS_DEV) {
-            baseUrl = "https://www.cinchtutoring.com/ios-php/";
+            baseUrl = "https://www.cinchtutoring.com/";
         } else {
-            baseUrl = "https://www.seshtutoring.com/ios-php/";
+            baseUrl = "https://www.seshtutoring.com/";
         }
         return baseUrl;
     }
@@ -584,6 +613,24 @@ public class SeshNetworking {
         postWithRelativeUrl("get_info_for_request.php", params, successListener, errorListener);
     }
 
+    public void startSeshWithSeshId(int seshId, Response.Listener<JSONObject> successListener,
+                                    Response.ErrorListener errorListener) {
+        Map<String, String> params = new HashMap<>();
+        params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
+        params.put(SESH_ID_PARAM, Integer.toString(seshId));
+
+        postWithRelativeUrl("start_sesh.php", params, successListener, errorListener);
+    }
+
+    public void cancelSeshWithSeshId(int seshId, Response.Listener<JSONObject> successListener,
+                                    Response.ErrorListener errorListener) {
+        Map<String, String> params = new HashMap<>();
+        params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
+        params.put(SESH_ID_PARAM, Integer.toString(seshId));
+
+        postWithRelativeUrl("cancel_sesh.php", params, successListener, errorListener);
+    }
+
 //    @TODO: implement once Stripe functionality in place
 //    public void addCardWithCustomerToken(...)
 //    public void getCardsForCurrentUserWithSuccess(...)
@@ -594,7 +641,6 @@ public class SeshNetworking {
 //    public void createBidForRequest(...)
 //    public void getPossibleJobsForCourses(...)
 //    public void uploadProfilePicture(...)
-//    public void startSesh(...)
 //    public void endSesh(...)
 //    public void cancelSesh(...)
 //    public void sendMessage(...)

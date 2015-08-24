@@ -4,9 +4,10 @@
     xmlns:custom="http://schemas.android.com/apk/res-auto"
     tools:context="com.seshtutoring.seshapp.view.fragments.ViewSeshFragments.ViewSeshSeshDescriptionFragment">
 
-    <!--<RelativeLayout-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content">-->
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true">
 
     <com.seshtutoring.seshapp.view.components.SeshInformationLabel
         android:id="@+id/class_label"
@@ -40,7 +41,7 @@
         custom:informationLabelIcon="@drawable/clock_orange"/>
 
     <com.seshtutoring.seshapp.view.components.SeshInformationLabel
-        android:id="@+id/location_notes"
+        android:id="@+id/misc_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginRight="35dp"
@@ -50,6 +51,6 @@
         custom:informationLabelText="hello"
         custom:informationLabelIcon="@drawable/location"/>
 
-    <!--</RelativeLayout>-->
+    </RelativeLayout>
 
 </RelativeLayout>

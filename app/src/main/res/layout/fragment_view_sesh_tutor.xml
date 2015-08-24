@@ -15,7 +15,7 @@
     <!--</fragment>-->
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="300dp"
+        android:layout_height="250dp"
         android:background="@color/white_slight_transparency"
         android:id="@+id/top_layout">
 
@@ -45,7 +45,14 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/top_layout"
-        android:id="@+id/bottom_layout">
+        android:id="@+id/bottom_layout"
+        android:background="@color/white">
+
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="1dip"
+            android:background="#000000" />
+
 
     <com.seshtutoring.seshapp.view.components.SeshButton
         android:id="@+id/cancel_sesh_button"
@@ -64,18 +71,43 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="25dp"
             android:layout_marginRight="25dp"
-            android:layout_marginBottom="10dp"
+            android:layout_marginBottom="5dp"
             android:text="MESSAGE"
             custom:buttonType="red"
             android:layout_above="@+id/cancel_sesh_button" />
 
-        <android.support.v4.view.ViewPager
+        <com.seshtutoring.seshapp.view.components.SeshButton
+            android:id="@+id/start_sesh_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="25dp"
+            android:layout_marginRight="25dp"
+            android:layout_marginBottom="5dp"
+            android:text="START SESH"
+            custom:buttonType="red"
+            android:layout_above="@+id/message_button" />
+
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/view_sesh_view_pager"
-            android:layout_above="@+id/message_button"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"/>
+            android:layout_above="@+id/start_sesh_button"
+            android:layout_below="@+id/middleBar">
+
+            <android.support.v4.view.ViewPager
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/view_sesh_view_pager"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"/>
+
+            <com.seshtutoring.seshapp.view.components.SeshActivityIndicator
+                android:id="@+id/view_sesh_activity_indicator"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_centerInParent="true"
+                android:alpha="0"/>
+
+        </RelativeLayout>
 
     </RelativeLayout>
 

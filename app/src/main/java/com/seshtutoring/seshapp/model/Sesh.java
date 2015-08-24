@@ -108,10 +108,13 @@ public class Sesh extends SugarRecord<Sesh> {
 
             JSONObject otherPersonRow = isStudent ? tutorRow : studentRow;
 
-            List<Sesh> seshesFound = Sesh.find(Sesh.class, "sesh_id = ?", Integer.toString(seshId));
-
-            if (seshesFound.size() > 0) {
-                sesh = seshesFound.get(0);
+            if (Sesh.listAll(Sesh.class).size() > 0) {
+                List<Sesh> seshesFound = Sesh.find(Sesh.class, "sesh_id = ?", Integer.toString(seshId));
+                if (seshesFound.size() > 0) {
+                    sesh = seshesFound.get(0);
+                } else {
+                    sesh = new Sesh();
+                }
             } else {
                 sesh = new Sesh();
             }
@@ -217,7 +220,7 @@ public class Sesh extends SugarRecord<Sesh> {
         DateFormat hourMinute = new SimpleDateFormat("hh:mm a");
         time = hourMinute.format(setTime.toDate());
 
-        return String.format("%s %s", day, time);
+        return String.format("%s @ %s", day, time);
     }
 
     public static synchronized void updateSeshInfoWithObject(Context context, JSONObject jsonObject) {
