@@ -16,7 +16,9 @@ import android.widget.TextView;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.Sesh;
 import com.seshtutoring.seshapp.util.LayoutUtils;
+import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.components.SeshButton;
+import com.squareup.picasso.Callback;
 
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -25,6 +27,8 @@ import org.joda.time.format.DateTimeFormatter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
  * Created by nadavhollander on 8/4/15.
@@ -47,6 +51,20 @@ public class InSeshActivity extends SeshActivity {
         getSupportActionBar().setElevation(0);
 
         this.currentSesh = Sesh.getCurrentSesh();
+
+        CircleImageView circleImageView = (CircleImageView)findViewById(R.id.profile_image);
+        SeshNetworking seshNetworking = new SeshNetworking(getApplicationContext());
+        seshNetworking.downloadProfilePicture(this.currentSesh.userImageUrl, circleImageView, new Callback() {
+            @Override
+            public void onSuccess() {
+
+            }
+
+            @Override
+            public void onError() {
+
+            }
+        });
 
         ImageButton backButton = (ImageButton) findViewById(R.id.action_bar_back_button);
         ViewGroup layout = (ViewGroup) backButton.getParent();

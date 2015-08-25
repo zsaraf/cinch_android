@@ -47,6 +47,7 @@ import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.ProfileFra
 import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.PromoteFragment;
 import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.SettingsFragment;
 import com.seshtutoring.seshapp.view.fragments.SideMenuFragment;
+import com.seshtutoring.seshapp.view.fragments.ViewSeshFragment;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -93,7 +94,6 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
         @Override
         public void onPageSelected(int position) {
             super.onPageSelected(position);
-
         }
     };
 

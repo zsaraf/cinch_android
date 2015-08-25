@@ -20,8 +20,7 @@ public class DummyRequestSeshFragment extends Fragment implements FragmentOption
 
     private Map<String, Object> options;
 
-    public static final String SESH_DUMMY_KEY = "sesh_dummy";
-    public static final String REQUEST_DUMMY_KEY = "sesh_dummy";
+    public static final String REQUEST_DUMMY_KEY = "request";
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.dummy_request_sesh_fragment, null);

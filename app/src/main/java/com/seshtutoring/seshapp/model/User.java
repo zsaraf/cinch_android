@@ -43,6 +43,7 @@ public class User extends SugarRecord<User> {
     public String shareCode;
     public Student student;
     public Tutor tutor;
+    public School school;
 
     // empty constructor necessary for SugarORM to work
     public User() {}
@@ -50,7 +51,7 @@ public class User extends SugarRecord<User> {
     public User(int userId, String email, String sessionId, String fullName,
                 String profilePictureUrl, String bio, String stripeCustomerId, String major,
                 boolean notificationsEnabled, boolean completedAppTour, boolean isVerified,
-                String fullLegalName, String shareCode, Student student, Tutor tutor) {
+                String fullLegalName, String shareCode, Student student, Tutor tutor, School school) {
         this.userId = userId;
         this.email = email;
         this.sessionId = sessionId;
@@ -66,6 +67,7 @@ public class User extends SugarRecord<User> {
         this.shareCode = shareCode;
         this.student = student;
         this.tutor = tutor;
+        this.school = school;
     }
 
     public static User currentUser(Context context) {
@@ -108,6 +110,7 @@ public class User extends SugarRecord<User> {
             JSONObject userRow = userJson.getJSONObject("user");
             JSONObject studentRow = userJson.getJSONObject("student");
             JSONObject tutorRow = userJson.getJSONObject("tutor");
+            JSONObject schoolRow = userJson.getJSONObject("school");
 
             int userId = userRow.getInt("id");
 
@@ -136,6 +139,7 @@ public class User extends SugarRecord<User> {
             user.isVerified = (userRow.getInt("is_verified") == 1) ? true : false;
             user.fullLegalName = userRow.getString("full_legal_name");
             user.shareCode = userRow.getString("share_code");
+            user.school = School.createOrUpdateSchoolWithObject(schoolRow);
             user.tutor = Tutor.createOrUpdateTutorWithObject(tutorRow);
             user.student = Student.createOrUpdateStudentWithObject(studentRow);
             user.save();

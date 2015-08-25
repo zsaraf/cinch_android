@@ -5,6 +5,7 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.text.TextPaint;
 import android.util.AttributeSet;
@@ -22,9 +23,11 @@ public class SeshInformationLabel extends RelativeLayout {
 
     private TextView textView;
     private ImageView iconView;
+    private Context mContext;
 
     public SeshInformationLabel(Context context, AttributeSet attrs) {
         super(context, attrs);
+        mContext = context;
 
         LayoutInflater mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View v = mInflater.inflate(R.layout.sesh_information_label, this, true);
@@ -51,6 +54,16 @@ public class SeshInformationLabel extends RelativeLayout {
         iconView = (ImageView) findViewById(R.id.icon);
 
         textView.setText(text);
+        iconView.setImageDrawable(icon);
+        Typeface medium = Typeface.createFromAsset(mContext.getAssets(), "fonts/Gotham-Light.otf");
+        textView.setTypeface(medium);
+    }
+
+    public void setText(String text) {
+        textView.setText(text);
+    }
+
+    public void setIcon(Drawable icon) {
         iconView.setImageDrawable(icon);
     }
 
