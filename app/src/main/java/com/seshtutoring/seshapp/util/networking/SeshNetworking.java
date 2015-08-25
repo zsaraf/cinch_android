@@ -631,6 +631,24 @@ public class SeshNetworking {
         postWithRelativeUrl("cancel_sesh.php", params, successListener, errorListener);
     }
 
+    public void getPastSeshInformationForPastSeshId(int pastSeshId, Response.Listener<JSONObject> successListener,
+                                                          Response.ErrorListener errorListener) {
+        Map<String, String> params = new HashMap<>();
+        params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
+        params.put(SESH_ID_PARAM, Integer.toString(pastSeshId));
+        params.put(IS_PAST_PARAM, "1");
+
+        postWithRelativeUrl("get_info_for_sesh.php", params, successListener, errorListener);
+    }
+
+    public void endSesh(int seshId, Response.Listener<JSONObject> successListener, Response.ErrorListener errorListener) {
+        Map<String, String> params = new HashMap<>();
+        params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
+        params.put(SESH_ID_PARAM, Integer.toString(seshId));
+
+        postWithRelativeUrl("end_sesh.php", params, successListener, errorListener);
+    }
+
 //    @TODO: implement once Stripe functionality in place
 //    public void addCardWithCustomerToken(...)
 //    public void getCardsForCurrentUserWithSuccess(...)

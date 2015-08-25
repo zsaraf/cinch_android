@@ -27,11 +27,11 @@ public class UpdateStateNotificationHandler extends NotificationHandler {
             ApplicationLifecycleTracker.setApplicationResumeListener(new ApplicationResumeListener() {
                 @Override
                 public void onApplicationResume() {
-                    seshStateManager.displayActivityForCurrentState();
+                    seshStateManager.displayActivityForSeshStateUpdate();
                 }
             });
         } else {
-            seshStateManager.displayActivityForCurrentState();
+            seshStateManager.displayActivityForSeshStateUpdate();
         }
 
         if (SeshStateManager.getCurrentSeshState(mContext) == SeshStateManager.SeshState.NONE) {

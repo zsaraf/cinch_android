@@ -65,6 +65,7 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
     private static final String DIALOG_TYPE_FOUND_TUTOR = "dialog_type_found_tutor";
     private static final String INTENT_HANDLED = "intent_handled";
     public static final String UPDATE_CONTAINER_STATE_ACTION = "update_main_container_state";
+    public static final String SESH_CANCELLED_ACTION = "sesh_cancelled";
     public static final String FOUND_TUTOR_ACTION =
             "com.seshtutoring.seshapp.FOUND_TUTOR";
 
@@ -187,6 +188,11 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
             options.put(fragmentFlag, true);
 
             setCurrentState(containerStates[mainContainerStateIndex], options);
+        } else if (intent.getAction() == SESH_CANCELLED_ACTION) {
+            // IF SESH HAS BEEN CANCELLED AND MAIN CONTAINER IS IN FOREGROUND, WE ENSURE VIEWSESHFRAGMENT IS NOT VISIBLE
+            if (currentContainerState.fragment instanceof ViewSeshFragment) {
+                setCurrentState(HOME);
+            }
         }
 
         super.handleNotificationIntent(intent);
@@ -407,6 +413,8 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
     public void onFetchUpdate() {
         sideMenuFragment.updateLearnList();
     }
+
+
 
     public void onNetworkError() {
         Log.e(TAG, "Network Error");

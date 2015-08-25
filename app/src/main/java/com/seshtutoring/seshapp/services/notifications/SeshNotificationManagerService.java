@@ -6,6 +6,7 @@ import android.util.Log;
 
 import com.seshtutoring.seshapp.SeshApplication;
 import com.seshtutoring.seshapp.SeshStateManager;
+import com.seshtutoring.seshapp.SeshStateManager.SeshState;
 import com.seshtutoring.seshapp.model.Notification;
 import com.seshtutoring.seshapp.services.SeshGCMListenerService;
 import com.seshtutoring.seshapp.services.notifications.handlers.NotificationHandler;
@@ -70,12 +71,8 @@ public class SeshNotificationManagerService extends IntentService {
         if (notification == null) return false;
 
         if (notificationHandlingInProgress()) {
-            if (SeshStateManager.getCurrentSeshState(this) == SeshStateManager.SeshState.IN_SESH
-                    && notification.priority <= 2) {
-                return true;
-            } else {
-                return false;
-            }
+            return SeshStateManager.getCurrentSeshState(this) == SeshState.IN_SESH &&
+            notification.priority <= 2;
         } else {
             return true;
         }

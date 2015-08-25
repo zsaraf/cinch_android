@@ -28,6 +28,8 @@ import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.SeshActivity;
 
 import android.support.v7.widget.CardView;
+import android.text.Layout;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,7 +43,7 @@ import android.widget.TextView;
  */
 public class SeshDialog extends DialogFragment {
     OnSelectionListener mCallback;
-    public enum SeshDialogType { ONE_BUTTON, TWO_BUTTON };
+    public enum SeshDialogType { ONE_BUTTON, TWO_BUTTON, CUSTOM_BUTTONS };
 
     private static final String TAG = SeshDialog.class.getName();
     private Bitmap backgroundOverlayBitmap = null;
@@ -52,6 +54,9 @@ public class SeshDialog extends DialogFragment {
     private String message;
     private String type;
 
+    private Button firstButton;
+    private Button secondButton;
+
     private SeshDialogType dialogType = SeshDialogType.TWO_BUTTON;
 
     private View contentLayout;
@@ -60,9 +65,13 @@ public class SeshDialog extends DialogFragment {
     private CardView dialogCard;
     private Activity mActivity;
     private SpringSystem springSystem;
+    private SeshActivityIndicator networkingIndicator;
+    private LayoutUtils utils;
 
     private View.OnClickListener firstButtonClickListener;
     private View.OnClickListener secondButtonClickListener;
+
+    private LayoutInflater inflater;
 
     private float screenHeight;
 
@@ -103,7 +112,8 @@ public class SeshDialog extends DialogFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstance) {
         final SeshNetworking seshNetworking = new SeshNetworking(getActivity());
-        LayoutUtils utils = new LayoutUtils(getActivity());
+        this.inflater = inflater;
+        this.utils = new LayoutUtils(getActivity());
 
         Typeface medium = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Gotham-Medium.otf");
         Typeface book = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Gotham-Book.otf");
@@ -118,8 +128,9 @@ public class SeshDialog extends DialogFragment {
             contentLayout = inflater.inflate(R.layout.sesh_dialog_content_default, null);
         }
 
-        ViewGroup contentContainer = (ViewGroup) dialogView.findViewById(R.id.dialog_content_area);
-        contentContainer.addView(contentLayout);
+        replaceContentLayout(dialogView, contentLayout);
+
+        networkingIndicator = (SeshActivityIndicator) dialogView.findViewById(R.id.network_indicator);
 
         TextView titleText = (TextView) dialogView.findViewById(R.id.dialog_title);
         if (titleText != null) {
@@ -133,23 +144,27 @@ public class SeshDialog extends DialogFragment {
             text.setTypeface(light);
         }
 
-        Button firstButton = (Button) dialogView.findViewById(R.id.dialog_first_button);
-        firstButton.setText(firstChoice);
-        firstButton.setTypeface(medium);
-
-        if (firstButtonClickListener != null) {
-            firstButton.setOnClickListener(firstButtonClickListener);
+        this.firstButton = (Button) dialogView.findViewById(R.id.dialog_first_button);
+        if (dialogType == SeshDialogType.CUSTOM_BUTTONS) {
+            firstButton.setVisibility(View.GONE);
         } else {
-            firstButton.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                    dismiss(1);
-                }
-            });
+            firstButton.setText(firstChoice);
+            firstButton.setTypeface(medium);
+
+            if (firstButtonClickListener != null) {
+                firstButton.setOnClickListener(firstButtonClickListener);
+            } else {
+                firstButton.setOnClickListener(new View.OnClickListener() {
+                    public void onClick(View v) {
+                        dismiss(1);
+                    }
+                });
+            }
         }
 
-        Button secondButton = (Button) dialogView.findViewById(R.id.dialog_second_button);
+        this.secondButton = (Button) dialogView.findViewById(R.id.dialog_second_button);
 
-        if (dialogType == SeshDialogType.ONE_BUTTON) {
+        if (dialogType == SeshDialogType.ONE_BUTTON || dialogType == SeshDialogType.CUSTOM_BUTTONS) {
             secondButton.setVisibility(View.GONE);
         } else {
             secondButton.setText(secondChoice);
@@ -173,10 +188,16 @@ public class SeshDialog extends DialogFragment {
         }
 
         this.springSystem = SpringSystem.create();
+        slideCardUp();
+
+        return dialogView;
+    }
+
+    private void slideCardUp() {
         final Spring spring = springSystem.createSpring();
 
         spring.setSpringConfig(SpringConfig.fromBouncinessAndSpeed(9.0, 6.0));
-        spring.addListener(new SimpleSpringListener(){
+        spring.addListener(new SimpleSpringListener() {
             @Override
             public void onSpringUpdate(Spring spring) {
                 float y = (float) spring.getCurrentValue();
@@ -192,7 +213,7 @@ public class SeshDialog extends DialogFragment {
                 screenHeight = utils.getScreenHeightPx(mActivity);
                 double centeredDialogY = dialogCard.getY();
 
-                dialogCard.setY((float)screenHeight);
+                dialogCard.setY((float) screenHeight);
                 dialogCard.setAlpha(1);
 
                 spring.setCurrentValue(screenHeight);
@@ -205,8 +226,35 @@ public class SeshDialog extends DialogFragment {
                 }
             }
         });
+    }
 
-        return dialogView;
+    private void replaceContentLayout(View dialogView, View contentView) {
+        ViewGroup contentContainer = (ViewGroup) dialogView.findViewById(R.id.dialog_content_area);
+        contentContainer.removeAllViews();
+        contentContainer.addView(contentView);
+    }
+
+    public void networkOperationFailed(String title, String message, String buttonTitle, final Runnable dismissCallback) {
+        replaceContentLayout(dialogView, inflater.inflate(R.layout.sesh_dialog_content_default, null));
+
+        firstButton.setVisibility(View.GONE);
+        secondButton.setVisibility(View.VISIBLE);
+        secondButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dismiss(2);
+                dismissCallback.run();
+            }
+        });
+
+        TextView titleText = (TextView) dialogView.findViewById(R.id.dialog_title);
+        TextView messageText = (TextView) dialogView.findViewById(R.id.dialog_text);
+        titleText.setText(title);
+        messageText.setText(message);
+
+        secondButton.setText(buttonTitle);
+
+        slideCardUp();
     }
 
     public static void showDialog(FragmentManager manager, String title, String message,
@@ -237,6 +285,30 @@ public class SeshDialog extends DialogFragment {
             int width = ViewGroup.LayoutParams.MATCH_PARENT;
             int height = ViewGroup.LayoutParams.MATCH_PARENT;
             dialog.getWindow().setLayout(width, height);
+        }
+    }
+
+    public void setNetworking(boolean networking) {
+        if (networking) {
+            dialogCard
+                    .animate()
+                    .y(screenHeight)
+                    .setDuration(150)
+                    .setInterpolator(new AccelerateInterpolator());
+            networkingIndicator.animate().alpha(1).setDuration(300).start();
+        } else {
+            dialogTransparentBackground
+                    .animate()
+                    .alpha(0)
+                    .setDuration(150)
+                    .setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            super.onAnimationEnd(animation);
+                            SeshDialog.super.dismiss();
+                        }
+                    }).start();
+            networkingIndicator.animate().alpha(0).setDuration(150).start();
         }
     }
 
@@ -296,6 +368,14 @@ public class SeshDialog extends DialogFragment {
 
     public void setDialogType(SeshDialogType seshDialogType) {
         this.dialogType = seshDialogType;
+    }
+
+    public Button getFirstButton() {
+        return firstButton;
+    }
+
+    public Button getSecondButton() {
+        return secondButton;
     }
 }
 

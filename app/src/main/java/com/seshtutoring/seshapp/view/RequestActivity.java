@@ -219,7 +219,7 @@ public class RequestActivity extends SeshActivity implements EditText.OnEditorAc
         currentLearnRequest.setIsInstant(false);
 
         if (currentLearnRequest.availableBlocks.size() == 0) {
-            currentLearnRequest.createAvailableBlockForNow();
+            currentLearnRequest.createAvailableBlockForNow(1);
         }
 
         SeshNetworking seshNetworking = new SeshNetworking(this);

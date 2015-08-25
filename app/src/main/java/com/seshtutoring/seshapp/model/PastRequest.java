@@ -33,9 +33,6 @@ public class PastRequest extends SugarRecord<PastRequest> {
     public String locationNotes;
     public int numPeople;
 
-    @Ignore
-    public Set<AvailableBlock> availableBlocks;
-
     public PastRequest() {}
 
     public PastRequest(int classId, String classString, String descr, int estTime, boolean isInstant,
@@ -51,12 +48,6 @@ public class PastRequest extends SugarRecord<PastRequest> {
         this.pastRequestId = pastRequestId;
         this.locationNotes = locationNotes;
         this.numPeople = numPeople;
-
-        if (availableBlocks != null) {
-            this.availableBlocks = availableBlocks;
-        } else {
-            this.availableBlocks = new HashSet<AvailableBlock>();
-        }
     }
 
     public static PastRequest createOrUpdatePastRequest(JSONObject pastRequestJson) {
@@ -87,20 +78,11 @@ public class PastRequest extends SugarRecord<PastRequest> {
             pastRequest.latitude = pastRequestJson.getDouble("latitude");
             pastRequest.longitude = pastRequestJson.getDouble("longitude");
             pastRequest.numPeople = pastRequestJson.getInt("num_people");
-            pastRequest.locationNotes = pastRequestJson.getString("location_notes");
+            pastRequest.locationNotes = (pastRequestJson.has("location_notes") ? pastRequestJson.getString("location_notes") : null);
 
             pastRequest.save();
-
-            if(!pastRequest.isInstant) {
-                JSONArray availableBlockObjects = pastRequestJson.getJSONArray("available_blocks");
-
-                for (int i = 0; i < availableBlockObjects.length(); i++) {
-                    JSONObject availableBlockJson = availableBlockObjects.getJSONObject(i);
-                    AvailableBlock.createAvailableBlock(availableBlockJson);
-                }
-            }
         } catch (JSONException e) {
-            Log.e(TAG, "Failed to create or update learn request; " + e.getMessage());
+            Log.e(TAG, "Failed to create or update past request; " + e.getMessage());
             return null;
         }
 

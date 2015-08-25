@@ -13,16 +13,21 @@ import android.widget.Chronometer;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.Sesh;
 import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.components.SeshButton;
 import com.squareup.picasso.Callback;
+import com.seshtutoring.seshapp.view.components.SeshDialog;
 
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -35,6 +40,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
  */
 public class InSeshActivity extends SeshActivity {
     private static final String TAG = InSeshActivity.class.getName();
+    public static final String DIALOG_TYPE_ERROR = "error_dialog";
 
     private Chronometer timer;
     private Sesh currentSesh;
@@ -82,6 +88,32 @@ public class InSeshActivity extends SeshActivity {
         SeshButton endSeshButton = (SeshButton) findViewById(R.id.end_sesh_button);
         if (currentSesh.isStudent) {
             endSeshButton.setVisibility(View.INVISIBLE);
+        } else {
+            endSeshButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    SeshNetworking seshNetworking = new SeshNetworking(getApplicationContext());
+                    seshNetworking.endSesh(currentSesh.seshId, new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject jsonObject) {
+                            try {
+                                if (jsonObject.getString("status").equals("SUCCESS")) {
+                                    // do nothing
+                                }
+                            } catch (JSONException e) {
+                                Log.e(TAG, "Failed to end sesh; json response malformed: " + e);
+                                showErrorDialog("Error!", "Something went wrong.  Try again later.");
+                            }
+                        }
+                    }, new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError volleyError) {
+                            Log.e(TAG, "Failed to end sesh; network error: " + volleyError);
+                            showErrorDialog("Network Error", "Whoops! We couldn't reach the server.  Check your network settings and try again.");
+                        }
+                    });
+                }
+            });
         }
 
         LayoutUtils layUtils = new LayoutUtils(this);
@@ -105,7 +137,23 @@ public class InSeshActivity extends SeshActivity {
         timer.start();
     }
 
+    public void showErrorDialog(String title, String content) {
+        SeshDialog errorDialog = new SeshDialog();
+        errorDialog.setFirstChoice("OKAY");
+        errorDialog.setDialogType(SeshDialog.SeshDialogType.ONE_BUTTON);
+        errorDialog.setType(DIALOG_TYPE_ERROR);
+        errorDialog.setTitle(title);
+        errorDialog.setMessage(content);
+
+        errorDialog.show(getFragmentManager(), null);
+    }
+
     @Override
     public void onBackPressed() {
+    }
+
+    @Override
+    public boolean isInSeshActivity() {
+        return true;
     }
 }

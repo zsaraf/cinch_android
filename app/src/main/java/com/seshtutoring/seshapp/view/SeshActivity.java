@@ -43,6 +43,7 @@ public abstract class SeshActivity extends AppCompatActivity implements SeshDial
 
     private static final boolean DEFAULT_SUPPORTS_SESH_DIALOG = true;
     private static final boolean DEFAULT_IS_FULLSCREEN = false;
+    private static final boolean DEFAULT_IS_IN_SESH_ACTIVITY = false;
     private static final Bitmap DEFAULT_BLUR_BACKGROUND_OVERRIDE = null;
 
     //    Pre-reg app functionality -- to be deleted v1
@@ -99,6 +100,7 @@ public abstract class SeshActivity extends AppCompatActivity implements SeshDial
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(APP_IS_LIVE_ACTION);
         intentFilter.addAction(MainContainerActivity.UPDATE_CONTAINER_STATE_ACTION);
+        intentFilter.addAction(MainContainerActivity.SESH_CANCELLED_ACTION);
         registerReceiver(notificationActionReceiver, intentFilter);
 
         Intent intent = getIntent();
@@ -185,6 +187,10 @@ public abstract class SeshActivity extends AppCompatActivity implements SeshDial
     @Override
     public void onDialogSelection(int i, String type) {
         // do nothing
+    }
+
+    public boolean isInSeshActivity() {
+        return DEFAULT_IS_IN_SESH_ACTIVITY;
     }
 
     public boolean isFullscreen() {

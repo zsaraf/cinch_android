@@ -84,10 +84,9 @@ public class AvailableBlock extends SugarRecord<AvailableBlock> {
     }
 
 //    TEMP FIX UNTIL SCHEDULING IMPLEMENTED
-    public static AvailableBlock availableBlockForInstantRequest(LearnRequest instantRequest) {
+    public static AvailableBlock availableBlockForInstantRequest(LearnRequest instantRequest, int hoursUntilExpiration) {
         DateTime startTime = new DateTime(instantRequest.timestamp);
-//        DateTime endTime = startTime.plusSeconds(5);
-        DateTime endTime = startTime.plusMinutes(instantRequest.estTime + 30);
+        DateTime endTime = startTime.plusHours(hoursUntilExpiration);
         return new AvailableBlock(startTime.toDate(), endTime.toDate(), instantRequest);
     }
 

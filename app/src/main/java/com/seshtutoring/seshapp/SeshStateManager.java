@@ -1,5 +1,6 @@
 package com.seshtutoring.seshapp;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
@@ -12,6 +13,7 @@ import com.seshtutoring.seshapp.services.SeshStateFetcher;
 import com.seshtutoring.seshapp.util.ApplicationLifecycleTracker;
 import com.seshtutoring.seshapp.view.InSeshActivity;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
+import com.seshtutoring.seshapp.view.SeshActivity;
 
 import org.joda.time.Period;
 
@@ -33,11 +35,13 @@ public class SeshStateManager {
 
     private static SeshStateManager mInstance;
     private SeshState currentSeshState;
+    private boolean displayUpdateNeeded;
     private Context mContext;
 
     public SeshStateManager(Context context) {
         this.mContext = context;
         this.currentSeshState = SeshState.NONE;
+        this.displayUpdateNeeded = false;
     }
 
     public static SeshState getCurrentSeshState(Context context) {
@@ -45,46 +49,67 @@ public class SeshStateManager {
     }
 
     public void updateSeshState(String seshStateIdentifier) {
+        SeshState newSeshState;
         switch (seshStateIdentifier) {
             case "SeshStateNone":
-                currentSeshState = SeshState.NONE;
+                newSeshState = SeshState.NONE;
                 break;
             case "SeshStateInSesh":
-                currentSeshState = SeshState.IN_SESH;
+                newSeshState = SeshState.IN_SESH;
                 break;
             default:
-                currentSeshState = SeshState.NONE;
+                newSeshState = SeshState.NONE;
                 break;
         }
+
+        if (newSeshState != currentSeshState) {
+            displayUpdateNeeded = true;
+        }
+
+        currentSeshState = newSeshState;
         Log.d(TAG, "Sesh state updated to " + currentSeshState.name());
     }
 
-    public void displayActivityForCurrentState() {
-        final ApplicationLifecycleTracker applicationLifecycleTracker
+    public void displayActivityForSeshStateUpdate() {
+        Log.d(TAG, "Displaying Activity for Current State: " + currentSeshState.toString());
+
+        if (!displayUpdateNeeded) return;
+
+        ApplicationLifecycleTracker applicationLifecycleTracker
                 = ApplicationLifecycleTracker.sharedInstance(mContext);
+        SeshActivity foregroundActivity = (SeshActivity) applicationLifecycleTracker.getActivityInForeground();
         switch (currentSeshState) {
             case IN_SESH:
-                if (Sesh.getCurrentSesh() == null) {
-                    SeshInfoFetcher seshInfoFetcher = new SeshInfoFetcher(mContext);
-                    seshInfoFetcher.fetch(new FetchUpdateListener() {
-                        @Override
-                        public void onFetchUpdate() {
-                            startInSeshActivity();
-                        }
-                    });
-                } else {
-                    startInSeshActivity();
+                if (!foregroundActivity.isInSeshActivity()) {
+                    if (Sesh.getCurrentSesh() == null) {
+                        SeshInfoFetcher seshInfoFetcher = new SeshInfoFetcher(mContext);
+                        seshInfoFetcher.fetch(new FetchUpdateListener() {
+                            @Override
+                            public void onFetchUpdate() {
+                                startInSeshActivity();
+                            }
+                        });
+                    } else {
+                        startInSeshActivity();
+                    }
                 }
                 break;
             case NONE:
-                startMainContainerActivity();
+                if (foregroundActivity.isInSeshActivity()) {
+                    startMainContainerActivity();
+                }
                 break;
         }
+
+        displayUpdateNeeded = false;
     }
 
     private void startInSeshActivity() {
+        Log.d(TAG, "STARTING IN SESH ACTIVITY");
         Intent intent = new Intent(mContext, InSeshActivity.class);
-        ApplicationLifecycleTracker.sharedInstance(mContext).getActivityInForeground().startActivity(intent);
+        Activity foregroundActivity = ApplicationLifecycleTracker.sharedInstance(mContext).getActivityInForeground();
+        foregroundActivity.startActivity(intent);
+        foregroundActivity.overridePendingTransition(R.anim.slide_up, R.anim.hold);
     }
 
     private void startMainContainerActivity() {

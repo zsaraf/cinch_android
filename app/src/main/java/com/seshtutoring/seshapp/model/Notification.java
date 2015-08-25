@@ -16,7 +16,9 @@ import com.seshtutoring.seshapp.services.notifications.handlers.NewMessageNotifi
 import com.seshtutoring.seshapp.services.notifications.handlers.NewRequestNotificationHandler;
 import com.seshtutoring.seshapp.services.notifications.handlers.NotificationHandler;
 import com.seshtutoring.seshapp.services.notifications.handlers.RequestTimeoutNotificationHandler;
+import com.seshtutoring.seshapp.services.notifications.handlers.SeshCancelledNotificationHandler;
 import com.seshtutoring.seshapp.services.notifications.handlers.SeshCreatedNotificationHandler;
+import com.seshtutoring.seshapp.services.notifications.handlers.SeshReviewNotificationHandler;
 import com.seshtutoring.seshapp.services.notifications.handlers.SeshStartedStudentNotificationHandler;
 import com.seshtutoring.seshapp.services.notifications.handlers.UpdateStateNotificationHandler;
 import com.seshtutoring.seshapp.util.networking.SeshAuthManager;
@@ -272,23 +274,23 @@ public class Notification extends SugarRecord<Notification> {
             case REFRESH_NOTIFICATIONS:
                 return new RefreshNotificationsNotificationHandler(this, seshApplication); // tested
             case REQUEST_TIMEOUT:
-                return new DefaultNotificationHandler(this, seshApplication);
+                return new RequestTimeoutNotificationHandler(this, seshApplication); // tested
             case SESH_CANCELLED_TUTOR:
-                return new DefaultNotificationHandler(this, seshApplication);
+                return new SeshCancelledNotificationHandler(this, seshApplication); // tested
             case SESH_CANCELLED_STUDENT:
-                return new DefaultNotificationHandler(this, seshApplication);
+                return new SeshCancelledNotificationHandler(this, seshApplication); // tested
             case LOCATION_NOTES_UPDATED:
-                return new DefaultNotificationHandler(this, seshApplication);
+                return new DefaultNotificationHandler(this, seshApplication); // talk to saraf
             case SET_TIME_UPDATED:
-                return new DefaultNotificationHandler(this, seshApplication);
+                return new DefaultNotificationHandler(this, seshApplication); // talk to saraf
             case SESH_APPROACHING_STUDENT:
-                return new DefaultNotificationHandler(this, seshApplication);
+                return new DefaultNotificationHandler(this, seshApplication); // talk to saraf
             case SESH_APPROACHING_TUTOR:
-                return new DefaultNotificationHandler(this, seshApplication);
+                return new DefaultNotificationHandler(this, seshApplication); // talk to saraf
             case SESH_REVIEW_STUDENT:
-                return new DefaultNotificationHandler(this, seshApplication);
+                return new SeshReviewNotificationHandler(this, seshApplication); // tested
             case SESH_REVIEW_TUTOR:
-                return new DefaultNotificationHandler(this, seshApplication);
+                return new SeshReviewNotificationHandler(this, seshApplication); // tested
             case DISCOUNT_AVAILABLE:
                 return new DefaultNotificationHandler(this, seshApplication);
             default:

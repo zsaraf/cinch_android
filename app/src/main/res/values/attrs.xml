@@ -41,6 +41,9 @@
         <attr name="informationLabelText" format="string" />
         <attr name="informationLabelIcon" format="color|reference" />
     </declare-styleable>
+    <declare-styleable name="RequestTimeoutButton">
+        <attr name="numHours" format="integer" />
+    </declare-styleable>
 
     <!--<declare-styleable name="AnimatedEllipsisTextView">-->
         <!--<attr name="text" format="string"/>-->

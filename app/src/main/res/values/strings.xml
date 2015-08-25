@@ -156,4 +156,6 @@ If You have any questions about this privacy statement, the practices of Sesh, o
     <string name="sesh_created_student_dialog_title">You got a Tutor!</string>
     <string name="sesh_created_tutor_dialog_text">Time to save %1$s\'s day!  Please confirm your meeting location and start time with %1$s.  You can message within the app.</string>
     <string name="sesh_created_student_dialog_text">%1$s picked up your request!  Please confirm your meeting location and start time with %1$s.  You can message within the app.</string>
+
+    <string name="sesh_request_timeout_dialog_text">We could not find you a tutor for %1$s right now.  Would you like us to keep looking?  For how long?</string>
 </resources>

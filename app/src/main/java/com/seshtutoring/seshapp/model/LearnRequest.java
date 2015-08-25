@@ -6,6 +6,7 @@ import com.orm.SugarRecord;
 import com.orm.dsl.Ignore;
 import com.seshtutoring.seshapp.util.networking.SeshAuthManager;
 
+import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.json.JSONArray;
@@ -40,6 +41,7 @@ public class LearnRequest extends SugarRecord<LearnRequest> {
     public int numPeople;
     public Date timestamp;
     public String locationNotes;
+    public long expirationTime;
 
     @Ignore
     public Set<AvailableBlock> availableBlocks;
@@ -51,7 +53,7 @@ public class LearnRequest extends SugarRecord<LearnRequest> {
 
     public LearnRequest(String classId, String classString, String descr, int estTime, boolean isInstant, double latitude,
                         double longitude, int learnRequestId, int numPeople,
-                        Date timestamp, String locationNotes, Set<AvailableBlock> availableBlocks) {
+                        Date timestamp, String locationNotes, long expirationTime, Set<AvailableBlock> availableBlocks) {
         this.classId = classId;
         this.classString = classString;
         this.descr = descr;
@@ -63,6 +65,7 @@ public class LearnRequest extends SugarRecord<LearnRequest> {
         this.numPeople = numPeople;
         this.timestamp = timestamp;
         this.locationNotes = locationNotes;
+        this.expirationTime = expirationTime;
 
         if (availableBlocks != null) {
             this.availableBlocks = availableBlocks;
@@ -121,6 +124,19 @@ public class LearnRequest extends SugarRecord<LearnRequest> {
         return learnRequest;
     }
 
+    public static LearnRequest learnRequestFromPastRequest(PastRequest pastRequest) {
+        LearnRequest learnRequest = new LearnRequest();
+        learnRequest.classId = Integer.toString(pastRequest.classId);
+        learnRequest.classString = pastRequest.classString;
+        learnRequest.descr = pastRequest.descr;
+        learnRequest.estTime = pastRequest.estTime;
+        learnRequest.isInstant = pastRequest.isInstant;
+        learnRequest.latitude = pastRequest.latitude;
+        learnRequest.longitude = pastRequest.longitude;
+        learnRequest.numPeople = pastRequest.numPeople;
+        return learnRequest;
+    }
+
     public List<AvailableBlock> getAvailableBlocks() {
         return AvailableBlock.find(AvailableBlock.class, "learn_request = ?", Long.toString(getId()));
     }
@@ -134,8 +150,8 @@ public class LearnRequest extends SugarRecord<LearnRequest> {
     }
 
     //    TEMP FIX UNTIL SCHEDULING IMPLEMENTED ON ANDROID
-    public void createAvailableBlockForNow() {
-        AvailableBlock block = AvailableBlock.availableBlockForInstantRequest(this);
+    public void createAvailableBlockForNow(int hoursUntilExpiration) {
+        AvailableBlock block = AvailableBlock.availableBlockForInstantRequest(this, hoursUntilExpiration);
         availableBlocks.add(block);
     }
 
