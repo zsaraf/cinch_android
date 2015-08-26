@@ -132,6 +132,13 @@
             android:theme="@style/SeshFullScreen">
         </activity>
         <activity
+            android:name=".view.ReportProblemActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize"
+            android:theme="@style/SeshFullScreen">
+        </activity>
+        <activity
             android:name=".view.AuthenticationActivity"
             android:label="@string/title_activity_login"
             android:launchMode="singleTop"

@@ -67,6 +67,11 @@ public class SplashActivity extends SeshActivity {
     }
 
     private void startInitialActivity() {
+
+//        Intent tutorReviewIntent = new Intent(getApplicationContext(), TutorReviewActivity.class);
+//        startActivity(tutorReviewIntent);
+
+
         if (SeshAuthManager.sharedManager(this).isValidSession()) {
             if (SeshApplication.IS_LIVE) {
                 LaunchPrerequisiteUtil.asyncPrepareForLaunch(this, new Runnable() {

@@ -311,7 +311,7 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenedLi
         List<Sesh> studentSeshes = null;
         if (Sesh.listAll(Sesh.class).size() > 0) {
 //            studentSeshes = Sesh.find(Sesh.class, "is_student = ?", Integer.toString(1));
-            studentSeshes = Sesh.find(Sesh.class);
+            studentSeshes = Sesh.listAll(Sesh.class);
         } else {
             studentSeshes = new ArrayList<Sesh>();
         }

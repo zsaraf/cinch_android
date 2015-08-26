@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.seshtutoring.seshapp.view.TutorReviewActivity"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    android:id="@+id/activityRoot"
+    >
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Uh-Oh!"
+        android:id="@+id/textView"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:textSize="30dp"
+        android:gravity="center_vertical|center_horizontal" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Providing great tutors is our number one concern. Please let us know about any problems you may have experienced during your Sesh. Your comments will not be seen by the tutor."
+        android:id="@+id/textView2"
+        android:layout_below="@+id/textView"
+        android:layout_centerHorizontal="true"
+        android:textSize="18dp"
+        android:layout_marginRight="35dp"
+        android:layout_marginLeft="35dp"
+        android:gravity="center_horizontal"
+        android:layout_marginTop="20dp" />
+
+    <com.seshtutoring.seshapp.view.components.SeshButton
+        android:id="@+id/submit_button"
+        android:text="OKAY"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginLeft="35dp"
+        android:layout_marginRight="35dp"
+        android:layout_marginBottom="20dp" />
+    <com.seshtutoring.seshapp.view.components.SeshButton
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/cancel_button"
+        android:layout_above="@+id/submit_button"
+        android:text="CANCEL"
+        android:layout_marginLeft="35dp"
+        android:layout_marginRight="35dp"
+        android:layout_marginBottom="10dp"
+        custom:buttonType="gray" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/main_container"
+        android:layout_below="@+id/textView2"
+        android:layout_above="@+id/cancel_button"
+        android:layout_marginLeft="35dp"
+        android:layout_marginRight="35dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp">
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:inputType="textMultiLine"
+            android:ems="10"
+            android:id="@+id/problem_text_field"
+            android:layout_marginTop="0dp"
+            android:layout_marginBottom="0dp"
+            android:gravity="top"
+            android:background="@android:color/transparent"
+            android:layout_marginLeft="0dp"
+            android:layout_marginRight="0dp"
+            android:hint="Comment..."
+            />
+
+        <com.seshtutoring.seshapp.view.components.SeshActivityIndicator
+            android:id="@+id/report_activity_indicator"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_centerInParent="true"
+            android:alpha="0"/>
+    </RelativeLayout>
+</RelativeLayout>

@@ -86,6 +86,9 @@ public class SeshNetworking {
     private static final String VERSION_NUMBER_PARAM = "version_number";
     private static final String SESH_ID_PARAM = "sesh_id";
     private static final String IS_PAST_PARAM = "is_past";
+    private static final String PAST_SESH_ID_PARAM = "past_sesh_id";
+    private static final String CONTENT_PARAM = "content";
+
 
     private Context mContext;
 
@@ -631,6 +634,16 @@ public class SeshNetworking {
         postWithRelativeUrl("cancel_sesh.php", params, successListener, errorListener);
     }
 
+    public void reportProblem(String problem, int pastSeshId, Response.Listener<JSONObject> successListener, Response.ErrorListener errorListener) {
+        Map<String, String> params = new HashMap<>();
+        params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
+        params.put(PAST_SESH_ID_PARAM, Integer.toString(pastSeshId));
+        params.put(CONTENT_PARAM, problem);
+
+        postWithRelativeUrl("report_problem.php", params, successListener, errorListener);
+
+    }
+
     public void getPastSeshInformationForPastSeshId(int pastSeshId, Response.Listener<JSONObject> successListener,
                                                           Response.ErrorListener errorListener) {
         Map<String, String> params = new HashMap<>();
@@ -664,6 +677,6 @@ public class SeshNetworking {
 //    public void sendMessage(...)
 //    public void hasReadCurrentMessage(...)
 //    public void getAllMessagesForSesh(...)
-//    public void reportProblem(...)
+
 //    public void payOutstandingCharges(...)
 }
