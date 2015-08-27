@@ -56,7 +56,6 @@ public class ReportProblemActivity extends SeshActivity {
 
         this.commentField.setHintTextColor(getResources().getColor(R.color.seshlightgray));
 
-
         this.submitButton = (SeshButton) findViewById(R.id.submit_button);
         this.submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
