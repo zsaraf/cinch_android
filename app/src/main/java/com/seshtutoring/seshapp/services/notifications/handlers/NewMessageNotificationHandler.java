@@ -5,29 +5,45 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.TaskStackBuilder;
+import android.widget.ImageView;
 
+import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.SeshApplication;
 import com.seshtutoring.seshapp.model.Notification;
 import com.seshtutoring.seshapp.util.ApplicationLifecycleTracker;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
+import com.squareup.picasso.Callback;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
  * Created by nadavhollander on 8/20/15.
  */
-public class NewMessageNotificationHandler  extends NotificationHandler {
+public class NewMessageNotificationHandler extends BannerNotificationHandler {
     public NewMessageNotificationHandler(Notification notification, Context context) {
         super(notification, context);
     }
 
-    public void handle() {
-        // @TODO: Implement when messaging is relevant
+    @Override
+    public void handleDisplayInsideApp() {
+        loadImage(profilePicture, new Callback() {
+            @Override
+            public void onSuccess() {
+                    displayBanner();
+                }
+            @Override
+            public void onError() {
+                    displayBanner();
+                }
+        });
+    }
 
-        if (!ApplicationLifecycleTracker.sharedInstance(mContext).applicationInForeground()) {
-            showNotificationForIntent(new Intent(mContext, MainContainerActivity.class));
-        } else {
-            displayBanner();
-        }
-
-        mNotification.handled(mContext, true);
+    public Runnable bannerTapCallback() {
+        return new Runnable() {
+            @Override
+            public void run() {
+                mNotification.handled(mContext, true);
+            }
+        }; // todo implement when relevant
     }
 }

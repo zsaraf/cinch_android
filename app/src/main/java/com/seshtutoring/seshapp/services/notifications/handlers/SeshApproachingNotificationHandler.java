@@ -16,21 +16,13 @@ import org.joda.time.format.DateTimeFormatter;
 /**
  * Created by nadavhollander on 8/20/15.
  */
-public class SetTimeUpdatedNotificationHandler extends BannerNotificationHandler {
-    public SetTimeUpdatedNotificationHandler(Notification notification, Context context) {
+public class SeshApproachingNotificationHandler  extends BannerNotificationHandler {
+    public SeshApproachingNotificationHandler(Notification notification, Context context) {
         super(notification, context);
     }
 
-    private void saveNewSetTime() {
-        DateTimeFormatter formatter = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss").withZoneUTC();
-
-        Sesh sesh = mNotification.correspondingSesh();
-        sesh.seshSetTime = formatter.parseDateTime((String) mNotification.getDataObject("set_time")).toDate();
-        sesh.save();
-    }
-
+    @Override
     public void handleDisplayInsideApp() {
-        saveNewSetTime();
         loadImage(profilePicture, new Callback() {
             @Override
             public void onSuccess() {
@@ -43,9 +35,9 @@ public class SetTimeUpdatedNotificationHandler extends BannerNotificationHandler
         });
     }
 
+    @Override
     public void handleDisplayOutsideApp() {
-        saveNewSetTime();
-        showNotificationForIntent(viewSeshActionIntent(false, mNotification.correspondingSesh()));
+        showNotificationForIntent(viewSeshActionIntent(false));
         mNotification.handled(mContext, true);
     }
 
@@ -53,13 +45,13 @@ public class SetTimeUpdatedNotificationHandler extends BannerNotificationHandler
         return new Runnable() {
             @Override
             public void run() {
-                mContext.sendBroadcast(viewSeshActionIntent(true, mNotification.correspondingSesh()));
+                mContext.sendBroadcast(viewSeshActionIntent(true));
                 mNotification.handled(mContext, true);
             }
         };
     }
 
-    private Intent viewSeshActionIntent(boolean forBroadcast, Sesh sesh) {
+    private Intent viewSeshActionIntent(boolean forBroadcast) {
         Intent intent;
         if (forBroadcast) {
             intent = new Intent(MainContainerActivity.VIEW_SESH_ACTION);
@@ -67,7 +59,7 @@ public class SetTimeUpdatedNotificationHandler extends BannerNotificationHandler
             intent = new Intent(MainContainerActivity.VIEW_SESH_ACTION,
                     null, mContext, MainContainerActivity.class);
         }
-        intent.putExtra(ViewSeshFragment.SESH_KEY, sesh.seshId);
+        intent.putExtra(ViewSeshFragment.SESH_KEY, mNotification.correspondingSesh().seshId);
         return intent;
     }
 }

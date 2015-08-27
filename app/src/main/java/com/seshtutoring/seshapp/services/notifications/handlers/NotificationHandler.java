@@ -4,14 +4,21 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.SeshApplication;
 import com.seshtutoring.seshapp.model.Notification;
+import com.seshtutoring.seshapp.util.ApplicationLifecycleTracker;
+import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
+import com.seshtutoring.seshapp.view.components.SeshBanner;
+import com.squareup.picasso.Callback;
 
 /**
  * Created by nadavhollander on 8/20/15.
@@ -26,10 +33,6 @@ public abstract class NotificationHandler {
     public NotificationHandler(Notification notification, Context context) {
         this.mNotification = notification;
         this.mContext = context;
-    }
-
-    protected void displayBanner() {
-        // do nothing
     }
 
     protected void showNotificationForIntent(Intent intent) {
@@ -58,5 +61,24 @@ public abstract class NotificationHandler {
         notificationManager.notify(DEFAULT_NOTIFICATION_ID, notificationBuilder.build());
     }
 
-    public abstract void handle();
+    protected void loadImage(final ImageView imageView, final Callback callback) {
+        final SeshNetworking seshNetworking = new SeshNetworking(mContext);
+
+        // execute on main thread
+        Handler handler = new Handler(Looper.getMainLooper());
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                seshNetworking.downloadProfilePicture(mNotification.correspondingSesh().userImageUrl,
+                        imageView,
+                        callback);
+            }
+        });
+    }
+
+    public abstract void handleDisplayInsideApp();
+
+    public void handleDisplayOutsideApp() {
+        showNotificationForIntent(new Intent(mContext, MainContainerActivity.class));
+    }
 }

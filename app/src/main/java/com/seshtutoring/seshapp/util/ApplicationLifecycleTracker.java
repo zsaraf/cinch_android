@@ -18,6 +18,7 @@ import com.seshtutoring.seshapp.services.PeriodicFetchBroadcastReceiver;
 import com.seshtutoring.seshapp.services.notifications.SeshNotificationManagerService;
 import com.seshtutoring.seshapp.util.networking.SeshAuthManager;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
+import com.seshtutoring.seshapp.view.SeshActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -30,11 +31,9 @@ public class ApplicationLifecycleTracker  {
     private static ApplicationLifecycleTracker applicationLifecycleTracker;
 
     private boolean someActivityInForeground;
+    private boolean activityTransitionInProgress;
     private AlarmManager fetchSeshInfoAlarm;
     private PendingIntent fetchSeshInfoPendingIntent;
-    private AlarmManager fetchNotificationsAlarm;
-    private PendingIntent fetchNotificationsPendingIntent;
-    private static ApplicationResumeListener applicationResumeListener;
 
     private Activity activityInForeground;
 
@@ -57,36 +56,35 @@ public class ApplicationLifecycleTracker  {
 
     public ApplicationLifecycleTracker(Context context) {
         this.mContext = context;
+        this.activityTransitionInProgress = false;
 
         this.fetchSeshInfoAlarm = (AlarmManager) mContext.getSystemService(mContext.ALARM_SERVICE);
         Intent infoIntent = new Intent(PeriodicFetchBroadcastReceiver.PERIODIC_FETCH_ACTION);
         this.fetchSeshInfoPendingIntent =
                 PendingIntent.getBroadcast(mContext, 1, infoIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        this.fetchNotificationsAlarm = (AlarmManager) mContext.getSystemService(mContext.ALARM_SERVICE);
-        Intent notificationsIntent = new Intent(SeshNotificationManagerService.REFRESH_NOTIFICATIONS_ACTION,
-                null, context, SeshNotificationManagerService.class);
-        this.fetchNotificationsPendingIntent =
-                PendingIntent.getService(mContext, 2, notificationsIntent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
     public void activityResumed(Activity activity) {
         someActivityInForeground = true;
+        activityTransitionInProgress = false;
         activityInForeground = activity;
-
-        if (applicationResumeListener != null) {
-            applicationResumeListener.onApplicationResume();
-            applicationResumeListener = null;
-        }
 
         if (SeshAuthManager.sharedManager(mContext).isValidSession() && SeshApplication.IS_LIVE) {
             fetchSeshInfoAlarm.
                     setRepeating(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime(),
                             FIFTEEN_SECONDS, fetchSeshInfoPendingIntent);
 
-            fetchNotificationsAlarm.
-                    setRepeating(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime(),
-                            FIFTEEN_SECONDS, fetchNotificationsPendingIntent);
+            if (((SeshActivity)activityInForeground).supportsSeshDialog()) {
+                Intent refreshNotifications =
+                        new Intent(SeshNotificationManagerService.REFRESH_NOTIFICATIONS_ACTION, null,
+                                mContext, SeshNotificationManagerService.class);
+                mContext.startService(refreshNotifications);
+
+                Intent startNotificationQueueHandling
+                        = new Intent(SeshNotificationManagerService.START_IN_APP_DISPLAY_QUEUE_HANDLING,
+                        null, mContext, SeshNotificationManagerService.class);
+                mContext.startService(startNotificationQueueHandling);
+            }
         }
     }
 
@@ -95,19 +93,28 @@ public class ApplicationLifecycleTracker  {
         activityInForeground = null;
 
         fetchSeshInfoAlarm.cancel(fetchSeshInfoPendingIntent);
-        fetchNotificationsAlarm.cancel(fetchNotificationsPendingIntent);
+
+        if (SeshAuthManager.sharedManager(mContext).isValidSession() && SeshApplication.IS_LIVE) {
+            Intent pauseNotificationQueueHandling
+                    = new Intent(SeshNotificationManagerService.PAUSE_IN_APP_DISPLAY_QUEUE_HANDLING,
+                    null, mContext, SeshNotificationManagerService.class);
+            mContext.startService(pauseNotificationQueueHandling);
+        }
     }
 
     public boolean applicationInForeground() {
-        return someActivityInForeground;
+        if (someActivityInForeground) {
+            return true;
+        } else {
+            return activityTransitionInProgress;
+        }
     }
 
     public Activity getActivityInForeground() {
         return activityInForeground;
     }
 
-
-    public static void setApplicationResumeListener(ApplicationResumeListener resumeListener) {
-        applicationResumeListener = resumeListener;
+    public void setActivityTransitionInProgress(boolean inProgress) {
+        this.activityTransitionInProgress = inProgress;
     }
 }

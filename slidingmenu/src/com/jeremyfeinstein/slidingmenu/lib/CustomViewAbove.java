@@ -310,6 +310,8 @@ public class CustomViewAbove extends ViewGroup {
 			return mViewBehind.getMenuLeft(mContent, page);
 		case 1:
 			return mContent.getLeft();
+			case 3:
+				return mViewBehind.getMenuLeft(mContent, page) + 60;
 		}
 		return 0;
 	}

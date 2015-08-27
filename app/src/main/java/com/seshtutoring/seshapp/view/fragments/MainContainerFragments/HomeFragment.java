@@ -3,6 +3,7 @@ package com.seshtutoring.seshapp.view.fragments.MainContainerFragments;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.os.Handler;
 import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
@@ -203,5 +204,9 @@ public class HomeFragment extends Fragment implements FragmentOptionsReceiver {
                 viewJobsFragment.stopRepeatingTask();
             }
         }
+    }
+
+    public void mapViewReady() {
+        ((MainContainerActivity)getActivity()).onFragmentReplacedAndRendered();
     }
 }

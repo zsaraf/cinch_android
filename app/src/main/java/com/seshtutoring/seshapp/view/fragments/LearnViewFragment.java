@@ -43,6 +43,7 @@ import com.seshtutoring.seshapp.view.MainContainerActivity;
 import com.seshtutoring.seshapp.view.RequestActivity;
 import com.seshtutoring.seshapp.view.components.SeshButton;
 import com.seshtutoring.seshapp.view.components.SeshDialog;
+import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.HomeFragment;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -205,6 +206,7 @@ public class LearnViewFragment extends Fragment implements OnMapReadyCallback {
     public void onMapReady(GoogleMap map) {
         mMap = map;
         setUpMap();
+        ((HomeFragment)getParentFragment()).mapViewReady();
     }
 
     private void setUpMap() {

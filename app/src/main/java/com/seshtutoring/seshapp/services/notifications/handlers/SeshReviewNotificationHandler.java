@@ -24,25 +24,15 @@ public class SeshReviewNotificationHandler extends SeshEndedNotificationHandler 
     }
 
     @Override
-    public void handle() {
+    public void handleDisplayInsideApp() {
         replaceSeshWithPastSesh();
     }
 
     @Override
     public void onSeshReplacedWithPastSesh() {
-        final ApplicationLifecycleTracker applicationLifecycleTracker
+        ApplicationLifecycleTracker applicationLifecycleTracker
                 = ApplicationLifecycleTracker.sharedInstance(mContext);
-        if (applicationLifecycleTracker.applicationInForeground()) {
-            startReviewActivity(applicationLifecycleTracker.getActivityInForeground());
-        } else {
-            showNotificationForIntent(new Intent(mContext, MainContainerActivity.class));
-            applicationLifecycleTracker.setApplicationResumeListener(new ApplicationLifecycleTracker.ApplicationResumeListener() {
-                @Override
-                public void onApplicationResume() {
-                    startReviewActivity(applicationLifecycleTracker.getActivityInForeground());
-                }
-            });
-        }
+        startReviewActivity(applicationLifecycleTracker.getActivityInForeground());
     }
 
     private void startReviewActivity(Activity foregroundActivity) {

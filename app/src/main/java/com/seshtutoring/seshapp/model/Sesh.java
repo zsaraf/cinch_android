@@ -268,4 +268,12 @@ public class Sesh extends SugarRecord<Sesh> {
         String[] components = userName.split("\\s+");
         return components[0].substring(0,1).toUpperCase() + components[0].substring(1).toLowerCase();
     }
+
+    public static Sesh findSeshWithId(int seshId) {
+        List<Sesh> seshesFound = Sesh.find(Sesh.class, "sesh_id = ?", Integer.toString(seshId));
+        if (seshesFound.size() > 0) {
+            return seshesFound.get(0);
+        }
+        return null;
+    }
 }

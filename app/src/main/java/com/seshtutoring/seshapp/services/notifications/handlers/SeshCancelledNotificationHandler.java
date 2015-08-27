@@ -23,34 +23,18 @@ public class SeshCancelledNotificationHandler extends SeshEndedNotificationHandl
 
     public SeshCancelledNotificationHandler(Notification notification, Context context) {
         super(notification, context);
+        applicationLifecycleTracker = ApplicationLifecycleTracker.sharedInstance(context);
     }
 
     @Override
-    public void handle() {
+    public void handleDisplayInsideApp() {
         replaceSeshWithPastSesh();
+        Intent intent = new Intent(MainContainerActivity.SESH_CANCELLED_ACTION);
+        mContext.sendBroadcast(intent);
+        showDialog(false);
     }
 
-    @Override
-    public void onSeshReplacedWithPastSesh() {
-        this.applicationLifecycleTracker =
-                ApplicationLifecycleTracker.sharedInstance(mContext);
-        if (applicationLifecycleTracker.applicationInForeground()) {
-            Intent intent = new Intent(MainContainerActivity.SESH_CANCELLED_ACTION);
-            mContext.sendBroadcast(intent);
-            showDialog();
-        } else {
-            showNotificationForIntent(new Intent(mContext, MainContainerActivity.class));
-            applicationLifecycleTracker.setApplicationResumeListener(
-                    new ApplicationLifecycleTracker.ApplicationResumeListener() {
-                @Override
-                public void onApplicationResume() {
-                    showDialog();
-                }
-            });
-        }
-    }
-
-    private void showDialog() {
+    private void showDialog(boolean withOpenDelay) {
         final SeshDialog seshDialog = new SeshDialog();
         seshDialog.setTitle(mNotification.title);
         seshDialog.setMessage(mNotification.message);
@@ -65,8 +49,15 @@ public class SeshCancelledNotificationHandler extends SeshEndedNotificationHandl
         });
         seshDialog.setType(DIALOG_TYPE_SESH_CANCELLED);
 
-        seshDialog.show(
-                applicationLifecycleTracker.getActivityInForeground().getFragmentManager(), DIALOG_TYPE_SESH_CANCELLED
-        );
+        if (withOpenDelay) {
+            seshDialog.showWithDelay(
+                    applicationLifecycleTracker.getActivityInForeground().getFragmentManager(),
+                    DIALOG_TYPE_SESH_CANCELLED, 2000
+            );
+        } else {
+            seshDialog.show(
+                    applicationLifecycleTracker.getActivityInForeground().getFragmentManager(), DIALOG_TYPE_SESH_CANCELLED
+            );
+        }
     }
 }

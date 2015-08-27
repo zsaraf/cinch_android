@@ -10,6 +10,7 @@ import android.widget.RelativeLayout;
 
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.util.LayoutUtils;
+import com.seshtutoring.seshapp.view.MainContainerActivity;
 import com.seshtutoring.seshapp.view.MainContainerActivity.FragmentOptionsReceiver;
 
 import java.util.Map;
@@ -29,6 +30,12 @@ public class PromoteFragment extends Fragment implements FragmentOptionsReceiver
         promoteLayout.setPadding(0, utils.getActionBarHeightPx(), 0, 0);
 
         return v;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        ((MainContainerActivity)getActivity()).onFragmentReplacedAndRendered();
     }
 
     @Override

@@ -56,8 +56,6 @@ public class SeshGCMListenerService extends GcmListenerService {
     // [START receive_message]
     @Override
     public void onMessageReceived(String from, final Bundle data) {
-        String identifier;
-
         Intent intent = new Intent(SeshNotificationManagerService.ENQUEUE_NEW_NOTIFICATION,
                 null, getApplicationContext(), SeshNotificationManagerService.class);
         intent.putExtra(NOTIFICATION_OBJ_KEY, data.getString(NOTIFICATION_OBJ_KEY));

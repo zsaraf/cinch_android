@@ -102,7 +102,7 @@ public class SplashActivity extends SeshActivity {
     }
 
     @Override
-    protected boolean supportsSeshDialog() {
+    public boolean supportsSeshDialog() {
         return false;
     }
 }

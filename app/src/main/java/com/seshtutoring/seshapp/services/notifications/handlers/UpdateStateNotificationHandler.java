@@ -17,25 +17,17 @@ public class UpdateStateNotificationHandler extends NotificationHandler {
         super(notification, context);
     }
 
-    public void handle() {
+    @Override
+    public void handleDisplayInsideApp() {
         SeshStateManager.sharedInstance(mContext).updateSeshState((String) mNotification.getDataObject("state"));
+        SeshStateManager seshStateManager = SeshStateManager.sharedInstance(mContext);
+        seshStateManager.displayActivityForSeshStateUpdate();
 
-        ApplicationLifecycleTracker applicationLifecycleTracker
-                = ApplicationLifecycleTracker.sharedInstance(mContext);
-        final SeshStateManager seshStateManager = SeshStateManager.sharedInstance(mContext);
-        if (!applicationLifecycleTracker.applicationInForeground()) {
-            ApplicationLifecycleTracker.setApplicationResumeListener(new ApplicationResumeListener() {
-                @Override
-                public void onApplicationResume() {
-                    seshStateManager.displayActivityForSeshStateUpdate();
-                }
-            });
-        } else {
-            seshStateManager.displayActivityForSeshStateUpdate();
-        }
+        mNotification.handled(mContext, true);
+    }
 
-        if (SeshStateManager.getCurrentSeshState(mContext) == SeshStateManager.SeshState.NONE) {
-            mNotification.handled(mContext, true);
-        }
+    @Override
+    public void handleDisplayOutsideApp() {
+        // don't display external notification
     }
 }

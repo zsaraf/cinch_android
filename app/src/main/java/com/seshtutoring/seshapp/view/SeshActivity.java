@@ -108,9 +108,9 @@ public abstract class SeshActivity extends AppCompatActivity implements SeshDial
             handleNotificationIntent(intent);
         }
 
-        if (appUpdateRequired() && !updateDialogShowing && supportsSeshDialog()) {
-            showAppIsLiveDialog();
-        }
+//        if (appUpdateRequired() && !updateDialogShowing && supportsSeshDialog()) {
+//            showAppIsLiveDialog();
+//        }
 
         ApplicationLifecycleTracker.sharedInstance(this).activityResumed(this);
     }
@@ -133,12 +133,12 @@ public abstract class SeshActivity extends AppCompatActivity implements SeshDial
                     getSystemService(NOTIFICATION_SERVICE)).cancel(notificationId);
         }
 
-        //    Pre-reg app functionality -- to be deleted v1
-        if (intent.getAction() != null && intent.getAction().equals(APP_IS_LIVE_ACTION)) {
-            if (supportsSeshDialog() && !updateDialogShowing) {
-                showAppIsLiveDialog();
-            }
-        }
+//        //    Pre-reg app functionality -- to be deleted v1
+//        if (intent.getAction() != null && intent.getAction().equals(APP_IS_LIVE_ACTION)) {
+//            if (supportsSeshDialog() && !updateDialogShowing) {
+//                showAppIsLiveDialog();
+//            }
+//        }
 
         intent.putExtra(INTENT_HANDLED, true);
     }
@@ -180,13 +180,19 @@ public abstract class SeshActivity extends AppCompatActivity implements SeshDial
         return DEFAULT_BLUR_BACKGROUND_OVERRIDE;
     }
 
-    protected boolean supportsSeshDialog() {
+    public boolean supportsSeshDialog() {
         return DEFAULT_SUPPORTS_SESH_DIALOG;
     }
 
     @Override
     public void onDialogSelection(int i, String type) {
         // do nothing
+    }
+
+    @Override
+    public void startActivity(Intent intent) {
+        ApplicationLifecycleTracker.sharedInstance(this).setActivityTransitionInProgress(true);
+        super.startActivity(intent);
     }
 
     public boolean isInSeshActivity() {

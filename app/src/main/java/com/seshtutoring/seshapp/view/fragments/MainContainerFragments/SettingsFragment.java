@@ -97,6 +97,11 @@ public class SettingsFragment extends ListFragment implements FragmentOptionsRec
         return menu;
     }
 
+    public void onResume() {
+        super.onResume();
+        mainContainerActivity.onFragmentReplacedAndRendered();
+    }
+
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         //RowObject selectedItem = mainContainerActivity.getCurrentState();

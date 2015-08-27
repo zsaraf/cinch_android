@@ -95,8 +95,6 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenedLi
 
                 mainContainerActivity.setCurrentState(selectedMenuOption, null);
                 updateSelectedItem();
-
-                mainContainerActivity.closeDrawer();
             }
         });
 
@@ -119,8 +117,6 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenedLi
                     options.put(DummyRequestSeshFragment.REQUEST_DUMMY_KEY, "RequestId = " + item.learnRequest.learnRequestId);
                     mainContainerActivity.setCurrentState(new ContainerState("Request!", 0, new DummyRequestSeshFragment()));
                 }
-
-                mainContainerActivity.closeDrawer();
             }
         });
 

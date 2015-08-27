@@ -35,4 +35,5 @@
     <color name="transparent">#00000000</color>
 
     <color name="request_timeout_button_selected">#59F2AB</color>
+    <color name="midnight_blue">#404E5C</color>
 </resources>

@@ -10,6 +10,7 @@ import com.seshtutoring.seshapp.SeshStateManager.SeshState;
 import com.seshtutoring.seshapp.model.Notification;
 import com.seshtutoring.seshapp.services.SeshGCMListenerService;
 import com.seshtutoring.seshapp.services.notifications.handlers.NotificationHandler;
+import com.seshtutoring.seshapp.util.ApplicationLifecycleTracker;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -21,64 +22,63 @@ public class SeshNotificationManagerService extends IntentService {
     private static final String TAG = SeshNotificationManagerService.class.getName();
     public static final String ENQUEUE_NEW_NOTIFICATION
             = "com.seshtutoring.seshapp.services.notifications.ENQUEUE_NEW_NOTIFICATION";
+    public static final String START_IN_APP_DISPLAY_QUEUE_HANDLING
+            = "com.seshtutoring.seshapp.services.notifications.START_QUEUE_HANDLING";
+    public static final String PAUSE_IN_APP_DISPLAY_QUEUE_HANDLING
+            = "com.seshtutoring.seshapp.services.notifications.PAUSE_QUEUE_HANDLING";
     public static final String CURRENT_NOTIFICATION_HAS_BEEN_HANDLED
             = "com.seshtutoring.seshapp.services.notifications.CURRENT_NOTIFICATION_HAS_BEEN_HANDLED";
     public static final String REFRESH_NOTIFICATIONS_ACTION
             = "com.seshtutoring.seshapp.services.notifications.REFRESH_NOTIFICATIONS";
-    public static Notification currentNotification = null;
+    private boolean paused;
+    private ApplicationLifecycleTracker applicationLifecycleTracker;
+    private InAppNotificationDisplayQueue displayQueue;
 
     public SeshNotificationManagerService() {
         super(TAG);
     }
 
     public void onHandleIntent(Intent intent) {
-        if (intent.getAction() ==  ENQUEUE_NEW_NOTIFICATION) {
-            Log.d(TAG, "ENQUEUEING NEW NOTIFICATION");
-            try {
-                JSONObject notificationObj =
-                        new JSONObject(intent.getStringExtra(SeshGCMListenerService.NOTIFICATION_OBJ_KEY));
-                Notification.createOrUpdateNotification(notificationObj, getApplicationContext());
-                handleTopPriorityNotification();
-            } catch (JSONException e) {
-                Log.e(TAG, "Failed to enqueue / handle new notification; json response malformed: " + e);
-            }
-        } else if (intent.getAction() == REFRESH_NOTIFICATIONS_ACTION) {
-            Log.d(TAG, "ENQUEUING REFRESH NOTIFICATION");
-            Notification.createRefreshNotification();
-            handleTopPriorityNotification();
-        } else if (intent.getAction() == CURRENT_NOTIFICATION_HAS_BEEN_HANDLED) {
-            currentNotification = null;
-            handleTopPriorityNotification();
+        this.applicationLifecycleTracker = ApplicationLifecycleTracker.sharedInstance(getApplicationContext());
+        this.displayQueue = InAppNotificationDisplayQueue.sharedInstance(getApplicationContext());
+
+        switch(intent.getAction()) {
+            case START_IN_APP_DISPLAY_QUEUE_HANDLING:
+                displayQueue.resumeHandling();
+                break;
+            case PAUSE_IN_APP_DISPLAY_QUEUE_HANDLING:
+                displayQueue.pauseHandling();
+                break;
+            case ENQUEUE_NEW_NOTIFICATION:
+                Log.d(TAG, "ENQUEUEING NEW NOTIFICATION");
+                try {
+                    JSONObject notificationObj =
+                            new JSONObject(intent.getStringExtra(SeshGCMListenerService.NOTIFICATION_OBJ_KEY));
+                    Notification notification
+                            = Notification.createOrUpdateNotification(notificationObj, getApplicationContext());
+                    NotificationHandler notificationHandler = notification.getNotificationHandler(this);
+
+                    if (!applicationLifecycleTracker.applicationInForeground()) {
+                        notificationHandler.handleDisplayOutsideApp();
+                    } else {
+                        if (!displayQueue.notificationHandlingInProgress()) {
+                            displayQueue.handleNext();
+                        }
+                    }
+                } catch (JSONException e) {
+                    Log.e(TAG, "Failed to enqueue / handle new notification; json response malformed: " + e);
+                }
+                break;
+            case REFRESH_NOTIFICATIONS_ACTION:
+                Notification.createRefreshNotification();
+                if (!displayQueue.notificationHandlingInProgress()) {
+                    displayQueue.handleNext();
+                }
+                break;
+            case CURRENT_NOTIFICATION_HAS_BEEN_HANDLED:
+                displayQueue.currentNotificationHasBeenHandled();
+                displayQueue.handleNext();
+                break;
         }
-    }
-
-    private synchronized void handleTopPriorityNotification() {
-        Notification notification = Notification.getTopPriorityNotification();
-
-        if (shouldHandleNotification(notification)) {
-
-            currentNotification = notification;
-            Log.d(TAG, "HANDLING NOTIFICATION: " + currentNotification.identifier + " w/ Priority: " + currentNotification.priority);
-
-            NotificationHandler notificationHandler =
-                    currentNotification.getNotificationHandler((SeshApplication)getApplication());
-
-            notificationHandler.handle();
-        }
-    }
-
-    private boolean shouldHandleNotification(Notification notification) {
-        if (notification == null) return false;
-
-        if (notificationHandlingInProgress()) {
-            return SeshStateManager.getCurrentSeshState(this) == SeshState.IN_SESH &&
-            notification.priority <= 2;
-        } else {
-            return true;
-        }
-    }
-
-    private boolean notificationHandlingInProgress() {
-        return currentNotification != null;
     }
 }

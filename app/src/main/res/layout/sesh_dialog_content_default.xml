@@ -12,7 +12,8 @@
         android:layout_centerHorizontal="true"
         android:gravity="center_horizontal"
         android:textColor="@color/seshorange"
-        android:layout_alignParentTop="true"/>
+        android:layout_alignParentTop="true"
+        android:inputType="none"/>
     <TextView
         android:id="@+id/dialog_text"
         android:layout_width="wrap_content"
@@ -28,5 +29,6 @@
         android:textSize="16sp"
         android:text="Lorem ipsum"
         android:gravity="center"
-        android:textColor="@color/seshlightgray" />
+        android:textColor="@color/seshlightgray"
+        android:inputType="none" />
 </RelativeLayout>

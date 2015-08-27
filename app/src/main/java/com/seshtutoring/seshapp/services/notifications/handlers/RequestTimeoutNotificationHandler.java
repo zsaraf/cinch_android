@@ -1,6 +1,8 @@
 package com.seshtutoring.seshapp.services.notifications.handlers;
 
 import android.content.Context;
+import android.content.Intent;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +18,7 @@ import com.seshtutoring.seshapp.model.PastRequest;
 import com.seshtutoring.seshapp.util.ApplicationLifecycleTracker;
 import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
+import com.seshtutoring.seshapp.view.MainContainerActivity;
 import com.seshtutoring.seshapp.view.components.RequestTimeoutButton;
 import com.seshtutoring.seshapp.view.components.SeshDialog;
 
@@ -32,11 +35,12 @@ public class RequestTimeoutNotificationHandler extends NotificationHandler {
     private static final String TAG = RequestTimeoutNotificationHandler.class.getName();
     public static final String REQUEST_TIMEOUT_DIALOG_TYPE = "request_dialog";
 
-    public RequestTimeoutNotificationHandler(Notification notification, SeshApplication application) {
-        super(notification, application);
+    public RequestTimeoutNotificationHandler(Notification notification, Context context) {
+        super(notification, context);
     }
 
-    public void handle() {
+    @Override
+    public void handleDisplayInsideApp() {
         int pastRequestId = (int) mNotification.getDataObject("past_request_id");
         final int requestId = (int) mNotification.getDataObject("request_id");
 
@@ -54,18 +58,9 @@ public class RequestTimeoutNotificationHandler extends NotificationHandler {
                             currentLearnRequest.delete();
                         }
 
-                        final PastRequest pastRequest = PastRequest.createOrUpdatePastRequest(jsonObject.getJSONObject("past_request"));
+                        PastRequest pastRequest = PastRequest.createOrUpdatePastRequest(jsonObject.getJSONObject("past_request"));
 
-                        if (ApplicationLifecycleTracker.sharedInstance(mContext).applicationInForeground()) {
-                            showDialog(pastRequest);
-                        } else {
-                            ApplicationLifecycleTracker.setApplicationResumeListener(new ApplicationLifecycleTracker.ApplicationResumeListener() {
-                                @Override
-                                public void onApplicationResume() {
-                                    showDialog(pastRequest);
-                                }
-                            });
-                        }
+                        showDialog(pastRequest, false);
                     } else {
                         Log.e(TAG, "Failed to get past request information: " + jsonObject.getString("message"));
                         mNotification.handled(mContext, false);
@@ -84,7 +79,7 @@ public class RequestTimeoutNotificationHandler extends NotificationHandler {
         });
     }
 
-    private void showDialog(final PastRequest pastRequest) {
+    private void showDialog(final PastRequest pastRequest, boolean withDelay) {
         final SeshDialog seshDialog = new SeshDialog();
         final SeshNetworking seshNetworking = new SeshNetworking(mContext);
         LayoutUtils utils = new LayoutUtils(mContext);
@@ -204,10 +199,18 @@ public class RequestTimeoutNotificationHandler extends NotificationHandler {
         seshDialog.setMessage(String.format(messageTemplate, pastRequest.classString));
         seshDialog.setType(REQUEST_TIMEOUT_DIALOG_TYPE);
 
-        seshDialog.show(ApplicationLifecycleTracker
-                .sharedInstance(mContext)
-                .getActivityInForeground()
-                .getFragmentManager(), null);
+        if (withDelay) {
+            seshDialog.showWithDelay(ApplicationLifecycleTracker
+                    .sharedInstance(mContext)
+                    .getActivityInForeground()
+                    .getFragmentManager(), null, 2000);
+        } else {
+            seshDialog.show(ApplicationLifecycleTracker
+                    .sharedInstance(mContext)
+                    .getActivityInForeground()
+                    .getFragmentManager(), null);
+        }
+
     }
 
     private void showFirstDialogButtonIfInvisible(Button firstButton) {

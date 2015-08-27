@@ -58,5 +58,7 @@ public abstract class SeshEndedNotificationHandler extends NotificationHandler {
         });
     }
 
-    protected abstract void onSeshReplacedWithPastSesh();
+    protected void onSeshReplacedWithPastSesh() {
+        // do nothing
+    }
 }

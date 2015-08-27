@@ -45,8 +45,14 @@
     </style>
 
     <style name="SeshNormalDialog" parent="android:Theme" >
+        <item name="android:fitsSystemWindows">true</item>
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowIsFloating">false</item>
         <item name="android:windowBackground">@color/transparent</item>
+    </style>
+
+    <style name="SeshBannerWindowAnimations" parent="@android:style/Animation.Activity">
+        <item name="android:windowEnterAnimation">@anim/banner_slide_down</item>
+        <item name="android:windowExitAnimation">@anim/banner_slide_up</item>
     </style>
 </resources>

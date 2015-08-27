@@ -2,6 +2,7 @@ package com.seshtutoring.seshapp.view;
 
 import android.app.ActionBar;
 import android.app.AlarmManager;
+import android.support.v4.app.Fragment;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -40,6 +41,7 @@ import com.seshtutoring.seshapp.services.SeshGCMListenerService;
 import com.seshtutoring.seshapp.services.SeshInstanceIDListenerService;
 import com.seshtutoring.seshapp.util.ApplicationLifecycleTracker;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
+import com.seshtutoring.seshapp.view.components.SeshBanner;
 import com.seshtutoring.seshapp.view.components.SeshDialog;
 import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.HomeFragment;
 import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.PaymentFragment;
@@ -65,6 +67,7 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
     private static final String DIALOG_TYPE_FOUND_TUTOR = "dialog_type_found_tutor";
     private static final String INTENT_HANDLED = "intent_handled";
     public static final String UPDATE_CONTAINER_STATE_ACTION = "update_main_container_state";
+    public static final String VIEW_SESH_ACTION = "view_sesh";
     public static final String SESH_CANCELLED_ACTION = "sesh_cancelled";
     public static final String FOUND_TUTOR_ACTION =
             "com.seshtutoring.seshapp.FOUND_TUTOR";
@@ -77,7 +80,6 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
      */
     public interface FragmentOptionsReceiver {
         void updateFragmentOptions(Map<String, Object> options);
-
         void clearFragmentOptions();
     }
 
@@ -119,6 +121,7 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
         getSupportActionBar().setCustomView(R.layout.sesh_action_bar);
         getSupportActionBar().setElevation(0);
+
         ImageButton backButton = (ImageButton) findViewById(R.id.action_bar_back_button);
         ViewGroup layout = (ViewGroup) backButton.getParent();
         layout.removeView(backButton);
@@ -180,18 +183,24 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
 
     @Override
     protected void handleNotificationIntent(Intent intent) {
-        if (intent.getAction() == UPDATE_CONTAINER_STATE_ACTION) {
-            int mainContainerStateIndex = intent.getIntExtra(MAIN_CONTAINER_STATE_INDEX, 0);
-            String fragmentFlag = intent.getStringExtra(FRAGMENT_FLAG_KEY);
+        if (intent.getAction() != null) {
+            if (intent.getAction().equals(UPDATE_CONTAINER_STATE_ACTION)) {
+                int mainContainerStateIndex = intent.getIntExtra(MAIN_CONTAINER_STATE_INDEX, 0);
+                String fragmentFlag = intent.getStringExtra(FRAGMENT_FLAG_KEY);
 
-            HashMap<String, Object> options = new HashMap<>();
-            options.put(fragmentFlag, true);
+                HashMap<String, Object> options = new HashMap<>();
+                options.put(fragmentFlag, true);
 
-            setCurrentState(containerStates[mainContainerStateIndex], options);
-        } else if (intent.getAction() == SESH_CANCELLED_ACTION) {
-            // IF SESH HAS BEEN CANCELLED AND MAIN CONTAINER IS IN FOREGROUND, WE ENSURE VIEWSESHFRAGMENT IS NOT VISIBLE
-            if (currentContainerState.fragment instanceof ViewSeshFragment) {
-                setCurrentState(HOME);
+                setCurrentState(containerStates[mainContainerStateIndex], options);
+            } else if (intent.getAction().equals(VIEW_SESH_ACTION)) {
+                int seshId = intent.getIntExtra(ViewSeshFragment.SESH_KEY, -1);
+
+                setCurrentState(new ContainerState("Sesh", 0, ViewSeshFragment.newInstance(seshId)));
+            } else if (intent.getAction() == SESH_CANCELLED_ACTION) {
+                // IF SESH HAS BEEN CANCELLED AND MAIN CONTAINER IS IN FOREGROUND, WE ENSURE VIEWSESHFRAGMENT IS NOT VISIBLE
+                if (currentContainerState.fragment instanceof ViewSeshFragment) {
+                    setCurrentState(HOME);
+                }
             }
         }
 
@@ -205,10 +214,10 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
             @Override
             public void run() {
                 if (currentContainerState == HOME) {
-                    HomeFragment homeFragment = (HomeFragment)currentContainerState.fragment;
+                    HomeFragment homeFragment = (HomeFragment) currentContainerState.fragment;
                     if (homeFragment.getCurrTabItem() == HomeFragment.TabItem.LEARN_TAB) {
                         SeshDialog.showDialog(getFragmentManager(), title, content, confirmButtonText, null,
-                                        type);
+                                type);
                         Vibrator v = (Vibrator) getApplicationContext().getSystemService(Context.VIBRATOR_SERVICE);
                         v.vibrate(300);
                     }
@@ -330,10 +339,7 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
 
         title.setText(selectedMenuOption.title);
 
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.main_container, currentContainerState.fragment)
-                .commitAllowingStateLoss();
+        replaceContainerFragment(currentContainerState.fragment);
 
         if (options != null) {
             FragmentOptionsReceiver flagReceiver = (FragmentOptionsReceiver) currentContainerState.fragment;
@@ -341,53 +347,26 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
         }
     }
 
-    public void closeDrawer() {
-        slidingMenu.toggle(true);
+    // replaces the fragment in the main container asynchronously
+    private void replaceContainerFragment(Fragment fragment) {
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.main_container, fragment)
+                .commitAllowingStateLoss();
+    }
+
+    // callback for when fragment replacement has completed and the fragment is fully rendered
+    public void onFragmentReplacedAndRendered() {
+        if (slidingMenu.isMenuShowing()) {
+//            slidingMenu.stretchOut();
+            slidingMenu.toggle(true);
+        }
     }
 
     @Override
     protected void attachBaseContext(Context newBase) {
         super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
     }
-
-//    @Override
-//    public void onAnimationFinished() {
-//        if (mAnimation1.getCurrentDrawable().isOneShot()) {
-//            mCurrentStateTextView.setText("Showing: " + mAnimation1.getCurrentSectionId());
-//        }
-//    }
-//
-//    @Override
-//    public void onAnimationStarting() {
-//        if (mAnimation1.getTransitioningFromId() != null) {
-//            mCurrentStateTextView.setText("Transitioning to: " + mAnimation1.getCurrentSectionId());
-//        } else if (!mAnimation1.getCurrentDrawable().isOneShot()) {
-//            mCurrentStateTextView.setText("Current state: " + mAnimation1.getCurrentSectionId());
-//        }
-//    }
-
-//    @Override
-//    public void onSaveInstanceState(Bundle outState) {
-//        super.onSaveInstanceState(outState);
-//        String currStr = "unknown";
-//        MenuOption curr = getCurrentState();
-//        if (curr == MenuOption.SETTINGS) {
-//            currStr = "Settings";
-//        }else if (curr == MenuOption.HOME) {
-//            currStr = "Home";
-//        }
-//        outState.putString("current_state", currStr);
-//    }
-
-//    @Override
-//    public void onRestoreInstanceState(Bundle savedInstanceState) {
-//        super.onRestoreInstanceState(savedInstanceState);
-//        if( savedInstanceState != null ) {
-//            //Then the application is being reloaded
-//            String currentState = savedInstanceState.getString("current_state");
-//
-//        }
-//    }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {

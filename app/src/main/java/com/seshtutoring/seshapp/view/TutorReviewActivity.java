@@ -12,6 +12,7 @@ import android.widget.TextView;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.Notification;
 import com.seshtutoring.seshapp.util.LayoutUtils;
+import com.seshtutoring.seshapp.services.notifications.InAppNotificationDisplayQueue;
 import com.seshtutoring.seshapp.view.components.SeshButton;
 import com.seshtutoring.seshapp.view.components.SeshCircularImageView;
 import com.seshtutoring.seshapp.view.components.SeshInformationLabel;
@@ -52,7 +53,11 @@ public class TutorReviewActivity extends SeshActivity {
         seshButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Notification.getTopPriorityNotification().handled(getApplicationContext(), true);
+                Notification currentNotification
+                        = InAppNotificationDisplayQueue
+                        .sharedInstance(getApplicationContext())
+                        .getCurrentNotification();
+                currentNotification.handled(getApplicationContext(), true);
                 finish();
                 overridePendingTransition(0, R.anim.slide_down);
             }

@@ -1,10 +1,12 @@
 package com.seshtutoring.seshapp.view;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.Notification;
+import com.seshtutoring.seshapp.services.notifications.InAppNotificationDisplayQueue;
 import com.seshtutoring.seshapp.services.notifications.SeshNotificationManagerService;
 import com.seshtutoring.seshapp.view.components.SeshButton;
 
@@ -21,7 +23,11 @@ public class RatingActivity extends SeshActivity {
         seshButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                SeshNotificationManagerService.currentNotification.handled(getApplicationContext(), true);
+                Notification currentNotification
+                        = InAppNotificationDisplayQueue
+                        .sharedInstance(getApplicationContext())
+                        .getCurrentNotification();
+                currentNotification.handled(getApplicationContext(), true);
                 finish();
                 overridePendingTransition(0, R.anim.slide_down);
             }

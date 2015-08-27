@@ -8,18 +8,21 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.orm.SugarRecord;
 import com.orm.dsl.Ignore;
-import com.seshtutoring.seshapp.SeshApplication;
-import com.seshtutoring.seshapp.services.notifications.RefreshNotificationsNotificationHandler;
+import com.seshtutoring.seshapp.services.notifications.handlers.DiscountAvailableNotificationHandler;
+import com.seshtutoring.seshapp.services.notifications.handlers.RefreshNotificationsNotificationHandler;
 import com.seshtutoring.seshapp.services.notifications.SeshNotificationManagerService;
 import com.seshtutoring.seshapp.services.notifications.handlers.DefaultNotificationHandler;
+import com.seshtutoring.seshapp.services.notifications.handlers.LocationNotesUpdatedNotificationHandler;
 import com.seshtutoring.seshapp.services.notifications.handlers.NewMessageNotificationHandler;
 import com.seshtutoring.seshapp.services.notifications.handlers.NewRequestNotificationHandler;
 import com.seshtutoring.seshapp.services.notifications.handlers.NotificationHandler;
 import com.seshtutoring.seshapp.services.notifications.handlers.RequestTimeoutNotificationHandler;
+import com.seshtutoring.seshapp.services.notifications.handlers.SeshApproachingNotificationHandler;
 import com.seshtutoring.seshapp.services.notifications.handlers.SeshCancelledNotificationHandler;
 import com.seshtutoring.seshapp.services.notifications.handlers.SeshCreatedNotificationHandler;
 import com.seshtutoring.seshapp.services.notifications.handlers.SeshReviewNotificationHandler;
 import com.seshtutoring.seshapp.services.notifications.handlers.SeshStartedStudentNotificationHandler;
+import com.seshtutoring.seshapp.services.notifications.handlers.SetTimeUpdatedNotificationHandler;
 import com.seshtutoring.seshapp.services.notifications.handlers.UpdateStateNotificationHandler;
 import com.seshtutoring.seshapp.util.networking.SeshAuthManager;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
@@ -208,9 +211,9 @@ public class Notification extends SugarRecord<Notification> {
             save();
         }
 
-        Intent intent = new Intent(SeshNotificationManagerService.CURRENT_NOTIFICATION_HAS_BEEN_HANDLED,
-                null, context, SeshNotificationManagerService.class);
-        context.startService(intent);
+        Intent notificationHandled = new Intent(SeshNotificationManagerService.CURRENT_NOTIFICATION_HAS_BEEN_HANDLED, null,
+                context, SeshNotificationManagerService.class);
+        context.startService(notificationHandled);
 
         Log.d(TAG, identifier + " has been handled.");
     }
@@ -256,45 +259,61 @@ public class Notification extends SugarRecord<Notification> {
         }
     }
 
-    public NotificationHandler getNotificationHandler(SeshApplication seshApplication) {
+    public NotificationHandler getNotificationHandler(Context context) {
         NotificationType notificationType = getNotificationType();
         switch (notificationType) {
             case SESH_CREATED_STUDENT:
-                return new SeshCreatedNotificationHandler(this, seshApplication); // tested
+                return new SeshCreatedNotificationHandler(this, context); // tested (NEEDS VIEW SESH TESTING)
             case SESH_CREATED_TUTOR:
-                return new SeshCreatedNotificationHandler(this, seshApplication); // tested
+                return new SeshCreatedNotificationHandler(this, context); // tested (NEEDS VIEW SESH TESTING)
             case NEW_REQUEST:
-                return new NewRequestNotificationHandler(this, seshApplication); // tested
+                return new NewRequestNotificationHandler(this, context); // tested
             case SESH_STARTED_STUDENT:
-                return new SeshStartedStudentNotificationHandler(this, seshApplication); // tested
+                return new SeshStartedStudentNotificationHandler(this, context); // tested
             case UPDATE_STATE:
-                return new UpdateStateNotificationHandler(this, seshApplication); // tested
+                return new UpdateStateNotificationHandler(this, context); // tested
             case NEW_MESSAGE:
-                return new NewMessageNotificationHandler(this, seshApplication);
+                return new NewMessageNotificationHandler(this, context); // implement further when relevant
             case REFRESH_NOTIFICATIONS:
-                return new RefreshNotificationsNotificationHandler(this, seshApplication); // tested
+                return new RefreshNotificationsNotificationHandler(this, context); // tested
             case REQUEST_TIMEOUT:
-                return new RequestTimeoutNotificationHandler(this, seshApplication); // tested
+                return new RequestTimeoutNotificationHandler(this, context); // tested
             case SESH_CANCELLED_TUTOR:
-                return new SeshCancelledNotificationHandler(this, seshApplication); // tested
+                return new SeshCancelledNotificationHandler(this, context); // tested
             case SESH_CANCELLED_STUDENT:
-                return new SeshCancelledNotificationHandler(this, seshApplication); // tested
+                return new SeshCancelledNotificationHandler(this, context); // tested
             case LOCATION_NOTES_UPDATED:
-                return new DefaultNotificationHandler(this, seshApplication); // talk to saraf
+                return new LocationNotesUpdatedNotificationHandler(this, context); // tested (NEEDS VIEW SESH TESTING)
             case SET_TIME_UPDATED:
-                return new DefaultNotificationHandler(this, seshApplication); // talk to saraf
+                return new SetTimeUpdatedNotificationHandler(this, context); // relevant when scheduling (NEEDS VIEW SESH TESTING)
             case SESH_APPROACHING_STUDENT:
-                return new DefaultNotificationHandler(this, seshApplication); // talk to saraf
+                return new SeshApproachingNotificationHandler(this, context); //  relevant when scheduling  (NEEDS VIEW SESH TESTING)
             case SESH_APPROACHING_TUTOR:
-                return new DefaultNotificationHandler(this, seshApplication); // talk to saraf
+                return new SeshApproachingNotificationHandler(this, context); // relevant when scheduling  (NEEDS VIEW SESH TESTING)
             case SESH_REVIEW_STUDENT:
-                return new SeshReviewNotificationHandler(this, seshApplication); // tested
+                return new SeshReviewNotificationHandler(this, context); // tested
             case SESH_REVIEW_TUTOR:
-                return new SeshReviewNotificationHandler(this, seshApplication); // tested
+                return new SeshReviewNotificationHandler(this, context); // tested
             case DISCOUNT_AVAILABLE:
-                return new DefaultNotificationHandler(this, seshApplication);
+                return new DiscountAvailableNotificationHandler(this, context);
             default:
-                return null;
+                return new DefaultNotificationHandler(this, context);
+        }
+    }
+
+    public Sesh correspondingSesh() {
+        NotificationType notificationType = getNotificationType();
+        if (notificationType == NotificationType.NEW_MESSAGE ||
+                notificationType == NotificationType.LOCATION_NOTES_UPDATED ||
+                notificationType == NotificationType.SET_TIME_UPDATED ||
+                notificationType == NotificationType.SESH_APPROACHING_TUTOR ||
+                notificationType == NotificationType.SESH_APPROACHING_STUDENT ||
+                notificationType == NotificationType.SESH_CREATED_TUTOR ||
+                notificationType == NotificationType.SESH_CREATED_STUDENT) {
+            int seshId = (int) getDataObject("sesh_id");
+            return Sesh.findSeshWithId(seshId);
+        } else {
+            return null;
         }
     }
 

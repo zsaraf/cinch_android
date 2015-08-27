@@ -1,4 +1,4 @@
-package com.seshtutoring.seshapp.services.notifications;
+package com.seshtutoring.seshapp.services.notifications.handlers;
 
 import android.content.Context;
 
@@ -13,8 +13,12 @@ public class RefreshNotificationsNotificationHandler extends NotificationHandler
         super(notification, context);
     }
 
-    public void handle() {
+    public void handleDisplayInsideApp() {
         // refresh notifications calls handled(true|false) upon success|failure
         Notification.refreshNotifications(mNotification, mContext);
+    }
+
+    public void handleDisplayOutsideApp() {
+        // no display -- refresh notifications should not be visible to user
     }
 }

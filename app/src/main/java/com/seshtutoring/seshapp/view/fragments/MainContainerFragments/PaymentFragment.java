@@ -172,7 +172,7 @@ public class PaymentFragment extends ListFragment implements FragmentOptionsRece
         }
 
         setListAdapter(adapter);
-
+        ((MainContainerActivity)getActivity()).onFragmentReplacedAndRendered();
     }
 
     private void onCardsFailure(String message) {

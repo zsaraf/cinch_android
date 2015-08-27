@@ -20,19 +20,8 @@ public class SeshStartedStudentNotificationHandler extends NotificationHandler {
         super(notification, context);
     }
 
-    public void handle() {
-        if (!ApplicationLifecycleTracker.sharedInstance(mContext).applicationInForeground()) {
-            Intent intent;
-
-            if (Sesh.getCurrentSesh() != null) {
-                intent = new Intent(mContext, InSeshActivity.class);
-            } else {
-                intent = new Intent(mContext, MainContainerActivity.class);
-            }
-
-            showNotificationForIntent(intent);
-        }
-
+    public void handleDisplayInsideApp() {
+        // do nothing
         mNotification.handled(mContext, true);
     }
 }

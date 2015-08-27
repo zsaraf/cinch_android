@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.util.LayoutUtils;
+import com.seshtutoring.seshapp.view.MainContainerActivity;
 import com.seshtutoring.seshapp.view.MainContainerActivity.FragmentOptionsReceiver;
 
 import java.util.Map;
@@ -25,12 +26,17 @@ import java.util.Map;
 public class ProfileFragment extends Fragment implements FragmentOptionsReceiver {
     private Map<String, Object> options;
 
-
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
 
         View v = layoutInflater.inflate(R.layout.profile_fragment, null);
 
         return v;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        ((MainContainerActivity)getActivity()).onFragmentReplacedAndRendered();
     }
 
     @Override

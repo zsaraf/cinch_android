@@ -13,7 +13,8 @@ public class DefaultNotificationHandler extends NotificationHandler {
         super(notification, context);
     }
 
-    public void handle() {
+    @Override
+    public void handleDisplayInsideApp() {
         mNotification.handled(mContext, true);
     }
 }

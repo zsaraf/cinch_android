@@ -19,7 +19,6 @@ import com.android.volley.VolleyError;
 import com.facebook.rebound.SimpleSpringListener;
 import com.facebook.rebound.Spring;
 import com.facebook.rebound.SpringConfig;
-import com.facebook.rebound.SpringListener;
 import com.facebook.rebound.SpringSystem;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.PastRequest;
@@ -27,6 +26,7 @@ import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.SeshActivity;
 
+import android.os.Handler;
 import android.support.v7.widget.CardView;
 import android.text.Layout;
 import android.util.Log;
@@ -274,6 +274,16 @@ public class SeshDialog extends DialogFragment {
         dialog.type = type;
 
         dialog.show(manager, type);
+    }
+
+    public void showWithDelay(final FragmentManager manager, final String type, long millis) {
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                show(manager, type);
+            }
+        }, millis);
     }
 
     @Override
