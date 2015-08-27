@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.seshtutoring.seshapp.view.ViewSeshSetTimeActivity">
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:alpha="0.6"
+        android:background="#000000" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/set_time_top_bar">
+        <ImageButton
+            android:id="@+id/close_set_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:scaleX="0.7"
+            android:scaleY="0.7"
+            android:background="@drawable/close" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:textColor="@color/seshorange"
+            android:textSize="20sp"
+            android:text="Set Time"/>
+    </RelativeLayout>
+
+    <com.seshtutoring.seshapp.view.components.SeshEditText
+        android:id="@+id/set_time_edit_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="35dp"
+        android:layout_marginLeft="35dp"
+        android:layout_centerHorizontal="true"
+        custom:editTextType="time"
+        custom:editTextEditable="false"
+        android:layout_weight="1"
+        android:layout_below="@id/set_time_top_bar"
+        android:paddingTop="20dp" />
+
+    <com.seshtutoring.seshapp.view.components.SeshInformationLabel
+        android:id="@+id/available_blocks_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="35dp"
+        android:layout_marginLeft="35dp"
+        android:layout_marginTop="20dp"
+        android:layout_below="@+id/set_time_edit_text"
+        custom:informationLabelText="default"
+        custom:informationLabelIcon="@drawable/clock_orange" />
+
+    <com.seshtutoring.seshapp.view.components.SeshDatePicker
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:id="@+id/date_picker"/>
+
+</RelativeLayout>

@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -20,14 +21,18 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.Sesh;
+import com.seshtutoring.seshapp.util.LayoutUtils;
+import com.seshtutoring.seshapp.util.StorageUtils;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
+import com.seshtutoring.seshapp.view.ViewSeshSetTimeActivity;
 import com.seshtutoring.seshapp.view.components.SeshActivityIndicator;
 import com.seshtutoring.seshapp.view.components.SeshButton;
 import com.seshtutoring.seshapp.view.components.SeshDialog;
@@ -37,6 +42,7 @@ import com.squareup.picasso.Callback;
 
 import org.json.JSONObject;
 
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 
@@ -111,6 +117,13 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
             });
         } else {
             v = inflater.inflate(R.layout.fragment_view_sesh_tutor, container, false);
+            final RelativeLayout middleBar = (RelativeLayout)v.findViewById(R.id.middleBar);
+            middleBar.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    startSetTimeActivityWithBlurTransition();
+                }
+            });
         }
 
         final ImageView profileImageView = (ImageView)v.findViewById(R.id.profile_image);
@@ -326,6 +339,13 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
                 .setDuration(300)
                 .setStartDelay(0)
                 .start();
+    }
+
+    private void startSetTimeActivityWithBlurTransition() {
+        Intent intent = new Intent(getActivity(), ViewSeshSetTimeActivity.class);
+        intent.putExtra(ViewSeshSetTimeActivity.SET_TIME_SESH_ID_KEY, sesh.seshId);
+        startActivityForResult(intent, 0);
+        getActivity().overridePendingTransition(R.anim.fade_in, 0);
     }
 
 }

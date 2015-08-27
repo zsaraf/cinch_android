@@ -59,7 +59,7 @@ public class SeshInformationLabel extends RelativeLayout {
         textView.setTypeface(medium);
     }
 
-    public void setText(String text) {
+    public void setText(CharSequence text) {
         textView.setText(text);
     }
 

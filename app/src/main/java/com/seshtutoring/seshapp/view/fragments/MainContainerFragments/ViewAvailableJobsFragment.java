@@ -30,6 +30,7 @@ import com.seshtutoring.seshapp.model.Course;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
 import com.seshtutoring.seshapp.view.components.SeshIconTextView;
+import com.seshtutoring.seshapp.view.components.SeshInformationLabel;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -39,6 +40,7 @@ import org.w3c.dom.Text;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Queue;
 
@@ -137,11 +139,11 @@ public class ViewAvailableJobsFragment extends ListFragment {
         public TextView overlayTextView;
         //public TextView loadingTextView;
         public ImageView checkImageView;
-        public SeshIconTextView courseTextView;
-        public SeshIconTextView assignmentTextView;
-        //public SeshIconTextView distanceTextView;
-        public SeshIconTextView durationTextView;
-        public SeshIconTextView availableBlocksTextView;
+        public SeshInformationLabel courseInformationLabel;
+        public SeshInformationLabel assignmentInformationLabel;
+        public SeshInformationLabel distanceInformationLabel;
+        public SeshInformationLabel durationInformationLabel;
+        public SeshInformationLabel availableBlocksInformationLabel;
 
         public ViewGroup topGroup;
 
@@ -184,18 +186,16 @@ public class ViewAvailableJobsFragment extends ListFragment {
 
                 viewHolder.rateTextView = (TextView) convertView.findViewById(R.id.hourly_rate);
 
-                viewHolder.courseTextView = (SeshIconTextView) convertView.findViewById(R.id.course);
-                viewHolder.courseTextView.setIconResourceId(R.drawable.book);
+                viewHolder.courseInformationLabel = (SeshInformationLabel) convertView.findViewById(R.id.course);
 
-                viewHolder.assignmentTextView = (SeshIconTextView) convertView.findViewById(R.id.assignment);
-                viewHolder.assignmentTextView.setIconResourceId(R.drawable.assignment_gray);
+                viewHolder.assignmentInformationLabel = (SeshInformationLabel) convertView.findViewById(R.id.assignment);
 
-                //viewHolder.distanceTextView = (SeshIconTextView) convertView.findViewById(R.id.distance);
-                viewHolder.durationTextView = (SeshIconTextView) convertView.findViewById(R.id.duration);
-                viewHolder.durationTextView.setIconResourceId(R.drawable.clock_orange);
+                viewHolder.distanceInformationLabel = (SeshInformationLabel) convertView.findViewById(R.id.distance);
 
-                viewHolder.availableBlocksTextView = (SeshIconTextView) convertView.findViewById(R.id.available_blocks);
-                viewHolder.availableBlocksTextView.setIconResourceId(R.drawable.calendar_unfilled);
+
+                viewHolder.durationInformationLabel = (SeshInformationLabel) convertView.findViewById(R.id.duration);
+
+                viewHolder.availableBlocksInformationLabel = (SeshInformationLabel) convertView.findViewById(R.id.available_blocks);
 
                 //viewHolder.loadingTextView = (TextView) convertView.findViewById(R.id.loading_text);
 
@@ -216,7 +216,6 @@ public class ViewAvailableJobsFragment extends ListFragment {
 //                viewHolder.durationTextView.setVisibility(View.INVISIBLE);
 //                viewHolder.rateTextView.setVisibility(View.INVISIBLE);
 //                viewHolder.courseTextView.setVisibility(View.INVISIBLE);
-//                viewHolder.availableBlocksTextView.setVisibility(View.INVISIBLE);
 //                viewHolder.animation.transitionNow("loading");
 //                viewHolder.loadingTextView.setVisibility(View.VISIBLE);
 //                viewHolder.loadingTextView.setText("requesting job...");
@@ -227,11 +226,12 @@ public class ViewAvailableJobsFragment extends ListFragment {
             if (holder.type == 2) {
                 viewHolder.overlayTextView.setText("no available jobs");
                 viewHolder.nameTextView.setVisibility(View.GONE);
-                viewHolder.assignmentTextView.setVisibility(View.GONE);
-                viewHolder.durationTextView.setVisibility(View.GONE);
+                viewHolder.assignmentInformationLabel.setVisibility(View.GONE);
+                viewHolder.durationInformationLabel.setVisibility(View.GONE);
                 viewHolder.rateTextView.setVisibility(View.GONE);
-                viewHolder.courseTextView.setVisibility(View.GONE);
-                viewHolder.availableBlocksTextView.setVisibility(View.GONE);
+                viewHolder.courseInformationLabel.setVisibility(View.GONE);
+                viewHolder.availableBlocksInformationLabel.setVisibility(View.GONE);
+                viewHolder.distanceInformationLabel.setVisibility(View.GONE);
             }else {
 
                 SwipeLayout swipeView = (SwipeLayout) convertView.findViewById(R.id.swipe_view);
@@ -309,23 +309,21 @@ public class ViewAvailableJobsFragment extends ListFragment {
                 viewHolder.nameTextView.setText(item.studentName);
                 viewHolder.nameTextView.setVisibility(View.VISIBLE);
 
-                viewHolder.courseTextView.setText(item.course.shortFormatForTextView());
-                viewHolder.courseTextView.setVisibility(View.VISIBLE);
+                viewHolder.courseInformationLabel.setText(item.course.shortFormatForTextView());
+                viewHolder.courseInformationLabel.setVisibility(View.VISIBLE);
 
-                viewHolder.assignmentTextView.setText(item.description);
-                viewHolder.assignmentTextView.setVisibility(View.VISIBLE);
+                viewHolder.assignmentInformationLabel.setText(item.description);
+                viewHolder.assignmentInformationLabel.setVisibility(View.VISIBLE);
 
+                viewHolder.distanceInformationLabel.setText(".1 miles");
                 //calculate distance?
                 //viewHolder.distanceTextView.setText(item + " miles");
                 //viewHolder.distanceTextView.setIconResourceId(R.drawable.current_location);
 
-                viewHolder.durationTextView.setText(item.maxTime + " hours");
-                viewHolder.durationTextView.setVisibility(View.VISIBLE);
-
-                viewHolder.availableBlocksTextView.setText(Html.fromHtml(item.getReadableBlocks()));
-                viewHolder.availableBlocksTextView.setVisibility(View.VISIBLE);
-
-                //viewHolder.loadingTextView.setVisibility(View.GONE);
+                viewHolder.durationInformationLabel.setText(item.maxTime + " hours");
+                viewHolder.durationInformationLabel.setVisibility(View.VISIBLE);
+//                List<AvailableBlock> availableBlockList = AvailableBlock.find(AvailableBlock.class, "available_job = ?", Long.toString(item.getId()));
+//                viewHolder.availableBlocksInformationLabel.setText(Html.fromHtml(AvailableBlock.getReadableBlocks(availableBlockList)));
             }
 
             return convertView;

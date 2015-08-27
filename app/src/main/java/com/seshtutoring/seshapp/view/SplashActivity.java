@@ -78,6 +78,8 @@ public class SplashActivity extends SeshActivity {
                     @Override
                     public void run() {
                         Intent mainContainerIntent = new Intent(getApplicationContext(), MainContainerActivity.class);
+//                        Intent mainContainerIntent = new Intent(getApplicationContext(), MainContainerActivity.class);
+                        mainContainerIntent.putExtra(ViewSeshSetTimeActivity.SET_TIME_SESH_ID_KEY, 99);
                         startActivity(mainContainerIntent);
                         overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
                     }
