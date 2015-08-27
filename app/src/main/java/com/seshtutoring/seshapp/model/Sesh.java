@@ -7,6 +7,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.orm.SugarRecord;
 import com.orm.dsl.Ignore;
+import com.seshtutoring.seshapp.util.DateUtils;
 import com.seshtutoring.seshapp.util.networking.SeshAuthManager;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 
@@ -24,6 +25,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -58,6 +60,9 @@ public class Sesh extends SugarRecord<Sesh> {
     public String userName;
     public String userSchool;
     public boolean isInstant;
+    public Set<AvailableBlock> availableBlocks;
+
+    private static final String AVAILABLE_BLOCKS_KEY = "available_blocks";
 
     // empty constructor necessary for SugarORM to work
     public Sesh() {
@@ -68,7 +73,7 @@ public class Sesh extends SugarRecord<Sesh> {
                 String sesh_description, int sesh_est_time, int sesh_id, int sesh_num_students,
                 Date sesh_set_time, Date start_time, double tutor_latitude, double tutor_longitude,
                 String user_description, String user_image_url, String user_major, String user_name,
-                String user_school, boolean is_instant) {
+                String user_school, boolean is_instant, Set<AvailableBlock> availableBlocks) {
 
         this.className = class_name;
         this.hasBeenSeen = has_been_seen;
@@ -92,8 +97,7 @@ public class Sesh extends SugarRecord<Sesh> {
         this.userName = user_name;
         this.userSchool = user_school;
         this.isInstant = is_instant;
-//        this.availableBlocks = availableBlocks;
-//        this.messages = messages;
+        this.availableBlocks = availableBlocks;
     }
 
 
@@ -152,6 +156,19 @@ public class Sesh extends SugarRecord<Sesh> {
             }
 
             sesh.save();
+
+            Set<AvailableBlock> availableBlocksVal = new HashSet<AvailableBlock>();
+            if (seshJson.get(AVAILABLE_BLOCKS_KEY) != null) {
+                JSONArray availableBlocksJson = seshJson.getJSONArray(AVAILABLE_BLOCKS_KEY);
+                for (int i = 0; i < availableBlocksJson.length(); i++) {
+
+                    JSONObject availableBlockJson = availableBlocksJson.getJSONObject(i);
+                    AvailableBlock availableBlockObj = AvailableBlock.createAvailableBlock(availableBlockJson);
+                    availableBlockObj.sesh = sesh;
+                    availableBlockObj.save();
+//                    availableBlocksVal.add(availableBlockObj);
+                }
+            }
         } catch (JSONException e) {
             Log.e(TAG, "Failed to create or update user in db; JSON user object from server is malformed: " + e.getMessage());
             return null;
@@ -177,50 +194,13 @@ public class Sesh extends SugarRecord<Sesh> {
     }
 
     public String getTimeAbbrvString() {
-            if (seshSetTime == null) {
-                return "Time TBD";
-            }
-
+        if (seshSetTime == null) {
+            return "Time TBD";
+        } else {
             DateTime setTime = new DateTime(seshSetTime);
+            return DateUtils.getSeshFormattedDate(setTime);
+        }
 
-            String day = "";
-            String time = "";
-
-            if (setTime.toLocalDate().equals(new LocalDate())) {
-                day = "TODAY";
-            } else if (setTime.minusDays(1).equals(new LocalDate())) {
-                day = "TMRW";
-            } else {
-                int dayOfWeek = setTime.getDayOfWeek();
-                switch (dayOfWeek) {
-                    case DateTimeConstants.SUNDAY:
-                        day = "SUN";
-                        break;
-                    case DateTimeConstants.MONDAY:
-                        day = "MON";
-                        break;
-                    case DateTimeConstants.TUESDAY:
-                        day = "TUES";
-                        break;
-                    case DateTimeConstants.WEDNESDAY:
-                        day = "WED";
-                        break;
-                    case DateTimeConstants.THURSDAY:
-                        day = "THURS";
-                        break;
-                    case DateTimeConstants.FRIDAY:
-                        day = "FRI";
-                        break;
-                    case DateTimeConstants.SATURDAY:
-                        day = "SAT";
-                        break;
-                }
-            }
-
-        DateFormat hourMinute = new SimpleDateFormat("hh:mm a");
-        time = hourMinute.format(setTime.toDate());
-
-        return String.format("%s @ %s", day, time);
     }
 
     public static synchronized void updateSeshInfoWithObject(Context context, JSONObject jsonObject) {

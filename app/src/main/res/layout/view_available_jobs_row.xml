@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/swipe_view"
-    tools:context="com.getkeepsafe.android.multistateanimation.samples.ThreeStateSampleActivity">
+    tools:context="com.getkeepsafe.android.multistateanimation.samples.ThreeStateSampleActivity"
+    xmlns:custom="http://schemas.android.com/apk/res-auto">
     <!-- Underneath view of swipe layout-->
     <RelativeLayout
         android:id="@+id/bottom_wrapper"
@@ -81,31 +82,55 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/seshlightgray"/>
-        <com.seshtutoring.seshapp.view.components.SeshIconTextView
+        <com.seshtutoring.seshapp.view.components.SeshInformationLabel
             android:id="@+id/course"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/student_name"></com.seshtutoring.seshapp.view.components.SeshIconTextView>
-        <com.seshtutoring.seshapp.view.components.SeshIconTextView
+            android:layout_below="@id/student_name"
+            android:padding="5dp"
+            android:paddingTop="10dp"
+            custom:informationLabelText="default"
+            custom:informationLabelIcon="@drawable/book" />
+        <com.seshtutoring.seshapp.view.components.SeshInformationLabel
             android:id="@+id/assignment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/course"></com.seshtutoring.seshapp.view.components.SeshIconTextView>
-        <!--<com.seshtutoring.seshapp.view.components.SeshIconTextView-->
-            <!--android:id="@+id/distance"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_below="@id/assignment"></com.seshtutoring.seshapp.view.components.SeshIconTextView>-->
-        <com.seshtutoring.seshapp.view.components.SeshIconTextView
+            android:layout_below="@id/course"
+            android:padding="5dp"
+            android:paddingTop="10dp"
+            custom:informationLabelText="default"
+            custom:informationLabelIcon="@drawable/subject"/>
+
+        <com.seshtutoring.seshapp.view.components.SeshInformationLabel
+            android:id="@+id/distance"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/assignment"
+            android:padding="5dp"
+            android:paddingTop="10dp"
+            custom:informationLabelText="default"
+            custom:informationLabelIcon="@drawable/pointer"/>
+
+        <com.seshtutoring.seshapp.view.components.SeshInformationLabel
             android:id="@+id/duration"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/assignment"></com.seshtutoring.seshapp.view.components.SeshIconTextView>
-        <com.seshtutoring.seshapp.view.components.SeshIconTextView
+            android:layout_below="@id/distance"
+            android:padding="5dp"
+            android:paddingTop="10dp"
+            custom:informationLabelText="default"
+            custom:informationLabelIcon="@drawable/clock_orange" />
+
+        <com.seshtutoring.seshapp.view.components.SeshInformationLabel
             android:id="@+id/available_blocks"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/duration"></com.seshtutoring.seshapp.view.components.SeshIconTextView>
+            android:layout_below="@id/duration"
+            android:padding="5dp"
+            android:paddingTop="10dp"
+            custom:informationLabelText="default"
+            custom:informationLabelIcon="@drawable/calendar_unfilled"/>
+
     </RelativeLayout>
 
 </com.daimajia.swipe.SwipeLayout>
