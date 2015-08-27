@@ -8,6 +8,7 @@ import android.content.Intent;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.Notification;
 import com.seshtutoring.seshapp.model.Notification.NotificationType;
+import com.seshtutoring.seshapp.model.PastSesh;
 import com.seshtutoring.seshapp.util.ApplicationLifecycleTracker;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
 import com.seshtutoring.seshapp.view.RatingActivity;
@@ -29,18 +30,19 @@ public class SeshReviewNotificationHandler extends SeshEndedNotificationHandler 
     }
 
     @Override
-    public void onSeshReplacedWithPastSesh() {
+    public void onSeshReplacedWithPastSesh(PastSesh pastSesh) {
         ApplicationLifecycleTracker applicationLifecycleTracker
                 = ApplicationLifecycleTracker.sharedInstance(mContext);
-        startReviewActivity(applicationLifecycleTracker.getActivityInForeground());
+        startReviewActivity(applicationLifecycleTracker.getActivityInForeground(), pastSesh);
     }
 
-    private void startReviewActivity(Activity foregroundActivity) {
+    private void startReviewActivity(Activity foregroundActivity, PastSesh pastSesh) {
         Intent intent;
         if (mNotification.getNotificationType() == NotificationType.SESH_REVIEW_STUDENT) {
             intent = new Intent(mContext, RatingActivity.class);
         } else {
             intent = new Intent(mContext, TutorReviewActivity.class);
+            intent.putExtra(TutorReviewActivity.PAST_SESH_ID, pastSesh.pastSeshId);
         }
         foregroundActivity.startActivity(intent);
         foregroundActivity.overridePendingTransition(R.anim.slide_up, R.anim.hold);

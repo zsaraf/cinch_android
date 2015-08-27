@@ -21,6 +21,7 @@ import com.seshtutoring.seshapp.view.components.SeshInformationLabel;
  * Created by nadavhollander on 8/25/15.
  */
 public class TutorReviewActivity extends SeshActivity {
+    public static final String PAST_SESH_ID = "past_sesh";
 
     private ImageView profilePicture;
     private SeshInformationLabel cashEarned;

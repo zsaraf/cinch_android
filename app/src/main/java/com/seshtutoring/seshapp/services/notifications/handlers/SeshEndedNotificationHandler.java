@@ -39,7 +39,7 @@ public abstract class SeshEndedNotificationHandler extends NotificationHandler {
                         if (seshesFound.size() > 1) {
                             seshesFound.get(0).delete();
                         }
-                        onSeshReplacedWithPastSesh();
+                        onSeshReplacedWithPastSesh(pastSesh);
                     } else {
                         Log.e(TAG, "Failed to replace sesh with PastSesh; " + jsonObject.getString("message"));
                         mNotification.handled(mContext, false);
@@ -58,7 +58,7 @@ public abstract class SeshEndedNotificationHandler extends NotificationHandler {
         });
     }
 
-    protected void onSeshReplacedWithPastSesh() {
+    protected void onSeshReplacedWithPastSesh(PastSesh pastSesh) {
         // do nothing
     }
 }
