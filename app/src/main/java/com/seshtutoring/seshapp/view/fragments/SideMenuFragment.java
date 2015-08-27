@@ -94,7 +94,8 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenedLi
                 }
 
                 mainContainerActivity.setCurrentState(selectedMenuOption, null);
-                updateSelectedItem();
+
+//                updateSelectedItem();
             }
         });
 
