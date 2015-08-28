@@ -66,7 +66,7 @@
             android:layout_height="25dp"
             android:layout_marginBottom="10dp"
             android:layout_marginTop="10dp"
-            android:src="@drawable/location"
+            android:src="@drawable/pointer"
             android:layout_below="@+id/middleBarTopBorder"
             android:id="@+id/middleBarIconView"
             android:layout_centerVertical="true"/>
@@ -82,7 +82,7 @@
             android:layout_marginRight="33dp"
             android:maxLines="1"
             android:text=""
-            android:hint="please set start time..."
+            android:hint="please set location notes..."
             android:gravity="center"
             android:layout_centerVertical="true"
             android:imeOptions="actionDone"

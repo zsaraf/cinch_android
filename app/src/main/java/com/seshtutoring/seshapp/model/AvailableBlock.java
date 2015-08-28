@@ -112,7 +112,7 @@ public class AvailableBlock extends SugarRecord<AvailableBlock> {
 
         for (AvailableBlock block : availableBlocks) {
             DateTime st = new DateTime(block.startTime);
-            int day = st.getDayOfWeek();
+            int day = st.getDayOfWeek() - 1;
             String dayStr = days[day];
             if (day == today) {
                 dayStr = "TODAY";
