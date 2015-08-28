@@ -40,6 +40,7 @@ public class SeshReviewNotificationHandler extends SeshEndedNotificationHandler 
         Intent intent;
         if (mNotification.getNotificationType() == NotificationType.SESH_REVIEW_STUDENT) {
             intent = new Intent(mContext, RatingActivity.class);
+            intent.putExtra(TutorReviewActivity.PAST_SESH_ID, pastSesh.pastSeshId);
         } else {
             intent = new Intent(mContext, TutorReviewActivity.class);
             intent.putExtra(TutorReviewActivity.PAST_SESH_ID, pastSesh.pastSeshId);

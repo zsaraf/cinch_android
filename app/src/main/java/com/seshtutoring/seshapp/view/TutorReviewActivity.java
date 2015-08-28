@@ -104,6 +104,7 @@ public class TutorReviewActivity extends SeshActivity {
         this.cashEarned.setText(df.format(tutorEarnings));
 
         this.className.setText(className);
+        this.fullName.setText(this.pastSesh.studentFullName);
 
         Period diff = new Period(startTime, endTime);
         PeriodFormatter pf = new PeriodFormatterBuilder()
