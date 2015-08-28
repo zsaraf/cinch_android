@@ -101,7 +101,6 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v;
-        Boolean isStudent = true;
         if (sesh.isStudent) {
             v = inflater.inflate(R.layout.fragment_view_sesh_student, container, false);
             final EditText editText = (EditText)v.findViewById(R.id.icon_text_view_text);
@@ -156,7 +155,7 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
             }
         });
 
-        if (!isStudent) {
+        if (!sesh.isStudent) {
             startSeshButton = (SeshButton) v.findViewById(R.id.start_sesh_button);
             startSeshButton.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -314,7 +313,7 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                seshDialog.show(getActivity().getFragmentManager(), null);
+                seshDialog.show(getActivity().getFragmentManager(), "SESH_STARTING");
             }
         }, 1500);
     }

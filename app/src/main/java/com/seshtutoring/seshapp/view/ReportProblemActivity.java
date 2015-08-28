@@ -57,6 +57,9 @@ public class ReportProblemActivity extends SeshActivity {
 
         this.commentField.setHintTextColor(getResources().getColor(R.color.seshlightgray));
 
+        Bundle b = getIntent().getExtras();
+        final int pastSeshId = b.getInt(PAST_SESH_ID);
+
         this.submitButton = (SeshButton) findViewById(R.id.submit_button);
         this.submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -76,7 +79,7 @@ public class ReportProblemActivity extends SeshActivity {
                     getWindow().getCurrentFocus().clearFocus();
                     setNetworkOperationInProgress(true);
                     Log.d(TAG, "Reporting problem: " + problem);
-                    seshNetworking.reportProblem(problem, 173, new Response.Listener<JSONObject>() {
+                    seshNetworking.reportProblem(problem, pastSeshId, new Response.Listener<JSONObject>() {
                         @Override
                         public void onResponse(JSONObject jsonObject) {
                             try {

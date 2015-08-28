@@ -89,7 +89,7 @@ public class SplashActivity extends SeshActivity {
                 startActivity(intent);
                 overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
             }
-        } else {
+            } else {
             if (!SeshApplication.IS_LIVE) {
                 Intent warmWelcomeIntent = new Intent(getApplicationContext(), WarmWelcomeActivity.class);
                 startActivity(warmWelcomeIntent);

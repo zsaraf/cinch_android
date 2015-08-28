@@ -108,6 +108,7 @@ public class TutorReviewActivity extends SeshActivity {
         Period diff = new Period(startTime, endTime);
         PeriodFormatter pf = new PeriodFormatterBuilder()
                 .printZeroAlways()
+                .minimumPrintedDigits(2)
                 .appendHours()
                 .appendSuffix(":")
                 .appendMinutes()
