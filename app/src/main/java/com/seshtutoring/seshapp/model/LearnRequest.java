@@ -28,6 +28,9 @@ public class LearnRequest extends SugarRecord<LearnRequest> {
     private static final String TAG = LearnRequest.class.getName();
 
     @Ignore
+    private static LearnRequestTableListener listener;
+
+    @Ignore
     private String estTimeString;
 
     public String classId;
@@ -46,6 +49,10 @@ public class LearnRequest extends SugarRecord<LearnRequest> {
     @Ignore
     public Set<AvailableBlock> availableBlocks;
 //    public Set<Favorite> favorites;
+
+    public interface LearnRequestTableListener {
+        void tableUpdated();
+    }
 
     public LearnRequest() {
         this.availableBlocks = new HashSet<AvailableBlock>();
@@ -122,6 +129,26 @@ public class LearnRequest extends SugarRecord<LearnRequest> {
             return null;
         }
         return learnRequest;
+    }
+
+    public static void setTableListener(LearnRequestTableListener tableListener) {
+        listener = tableListener;
+    }
+
+    @Override
+    public void save() {
+        super.save();
+        if (listener != null) {
+            listener.tableUpdated();
+        }
+    }
+
+    @Override
+    public void delete() {
+        super.delete();
+        if (listener != null) {
+            listener.tableUpdated();
+        }
     }
 
     public static LearnRequest learnRequestFromPastRequest(PastRequest pastRequest) {

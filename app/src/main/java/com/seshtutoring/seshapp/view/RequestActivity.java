@@ -267,8 +267,10 @@ public class RequestActivity extends SeshActivity implements EditText.OnEditorAc
     @Override
     public void onDialogSelection(int selection, String type) {
         if (type.equals(DIALOG_TYPE_LEARN_REQUEST_SUCCESS)) {
-            setResult(LEARN_REQUEST_CREATE_SUCCESS);
-            onBackPressed();
+            Intent intent = new Intent(MainContainerActivity.DISPLAY_SIDE_MENU_UPDATE, null, this,
+                    MainContainerActivity.class);
+            startActivity(intent);
+            overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         } else if (type.equals(DIALOG_TYPE_LEARN_REQUEST_FAILURE)) {
             reenableConfirmFragmentButton();
         }

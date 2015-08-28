@@ -60,7 +60,7 @@ public class InSeshActivity extends SeshActivity {
 
         CircleImageView circleImageView = (CircleImageView)findViewById(R.id.profile_image);
         SeshNetworking seshNetworking = new SeshNetworking(getApplicationContext());
-        seshNetworking.downloadProfilePicture(this.currentSesh.userImageUrl, circleImageView, new Callback() {
+        seshNetworking.downloadProfilePictureAsync(this.currentSesh.userImageUrl, circleImageView, new Callback() {
             @Override
             public void onSuccess() {
 

@@ -69,7 +69,7 @@ public abstract class NotificationHandler {
         handler.post(new Runnable() {
             @Override
             public void run() {
-                seshNetworking.downloadProfilePicture(mNotification.correspondingSesh().userImageUrl,
+                seshNetworking.downloadProfilePictureAsync(mNotification.correspondingSesh().userImageUrl,
                         imageView,
                         callback);
             }

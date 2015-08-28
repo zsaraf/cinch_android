@@ -127,7 +127,7 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
 
         final ImageView profileImageView = (ImageView)v.findViewById(R.id.profile_image);
         SeshNetworking seshNetworking = new SeshNetworking(myContext);
-        seshNetworking.downloadProfilePicture(sesh.userImageUrl, profileImageView, new Callback() {
+        seshNetworking.downloadProfilePictureAsync(sesh.userImageUrl, profileImageView, new Callback() {
             @Override
             public void onSuccess() {
 

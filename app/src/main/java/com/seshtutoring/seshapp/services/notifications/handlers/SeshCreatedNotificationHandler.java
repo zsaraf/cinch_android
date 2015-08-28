@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.RequestFuture;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.seshtutoring.seshapp.R;
@@ -25,8 +26,10 @@ import com.seshtutoring.seshapp.util.ApplicationLifecycleTracker;
 import com.seshtutoring.seshapp.util.ApplicationLifecycleTracker.ApplicationResumeListener;
 import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
+import com.seshtutoring.seshapp.util.networking.SeshNetworking.SynchronousRequest;
 import com.seshtutoring.seshapp.view.InSeshActivity;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
+import com.seshtutoring.seshapp.view.SeshActivity;
 import com.seshtutoring.seshapp.view.components.SeshDialog;
 import com.seshtutoring.seshapp.view.fragments.ViewSeshFragment;
 import com.squareup.picasso.Callback;
@@ -51,46 +54,49 @@ public class SeshCreatedNotificationHandler extends NotificationHandler {
 
     public void handleDisplayInsideApp() {
         final int requestId = (int) mNotification.getDataObject("request_id");
-        int seshId = (int) mNotification.getDataObject("sesh_id");
+        final int seshId = (int) mNotification.getDataObject("sesh_id");
+
         final SeshNetworking seshNetworking = new SeshNetworking(mContext);
-        seshNetworking.getSeshInformationForSeshId(seshId, new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject jsonObject) {
-                try {
-                    if (jsonObject.getString("status").equals("SUCCESS")) {
-                        List<LearnRequest> learnRequestsFound
-                                = LearnRequest.find(LearnRequest.class,
-                                "learn_request_id = ?", Integer.toString(requestId));
-                        if (learnRequestsFound.size() > 0) {
-                            learnRequestsFound.get(0).delete();
-                        }
-
-                        final Sesh createdSesh = Sesh.createOrUpdateSeshWithObject(jsonObject.getJSONObject("sesh"), mContext);
-                        final ImageView profilePicture = new ImageView(mContext);
-                        loadImage(profilePicture, new Callback() {
-                            @Override
-                            public void onSuccess() {
-                                showDialog(createdSesh, profilePicture);
-                            }
-
-                            @Override
-                            public void onError() {
-                                showDialog(createdSesh, profilePicture);
-                            }
-                        });
-                    }
-                } catch (JSONException e) {
-                    Log.e(TAG, "Failed to get sesh info for sesh id; malformed response: " + e);
-                    mNotification.handled(mContext, false);
-                }
+        SynchronousRequest request = new SynchronousRequest() {
+            public void request(RequestFuture<JSONObject> blocker) {
+                seshNetworking.getSeshInformationForSeshId(seshId, blocker, blocker);
             }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.e(TAG, "Failed to get sesh info for sesh id; network error: " + error);
+
+            public void onErrorException(Exception e) {
+                Log.e(TAG, "Failed to get sesh info for sesh id: " + e);
                 mNotification.handled(mContext, false);
             }
-        });
+        };
+
+        JSONObject jsonObject = request.execute();
+
+        if (jsonObject != null) {
+            try {
+                if (jsonObject.getString("status").equals("SUCCESS")) {
+                    List<LearnRequest> learnRequestsFound
+                            = LearnRequest.find(LearnRequest.class,
+                            "learn_request_id = ?", Integer.toString(requestId));
+                    if (learnRequestsFound.size() > 0) {
+                        learnRequestsFound.get(0).delete();
+                    }
+                    final Sesh createdSesh = Sesh.createOrUpdateSeshWithObject(jsonObject.getJSONObject("sesh"), mContext);
+                    final ImageView profilePicture = new ImageView(mContext);
+                    loadImage(profilePicture, new Callback() {
+                        @Override
+                        public void onSuccess() {
+                            showDialog(createdSesh, profilePicture);
+                        }
+                        @Override
+                        public void onError() {
+                            showDialog(createdSesh, profilePicture);
+                        }
+                    });
+                }
+            } catch (JSONException e) {
+                Log.e(TAG, "Failed to get sesh info for sesh id; malformed response: " + e);
+                mNotification.handled(mContext, false);
+            }
+        }
     }
 
     private void showDialog(final Sesh createdSesh, ImageView profilePicture) {
@@ -128,20 +134,30 @@ public class SeshCreatedNotificationHandler extends NotificationHandler {
         seshDialog.setFirstChoice("OKAY");
         seshDialog.setType(SESH_CREATED_DIALOG_TYPE);
 
+        final SeshActivity foregroundActivity = (SeshActivity) ApplicationLifecycleTracker
+                .sharedInstance(mContext)
+                .getActivityInForeground();
+
         seshDialog.setFirstButtonClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainContainerActivity.VIEW_SESH_ACTION);
-                intent.putExtra(ViewSeshFragment.SESH_KEY, createdSesh.seshId);
-                mContext.sendBroadcast(intent);
+                if (foregroundActivity.isMainContainerActivity()) {
+                    Intent intent = new Intent(MainContainerActivity.DISPLAY_SIDE_MENU_UPDATE);
+                    intent.putExtra(ViewSeshFragment.SESH_KEY, createdSesh.seshId);
+                    mContext.sendBroadcast(intent);
+                } else {
+                    Intent intent = new Intent(MainContainerActivity.DISPLAY_SIDE_MENU_UPDATE, null,
+                            mContext, MainContainerActivity.class);
+                    intent.putExtra(ViewSeshFragment.SESH_KEY, createdSesh.seshId);
+                    foregroundActivity.startActivity(intent);
+                }
+
                 mNotification.handled(mContext, true);
                 seshDialog.dismiss();
             }
         });
 
-        seshDialog.show(ApplicationLifecycleTracker
-                .sharedInstance(mContext)
-                .getActivityInForeground()
+        seshDialog.show(foregroundActivity
                 .getFragmentManager(), null);
 
     }

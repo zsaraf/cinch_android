@@ -6,6 +6,7 @@ import android.util.Log;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.RequestFuture;
 import com.orm.SugarRecord;
 import com.orm.dsl.Ignore;
 import com.seshtutoring.seshapp.services.notifications.handlers.DiscountAvailableNotificationHandler;
@@ -26,6 +27,7 @@ import com.seshtutoring.seshapp.services.notifications.handlers.SetTimeUpdatedNo
 import com.seshtutoring.seshapp.services.notifications.handlers.UpdateStateNotificationHandler;
 import com.seshtutoring.seshapp.util.networking.SeshAuthManager;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
+import com.seshtutoring.seshapp.util.networking.SeshNetworking.SynchronousRequest;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -152,47 +154,51 @@ public class Notification extends SugarRecord<Notification> {
     }
 
     public synchronized static void refreshNotifications(final Notification refreshNotification, final Context context) {
-        List<Notification> handledNotifications = null;
+        final List<Notification> handledNotifications
+                = Notification.find(Notification.class, "pending_deletion = ?", "1");
+        final SeshNetworking seshNetworking = new SeshNetworking(context);
 
-        handledNotifications = Notification.find(Notification.class, "pending_deletion = ?", "1");
-
-        SeshNetworking seshNetworking = new SeshNetworking(context);
-        seshNetworking.refreshNotifications(handledNotifications, new Response.Listener<JSONObject>() {
+        SynchronousRequest request = new SynchronousRequest() {
             @Override
-            public void onResponse(JSONObject jsonObject) {
-                Set<Notification> notifications = new HashSet<Notification>();
-                try {
-                    if (jsonObject.getString("status").equals("SUCCESS")) {
-                        JSONArray notificationsFromServer = jsonObject.getJSONArray("notifications");
-                        for (int i = 0; i < notificationsFromServer.length(); i++) {
-                            notifications.add(Notification.createOrUpdateNotification(
-                                    notificationsFromServer.getJSONObject(i), context));
-                        }
+            public void request(RequestFuture<JSONObject> blocker) {
+                seshNetworking.refreshNotifications(handledNotifications, blocker, blocker);
+            }
 
-                        for (Notification notification : Notification.listAll(Notification.class)) {
-                            if (!notifications.contains(notification)) {
-                                notification.delete();
-                            }
-                        }
+            @Override
+            public void onErrorException(Exception e) {
+                refreshNotification.handled(context, false);
+                Log.e(TAG, "Failed to refresh notifications: " + e);
+            }
+        };
 
-                        refreshNotification.handled(context, true);
-                    } else {
-                        Log.e(TAG, "Failed to refresh notifications; " + jsonObject.getString("message"));
-                        refreshNotification.handled(context, false);
+        JSONObject jsonObject = request.execute();
+
+        if (jsonObject != null) {
+            Set<Notification> notifications = new HashSet<Notification>();
+            try {
+                if (jsonObject.getString("status").equals("SUCCESS")) {
+                    JSONArray notificationsFromServer = jsonObject.getJSONArray("notifications");
+                    for (int i = 0; i < notificationsFromServer.length(); i++) {
+                        notifications.add(Notification.createOrUpdateNotification(
+                                notificationsFromServer.getJSONObject(i), context));
                     }
 
-                } catch (JSONException e) {
+                    for (Notification notification : Notification.listAll(Notification.class)) {
+                        if (!notifications.contains(notification)) {
+                            notification.delete();
+                        }
+                    }
+
+                    refreshNotification.handled(context, true);
+                } else {
+                    Log.e(TAG, "Failed to refresh notifications; " + jsonObject.getString("message"));
                     refreshNotification.handled(context, false);
-                    Log.e(TAG, "Failed to refresh notifications; JSON response malformed : " + e);
                 }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError volleyError) {
+            } catch (JSONException e) {
                 refreshNotification.handled(context, false);
-                Log.e(TAG, "Failed to refresh notifications; network error : " + volleyError);
+                Log.e(TAG, "Failed to refresh notifications; JSON response malformed : " + e);
             }
-        });
+        }
     }
 
     public Object getDataObject(String key) {
@@ -206,13 +212,13 @@ public class Notification extends SugarRecord<Notification> {
     }
 
     public void handled(Context context, boolean deleteNotification) {
-        if (deleteNotification) {
-            pendingDeletion = true;
-            save();
-        }
-
         Intent notificationHandled = new Intent(SeshNotificationManagerService.CURRENT_NOTIFICATION_HAS_BEEN_HANDLED, null,
                 context, SeshNotificationManagerService.class);
+
+        if (deleteNotification) {
+            notificationHandled.putExtra(SeshNotificationManagerService.NOTIFICATION_PENDING_DELETION_KEY, true);
+        }
+
         context.startService(notificationHandled);
 
         Log.d(TAG, identifier + " has been handled.");

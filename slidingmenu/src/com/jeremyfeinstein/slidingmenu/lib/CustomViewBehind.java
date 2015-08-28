@@ -202,6 +202,8 @@ public class CustomViewBehind extends ViewGroup {
 	}
 
 	public int getMenuPage(int page) {
+		if (page == 3) return page;
+
 		page = (page > 1) ? 2 : ((page < 1) ? 0 : page);
 		if (mMode == SlidingMenu.LEFT && page > 1) {
 			return 0;

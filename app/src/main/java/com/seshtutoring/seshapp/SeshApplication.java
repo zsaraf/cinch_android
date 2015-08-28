@@ -6,6 +6,7 @@ import com.mixpanel.android.mpmetrics.MixpanelAPI;
 import com.orm.SugarApp;
 import com.seshtutoring.seshapp.util.ApplicationLifecycleTracker;
 import com.seshtutoring.seshapp.util.SeshMixpanelAPI;
+import com.squareup.picasso.LruCache;
 
 import io.fabric.sdk.android.Fabric;
 import org.joda.time.DateTime;

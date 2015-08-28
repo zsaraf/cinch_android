@@ -1,6 +1,7 @@
 package com.seshtutoring.seshapp.util.networking;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
@@ -8,6 +9,8 @@ import android.widget.ImageView;
 
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Response;
+import com.android.volley.toolbox.ImageLoader;
+import com.android.volley.toolbox.RequestFuture;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.SeshApplication;
 import com.seshtutoring.seshapp.model.AvailableBlock;
@@ -15,10 +18,12 @@ import com.seshtutoring.seshapp.model.Constants;
 import com.seshtutoring.seshapp.model.Course;
 import com.seshtutoring.seshapp.model.LearnRequest;
 import com.seshtutoring.seshapp.model.Notification;
+import com.seshtutoring.seshapp.util.SeshImageCache;
 import com.squareup.okhttp.Interceptor;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.picasso.Callback;
+import com.squareup.picasso.LruCache;
 import com.squareup.picasso.OkHttpDownloader;
 import com.squareup.picasso.Picasso;
 import com.stripe.android.Stripe;
@@ -37,6 +42,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Wrapper for any asynchronous interactions with the API.
@@ -97,7 +103,7 @@ public class SeshNetworking {
         this.mContext = context;
     }
 
-    public void downloadProfilePicture(String profilePictureUrl, ImageView imageView, Callback callback) {
+    public Bitmap downloadProfilePictureSynchronous(String profilePictureUrl) {
         profilePictureUrl = baseUrl() + "resources/images/profile_pictures/" + profilePictureUrl;
         OkHttpClient picassoClient = new OkHttpClient();
         picassoClient.interceptors().add(new Interceptor() {
@@ -110,7 +116,38 @@ public class SeshNetworking {
             }
         });
         Picasso.Builder builder = new Picasso.Builder(mContext);
-        Picasso picasso =  builder.downloader(new OkHttpDownloader(picassoClient)).build();
+
+        Picasso picasso =  builder
+                .downloader(new OkHttpDownloader(picassoClient))
+                .memoryCache(SeshImageCache.sharedInstance(mContext)).build();
+
+        Bitmap bitmap = null;
+        try {
+            bitmap = picasso.load(profilePictureUrl).get();
+        } catch (IOException e) {
+            Log.e(TAG, "Failed to get profile picture; " + e);
+        }
+
+        return bitmap;
+    }
+
+    public void downloadProfilePictureAsync(String profilePictureUrl, ImageView imageView, Callback callback) {
+        profilePictureUrl = baseUrl() + "resources/images/profile_pictures/" + profilePictureUrl;
+        OkHttpClient picassoClient = new OkHttpClient();
+        picassoClient.interceptors().add(new Interceptor() {
+            @Override
+            public com.squareup.okhttp.Response intercept(Chain chain) throws IOException {
+                Request newRequest = chain.request().newBuilder()
+                        .addHeader("Authorization", "Basic dGVhbXNlc2g6RWFibHRmMSE=")
+                        .build();
+                return chain.proceed(newRequest);
+            }
+        });
+        Picasso.Builder builder = new Picasso.Builder(mContext);
+
+        Picasso picasso =  builder
+                .downloader(new OkHttpDownloader(picassoClient))
+                .memoryCache(SeshImageCache.sharedInstance(mContext)).build();
         picasso.load(profilePictureUrl).placeholder(R.drawable.default_profile_picture).into(imageView, callback);
     }
 
@@ -671,6 +708,27 @@ public class SeshNetworking {
         params.put(SET_TIME_PARAM, formatter.print(new DateTime(setTime)));
 
         postWithRelativeUrl("set_start_time.php", params, successListener, errorListener);
+    }
+
+    public static abstract class SynchronousRequest {
+        public JSONObject execute() {
+            RequestFuture<JSONObject> blocker = RequestFuture.newFuture();
+            request(blocker);
+
+            JSONObject response = null;
+            try {
+               response = blocker.get();
+            } catch (InterruptedException e) {
+                onErrorException(e);
+            } catch (ExecutionException e) {
+                onErrorException(e);
+            }
+
+            return response;
+        }
+
+        public abstract void request(RequestFuture<JSONObject> blocker);
+        public abstract void onErrorException(Exception e);
     }
 
 //    @TODO: implement once Stripe functionality in place

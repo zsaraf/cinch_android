@@ -528,10 +528,6 @@ public class SlidingMenu extends RelativeLayout {
 		mViewAbove.setCurrentItem(1, animate);
 	}
 
-	public void stretchOut() {
-		mViewAbove.setCurrentItem(3, true);
-	}
-
 	/**
 	 * Toggle the SlidingMenu. If it is open, it will be closed, and vice versa.
 	 */

@@ -44,15 +44,16 @@ public abstract class SeshActivity extends AppCompatActivity implements SeshDial
     private static final boolean DEFAULT_SUPPORTS_SESH_DIALOG = true;
     private static final boolean DEFAULT_IS_FULLSCREEN = false;
     private static final boolean DEFAULT_IS_IN_SESH_ACTIVITY = false;
+    private static final boolean DEFAULT_IS_MAIN_CONTAINER_ACTIVITY = false;
     private static final Bitmap DEFAULT_BLUR_BACKGROUND_OVERRIDE = null;
 
     //    Pre-reg app functionality -- to be deleted v1
     private boolean updateDialogShowing = false;
 
-    private BroadcastReceiver notificationActionReceiver = new BroadcastReceiver() {
+    private BroadcastReceiver actionBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            handleNotificationIntent(intent);
+            handleActionIntent(intent);
         }
     };
 
@@ -65,47 +66,16 @@ public abstract class SeshActivity extends AppCompatActivity implements SeshDial
     public void onResume() {
         super.onResume();
 
-        //    Pre-reg app functionality -- to be deleted v1
-        SeshNetworking seshNetworking = new SeshNetworking(this);
-        seshNetworking.getAndroidLaunchDate(new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject jsonObject) {
-                try  {
-                    if (jsonObject.getString("status").equals("success")) {
-                        DateTimeFormatter formatter = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss").withZoneUTC();
-
-                        String launchDateString = jsonObject.getString("launch_date");
-                        ((SeshApplication)getApplication())
-                                .setAndroidReleaseDate(formatter.parseDateTime(launchDateString));
-
-                        if (appUpdateRequired() && !updateDialogShowing && supportsSeshDialog()) {
-                            showAppIsLiveDialog();
-                        }
-                    } else {
-                        Log.e(TAG,
-                                "Failed to get Android launch date: " + jsonObject.getString("message"));
-                    }
-                } catch (JSONException e) {
-                    Log.e(TAG, "Failed to get Android launch date; response malformed: " + e);
-                }
-                Log.d(TAG, jsonObject.toString());
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError volleyError) {
-                Log.e(TAG, "Failed to get android launch date; networkError ");
-            }
-        });
-
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(APP_IS_LIVE_ACTION);
         intentFilter.addAction(MainContainerActivity.UPDATE_CONTAINER_STATE_ACTION);
         intentFilter.addAction(MainContainerActivity.SESH_CANCELLED_ACTION);
-        registerReceiver(notificationActionReceiver, intentFilter);
+        intentFilter.addAction(MainContainerActivity.DISPLAY_SIDE_MENU_UPDATE);
+        registerReceiver(actionBroadcastReceiver, intentFilter);
 
         Intent intent = getIntent();
-        if (intent.hasExtra(SeshGCMListenerService.NOTIFICATION_ID_EXTRA)) {
-            handleNotificationIntent(intent);
+        if (intent.getAction() != null) {
+            handleActionIntent(intent);
         }
 
 //        if (appUpdateRequired() && !updateDialogShowing && supportsSeshDialog()) {
@@ -119,10 +89,10 @@ public abstract class SeshActivity extends AppCompatActivity implements SeshDial
     public void onPause() {
         super.onPause();
         ApplicationLifecycleTracker.sharedInstance(this).activityPaused();
-        unregisterReceiver(notificationActionReceiver);
+        unregisterReceiver(actionBroadcastReceiver);
     }
 
-    protected void handleNotificationIntent(Intent intent) {
+    protected void handleActionIntent(Intent intent) {
         if (intent.hasExtra(INTENT_HANDLED) && intent.getBooleanExtra(INTENT_HANDLED, false)) {
             return;
         }
@@ -132,13 +102,6 @@ public abstract class SeshActivity extends AppCompatActivity implements SeshDial
             ((NotificationManager)
                     getSystemService(NOTIFICATION_SERVICE)).cancel(notificationId);
         }
-
-//        //    Pre-reg app functionality -- to be deleted v1
-//        if (intent.getAction() != null && intent.getAction().equals(APP_IS_LIVE_ACTION)) {
-//            if (supportsSeshDialog() && !updateDialogShowing) {
-//                showAppIsLiveDialog();
-//            }
-//        }
 
         intent.putExtra(INTENT_HANDLED, true);
     }
@@ -197,6 +160,10 @@ public abstract class SeshActivity extends AppCompatActivity implements SeshDial
 
     public boolean isInSeshActivity() {
         return DEFAULT_IS_IN_SESH_ACTIVITY;
+    }
+
+    public boolean isMainContainerActivity() {
+        return DEFAULT_IS_MAIN_CONTAINER_ACTIVITY;
     }
 
     public boolean isFullscreen() {

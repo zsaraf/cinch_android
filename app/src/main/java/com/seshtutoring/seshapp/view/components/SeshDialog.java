@@ -156,6 +156,7 @@ public class SeshDialog extends DialogFragment {
             } else {
                 firstButton.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
+                        Log.d(TAG,"DIALOG HAS BEEN CLICKED");
                         dismiss(1);
                     }
                 });

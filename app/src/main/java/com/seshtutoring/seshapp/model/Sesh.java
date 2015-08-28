@@ -2,6 +2,7 @@ package com.seshtutoring.seshapp.model;
 
 import android.content.Context;
 import android.util.Log;
+import android.widget.ImageView;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -10,6 +11,7 @@ import com.orm.dsl.Ignore;
 import com.seshtutoring.seshapp.util.DateUtils;
 import com.seshtutoring.seshapp.util.networking.SeshAuthManager;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
+import com.squareup.picasso.Callback;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
@@ -37,6 +39,9 @@ import java.util.TimeZone;
 public class Sesh extends SugarRecord<Sesh> {
     @Ignore
     private static final String TAG = Sesh.class.getName();
+
+    @Ignore
+    private static SeshTableListener listener;
 
     public int seshId;
     public String className;
@@ -66,6 +71,10 @@ public class Sesh extends SugarRecord<Sesh> {
 
     // empty constructor necessary for SugarORM to work
     public Sesh() {
+    }
+
+    public interface SeshTableListener {
+        void tableUpdated();
     }
 
     public Sesh(String class_name, boolean has_been_seen, boolean has_started, boolean is_student,
@@ -176,6 +185,26 @@ public class Sesh extends SugarRecord<Sesh> {
         return sesh;
     }
 
+    public static void setTableListener(SeshTableListener tableListener) {
+        listener = tableListener;
+    }
+
+    @Override
+    public void save() {
+        super.save();
+        if (listener != null) {
+            listener.tableUpdated();
+        }
+    }
+
+    @Override
+    public void delete() {
+        super.delete();
+        if (listener != null) {
+            listener.tableUpdated();
+        }
+    }
+
     private static Date formattedTime(String rawTimeString) {
         DateTimeFormatter formatter = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss").withZoneUTC();
         return formatter.parseDateTime(rawTimeString).toDate();
@@ -191,6 +220,21 @@ public class Sesh extends SugarRecord<Sesh> {
         }
 
         return startedSeshes.get(0);
+    }
+
+    public void loadImageAsync(ImageView imageView, Context context) {
+        SeshNetworking seshNetworking = new SeshNetworking(context);
+        seshNetworking.downloadProfilePictureAsync(userImageUrl, imageView, new Callback() {
+            @Override
+            public void onSuccess() {
+                // do nothing
+            }
+
+            @Override
+            public void onError() {
+                // do nothing
+            }
+        });
     }
 
     public String getTimeAbbrvString() {

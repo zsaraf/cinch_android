@@ -5,10 +5,12 @@ import android.util.Log;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.RequestFuture;
 import com.seshtutoring.seshapp.model.Notification;
 import com.seshtutoring.seshapp.model.PastSesh;
 import com.seshtutoring.seshapp.model.Sesh;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
+import com.seshtutoring.seshapp.util.networking.SeshNetworking.SynchronousRequest;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -26,36 +28,43 @@ public abstract class SeshEndedNotificationHandler extends NotificationHandler {
     }
 
     protected void replaceSeshWithPastSesh() {
-        int pastSeshId = (int) mNotification.getDataObject("past_sesh_id");
-        SeshNetworking seshNetworking = new SeshNetworking(mContext);
-        seshNetworking.getPastSeshInformationForPastSeshId(pastSeshId, new Response.Listener<JSONObject>() {
+        final int pastSeshId = (int) mNotification.getDataObject("past_sesh_id");
+        final SeshNetworking seshNetworking = new SeshNetworking(mContext);
+
+        SynchronousRequest request = new SynchronousRequest() {
             @Override
-            public void onResponse(JSONObject jsonObject) {
-                try {
-                    if (jsonObject.getString("status").equals("SUCCESS")) {
-                        PastSesh pastSesh = PastSesh.createOrUpdatePastSesh(jsonObject.getJSONObject("past_sesh"));
-                        List<Sesh> seshesFound = Sesh.find(Sesh.class, "past_request_id = ?",
-                                Integer.toString(pastSesh.pastRequestId));
-                        if (seshesFound.size() > 1) {
-                            seshesFound.get(0).delete();
-                        }
-                        onSeshReplacedWithPastSesh(pastSesh);
-                    } else {
-                        Log.e(TAG, "Failed to replace sesh with PastSesh; " + jsonObject.getString("message"));
-                        mNotification.handled(mContext, false);
-                    }
-                } catch (JSONException e) {
-                    Log.e(TAG, "Failed to replace sesh with PastSesh; json malformed: " + e);
-                    mNotification.handled(mContext, false);
-                }
+            public void request(RequestFuture<JSONObject> blocker) {
+                seshNetworking.getPastSeshInformationForPastSeshId(pastSeshId, blocker, blocker);
             }
-        }, new Response.ErrorListener() {
+
             @Override
-            public void onErrorResponse(VolleyError volleyError) {
-                Log.e(TAG, "Failed to replace sesh with PastSesh; network error: " + volleyError);
+            public void onErrorException(Exception e) {
+                Log.e(TAG, "Failed to replace sesh with PastSesh: " + e);
                 mNotification.handled(mContext, false);
             }
-        });
+        };
+
+        JSONObject jsonObject = request.execute();
+
+        if (jsonObject != null) {
+            try {
+                if (jsonObject.getString("status").equals("SUCCESS")) {
+                    PastSesh pastSesh = PastSesh.createOrUpdatePastSesh(jsonObject.getJSONObject("past_sesh"));
+                    List<Sesh> seshesFound = Sesh.find(Sesh.class, "past_request_id = ?",
+                            Integer.toString(pastSesh.pastRequestId));
+                    if (seshesFound.size() > 0) {
+                        seshesFound.get(0).delete();
+                    }
+                    onSeshReplacedWithPastSesh(pastSesh);
+                } else {
+                    Log.e(TAG, "Failed to replace sesh with PastSesh; " + jsonObject.getString("message"));
+                    mNotification.handled(mContext, false);
+                }
+            } catch (JSONException e) {
+                Log.e(TAG, "Failed to replace sesh with PastSesh; json malformed: " + e);
+                mNotification.handled(mContext, false);
+            }
+        }
     }
 
     protected void onSeshReplacedWithPastSesh(PastSesh pastSesh) {

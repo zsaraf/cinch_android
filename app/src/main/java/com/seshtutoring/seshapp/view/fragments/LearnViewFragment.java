@@ -16,6 +16,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
+import android.view.InflateException;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -53,6 +54,7 @@ import java.io.File;
  */
 public class LearnViewFragment extends Fragment implements OnMapReadyCallback {
     private static final String TAG = LearnViewFragment.class.getName();
+    private static View view;
 
     private static GoogleMap mMap;
     public static final String BLURRED_MAP_BITMAP_PATH_KEY = "blurred_map_bitmap";
@@ -63,7 +65,19 @@ public class LearnViewFragment extends Fragment implements OnMapReadyCallback {
     private Location currentBestLocation;
 
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = layoutInflater.inflate(R.layout.learn_view_fragment, container, false);
+        if (view != null) {
+            ViewGroup parent = (ViewGroup) view.getParent();
+            if (parent != null) {
+                parent.removeView(view);
+            }
+        }
+
+        try {
+            view = layoutInflater.inflate(R.layout.learn_view_fragment, container, false);
+        } catch (InflateException e) {
+            return view;
+        }
+
         setUpMapIfNeeded();
 
         LayoutUtils utils = new LayoutUtils(getActivity());

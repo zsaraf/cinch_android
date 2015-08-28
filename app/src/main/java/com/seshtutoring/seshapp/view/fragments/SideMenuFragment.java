@@ -2,6 +2,7 @@ package com.seshtutoring.seshapp.view.fragments;
 
 import android.content.Context;
 import android.graphics.Typeface;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -17,10 +18,13 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.google.android.gms.maps.model.Circle;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.LearnRequest;
+import com.seshtutoring.seshapp.model.LearnRequest.LearnRequestTableListener;
 import com.seshtutoring.seshapp.model.Sesh;
+import com.seshtutoring.seshapp.model.Sesh.SeshTableListener;
 import com.seshtutoring.seshapp.services.PeriodicFetchBroadcastReceiver;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
 import com.seshtutoring.seshapp.view.ContainerState;
@@ -33,7 +37,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenedListener {
+import de.hdodenhof.circleimageview.CircleImageView;
+
+public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenListener, SeshTableListener,
+                                                                LearnRequestTableListener {
     private static final String TAG = SideMenuFragment.class.getName();
 
     public static final String MAIN_WRAPPER_STATE_KEY = "main_wrapper_state";
@@ -93,15 +100,16 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenedLi
                         break;
                 }
 
-                mainContainerActivity.setCurrentState(selectedMenuOption, null);
-
 //                updateSelectedItem();
+
+                mainContainerActivity.setCurrentState(selectedMenuOption, null);
             }
         });
 
         updateSelectedItem();
 
         openRequestsAndSeshesAdapter = new RequestsAndSeshesAdapter(getActivity());
+        openRequestsAndSeshesAdapter.setNotifyOnChange(false);
         openRequestsAndSeshesMenu.setAdapter(openRequestsAndSeshesAdapter);
 
         openRequestsAndSeshesMenu.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -112,16 +120,22 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenedLi
 
                 Map<String, Object> options = new HashMap<String, Object>();
 
-                if(item.isSesh) {
-                    mainContainerActivity.setCurrentState(new ContainerState("Sesh!", 0, ViewSeshFragment.newInstance(item.sesh.seshId)));
+                if (item.isSesh) {
+                    mainContainerActivity.setCurrentState(new ContainerState("Sesh!", 0,
+                            ViewSeshFragment.newInstance(item.sesh.seshId)));
                 } else {
-                    options.put(DummyRequestSeshFragment.REQUEST_DUMMY_KEY, "RequestId = " + item.learnRequest.learnRequestId);
-                    mainContainerActivity.setCurrentState(new ContainerState("Request!", 0, new DummyRequestSeshFragment()));
+                    options.put(DummyRequestSeshFragment.REQUEST_DUMMY_KEY,
+                            "RequestId = " + item.learnRequest.learnRequestId);
+                    mainContainerActivity.setCurrentState(new ContainerState("Request!", 0,
+                            new DummyRequestSeshFragment()));
                 }
             }
         });
 
-        updateLearnList();
+        Sesh.setTableListener(this);
+        LearnRequest.setTableListener(this);
+
+        (new UpdateRequestAndSeshListTask()).execute();
     }
 
     public void updateSelectedItem() {
@@ -223,6 +237,9 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenedLi
                 TextView timeAbbrvTextView = (TextView) convertView.findViewById(R.id.open_sesh_list_row_time);
                 timeAbbrvTextView.setText(item.sesh.getTimeAbbrvString());
 
+                CircleImageView profileImage = (CircleImageView) convertView.findViewById(R.id.profile_image);
+                item.sesh.loadImageAsync(profileImage, getActivity());
+
                 if (!item.sesh.isStudent) {
                     ImageView icon = (ImageView)convertView.findViewById(R.id.open_sesh_list_row_status_icon);
                     int drawableId;
@@ -249,22 +266,16 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenedLi
                 classAbbrvTextView.setText(item.learnRequest.classString);
             }
 
-            // if view represents the newest request and side menu was opened in context of a new
-            // request being created, animate row in to emphasize it to user.
-            if (menuOpenFlag == MENU_OPEN_DISPLAY_NEW_REQUEST && position == getCount() - 1) {
-                Log.d("meh", "allegadly animating");
-                Animation newItemAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.fade_and_slide_in);
-                convertView.startAnimation(newItemAnimation);
-                Log.d(TAG, "bout to set this null:");
-                setStatusFlag(null);
-            }
+//            // if view represents the newest request and side menu was opened in context of a new
+//            // request being created, animate row in to emphasize it to user.
+//            if (menuOpenFlag == MENU_OPEN_DISPLAY_NEW_REQUEST && position == getCount() - 1) {
+//                Log.d("meh", "allegadly animating");
+//                Animation newItemAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.fade_and_slide_in);
+//                convertView.startAnimation(newItemAnimation);
+//                Log.d(TAG, "bout to set this null:");
+//                setStatusFlag(null);
+//            }
             return convertView;
-        }
-
-        @Override
-        public void notifyDataSetChanged() {
-            super.notifyDataSetChanged();
-            Log.d(TAG, "notify data set changed");
         }
     }
 
@@ -296,47 +307,70 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenedLi
     }
 
     @Override
-    public void onOpened() {
+    public void onOpen() {
         Log.d(TAG, "onOpened called w/ menuOpenFlag: " + menuOpenFlag);
         if (menuOpenFlag == MENU_OPEN_DISPLAY_NEW_REQUEST) {
-            updateLearnList();
+            menuOpenFlag = null;
         }
     }
 
-    public synchronized void updateLearnList() {
-        Log.d(TAG, "updateLearnList() begin " + new Date().toString() + " with instance " + this.getId());
-        List<Sesh> studentSeshes = null;
-        if (Sesh.listAll(Sesh.class).size() > 0) {
-//            studentSeshes = Sesh.find(Sesh.class, "is_student = ?", Integer.toString(1));
-            studentSeshes = Sesh.listAll(Sesh.class);
-        } else {
-            studentSeshes = new ArrayList<Sesh>();
+    public class UpdateRequestAndSeshListTask extends AsyncTask<Void, Void, Void> {
+        protected Void doInBackground(Void... voids){
+            List<Sesh> studentSeshes = null;
+            List<Sesh> tutorSeshes = null;
+            if (Sesh.listAll(Sesh.class).size() > 0) {
+                studentSeshes = Sesh.find(Sesh.class, "is_student = ?", Integer.toString(1));
+                tutorSeshes = Sesh.find(Sesh.class, "is_student = ?", Integer.toString(0));
+            } else {
+                studentSeshes = new ArrayList<Sesh>();
+                tutorSeshes = new ArrayList<Sesh>();
+            }
+            List<LearnRequest> learnRequests = LearnRequest.listAll(LearnRequest.class);
+
+            openRequestsAndSeshesAdapter.clear();
+
+            if (tutorSeshes.size() > 0) {
+                RequestsAndSeshesListItem teachDivider
+                        = new RequestsAndSeshesListItem(false, true, null, null, "TEACH");
+                openRequestsAndSeshesAdapter.add(teachDivider);
+            }
+
+            for (Sesh sesh : tutorSeshes) {
+                RequestsAndSeshesListItem seshItem =
+                        new RequestsAndSeshesListItem(true, false, null, sesh, null);
+                openRequestsAndSeshesAdapter.add(seshItem);
+            }
+
+            if (studentSeshes.size() + learnRequests.size() > 0) {
+                RequestsAndSeshesListItem learnDivider
+                        = new RequestsAndSeshesListItem(false, true, null, null, "LEARN");
+                openRequestsAndSeshesAdapter.add(learnDivider);
+            }
+
+            for (Sesh sesh : studentSeshes) {
+                RequestsAndSeshesListItem seshItem =
+                        new RequestsAndSeshesListItem(true, false, null, sesh, null);
+                openRequestsAndSeshesAdapter.add(seshItem);
+            }
+
+            for (LearnRequest learnRequest : learnRequests) {
+                RequestsAndSeshesListItem requestItem =
+                        new RequestsAndSeshesListItem(false, false, learnRequest, null, null);
+                openRequestsAndSeshesAdapter.add(requestItem);
+            }
+            Log.d(TAG, "updateLearnList() end " + new Date().toString());
+
+            return null;
         }
-        Iterator<LearnRequest> learnRequests = LearnRequest.findAll(LearnRequest.class);
 
-        int beforeCount = openRequestsAndSeshesAdapter.getCount();
-
-        openRequestsAndSeshesAdapter.clear();
-
-        for (Sesh sesh : studentSeshes) {
-            RequestsAndSeshesListItem seshItem =
-                    new RequestsAndSeshesListItem(true, false, null, sesh, null);
-            openRequestsAndSeshesAdapter.add(seshItem);
+        protected void onPostExecute(Void result) {
+            openRequestsAndSeshesAdapter.notifyDataSetChanged();
+            openRequestsAndSeshesAdapter.setNotifyOnChange(false);
         }
+    }
 
-        while (learnRequests.hasNext()) {
-            RequestsAndSeshesListItem requestItem = new RequestsAndSeshesListItem(false, false, learnRequests.next(), null, null);
-            openRequestsAndSeshesAdapter.add(requestItem);
-        }
-
-        if (openRequestsAndSeshesAdapter.getCount() > 0) {
-            RequestsAndSeshesListItem learnDivider = new RequestsAndSeshesListItem(false, true, null, null, "LEARN");
-
-            openRequestsAndSeshesAdapter.insert(learnDivider, 0);
-        }
-
-        openRequestsAndSeshesAdapter.notifyDataSetChanged();
-        Log.d(TAG, "updateLearnList() end " + new Date().toString());
-
+    @Override
+    public void tableUpdated() {
+        (new UpdateRequestAndSeshListTask()).execute();
     }
 }

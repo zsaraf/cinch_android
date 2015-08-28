@@ -2,6 +2,8 @@ package com.seshtutoring.seshapp.view;
 
 import android.app.ActionBar;
 import android.app.AlarmManager;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.Fragment;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -41,9 +43,11 @@ import com.seshtutoring.seshapp.services.SeshGCMListenerService;
 import com.seshtutoring.seshapp.services.SeshInstanceIDListenerService;
 import com.seshtutoring.seshapp.util.ApplicationLifecycleTracker;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
+import com.seshtutoring.seshapp.view.components.SeshActivityIndicator;
 import com.seshtutoring.seshapp.view.components.SeshBanner;
 import com.seshtutoring.seshapp.view.components.SeshDialog;
 import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.HomeFragment;
+import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.LoadingFragment;
 import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.PaymentFragment;
 import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.ProfileFragment;
 import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.PromoteFragment;
@@ -67,6 +71,7 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
     private static final String DIALOG_TYPE_FOUND_TUTOR = "dialog_type_found_tutor";
     private static final String INTENT_HANDLED = "intent_handled";
     public static final String UPDATE_CONTAINER_STATE_ACTION = "update_main_container_state";
+    public static final String DISPLAY_SIDE_MENU_UPDATE = "display_side_menu_update";
     public static final String VIEW_SESH_ACTION = "view_sesh";
     public static final String SESH_CANCELLED_ACTION = "sesh_cancelled";
     public static final String FOUND_TUTOR_ACTION =
@@ -86,12 +91,15 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
     private SlidingMenu slidingMenu;
     private SideMenuFragment sideMenuFragment;
     private ContainerState currentContainerState;
+    private SeshActivityIndicator fragmentLoadIndicator;
 
     public final ContainerState HOME = new ContainerState("Home", R.drawable.home, new HomeFragment());
     public final ContainerState PROFILE = new ContainerState("Profile", R.drawable.profile, new ProfileFragment());
     public final ContainerState PAYMENT = new ContainerState("Payment", R.drawable.payment, new PaymentFragment());
     public final ContainerState SETTINGS = new ContainerState("Settings", R.drawable.settings, new SettingsFragment());
     public final ContainerState PROMOTE = new ContainerState("Promote", R.drawable.share, new PromoteFragment());
+
+    private final Fragment loadingFragment = new LoadingFragment();
 
     private final ViewPager.OnPageChangeListener pageChangeListener = new SimpleOnPageChangeListener() {
         @Override
@@ -136,7 +144,7 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
         slidingMenu.setBehindScrollScale(0);
         slidingMenu.setFadeEnabled(false);
         slidingMenu.setMenu(R.layout.sliding_menu_frame);
-        slidingMenu.setOnOpenedListener(sideMenuFragment);
+        slidingMenu.setOnOpenListener(sideMenuFragment);
 
         getSupportFragmentManager()
                 .beginTransaction()
@@ -154,6 +162,9 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
                 return false;
             }
         });
+
+        this.fragmentLoadIndicator =
+                (SeshActivityIndicator) findViewById(R.id.fragment_loading_indicator);
 
         setCurrentState(HOME, null);
 
@@ -182,7 +193,7 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
     }
 
     @Override
-    protected void handleNotificationIntent(Intent intent) {
+    protected void handleActionIntent(Intent intent) {
         if (intent.getAction() != null) {
             if (intent.getAction().equals(UPDATE_CONTAINER_STATE_ACTION)) {
                 int mainContainerStateIndex = intent.getIntExtra(MAIN_CONTAINER_STATE_INDEX, 0);
@@ -201,10 +212,24 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
                 if (currentContainerState.fragment instanceof ViewSeshFragment) {
                     setCurrentState(HOME);
                 }
+            } else if (intent.getAction() == DISPLAY_SIDE_MENU_UPDATE) {
+                sideMenuFragment.setStatusFlag(SideMenuFragment.MENU_OPEN_DISPLAY_NEW_REQUEST);
+                Handler handler = new Handler();
+                Runnable openSideMenu = new Runnable() {
+                    @Override
+                    public void run() {
+                        slidingMenu.toggle(true);
+                    }
+                };
+
+                if (!slidingMenu.isMenuShowing()) {
+                    // hacky, but delay menu open animation to account for activity transition
+                    handler.postDelayed(openSideMenu, 1000);
+                }
             }
         }
 
-        super.handleNotificationIntent(intent);
+        super.handleActionIntent(intent);
     }
 
 
@@ -333,13 +358,42 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
             optionsReceiver.clearFragmentOptions();
         }
 
-        currentContainerState = selectedMenuOption;
-
         TextView title = (TextView) findViewById(R.id.action_bar_title);
-
         title.setText(selectedMenuOption.title);
 
-        replaceContainerFragment(currentContainerState.fragment);
+        if (slidingMenu.isMenuShowing()) {
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .remove(currentContainerState.fragment)
+                    .commitAllowingStateLoss();
+            getSupportFragmentManager()
+                    .executePendingTransactions();
+            currentContainerState = selectedMenuOption;
+            fragmentLoadIndicator.setVisibility(View.VISIBLE);
+
+            slidingMenu.toggle(true);
+            slidingMenu.setOnClosedListener(new SlidingMenu.OnClosedListener() {
+                @Override
+                public void onClosed() {
+                    getSupportFragmentManager()
+                            .beginTransaction()
+                            .replace(R.id.main_container, currentContainerState.fragment, currentContainerState.fragment.getClass().getName())
+                            .addToBackStack(currentContainerState.fragment.getClass().getName())
+                            .commitAllowingStateLoss();
+                    fragmentLoadIndicator.setVisibility(View.GONE);
+
+                    slidingMenu.setOnClosedListener(null);
+                }
+            });
+        } else {
+            currentContainerState = selectedMenuOption;
+
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.main_container, currentContainerState.fragment, currentContainerState.fragment.getTag())
+                    .addToBackStack(currentContainerState.fragment.getTag())
+                    .commitAllowingStateLoss();
+        }
 
         if (options != null) {
             FragmentOptionsReceiver flagReceiver = (FragmentOptionsReceiver) currentContainerState.fragment;
@@ -347,20 +401,11 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
         }
     }
 
-    // replaces the fragment in the main container asynchronously
-    private void replaceContainerFragment(Fragment fragment) {
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.main_container, fragment)
-                .commitAllowingStateLoss();
-    }
-
-    // callback for when fragment replacement has completed and the fragment is fully rendered
     public void onFragmentReplacedAndRendered() {
-        if (slidingMenu.isMenuShowing()) {
-//            slidingMenu.stretchOut();
-            slidingMenu.toggle(true);
-        }
+//        if (slidingMenu.isMenuShowing()) {
+////            slidingMenu.stretchOut();
+//            slidingMenu.toggle(true);
+//        }
     }
 
     @Override
@@ -369,31 +414,14 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        Log.d(TAG, "Activity Result: " + resultCode);
-        if (resultCode == RequestActivity.LEARN_REQUEST_CREATE_SUCCESS) {
-            Log.d(TAG, "INSIDE LEARN_REQUEST_CREATE_SUCCESS");
-            sideMenuFragment.setStatusFlag(SideMenuFragment.MENU_OPEN_DISPLAY_NEW_REQUEST);
-            Handler handler = new Handler();
-            Runnable openSideMenu = new Runnable() {
-                @Override
-                public void run() {
-                    slidingMenu.toggle(true);
-                }
-            };
-
-            // hacky, but delay menu open animation to account for activity transition
-            handler.postDelayed(openSideMenu, 300);
-        }
+    public void onFetchUpdate() {
+//        sideMenuFragment.updateRequestAndSeshList();
     }
 
     @Override
-    public void onFetchUpdate() {
-        sideMenuFragment.updateLearnList();
+    public boolean isMainContainerActivity() {
+        return true;
     }
-
-
 
     public void onNetworkError() {
         Log.e(TAG, "Network Error");
