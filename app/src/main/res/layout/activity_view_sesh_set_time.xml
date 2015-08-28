@@ -9,7 +9,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:alpha="0.6"
+        android:alpha="0.9"
         android:background="#000000" />
 
     <RelativeLayout
@@ -47,6 +47,10 @@
         android:layout_below="@id/set_time_top_bar"
         android:paddingTop="20dp" />
 
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/set_time_edit_text">
     <com.seshtutoring.seshapp.view.components.SeshInformationLabel
         android:id="@+id/available_blocks_label"
         android:layout_width="wrap_content"
@@ -54,9 +58,15 @@
         android:layout_marginRight="35dp"
         android:layout_marginLeft="35dp"
         android:layout_marginTop="20dp"
-        android:layout_below="@+id/set_time_edit_text"
         custom:informationLabelText="default"
         custom:informationLabelIcon="@drawable/clock_orange" />
+    <com.seshtutoring.seshapp.view.components.SeshActivityIndicator
+        android:id="@+id/set_time_activity_indicator"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_centerInParent="true"
+        android:alpha="0"/>
+    </RelativeLayout>
 
     <com.seshtutoring.seshapp.view.components.SeshDatePicker
         android:layout_width="match_parent"

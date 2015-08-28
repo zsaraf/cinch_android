@@ -10,16 +10,24 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageButton;
 
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.AvailableBlock;
 import com.seshtutoring.seshapp.model.Sesh;
+import com.seshtutoring.seshapp.util.DateUtils;
+import com.seshtutoring.seshapp.util.LayoutUtils;
+import com.seshtutoring.seshapp.util.networking.SeshNetworking;
+import com.seshtutoring.seshapp.view.components.SeshActivityIndicator;
 import com.seshtutoring.seshapp.view.components.SeshDatePicker;
+import com.seshtutoring.seshapp.view.components.SeshDialog;
 import com.seshtutoring.seshapp.view.components.SeshDurationPicker;
 import com.seshtutoring.seshapp.view.components.SeshEditText;
 import com.seshtutoring.seshapp.view.components.SeshInformationLabel;
 import com.seshtutoring.seshapp.view.fragments.LearnViewFragment;
 
 import org.joda.time.DateTime;
+import org.json.JSONObject;
 
 import java.util.List;
 
@@ -36,6 +44,7 @@ public class ViewSeshSetTimeActivity extends SeshActivity {
     public SeshInformationLabel availableBlocksLabel;
     private SeshDatePicker seshDatePicker;
     private SeshEditText editText;
+    private SeshActivityIndicator seshActivityIndicator;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -52,6 +61,9 @@ public class ViewSeshSetTimeActivity extends SeshActivity {
             }
         });
 
+        seshActivityIndicator = (SeshActivityIndicator)findViewById(R.id.set_time_activity_indicator);
+        seshActivityIndicator.setAlpha(0);
+
         Intent intent = getIntent();
         if (intent.hasExtra(SET_TIME_SESH_ID_KEY)) {
             int seshId = intent.getIntExtra(SET_TIME_SESH_ID_KEY, 0);
@@ -63,18 +75,20 @@ public class ViewSeshSetTimeActivity extends SeshActivity {
         this.availableBlocksLabel.setText(Html.fromHtml(AvailableBlock.getReadableBlocks(availableBlockList)));
         seshDatePicker = (SeshDatePicker) findViewById(R.id.date_picker);
         editText = (SeshEditText) findViewById(R.id.set_time_edit_text);
-//        seshDatePicker.setOnDateChangedListener(new SeshDatePicker.OnDateChangeListener() {
-//            @Override
-//            public void onDateChanged(DateTime dateTime) {
-//
-//            }
-//        });
-//        seshDatePicker.setNextButtonOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//
-//            }
-//        });
+        seshDatePicker.setOnDateChangedListener(new SeshDatePicker.OnDateChangeListener() {
+            @Override
+            public void onDateChanged(DateTime dateTime) {
+                editText.setText(DateUtils.getSeshFormattedDate(dateTime));
+            }
+        });
+        seshDatePicker.setNextButtonOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finishedInputtingSetTime();
+            }
+        });
+
+        editText.setText(DateUtils.getSeshFormattedDate(seshDatePicker.currentDateTime));
     }
 
     @Override
@@ -91,5 +105,46 @@ public class ViewSeshSetTimeActivity extends SeshActivity {
             InputMethodManager inputManager = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
             inputManager.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
         }
+    }
+
+    private void finishedInputtingSetTime() {
+        final SeshNetworking seshNetworking = new SeshNetworking(this);
+        final DateTime dateTime = seshDatePicker.currentDateTime;
+        setNetworking(true);
+        seshNetworking.setSetTime(sesh.seshId, dateTime, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject jsonObject) {
+                sesh.seshSetTime = dateTime.toDate();
+                onBackPressed();
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+                final SeshDialog seshDialog = new SeshDialog();
+                seshDialog.setTitle("Network Error!");
+                seshDialog.setMessage("We can't connect to the network! Try again!");
+                seshDialog.setDialogType(SeshDialog.SeshDialogType.ONE_BUTTON);
+                seshDialog.setFirstChoice("OKAY");
+                seshDialog.setFirstButtonClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        setNetworking(false);
+                        seshDialog.dismiss();
+                    }
+                });
+            }
+        });
+    }
+
+    private void setNetworking(Boolean networking) {
+        availableBlocksLabel.setEnabled(!networking);
+        seshDatePicker.setEnabled(!networking);
+
+        seshActivityIndicator
+                .animate()
+                .alpha(networking ? 1f : 0f)
+                .setDuration(300)
+                .setStartDelay(0)
+                .start();
     }
 }

@@ -88,6 +88,7 @@ public class SeshNetworking {
     private static final String IS_PAST_PARAM = "is_past";
     private static final String PAST_SESH_ID_PARAM = "past_sesh_id";
     private static final String CONTENT_PARAM = "content";
+    private static final String SET_TIME_PARAM = "start_time";
 
 
     private Context mContext;
@@ -510,7 +511,7 @@ public class SeshNetworking {
             }
         }
 
-        DateTimeFormatter formatter = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ssZ").withZoneUTC();
+        DateTimeFormatter formatter = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss").withZoneUTC();
 
         Map<String, String> params = new HashMap<>();
         params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
@@ -660,6 +661,16 @@ public class SeshNetworking {
         params.put(SESH_ID_PARAM, Integer.toString(seshId));
 
         postWithRelativeUrl("end_sesh.php", params, successListener, errorListener);
+    }
+
+    public void setSetTime(int seshId, DateTime setTime, Response.Listener<JSONObject> successListener, Response.ErrorListener errorListener) {
+        DateTimeFormatter formatter = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss").withZoneUTC();
+        Map<String, String> params = new HashMap<>();
+        params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
+        params.put(SESH_ID_PARAM, Integer.toString(seshId));
+        params.put(SET_TIME_PARAM, formatter.print(new DateTime(setTime)));
+
+        postWithRelativeUrl("set_start_time.php", params, successListener, errorListener);
     }
 
 //    @TODO: implement once Stripe functionality in place

@@ -8,12 +8,14 @@ import android.graphics.Typeface;
 import android.media.Image;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.ImageView;
@@ -53,7 +55,7 @@ public class ViewAvailableJobsFragment extends ListFragment {
     private static final int REFRESH_INTERVAL_MILI = 15000;
 
     private MainContainerActivity mainContainerActivity;
-    private ListView menu;
+//    private SwipeRefreshLayout refreshLayout;
     private Typeface boldTypeFace;
     private ArrayList<JobHolder> availableJobs;
     private ArrayList<Course> tutorCourses;
@@ -61,6 +63,8 @@ public class ViewAvailableJobsFragment extends ListFragment {
     private SeshNetworking seshNetworking;
     private Queue<ViewHolder> bidQueue;
     private Handler handler;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
+    private TextView brokenPencilTextView;
 
     private class JobHolder {
         public AvailableJob job;
@@ -88,9 +92,49 @@ public class ViewAvailableJobsFragment extends ListFragment {
     };
 
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
-        menu = (ListView) layoutInflater.inflate(R.layout.view_available_jobs_fragment, null);
+//        refreshLayout = (SwipeRefreshLayout) layoutInflater.inflate(R.layout.view_available_jobs_fragment, null);
+//        refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+//            @Override
+//            public void onRefresh() {
+//                getAvailableJobs();
+//            }
+//        });
+        LinearLayout v = (LinearLayout) layoutInflater.inflate(R.layout.view_available_jobs_fragment, null);
+
+        // Now create a SwipeRefreshLayout to wrap the fragment's content view
+        mSwipeRefreshLayout = new SwipeRefreshLayout(container.getContext());
+
+        // Add the list fragment's content view to the SwipeRefreshLayout, making sure that it fills
+        // the SwipeRefreshLayout
+        mSwipeRefreshLayout.addView(v,
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+
+        // Make sure that the SwipeRefreshLayout will fill the fragment
+        mSwipeRefreshLayout.setLayoutParams(
+                new ViewGroup.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT));
+
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                getAvailableJobs();
+            }
+        });
+
+        // Now return the SwipeRefreshLayout as this fragment's content view
+        return mSwipeRefreshLayout;
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
         mainContainerActivity = (MainContainerActivity) getActivity();
         boldTypeFace = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Gotham-Book.otf");
+
+        brokenPencilTextView = (TextView) this.getView().findViewById(R.id.broken_text_view);
+        brokenPencilTextView.setTypeface(boldTypeFace);
         this.seshNetworking = new SeshNetworking(getActivity());
         //this.bidQueue = new LinkedList<ViewHolder>();
         this.handler = new Handler();
@@ -98,7 +142,7 @@ public class ViewAvailableJobsFragment extends ListFragment {
         this.availableJobs = new ArrayList<JobHolder>();
         this.tutorCourses = new ArrayList<Course>();
         this.availableJobsAdapter = new ViewAvailableJobsAdapter(getActivity(), availableJobs);
-        menu.setAdapter(availableJobsAdapter);
+        getListView().setAdapter(availableJobsAdapter);
 
         //get courses from server
         seshNetworking.getTutorCourses(new Response.Listener<JSONObject>() {
@@ -129,7 +173,6 @@ public class ViewAvailableJobsFragment extends ListFragment {
             }
         });
 
-        return menu;
     }
 
     private class ViewHolder {
@@ -322,8 +365,9 @@ public class ViewAvailableJobsFragment extends ListFragment {
 
                 viewHolder.durationInformationLabel.setText(item.maxTime + " hours");
                 viewHolder.durationInformationLabel.setVisibility(View.VISIBLE);
-//                List<AvailableBlock> availableBlockList = AvailableBlock.find(AvailableBlock.class, "available_job = ?", Long.toString(item.getId()));
-//                viewHolder.availableBlocksInformationLabel.setText(Html.fromHtml(AvailableBlock.getReadableBlocks(availableBlockList)));
+                List<AvailableBlock> availableBlockList = new ArrayList<AvailableBlock>();
+                availableBlockList.addAll(item.availableBlocks);
+                viewHolder.availableBlocksInformationLabel.setText(Html.fromHtml(AvailableBlock.getReadableBlocks(availableBlockList)));
             }
 
             return convertView;
@@ -359,10 +403,6 @@ public class ViewAvailableJobsFragment extends ListFragment {
                             JobHolder jobHolder = new JobHolder(AvailableJob.fromJson((availableJobsArrayJson.getJSONObject(i))), 1);
                             availableJobs.add(jobHolder);
                         }
-                        if (availableJobs.size() == 0) {
-                            //No available jobs
-                            availableJobs.add(new JobHolder(null, 2));
-                        }
                         availableJobsAdapter.notifyDataSetChanged();
                     } else {
                         Log.e(TAG, jsonResponse.getString("message"));
@@ -370,10 +410,12 @@ public class ViewAvailableJobsFragment extends ListFragment {
                 } catch (JSONException e) {
                     Log.e(TAG, e.getMessage());
                 }
+                mSwipeRefreshLayout.setRefreshing(false);
             }
         }, new Response.ErrorListener() {
             public void onErrorResponse(VolleyError volleyError) {
                 Log.e(TAG, volleyError.getMessage());
+                mSwipeRefreshLayout.setRefreshing(false);
             }
         });
     }

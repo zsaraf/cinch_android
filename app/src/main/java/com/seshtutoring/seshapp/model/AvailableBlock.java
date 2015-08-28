@@ -31,16 +31,14 @@ public class AvailableBlock extends SugarRecord<AvailableBlock> {
     public Date endTime;
     public LearnRequest learnRequest;
     public Sesh sesh;
-    public AvailableJob availableJob;
 
     public AvailableBlock() {}
 
-    public AvailableBlock(Date startTime, Date endTime, LearnRequest learnRequest, Sesh sesh, AvailableJob availableJob) {
+    public AvailableBlock(Date startTime, Date endTime, LearnRequest learnRequest, Sesh sesh) {
         this.startTime = startTime;
         this.endTime = endTime;
         this.learnRequest = learnRequest;
         this.sesh = sesh;
-        this.availableJob = availableJob;
     }
 
     public static AvailableBlock createAvailableBlock(JSONObject availableBlockJson) {
@@ -69,7 +67,7 @@ public class AvailableBlock extends SugarRecord<AvailableBlock> {
 
         AvailableBlock availableBlock = new AvailableBlock();
         try {
-            DateTimeFormatter formatter = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss Z").withZoneUTC();
+            DateTimeFormatter formatter = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss").withZoneUTC();
 
             String endTimeString = availableBlockJson.getString("end_time");
             availableBlock.endTime = formatter.parseDateTime(endTimeString).toDate();
@@ -92,12 +90,12 @@ public class AvailableBlock extends SugarRecord<AvailableBlock> {
     public static AvailableBlock availableBlockForInstantRequest(LearnRequest instantRequest, int hoursUntilExpiration) {
         DateTime startTime = new DateTime(instantRequest.timestamp);
         DateTime endTime = startTime.plusHours(hoursUntilExpiration);
-        return new AvailableBlock(startTime.toDate(), endTime.toDate(), instantRequest, null, null);
+        return new AvailableBlock(startTime.toDate(), endTime.toDate(), instantRequest, null);
     }
 
     public Map<String, String> toMap() {
         HashMap<String, String> map = new HashMap<>();
-        DateTimeFormatter formatter = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ssZ");
+        DateTimeFormatter formatter = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss");
 
         map.put("startTime", formatter.print(new DateTime(startTime)));
         map.put("endTime", formatter.print(new DateTime(endTime)));

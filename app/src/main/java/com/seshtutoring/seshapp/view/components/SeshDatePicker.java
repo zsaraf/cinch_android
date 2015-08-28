@@ -21,8 +21,14 @@ import org.joda.time.DateTime;
 
 public class SeshDatePicker extends RelativeLayout {
     public OnDateChangeListener onDateChangeListener;
+    public DateTime currentDateTime;
     private Button nextButton;
     NumberPicker hoursPicker, minutesPicker, dayPicker, suffixPicker;
+
+    private final String[] hourValues = new String[] {"12", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11"};
+    private final String[] minuteValues = new String[] {"0", "15", "30", "45"};
+    private final String[] suffixValues = new String[] {"a", "p"};
+
     public interface OnDateChangeListener {
         public void onDateChanged(DateTime dateTime);
     }
@@ -40,17 +46,11 @@ public class SeshDatePicker extends RelativeLayout {
         this.minutesPicker = (NumberPicker) v.findViewById(R.id.minutes_number_picker);
         this.suffixPicker = (NumberPicker) v.findViewById(R.id.time_suffix_number_picker);
 
-//        this.hourValue = 0;
-//        this.minuteValue = 30;
         String[] dayValues = new String[7];
         DateTime dateTime = DateTime.now();
         for (int i = 0; i < 7; i++) {
             dayValues[i] = DateUtils.getSeshFormattedDayString(dateTime.plusDays(i));
         }
-
-        final String[] hourValues = new String[] {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"};
-        final String[] minuteValues = new String[] {"0", "15", "30", "45"};
-        final String[] suffixValues = new String[] {"a", "p"};
 
         dayPicker.setMinValue(0);
         dayPicker.setMaxValue(dayValues.length - 1);
@@ -60,9 +60,7 @@ public class SeshDatePicker extends RelativeLayout {
         dayPicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
             @Override
             public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
-//                hourValue = Integer.valueOf(hoursPicker.getDisplayedValues()[newVal]);
-//                minuteValue = Integer.valueOf(minutesPicker.getDisplayedValues()[minutesPicker.getValue()]);
-//                onDurationChangedListener.onDurationChanged(hourValue, minuteValue);
+                updateTextField();
             }
         });
 
@@ -74,9 +72,7 @@ public class SeshDatePicker extends RelativeLayout {
         hoursPicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
             @Override
             public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
-//                hourValue = Integer.valueOf(hoursPicker.getDisplayedValues()[newVal]);
-//                minuteValue = Integer.valueOf(minutesPicker.getDisplayedValues()[minutesPicker.getValue()]);
-//                onDurationChangedListener.onDurationChanged(hourValue, minuteValue);
+                updateTextField();
             }
         });
 
@@ -89,24 +85,24 @@ public class SeshDatePicker extends RelativeLayout {
         minutesPicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
             @Override
             public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
-//                minuteValue = Integer.valueOf(minutesPicker.getDisplayedValues()[newVal]);
-//                onDurationChangedListener.onDurationChanged(hourValue, minuteValue);
+                updateTextField();
             }
         });
 
         suffixPicker.setMinValue(0);
         suffixPicker.setMaxValue(suffixValues.length - 1);
+        suffixPicker.setValue(1);
         suffixPicker.setFocusable(true);
         suffixPicker.setFocusableInTouchMode(true);
         suffixPicker.setDisplayedValues(suffixValues);
         suffixPicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
             @Override
             public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
-//                hourValue = Integer.valueOf(hoursPicker.getDisplayedValues()[newVal]);
-//                minuteValue = Integer.valueOf(minutesPicker.getDisplayedValues()[minutesPicker.getValue()]);
-//                onDurationChangedListener.onDurationChanged(hourValue, minuteValue);
+                updateTextField();
             }
         });
+
+        updateTextField();
     }
 
     public void setOnDateChangedListener(OnDateChangeListener listener) {
@@ -115,6 +111,22 @@ public class SeshDatePicker extends RelativeLayout {
 
     public void setNextButtonOnClickListener(View.OnClickListener onClickListener) {
         nextButton.setOnClickListener(onClickListener);
+    }
+
+    public void updateTextField()
+    {
+        int day = dayPicker.getValue();
+        int hour = hoursPicker.getValue();
+        int minute = Integer.valueOf(minuteValues[minutesPicker.getValue()]);
+        int suffix = suffixPicker.getValue();
+        if (suffix == 1) {
+            hour += 12;
+        }
+        currentDateTime = DateTime.now().plusDays(day).withTime(hour, minute, 0, 0);
+
+        if (onDateChangeListener != null) {
+            onDateChangeListener.onDateChanged(currentDateTime);
+        }
     }
 
 }

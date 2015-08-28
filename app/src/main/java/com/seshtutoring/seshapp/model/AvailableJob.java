@@ -98,7 +98,6 @@ public class AvailableJob {
                     JSONObject availableBlockJson = availableBlocksJson.getJSONObject(i);
                     AvailableBlock availableBlockObj = AvailableBlock.createAvailableBlockForJob(availableBlockJson);
                     availableBlocksVal.add(availableBlockObj);
-                    availableBlockObj.availableJob = availableJobInstance;
                 }
             }
             availableJobInstance = new AvailableJob(descriptionVal, studentNameVal, numPeopleVal, latitudeVal, longitudeVal,

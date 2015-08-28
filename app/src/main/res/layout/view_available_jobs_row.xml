@@ -10,7 +10,7 @@
     <!-- Underneath view of swipe layout-->
     <RelativeLayout
         android:id="@+id/bottom_wrapper"
-        android:layout_gravity="right"
+        android:layout_gravity="left"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/seshgreen">
@@ -88,7 +88,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/student_name"
             android:padding="5dp"
-            android:paddingTop="10dp"
+            android:paddingTop="7dp"
             custom:informationLabelText="default"
             custom:informationLabelIcon="@drawable/book" />
         <com.seshtutoring.seshapp.view.components.SeshInformationLabel
@@ -97,7 +97,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/course"
             android:padding="5dp"
-            android:paddingTop="10dp"
+            android:paddingTop="7dp"
             custom:informationLabelText="default"
             custom:informationLabelIcon="@drawable/subject"/>
 
@@ -107,7 +107,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/assignment"
             android:padding="5dp"
-            android:paddingTop="10dp"
+            android:paddingTop="7dp"
             custom:informationLabelText="default"
             custom:informationLabelIcon="@drawable/pointer"/>
 
@@ -117,7 +117,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/distance"
             android:padding="5dp"
-            android:paddingTop="10dp"
+            android:paddingTop="7dp"
             custom:informationLabelText="default"
             custom:informationLabelIcon="@drawable/clock_orange" />
 
@@ -126,7 +126,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/duration"
-            android:padding="5dp"
+            android:padding="7dp"
             android:paddingTop="10dp"
             custom:informationLabelText="default"
             custom:informationLabelIcon="@drawable/calendar_unfilled"/>
