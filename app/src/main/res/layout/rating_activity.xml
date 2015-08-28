@@ -1,19 +1,241 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="Rating Activity"
-        android:gravity="center"/>
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.seshtutoring.seshapp.view.RatingActivity">
+
     <com.seshtutoring.seshapp.view.components.SeshButton
-        android:id="@+id/rate_button"
-        android:text="Rate"
+        android:id="@+id/submit_button"
+        android:text="Submit"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_marginLeft="35dp"
         android:layout_marginRight="35dp"
         android:layout_marginBottom="20dp"/>
+    <com.seshtutoring.seshapp.view.components.SeshButton
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/report_problem_button"
+        android:layout_above="@+id/submit_button"
+        android:text="REPORT PROBLEM"
+        android:layout_marginLeft="35dp"
+        android:layout_marginRight="35dp"
+        android:layout_marginBottom="10dp"
+        custom:buttonType="gray" />
+    <de.hdodenhof.circleimageview.CircleImageView
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:src="@drawable/default_profile_picture"
+        android:id="@+id/profile_picture"
+        android:layout_marginTop="10dp"
+        android:layout_below="@+id/tutor_name"
+        android:layout_centerHorizontal="true"
+        app:border_width="2dp"
+        app:border_color="@color/seshorange" />
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:text="Rate Zachary S."
+        android:id="@+id/tutor_name"
+        android:layout_marginTop="20dp"
+        android:layout_alignParentTop="true"
+        android:textSize="20dp"
+        android:gravity="center|center_vertical" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/profile_picture"
+        android:layout_marginTop="20dp"
+        android:id="@+id/stats"
+        android:layout_alignParentTop="false">
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/stats_container"
+            android:layout_centerHorizontal="true">
+
+            <RelativeLayout
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/stat_hours"
+                android:layout_alignParentLeft="true"
+                android:layout_marginLeft="0dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="0.00"
+                    android:id="@+id/hours"
+                    android:textSize="19dp"
+                    android:textColor="#f4806e"
+                    android:gravity="center_vertical|center_horizontal" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="hours"
+                    android:id="@+id/hours_description"
+                    android:layout_below="@+id/hours"
+                    android:textSize="15dp"
+                    android:gravity="center_vertical|center_horizontal" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/stat_credits_used"
+                android:layout_toRightOf="@+id/stat_hours">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="0.00"
+                    android:id="@+id/credits_used"
+                    android:gravity="center_vertical|center_horizontal"
+                    android:textSize="19dp"
+                    android:textColor="@color/seshgreen" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="credits used"
+                    android:id="@+id/credits_description"
+                    android:gravity="center_vertical|center_horizontal"
+                    android:layout_below="@+id/credits_used"
+                    android:textSize="15dp" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/stat_cost"
+                android:layout_toRightOf="@+id/stat_credits_used">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="12.50"
+                    android:id="@+id/cost"
+                    android:gravity="center_vertical|center_horizontal"
+                    android:textSize="19dp"
+                    android:textColor="@color/seshorange" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="cost"
+                    android:id="@+id/cost_description"
+                    android:gravity="center_vertical|center_horizontal"
+                    android:layout_below="@+id/cost"
+                    android:textSize="15dp" />
+
+            </RelativeLayout>
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/rating"
+        android:layout_below="@+id/stats"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="35dp"
+        android:layout_marginRight="35dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/rate_item_friendly"
+            android:layout_below="@+id/rate_item_knowledge"
+            android:layout_marginTop="10dp">
+
+            <RatingBar
+                android:layout_width="wrap_content"
+                android:layout_height="32dp"
+                android:id="@+id/rating_bar_friendly"
+                android:layout_marginTop="0dp"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:progressTint="@color/seshorange"
+                android:stepSize="1"
+                style="@style/SeshRatingBar" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Friendly"
+                android:id="@+id/friendly_text"
+                android:textSize="18dp"
+                android:layout_centerVertical="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/rate_item_helpful"
+            android:layout_marginTop="10dp">
+
+            <RatingBar
+                android:layout_width="wrap_content"
+                android:layout_height="32dp"
+                android:id="@+id/rating_bar_helpful"
+                android:layout_marginTop="0dp"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:progressTint="@color/seshorange"
+                android:stepSize="1"
+                style="@style/SeshRatingBar"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Helpful"
+                android:id="@+id/helpful_text"
+                android:textSize="18dp"
+                android:layout_centerVertical="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/rate_item_knowledge"
+            android:layout_below="@+id/rate_item_helpful"
+            android:layout_marginTop="10dp">
+
+            <RatingBar
+                android:layout_width="wrap_content"
+                android:layout_height="32dp"
+                android:id="@+id/rating_bar_knowledge"
+                android:layout_marginTop="0dp"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:progressTint="@color/seshorange"
+                android:stepSize="1"
+                style="@style/SeshRatingBar"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Knowledge"
+                android:id="@+id/knowledge_text"
+                android:textSize="18dp"
+                android:layout_centerVertical="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true" />
+        </RelativeLayout>
+    </RelativeLayout>
+
 </RelativeLayout>

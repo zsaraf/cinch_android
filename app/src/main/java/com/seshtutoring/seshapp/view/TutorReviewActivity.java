@@ -73,20 +73,22 @@ public class TutorReviewActivity extends SeshActivity {
             }
         });
 
+        // Fill in the sesh information labels with appropriate content
+        Bundle b = getIntent().getExtras();
+        final int pastSeshId = b.getInt(PAST_SESH_ID);
+        this.pastSesh = PastSesh.find(PastSesh.class, "past_sesh_id = ?", Integer.toString(new Integer(pastSeshId))).get(0);
+
         this.reportProblemButton.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(TutorReviewActivity.this, ReportProblemActivity.class);
+                intent.putExtra(ReportProblemActivity.PAST_SESH_ID, pastSeshId);
+
                 TutorReviewActivity.this.startActivity(intent);
             }
 
         });
-
-        // Fill in the sesh information labels with appropriate content
-        Bundle b = getIntent().getExtras();
-        int pastSeshId = b.getInt(PAST_SESH_ID);
-        this.pastSesh = PastSesh.find(PastSesh.class, "past_sesh_id = ?", Integer.toString(new Integer(pastSeshId))).get(0);
 
         setupLabels();
         setupImageView();

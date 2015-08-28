@@ -25,6 +25,7 @@ import org.json.JSONObject;
  * Created by franzwarning on 8/26/15.
  */
 public class ReportProblemActivity extends SeshActivity {
+    public static final String PAST_SESH_ID = "past_sesh";
 
     private TextView uhoh;
     private TextView description;
