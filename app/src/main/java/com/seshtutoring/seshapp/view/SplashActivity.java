@@ -68,39 +68,39 @@ public class SplashActivity extends SeshActivity {
 
     private void startInitialActivity() {
 
-        Intent tutorReviewIntent = new Intent(getApplicationContext(), RatingActivity.class);
-        startActivity(tutorReviewIntent);
+//        Intent tutorReviewIntent = new Intent(getApplicationContext(), RatingActivity.class);
+//        startActivity(tutorReviewIntent);
 
 
-//        if (SeshAuthManager.sharedManager(this).isValidSession()) {
-//            if (SeshApplication.IS_LIVE) {
-//                LaunchPrerequisiteUtil.asyncPrepareForLaunch(this, new Runnable() {
-//                    @Override
-//                    public void run() {
+        if (SeshAuthManager.sharedManager(this).isValidSession()) {
+            if (SeshApplication.IS_LIVE) {
+                LaunchPrerequisiteUtil.asyncPrepareForLaunch(this, new Runnable() {
+                    @Override
+                    public void run() {
+                        Intent mainContainerIntent = new Intent(getApplicationContext(), MainContainerActivity.class);
 //                        Intent mainContainerIntent = new Intent(getApplicationContext(), MainContainerActivity.class);
-////                        Intent mainContainerIntent = new Intent(getApplicationContext(), MainContainerActivity.class);
-//                        mainContainerIntent.putExtra(ViewSeshSetTimeActivity.SET_TIME_SESH_ID_KEY, 99);
-//                        startActivity(mainContainerIntent);
-//                        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-//                    }
-//                });
-//            } else {
-//                Intent intent = new Intent(getApplicationContext(), UnreleasedLaunchActivity.class);
-//                startActivity(intent);
-//                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-//            }
-//        } else {
-//            if (!SeshApplication.IS_LIVE) {
-//                Intent warmWelcomeIntent = new Intent(getApplicationContext(), WarmWelcomeActivity.class);
-//                startActivity(warmWelcomeIntent);
-//                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-//            } else {
-//                Intent i = new Intent(this, AuthenticationActivity.class);
-//                i.putExtra(AuthenticationActivity.ENTRANCE_TYPE_KEY, EntranceType.LOGIN);
-//                startActivity(i);
-//                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-//            }
-//        }
+                        mainContainerIntent.putExtra(ViewSeshSetTimeActivity.SET_TIME_SESH_ID_KEY, 99);
+                        startActivity(mainContainerIntent);
+                        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+                    }
+                });
+            } else {
+                Intent intent = new Intent(getApplicationContext(), UnreleasedLaunchActivity.class);
+                startActivity(intent);
+                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+            }
+        } else {
+            if (!SeshApplication.IS_LIVE) {
+                Intent warmWelcomeIntent = new Intent(getApplicationContext(), WarmWelcomeActivity.class);
+                startActivity(warmWelcomeIntent);
+                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+            } else {
+                Intent i = new Intent(this, AuthenticationActivity.class);
+                i.putExtra(AuthenticationActivity.ENTRANCE_TYPE_KEY, EntranceType.LOGIN);
+                startActivity(i);
+                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+            }
+        }
     }
 
     @Override
