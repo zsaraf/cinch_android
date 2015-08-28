@@ -129,6 +129,7 @@ public class RatingActivity extends SeshActivity {
         DecimalFormat df = new DecimalFormat("#.##");
         this.creditsUsed.setText(df.format(this.pastSesh.creditsUsed));
         this.cost.setText(df.format(this.pastSesh.cost));
+        this.tutorName.setText(this.pastSesh.tutorFullName);
 
         // setup the hours
         DateTime startTime = new DateTime(this.pastSesh.startTime);
