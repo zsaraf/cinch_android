@@ -146,7 +146,7 @@ public class RatingActivity extends SeshActivity {
     }
 
     private void setupImageView() {
-        this.seshNetworking.downloadProfilePicture(this.pastSesh.tutorProfilePicture, this.profilePicture, new Callback() {
+        this.seshNetworking.downloadProfilePictureAsync(this.pastSesh.tutorProfilePicture, this.profilePicture, new Callback() {
             @Override
             public void onSuccess() {
 

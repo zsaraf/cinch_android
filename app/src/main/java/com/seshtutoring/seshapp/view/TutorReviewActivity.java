@@ -120,7 +120,7 @@ public class TutorReviewActivity extends SeshActivity {
     }
 
     private void setupImageView() {
-        this.seshNetworking.downloadProfilePicture(this.pastSesh.studentProfilePicture, this.profilePicture, new Callback() {
+        this.seshNetworking.downloadProfilePictureAsync(this.pastSesh.studentProfilePicture, this.profilePicture, new Callback() {
             @Override
             public void onSuccess() {
 
