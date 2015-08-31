@@ -81,7 +81,7 @@
                 android:paddingLeft="25dp"
                 android:layout_marginRight="33dp"
                 android:maxLines="1"
-                android:text="please enter set time..."
+                android:text="please enter start time..."
                 android:gravity="center"
                 android:layout_centerVertical="true" />
             <View

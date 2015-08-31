@@ -30,7 +30,7 @@ public class ReportProblemActivity extends SeshActivity {
     private TextView uhoh;
     private TextView description;
     private EditText commentField;
-    private static final String TAG = MainContainerActivity.class.getName();
+    private static final String TAG = ReportProblemActivity.class.getName();
     private SeshActivityIndicator activityIndicator;
     private SeshNetworking seshNetworking;
     private SeshButton submitButton;

@@ -100,7 +100,7 @@
                     android:id="@+id/credits_used"
                     android:gravity="center_vertical|center_horizontal"
                     android:textSize="19dp"
-                    android:textColor="@color/seshgreen" />
+                    android:textColor="@color/seshorange" />
 
                 <TextView
                     android:layout_width="match_parent"
@@ -150,6 +150,13 @@
         android:layout_marginTop="20dp"
         android:layout_marginLeft="35dp"
         android:layout_marginRight="35dp">
+
+        <com.seshtutoring.seshapp.view.components.SeshActivityIndicator
+            android:id="@+id/rating_activity_indicator"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_centerInParent="true"
+            android:alpha="0"/>
 
         <RelativeLayout
             android:layout_width="match_parent"

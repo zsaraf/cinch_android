@@ -1,12 +1,23 @@
 package com.seshtutoring.seshapp.view;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.content.Intent;
+import android.gesture.Gesture;
+import android.gesture.GestureOverlayView;
 import android.os.Bundle;
+import android.support.v4.view.GestureDetectorCompat;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RatingBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.util.Log;
 
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.Notification;
 import com.seshtutoring.seshapp.model.PastSesh;
@@ -14,11 +25,15 @@ import com.seshtutoring.seshapp.services.notifications.InAppNotificationDisplayQ
 import com.seshtutoring.seshapp.services.notifications.SeshNotificationManagerService;
 import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
+import com.seshtutoring.seshapp.view.components.SeshActivityIndicator;
 import com.seshtutoring.seshapp.view.components.SeshButton;
+import com.seshtutoring.seshapp.view.components.SeshDialog;
 import com.squareup.picasso.Callback;
 
 import org.joda.time.DateTime;
 import org.joda.time.Period;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.w3c.dom.Text;
 
 import java.text.DecimalFormat;
@@ -31,6 +46,7 @@ import javax.xml.datatype.Duration;
 public class RatingActivity extends SeshActivity {
 
     public static final String PAST_SESH_ID = "past_sesh";
+    private static final String TAG = RatingActivity.class.getName();
 
     private TextView tutorName;
     private ImageView profilePicture;
@@ -50,9 +66,9 @@ public class RatingActivity extends SeshActivity {
     private RatingBar knowledgeBar;
     private RatingBar friendlyBar;
     private SeshNetworking seshNetworking;
-    private int currentHelpfulValue = 0;
-    private int currentKnowledgeValue = 0;
-    private int currentFriendlyValue = 0;
+    private RelativeLayout ratingView;
+    private SeshActivityIndicator activityIndicator;
+    private GestureDetectorCompat mDetector;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -77,6 +93,9 @@ public class RatingActivity extends SeshActivity {
         this.knowledgeBar = (RatingBar)findViewById(R.id.rating_bar_knowledge);
         this.friendlyBar = (RatingBar)findViewById(R.id.rating_bar_friendly);
         this.seshNetworking = new SeshNetworking(this);
+        this.ratingView = (RelativeLayout)findViewById(R.id.rating);
+        this.activityIndicator = (SeshActivityIndicator)findViewById(R.id.rating_activity_indicator);
+        this.mDetector =  new GestureDetectorCompat(this, new FavoritingGestureListener());
 
         // Set the appropriate fonts
         LayoutUtils layUtils = new LayoutUtils(this);
@@ -95,13 +114,65 @@ public class RatingActivity extends SeshActivity {
         this.submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Notification currentNotification
-                        = InAppNotificationDisplayQueue
-                        .sharedInstance(getApplicationContext())
-                        .getCurrentNotification();
-                currentNotification.handled(getApplicationContext(), true);
-                finish();
-                overridePendingTransition(0, R.anim.slide_down);
+                int helpfulRating = Math.round(helpfulBar.getRating());
+                int knowledgeRating = Math.round(knowledgeBar.getRating());
+                int friendlyRating = Math.round(friendlyBar.getRating());
+                Log.d(TAG, "Helpful rating: " + helpfulRating);
+                Log.d(TAG, "Knowledge rating: " + knowledgeRating);
+                Log.d(TAG, "Friendly rating: " + friendlyRating);
+
+                if (helpfulRating == 0 ||
+                        knowledgeRating == 0 ||
+                        friendlyRating == 0) {
+                    SeshDialog.showDialog(getFragmentManager(),
+                            "Whoops!",
+                            "Please give the tutor a rating in every category.",
+                            "Got It",
+                            null,
+                            "WHOOPS");
+                } else {
+                    setNetworkOperationInProgress(true);
+                    seshNetworking.submitSeshRating(helpfulRating, knowledgeRating, friendlyRating, false, new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject jsonObject) {
+                            try {
+                                if (jsonObject.getString("status").equals("SUCCESS")) {
+                                    Notification currentNotification
+                                            = InAppNotificationDisplayQueue
+                                            .sharedInstance(getApplicationContext())
+                                            .getCurrentNotification();
+                                    currentNotification.handled(getApplicationContext(), true);
+                                    finish();
+                                    overridePendingTransition(0, R.anim.slide_down);
+                                } else {
+                                    setNetworkOperationInProgress(false);
+
+                                    SeshDialog.showDialog(getFragmentManager(), "Whoops",
+                                            jsonObject.getString("message"),
+                                            "Okay", null, "REPORT_PROBLEM");
+                                }
+                            } catch (JSONException e) {
+                                setNetworkOperationInProgress(false);
+
+                                Log.e(TAG, "Failed to send report problem; JSON malformed: " + e);
+                                SeshDialog.showDialog(getFragmentManager(), "Whoops",
+                                        "Something went wrong.  Try again later.",
+                                        "Okay", null, "error");
+                            }
+                        }
+                    }, new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError volleyError) {
+                            setNetworkOperationInProgress(false);
+                            SeshDialog.showDialog(getFragmentManager(), "Whoops",
+                                    "Something went wrong.  Try again later.",
+                                    "Okay", null, "error");
+                        }
+                    });
+                }
+
+
+
             }
         });
 
@@ -110,26 +181,48 @@ public class RatingActivity extends SeshActivity {
         this.pastSesh = PastSesh.find(PastSesh.class, "past_sesh_id = ?", Integer.toString(new Integer(pastSeshId))).get(0);
 
         this.reportProblemButton.setOnClickListener(new View.OnClickListener() {
-
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(RatingActivity.this, ReportProblemActivity.class);
                 intent.putExtra(RatingActivity.PAST_SESH_ID, pastSeshId);
-            RatingActivity.this.startActivity(intent);
+                RatingActivity.this.startActivity(intent);
+             }
+        });
+
+
+        setupLabels();
+        setupImageView();
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event){
+        this.mDetector.onTouchEvent(event);
+        return super.onTouchEvent(event);
+    }
+
+    class FavoritingGestureListener extends GestureDetector.SimpleOnGestureListener {
+        private static final String DEBUG_TAG = "Gestures";
+
+        public boolean onDoubleTapEvent(MotionEvent event) {
+
+            // Eventually add your favorite here...
+            return true;
         }
-
-    });
-
-    setupLabels();
-    setupImageView();
-}
+    }
 
     private void setupLabels() {
 
         DecimalFormat df = new DecimalFormat("#.##");
         this.creditsUsed.setText(df.format(this.pastSesh.creditsUsed));
         this.cost.setText(df.format(this.pastSesh.cost));
-        this.tutorName.setText(this.pastSesh.tutorFullName);
+
+        String[] splited = this.pastSesh.tutorFullName.split("\\s+");
+
+        if (splited.length >= 2) {
+            this.tutorName.setText("Rate " + splited[0] + " " + splited[1].substring(0, 1).toUpperCase() + ".");
+        } else {
+            this.tutorName.setText("Rate " + this.pastSesh.tutorFullName);
+        }
 
         // setup the hours
         DateTime startTime = new DateTime(this.pastSesh.startTime);
@@ -157,6 +250,51 @@ public class RatingActivity extends SeshActivity {
 
             }
         });
+    }
+
+    private void setNetworkOperationInProgress(boolean inProgress) {
+
+        submitButton.setEnabled(!inProgress);
+
+        if (inProgress) {
+            ratingView
+                    .animate()
+                    .alpha(0f)
+                    .setDuration(300)
+                    .setStartDelay(0)
+                    .start();
+            activityIndicator
+                    .animate()
+                    .alpha(1f)
+                    .setDuration(300)
+                    .setStartDelay(0)
+                    .setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            super.onAnimationEnd(animation);
+                        }
+                    })
+                    .start();
+        } else {
+            ratingView
+                    .animate()
+                    .alpha(1f)
+                    .setDuration(150)
+                    .setStartDelay(0)
+                    .start();
+            activityIndicator
+                    .animate()
+                    .alpha(0f)
+                    .setDuration(150)
+                    .setStartDelay(0)
+                    .setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            super.onAnimationEnd(animation);
+                        }
+                    })
+                    .start();
+        }
     }
 
 
