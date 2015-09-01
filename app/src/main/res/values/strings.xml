@@ -25,6 +25,9 @@
     <string name="title_activity_privacy">PrivacyActivity</string>
     <string name="title_activity_support">SupportActivity</string>
 
+    <string name="messaging_activity">MessagingActivity</string>
+
+
     <string name="view_classes_on_text">close to view available jobs</string>
     <string name="view_classes_off_text">tap to view eligible courses</string>
 

@@ -32,6 +32,8 @@ import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.util.StorageUtils;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
+import com.seshtutoring.seshapp.view.MessagingActivity;
+import com.seshtutoring.seshapp.view.ReportProblemActivity;
 import com.seshtutoring.seshapp.view.ViewSeshSetTimeActivity;
 import com.seshtutoring.seshapp.view.components.SeshActivityIndicator;
 import com.seshtutoring.seshapp.view.components.SeshButton;
@@ -280,7 +282,8 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
     }
 
     private void messageButtonClicked() {
-        // TODO: handle message action
+        Intent intent = new Intent(myContext, MessagingActivity.class);
+        startActivityForResult(intent, 1);
     }
 
     private void createDialog(String title, String message, String firstChoice, String secondChoice, final View.OnClickListener firstClickListener) {

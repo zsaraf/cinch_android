@@ -69,8 +69,10 @@ public class Sesh extends SugarRecord<Sesh> {
 
     @Ignore
     public Set<AvailableBlock> availableBlocks;
+    public Set<Message> messages;
 
     private static final String AVAILABLE_BLOCKS_KEY = "available_blocks";
+    private static final String MESSAGES_KEY = "messages";
 
     // empty constructor necessary for SugarORM to work
     public Sesh() {
@@ -85,7 +87,7 @@ public class Sesh extends SugarRecord<Sesh> {
                 String sesh_description, int sesh_est_time, int sesh_id, int sesh_num_students,
                 Date sesh_set_time, Date start_time, double tutor_latitude, double tutor_longitude,
                 String user_description, String user_image_url, String user_major, String user_name,
-                String user_school, boolean is_instant, Set<AvailableBlock> availableBlocks) {
+                String user_school, boolean is_instant, Set<AvailableBlock> availableBlocks, Set<Message> messages) {
 
         this.className = class_name;
         this.hasBeenSeen = has_been_seen;
@@ -110,6 +112,7 @@ public class Sesh extends SugarRecord<Sesh> {
         this.userSchool = user_school;
         this.isInstant = is_instant;
         this.availableBlocks = availableBlocks;
+        this.messages = messages;
     }
 
 
@@ -170,7 +173,6 @@ public class Sesh extends SugarRecord<Sesh> {
 
             sesh.save();
 
-            Set<AvailableBlock> availableBlocksVal = new HashSet<AvailableBlock>();
             if (seshJson.get(AVAILABLE_BLOCKS_KEY) != null) {
                 JSONArray availableBlocksJson = seshJson.getJSONArray(AVAILABLE_BLOCKS_KEY);
                 for (int i = 0; i < availableBlocksJson.length(); i++) {
@@ -179,7 +181,16 @@ public class Sesh extends SugarRecord<Sesh> {
                     AvailableBlock availableBlockObj = AvailableBlock.createAvailableBlock(availableBlockJson);
                     availableBlockObj.sesh = sesh;
                     availableBlockObj.save();
-//                    availableBlocksVal.add(availableBlockObj);
+                }
+            }
+
+            if (seshJson.get(MESSAGES_KEY) != null) {
+                JSONArray messagesJSON = seshJson.getJSONArray(MESSAGES_KEY);
+                for (int i = 0; i < messagesJSON.length(); i++) {
+
+                    JSONObject messageJSON = messagesJSON.getJSONObject(i);
+                    Message message = Message.createOrUpdateMessageWithJSON(messageJSON, sesh);
+                    message.save();
                 }
             }
         } catch (JSONException e) {
