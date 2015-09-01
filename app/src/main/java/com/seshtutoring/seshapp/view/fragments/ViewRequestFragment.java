@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
+import android.text.Html;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -115,7 +116,7 @@ public class ViewRequestFragment extends Fragment implements MainContainerActivi
         // Handle display of either set time or location notes
         SeshInformationLabel availableBlocksLabel = (SeshInformationLabel)view.findViewById(R.id.available_blocks_label);
         List<AvailableBlock> availableBlockList = AvailableBlock.find(AvailableBlock.class, "learn_request = ?", Long.toString(request.getId()));
-        availableBlocksLabel.setText(AvailableBlock.getReadableBlocks(availableBlockList));
+        availableBlocksLabel.setText(Html.fromHtml(AvailableBlock.getReadableBlocks(availableBlockList)));
 
         cancelRequestButton = (SeshButton) view.findViewById(R.id.cancel_request_button);
         cancelRequestButton.setOnClickListener(new View.OnClickListener() {
