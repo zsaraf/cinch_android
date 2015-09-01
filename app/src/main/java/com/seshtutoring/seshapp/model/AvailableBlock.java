@@ -27,6 +27,9 @@ public class AvailableBlock extends SugarRecord<AvailableBlock> {
     @Ignore
     private static final String TAG = AvailableBlock.class.getName();
 
+    private static final String START_TIME_KEY = "start_time";
+    private static final String END_TIME_KEY = "end_time";
+
     public Date startTime;
     public Date endTime;
     public LearnRequest learnRequest;
@@ -46,14 +49,14 @@ public class AvailableBlock extends SugarRecord<AvailableBlock> {
         try {
             DateTimeFormatter formatter = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss").withZoneUTC();
 
-            String endTimeString = availableBlockJson.getString("endTime");
+            String endTimeString = availableBlockJson.getString(END_TIME_KEY);
             if (endTimeString == null || endTimeString.equals("null")) {
                 availableBlock.endTime = new Date(0);
             } else {
                 availableBlock.endTime = formatter.parseDateTime(endTimeString).toDate();
             }
 
-            String startTimeString = availableBlockJson.getString("startTime");
+            String startTimeString = availableBlockJson.getString(START_TIME_KEY);
             if (startTimeString == null || startTimeString.equals("null")) {
                 availableBlock.startTime = new Date(0);
             } else {
@@ -83,8 +86,8 @@ public class AvailableBlock extends SugarRecord<AvailableBlock> {
         HashMap<String, String> map = new HashMap<>();
         DateTimeFormatter formatter = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss");
 
-        map.put("startTime", formatter.print(new DateTime(startTime)));
-        map.put("endTime", formatter.print(new DateTime(endTime)));
+        map.put(START_TIME_KEY, formatter.print(new DateTime(startTime)));
+        map.put(END_TIME_KEY, formatter.print(new DateTime(endTime)));
         return map;
     }
 

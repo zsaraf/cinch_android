@@ -570,9 +570,9 @@ public class SeshNetworking {
         Iterator<AvailableBlock> blockIterator = learnRequest.availableBlocks.iterator();
         for (int counter = 0; blockIterator.hasNext(); counter++) {
             AvailableBlock block = blockIterator.next();
-            params.put(AVAILABLE_BLOCKS_PARAM + "[" + counter + "][startTime]",
+            params.put(AVAILABLE_BLOCKS_PARAM + "[" + counter + "][start_time]",
                     formatter.print(new DateTime(block.startTime)));
-            params.put(AVAILABLE_BLOCKS_PARAM + "[" + counter + "][endTime]",
+            params.put(AVAILABLE_BLOCKS_PARAM + "[" + counter + "][end_time]",
                     formatter.print(new DateTime(block.endTime)));
         }
 

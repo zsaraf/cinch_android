@@ -34,8 +34,7 @@ public class Message extends SugarRecord<Message> {
     public int messageId;
 
     // empty constructor necessary for SugarORM to work
-    public Message() {
-    }
+    public Message() {}
 
     public Message(String content, Sesh sesh, long timestmap, boolean hasBeenRead, int messageId) {
         this.content = content;
@@ -60,18 +59,18 @@ public class Message extends SugarRecord<Message> {
                 }
             } else {
                 message = new Message();
-            }
+        }
 
             // Assign all the properties of the message
             String timestamp = jsonObject.getString(TIMESTAMP_KEY);
             if (!timestamp.equals("null")) {
-                message.timestamp = formattedTime(timestamp).getTime();
+                message.timestamp = longTime(timestamp);
             } else {
                 message.timestamp = -1;
             }
             message.content = jsonObject.getString(CONTENT_KEY);
             message.sesh = sesh;
-            message.hasBeenRead = jsonObject.getBoolean(HAS_BEEN_READ_KEY);
+            message.hasBeenRead = (jsonObject.getInt(HAS_BEEN_READ_KEY) != 0);
             message.messageId = messageId;
 
         } catch (JSONException e) {
@@ -81,9 +80,9 @@ public class Message extends SugarRecord<Message> {
         return message;
     }
 
-    private static Date formattedTime(String rawTimeString) {
+    private static long longTime(String rawTimeString) {
         DateTimeFormatter formatter = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss").withZoneUTC();
-        return formatter.parseDateTime(rawTimeString).toDate();
+        return formatter.parseDateTime(rawTimeString).toDate().getTime();
     }
 
 
