@@ -96,7 +96,7 @@ public class AvailableJob {
                 for (int i = 0; i < availableBlocksJson.length(); i++) {
 
                     JSONObject availableBlockJson = availableBlocksJson.getJSONObject(i);
-                    AvailableBlock availableBlockObj = AvailableBlock.createAvailableBlockForJob(availableBlockJson);
+                    AvailableBlock availableBlockObj = AvailableBlock.createAvailableBlock(availableBlockJson);
                     availableBlocksVal.add(availableBlockObj);
                 }
             }

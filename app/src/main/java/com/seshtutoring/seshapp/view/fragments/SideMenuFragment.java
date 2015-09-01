@@ -28,6 +28,7 @@ import com.seshtutoring.seshapp.model.Sesh.SeshTableListener;
 import com.seshtutoring.seshapp.services.PeriodicFetchBroadcastReceiver;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
 import com.seshtutoring.seshapp.view.ContainerState;
+import com.seshtutoring.seshapp.view.animations.LearnRequestDisplayAnimation;
 import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.DummyRequestSeshFragment;
 
 import java.util.ArrayList;
@@ -39,8 +40,8 @@ import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenListener, SeshTableListener,
-                                                                LearnRequestTableListener {
+public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenListener,
+        SlidingMenu.OnOpenedListener, SeshTableListener, LearnRequestTableListener {
     private static final String TAG = SideMenuFragment.class.getName();
 
     public static final String MAIN_WRAPPER_STATE_KEY = "main_wrapper_state";
@@ -55,6 +56,7 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenList
     private RequestsAndSeshesAdapter openRequestsAndSeshesAdapter;
     private String menuOpenFlag;
     private SideMenuAdapter sideMenuAdapter;
+    private SideMenuOpenAnimation sideMenuOpenAnimation;
 
     private TextView[] menuOptionTitles;
 
@@ -262,6 +264,10 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenList
 
                 TextView classAbbrvTextView = (TextView) convertView.findViewById(R.id.open_request_list_row_class);
                 classAbbrvTextView.setText(item.learnRequest.classString);
+
+                if (item.learnRequest.requiresAnimatedDisplay) {
+                    sideMenuOpenAnimation = new LearnRequestDisplayAnimation(getContext(), convertView);
+                }
             }
 
 //            // if view represents the newest request and side menu was opened in context of a new
@@ -306,16 +312,27 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenList
 
     @Override
     public void onOpen() {
-        Log.d(TAG, "onOpened called w/ menuOpenFlag: " + menuOpenFlag);
-        if (menuOpenFlag == MENU_OPEN_DISPLAY_NEW_REQUEST) {
-            menuOpenFlag = null;
+        Log.d(TAG, "ON OPEN");
+        if (sideMenuOpenAnimation != null) {
+            sideMenuOpenAnimation.prepareAnimation();
         }
     }
 
+    @Override
+    public void onOpened() {
+        Log.d(TAG, "ON OPENED");
+        if (sideMenuOpenAnimation != null) {
+            sideMenuOpenAnimation.startAnimation();
+        }
+        sideMenuOpenAnimation = null;
+    }
+
     public class UpdateRequestAndSeshListTask extends AsyncTask<Void, Void, Void> {
+        private List<Sesh> studentSeshes;
+        private List<Sesh> tutorSeshes;
+        private List<LearnRequest> learnRequests;
+
         protected Void doInBackground(Void... voids){
-            List<Sesh> studentSeshes = null;
-            List<Sesh> tutorSeshes = null;
             if (Sesh.listAll(Sesh.class).size() > 0) {
                 studentSeshes = Sesh.find(Sesh.class, "is_student = ?", Integer.toString(1));
                 tutorSeshes = Sesh.find(Sesh.class, "is_student = ?", Integer.toString(0));
@@ -323,8 +340,12 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenList
                 studentSeshes = new ArrayList<Sesh>();
                 tutorSeshes = new ArrayList<Sesh>();
             }
-            List<LearnRequest> learnRequests = LearnRequest.listAll(LearnRequest.class);
 
+            learnRequests = LearnRequest.listAll(LearnRequest.class);
+            return null;
+        }
+
+        protected void onPostExecute(Void result) {
             openRequestsAndSeshesAdapter.clear();
 
             if (tutorSeshes.size() > 0) {
@@ -357,14 +378,12 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenList
                 openRequestsAndSeshesAdapter.add(requestItem);
             }
             Log.d(TAG, "updateLearnList() end " + new Date().toString());
-
-            return null;
         }
+    }
 
-        protected void onPostExecute(Void result) {
-            openRequestsAndSeshesAdapter.notifyDataSetChanged();
-            openRequestsAndSeshesAdapter.setNotifyOnChange(false);
-        }
+    public static abstract class SideMenuOpenAnimation {
+        public abstract void prepareAnimation();
+        public abstract void startAnimation();
     }
 
     @Override

@@ -24,7 +24,18 @@
         android:text="@string/review_details_text"
         android:textColor="@color/seshlightgray"
         android:textSize="16sp" />
+    <RelativeLayout
+        android:layout_below="@id/review_details_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <com.seshtutoring.seshapp.view.components.SeshActivityIndicator
+            android:id="@+id/request_activity_indicator"
+            android:alpha="0"
+            android:layout_centerInParent="true"
+            android:layout_width="50dp"
+            android:layout_height="50dp"/>
         <LinearLayout
+            android:id="@+id/confirmation_detail_list"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
@@ -32,7 +43,6 @@
             android:layout_marginLeft="35dp"
             android:orientation="vertical"
             android:layout_gravity="center"
-            android:layout_below="@id/review_details_label"
             >
             <com.seshtutoring.seshapp.view.components.SeshEditText
                 android:id="@+id/class_confirmation_box"
@@ -67,4 +77,6 @@
                 custom:editTextTransparentMode="true"
                 custom:editTextType="time"/>
         </LinearLayout>
+    </RelativeLayout>
+
 </RelativeLayout>

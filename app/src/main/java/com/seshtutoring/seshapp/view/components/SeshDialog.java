@@ -260,6 +260,12 @@ public class SeshDialog extends DialogFragment {
 
     public static void showDialog(FragmentManager manager, String title, String message,
                                   String firstChoice, String secondChoice, String type) {
+        SeshDialog dialog = createDialog(title, message, firstChoice, secondChoice, type);
+        dialog.show(manager, type);
+    }
+
+    public static SeshDialog createDialog(String title, String message,
+                             String firstChoice, String secondChoice, String type) {
         SeshDialog dialog = new SeshDialog();
 
         if (secondChoice != null) {
@@ -274,8 +280,9 @@ public class SeshDialog extends DialogFragment {
         dialog.secondChoice = secondChoice;
         dialog.type = type;
 
-        dialog.show(manager, type);
+        return dialog;
     }
+
 
     public void showWithDelay(final FragmentManager manager, final String type, long millis) {
         Handler handler = new Handler();

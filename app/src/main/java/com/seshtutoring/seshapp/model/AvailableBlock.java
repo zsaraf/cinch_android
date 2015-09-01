@@ -46,10 +46,19 @@ public class AvailableBlock extends SugarRecord<AvailableBlock> {
         try {
             DateTimeFormatter formatter = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss").withZoneUTC();
 
-            String endTimeString = availableBlockJson.getString("end_time");
-            availableBlock.endTime = formatter.parseDateTime(endTimeString).toDate();
-            String startTimeString = availableBlockJson.getString("start_time");
-            availableBlock.startTime = formatter.parseDateTime(startTimeString).toDate();
+            String endTimeString = availableBlockJson.getString("endTime");
+            if (endTimeString == null || endTimeString.equals("null")) {
+                availableBlock.endTime = new Date(0);
+            } else {
+                availableBlock.endTime = formatter.parseDateTime(endTimeString).toDate();
+            }
+
+            String startTimeString = availableBlockJson.getString("startTime");
+            if (startTimeString == null || startTimeString.equals("null")) {
+                availableBlock.startTime = new Date(0);
+            } else {
+                availableBlock.startTime = formatter.parseDateTime(startTimeString).toDate();
+            }
 
 //            int learnRequestId = availableBlockJson.getInt("learnRequestId");
 //            List<LearnRequest> learnRequestList =
@@ -61,29 +70,6 @@ public class AvailableBlock extends SugarRecord<AvailableBlock> {
             Log.e(TAG, "Failed to create available block; " + e.getMessage());
         }
         return availableBlock;
-    }
-
-    public static AvailableBlock createAvailableBlockForJob(JSONObject availableBlockJson) {
-
-        AvailableBlock availableBlock = new AvailableBlock();
-        try {
-            DateTimeFormatter formatter = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss").withZoneUTC();
-
-            String endTimeString = availableBlockJson.getString("end_time");
-            availableBlock.endTime = formatter.parseDateTime(endTimeString).toDate();
-            String startTimeString = availableBlockJson.getString("start_time");
-            availableBlock.startTime = formatter.parseDateTime(startTimeString).toDate();
-
-            availableBlock.learnRequest = null;
-
-            availableBlock.save();
-        } catch (JSONException e) {
-            Log.e(TAG, "Failed to create available block; " + e.getMessage());
-        } catch (Exception e) {
-            Log.e(TAG, "Error; " + e.getMessage());
-        }
-        return availableBlock;
-
     }
 
 //    TEMP FIX UNTIL SCHEDULING IMPLEMENTED

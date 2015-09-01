@@ -65,6 +65,9 @@ public class Sesh extends SugarRecord<Sesh> {
     public String userName;
     public String userSchool;
     public boolean isInstant;
+    public boolean requiresAnimatedDisplay;
+
+    @Ignore
     public Set<AvailableBlock> availableBlocks;
 
     private static final String AVAILABLE_BLOCKS_KEY = "available_blocks";
@@ -148,6 +151,7 @@ public class Sesh extends SugarRecord<Sesh> {
             sesh.userMajor = otherPersonRow.getString("major");
             sesh.userName = otherPersonRow.getString("full_name");
             sesh.isInstant = (seshJson.getInt("is_instant") == 1) ? true : false;
+            sesh.requiresAnimatedDisplay = false;
 
             String seshSetTime = seshJson.getString("set_time");
             if (!seshSetTime.equals("null")) {

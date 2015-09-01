@@ -144,6 +144,7 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
         slidingMenu.setFadeEnabled(false);
         slidingMenu.setMenu(R.layout.sliding_menu_frame);
         slidingMenu.setOnOpenListener(sideMenuFragment);
+        slidingMenu.setOnOpenedListener(sideMenuFragment);
 
         getSupportFragmentManager()
                 .beginTransaction()

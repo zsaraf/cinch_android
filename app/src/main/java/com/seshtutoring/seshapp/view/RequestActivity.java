@@ -9,6 +9,7 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -33,6 +34,7 @@ import android.widget.Toast;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.RequestFuture;
 import com.android.volley.toolbox.Volley;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.AvailableBlock;
@@ -41,6 +43,7 @@ import com.seshtutoring.seshapp.model.LearnRequest;
 import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.util.ApplicationLifecycleTracker;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
+import com.seshtutoring.seshapp.util.networking.SeshNetworking.SynchronousRequest;
 import com.seshtutoring.seshapp.view.components.LearnRequestProgressBar;
 import com.seshtutoring.seshapp.view.components.RequestFlowViewPager;
 import com.seshtutoring.seshapp.view.components.SeshDialog;
@@ -222,46 +225,7 @@ public class RequestActivity extends SeshActivity implements EditText.OnEditorAc
             currentLearnRequest.createAvailableBlockForNow(1);
         }
 
-        SeshNetworking seshNetworking = new SeshNetworking(this);
-        seshNetworking.createRequestWithLearnRequest(currentLearnRequest, new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject jsonObject) {
-                try {
-                    if (jsonObject.getString("status").equals("SUCCESS")) {
-                        try {
-                            LearnRequest.createOrUpdateLearnRequest(jsonObject.getJSONObject("learn_request"));
-                            SeshDialog.showDialog(getFragmentManager(), "Request Created",
-                                    "Help is on the way! We'll notify you as soon as a tutor has accepted your Sesh request.  Hold tight!",
-                                    "Got it", null,
-                                    DIALOG_TYPE_LEARN_REQUEST_SUCCESS);
-                        } catch (JSONException e) {
-                            Log.e(TAG, e.toString());
-                        }
-                    } else {
-                        SeshDialog.showDialog(getFragmentManager(), "Whoops!",
-                                "Something went wrong.  Try again later.",
-                                "Got it", null,
-                                DIALOG_TYPE_LEARN_REQUEST_FAILURE);
-                        Log.e(TAG, "Failed to create request, server error: " + jsonObject.getString("message"));
-                    }
-                } catch (JSONException e) {
-                    SeshDialog.showDialog(getFragmentManager(), "Whoops!",
-                            "Something went wrong.  Try again later.",
-                            "Got it", null,
-                            DIALOG_TYPE_LEARN_REQUEST_FAILURE);
-                    Log.e(TAG, "Failed to create request, response malformed: " + e.getMessage());
-                }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                SeshDialog.showDialog(getFragmentManager(), "Network Error",
-                        "We couldn't reach the server.  Check your network settings and try again.",
-                        "Got it", null,
-                        DIALOG_TYPE_LEARN_REQUEST_FAILURE);
-                Log.e(TAG, "Network Error: " + error.getMessage());
-            }
-        });
+        (new CreateLearnRequestAsyncTask()).execute(this, currentLearnRequest);
     }
 
     @Override
@@ -271,8 +235,6 @@ public class RequestActivity extends SeshActivity implements EditText.OnEditorAc
                     MainContainerActivity.class);
             startActivity(intent);
             overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-        } else if (type.equals(DIALOG_TYPE_LEARN_REQUEST_FAILURE)) {
-            reenableConfirmFragmentButton();
         }
     }
 
@@ -311,8 +273,82 @@ public class RequestActivity extends SeshActivity implements EditText.OnEditorAc
         super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
     }
 
-    private void reenableConfirmFragmentButton() {
+    private void reenableConfirmFragmentUsage() {
         LearnRequestConfirmFragment fragment = (LearnRequestConfirmFragment) requestFlowFragments[4];
         fragment.enableRequestButton();
+        fragment.hideActivityIndicator();
+    }
+
+    private class CreateLearnRequestAsyncTask extends AsyncTask<Object, Void, Void> {
+        private SeshDialog responseDialog;
+        private Context mContext;
+
+        /**
+         *
+         * @param params (Context context, LearnRequest learnRequest)
+         * @return
+         */
+        protected Void doInBackground(Object... params) {
+            this.mContext = (Context) params[0];
+            LearnRequest learnRequest = (LearnRequest) params[1];
+
+            final SeshNetworking seshNetworking = new SeshNetworking(mContext);
+            SynchronousRequest request = new SynchronousRequest() {
+                @Override
+                public void request(RequestFuture<JSONObject> blocker) {
+                    seshNetworking
+                            .createRequestWithLearnRequest(currentLearnRequest, blocker, blocker);
+                }
+
+                @Override
+                public void onErrorException(Exception e) {
+                    responseDialog = SeshDialog.createDialog("Network Error",
+                            "We couldn't reach the server.  Check your network settings and try again.",
+                            "Got it", null,
+                            DIALOG_TYPE_LEARN_REQUEST_FAILURE);
+                    Log.e(TAG, "Network Error: " + e.getMessage());
+                }
+            };
+
+            JSONObject jsonObject = request.execute();
+
+            try {
+                if (jsonObject.getString("status").equals("SUCCESS")) {
+                    LearnRequest newLearnRequest
+                            = LearnRequest.createOrUpdateLearnRequest(jsonObject.getJSONObject("learn_request"));
+                    newLearnRequest.requiresAnimatedDisplay = true;
+                    newLearnRequest.save();
+
+                    responseDialog = SeshDialog.createDialog("Request Created",
+                            "Help is on the way! We'll notify you as soon as a tutor has accepted your Sesh request.  Hold tight!",
+                            "Got it", null,
+                            DIALOG_TYPE_LEARN_REQUEST_SUCCESS);
+                } else {
+                    responseDialog = SeshDialog.createDialog("Whoops!",
+                            jsonObject.getString("message"),
+                            "Got it", null,
+                            DIALOG_TYPE_LEARN_REQUEST_FAILURE);
+                    Log.e(TAG, "Failed to create request, server error: " + jsonObject.getString("message"));
+                }
+            } catch (JSONException e) {
+                responseDialog = SeshDialog.createDialog("Whoops!",
+                        "Something went wrong.  Try again later.",
+                        "Got it", null,
+                        DIALOG_TYPE_LEARN_REQUEST_FAILURE);
+                Log.e(TAG, "Failed to create request, json malformed: " + e);
+            }
+
+            return null;
+        }
+
+        protected void onPostExecute(Void result) {
+            if (responseDialog == null) {
+                Log.e(TAG, "No response dialog has been set for CreateLearnRequestAsyncTask");
+                return;
+            }
+
+            reenableConfirmFragmentUsage();
+            responseDialog.show(getFragmentManager(), null);
+        }
     }
 }

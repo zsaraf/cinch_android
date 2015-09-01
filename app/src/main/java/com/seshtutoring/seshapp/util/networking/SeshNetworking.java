@@ -43,6 +43,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Wrapper for any asynchronous interactions with the API.
@@ -745,10 +747,12 @@ public class SeshNetworking {
 
             JSONObject response = null;
             try {
-               response = blocker.get();
+               response = blocker.get(30, TimeUnit.SECONDS);
             } catch (InterruptedException e) {
                 onErrorException(e);
             } catch (ExecutionException e) {
+                onErrorException(e);
+            } catch (TimeoutException e) {
                 onErrorException(e);
             }
 

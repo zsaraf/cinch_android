@@ -45,6 +45,7 @@ public class LearnRequest extends SugarRecord<LearnRequest> {
     public Date timestamp;
     public String locationNotes;
     public long expirationTime;
+    public boolean requiresAnimatedDisplay;
 
     @Ignore
     public Set<AvailableBlock> availableBlocks;
@@ -113,6 +114,7 @@ public class LearnRequest extends SugarRecord<LearnRequest> {
             learnRequest.numPeople = learnRequestJson.getInt("num_people");
             learnRequest.timestamp = formatter.parseDateTime(learnRequestJson.getString("timestamp")).toDate();
             learnRequest.locationNotes = learnRequestJson.getString("location_notes");
+            learnRequest.requiresAnimatedDisplay = false;
 
             learnRequest.save();
 
