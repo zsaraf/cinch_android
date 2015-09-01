@@ -74,8 +74,7 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
     public static final String DISPLAY_SIDE_MENU_UPDATE = "display_side_menu_update";
     public static final String VIEW_SESH_ACTION = "view_sesh";
     public static final String SESH_CANCELLED_ACTION = "sesh_cancelled";
-    public static final String FOUND_TUTOR_ACTION =
-            "com.seshtutoring.seshapp.FOUND_TUTOR";
+    public static final String FOUND_TUTOR_ACTION = "com.seshtutoring.seshapp.FOUND_TUTOR";
 
     /**
      * All fragments inserted in the Main Container must implement this interface.  This allows

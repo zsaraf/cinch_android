@@ -124,10 +124,8 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenList
                     mainContainerActivity.setCurrentState(new ContainerState("Sesh!", 0,
                             ViewSeshFragment.newInstance(item.sesh.seshId)));
                 } else {
-                    options.put(DummyRequestSeshFragment.REQUEST_DUMMY_KEY,
-                            "RequestId = " + item.learnRequest.learnRequestId);
                     mainContainerActivity.setCurrentState(new ContainerState("Request!", 0,
-                            new DummyRequestSeshFragment()));
+                            ViewRequestFragment.newInstance(item.learnRequest.learnRequestId)));
                 }
             }
         });

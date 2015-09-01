@@ -40,19 +40,13 @@ import com.seshtutoring.seshapp.view.fragments.ViewSeshFragments.ViewSeshSeshDes
 import com.seshtutoring.seshapp.view.fragments.ViewSeshFragments.ViewSeshUserDescriptionFragment;
 import com.squareup.picasso.Callback;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
 import java.util.List;
 import java.util.Map;
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * to handle interaction events.
- * Use the {@link ViewSeshFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class ViewSeshFragment extends Fragment implements MainContainerActivity.FragmentOptionsReceiver {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_SESH_ID = "sesh";
@@ -103,20 +97,21 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
         View v;
         if (sesh.isStudent) {
             v = inflater.inflate(R.layout.fragment_view_sesh_student, container, false);
-            final EditText editText = (EditText)v.findViewById(R.id.icon_text_view_text);
+            final EditText editText = (EditText) v.findViewById(R.id.icon_text_view_text);
+            editText.setText(sesh.locationNotes);
             editText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
                 @Override
                 public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                     v.clearFocus();
-                    InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(getActivity().INPUT_METHOD_SERVICE);
+                    InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(getActivity().INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-                    /* TODO: Set location notes on Sesh object and make POST to server to update */
+                    updateSeshWithLocationNotes(editText.getText().toString());
                     return true;
                 }
             });
         } else {
             v = inflater.inflate(R.layout.fragment_view_sesh_tutor, container, false);
-            final RelativeLayout middleBar = (RelativeLayout)v.findViewById(R.id.middleBar);
+            final RelativeLayout middleBar = (RelativeLayout) v.findViewById(R.id.middleBar);
             middleBar.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -125,7 +120,7 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
             });
         }
 
-        final ImageView profileImageView = (ImageView)v.findViewById(R.id.profile_image);
+        final ImageView profileImageView = (ImageView) v.findViewById(R.id.profile_image);
         SeshNetworking seshNetworking = new SeshNetworking(myContext);
         seshNetworking.downloadProfilePictureAsync(sesh.userImageUrl, profileImageView, new Callback() {
             @Override
@@ -165,7 +160,7 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
             });
         }
 
-        seshActivityIndicator = (SeshActivityIndicator)v.findViewById(R.id.view_sesh_activity_indicator);
+        seshActivityIndicator = (SeshActivityIndicator) v.findViewById(R.id.view_sesh_activity_indicator);
         seshActivityIndicator.setAlpha(0);
 
         viewPager = (ViewPager) v.findViewById(R.id.view_sesh_view_pager);
@@ -193,7 +188,7 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
 
     @Override
     public void onAttach(Activity activity) {
-        myContext=(FragmentActivity) activity;
+        myContext = (FragmentActivity) activity;
         super.onAttach(activity);
     }
 
@@ -248,9 +243,9 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
                     @Override
                     public void onResponse(JSONObject jsonObject) {
                         setNetworking(false);
-                        Intent mainContainerIntent = new Intent(getActivity().getApplicationContext(), MainContainerActivity.class);
-                        startActivity(mainContainerIntent);
                         sesh.delete();
+                        MainContainerActivity mainContainerActivity = (MainContainerActivity)getActivity();
+                        mainContainerActivity.setCurrentState(mainContainerActivity.HOME, null);
                     }
                 }, new Response.ErrorListener() {
                     @Override
@@ -308,14 +303,9 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
                 seshDialog.dismiss();
             }
         });
+        seshDialog.setType("SESH_STARTING");
 
-        Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                seshDialog.show(getActivity().getFragmentManager(), "SESH_STARTING");
-            }
-        }, 1500);
+        seshDialog.show(getActivity().getFragmentManager(), "SESH_STARTING");
     }
 
     private void setNetworking(Boolean networking) {
@@ -345,6 +335,40 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
         intent.putExtra(ViewSeshSetTimeActivity.SET_TIME_SESH_ID_KEY, sesh.seshId);
         startActivityForResult(intent, 0);
         getActivity().overridePendingTransition(R.anim.fade_in, 0);
+    }
+
+    private void updateSeshWithLocationNotes(String locationNotes) {
+        final String oldLocationNotes = sesh.locationNotes;
+        sesh.setLocationNotes(locationNotes);
+        SeshNetworking seshNetworking = new SeshNetworking(getActivity());
+        seshNetworking.setLocationNotesForSesh(sesh.seshId, locationNotes, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject jsonObject) {
+                try {
+                    if (jsonObject.getString("status").equals("SUCCESS")) {
+
+                    } else {
+                        presentErrorUpdatingLocationNotes(oldLocationNotes, jsonObject.getString("message"));
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+                presentErrorUpdatingLocationNotes(oldLocationNotes, "Please check your internet connection and try again!");
+            }
+        });
+    }
+
+    private void presentErrorUpdatingLocationNotes(String oldLocationNotes, String message) {
+        sesh.locationNotes = oldLocationNotes;
+        sesh.save();
+        SeshDialog.showDialog(getActivity().getFragmentManager(), "Whoops!", message,
+                "OKAY", null, "view_request_network_error");
+        final EditText editText = (EditText) getView().findViewById(R.id.icon_text_view_text);
+        editText.setText(oldLocationNotes);
     }
 
 }

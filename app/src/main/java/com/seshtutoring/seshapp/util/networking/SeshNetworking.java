@@ -91,6 +91,7 @@ public class SeshNetworking {
     private static final String REQUEST_ID_PARAM = "request_id";
     private static final String VERSION_NUMBER_PARAM = "version_number";
     private static final String SESH_ID_PARAM = "sesh_id";
+    private static final String LOCATION_NOTES_PARAM = "location_notes";
     private static final String IS_PAST_PARAM = "is_past";
     private static final String PAST_SESH_ID_PARAM = "past_sesh_id";
     private static final String CONTENT_PARAM = "content";
@@ -672,6 +673,15 @@ public class SeshNetworking {
         postWithRelativeUrl("cancel_sesh.php", params, successListener, errorListener);
     }
 
+    public void cancelRequestWithRequestId(int requestId, Response.Listener<JSONObject> successListener,
+                                     Response.ErrorListener errorListener) {
+        Map<String, String> params = new HashMap<>();
+        params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
+        params.put(REQUEST_ID_PARAM, Integer.toString(requestId));
+
+        postWithRelativeUrl("delete_request.php", params, successListener, errorListener);
+    }
+
     public void reportProblem(String problem, int pastSeshId, Response.Listener<JSONObject> successListener, Response.ErrorListener errorListener) {
         Map<String, String> params = new HashMap<>();
         params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
@@ -708,6 +718,24 @@ public class SeshNetworking {
         params.put(SET_TIME_PARAM, formatter.print(new DateTime(setTime)));
 
         postWithRelativeUrl("set_start_time.php", params, successListener, errorListener);
+    }
+
+    public void setLocationNotesForSesh(int seshId, String locationNotes, Response.Listener<JSONObject> successListener, Response.ErrorListener errorListener) {
+        Map<String, String> params = new HashMap<>();
+        params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
+        params.put(SESH_ID_PARAM, Integer.toString(seshId));
+        params.put(LOCATION_NOTES_PARAM, locationNotes);
+
+        postWithRelativeUrl("set_location_notes.php", params, successListener, errorListener);
+    }
+
+    public void setLocationNotesForRequest(int requestId, String locationNotes, Response.Listener<JSONObject> successListener, Response.ErrorListener errorListener) {
+        Map<String, String> params = new HashMap<>();
+        params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
+        params.put(REQUEST_ID_PARAM, Integer.toString(requestId));
+        params.put(LOCATION_NOTES_PARAM, locationNotes);
+
+        postWithRelativeUrl("set_location_notes.php", params, successListener, errorListener);
     }
 
     public static abstract class SynchronousRequest {

@@ -300,4 +300,9 @@ public class Sesh extends SugarRecord<Sesh> {
         }
         return null;
     }
+
+    public void setLocationNotes(String locationNotes) {
+        this.locationNotes = locationNotes;
+        this.save();
+    }
 }
