@@ -166,7 +166,7 @@ public class Notification extends SugarRecord<Notification> {
 
             @Override
             public void onErrorException(Exception e) {
-                refreshNotification.handled(context, false);
+                Notification.currentNotificationHandled(context, false);
                 Log.e(TAG, "Failed to refresh notifications: " + e);
             }
         };
@@ -189,13 +189,13 @@ public class Notification extends SugarRecord<Notification> {
                         }
                     }
 
-                    refreshNotification.handled(context, true);
+                    Notification.currentNotificationHandled(context, true);
                 } else {
                     Log.e(TAG, "Failed to refresh notifications; " + jsonObject.getString("message"));
-                    refreshNotification.handled(context, false);
+                    Notification.currentNotificationHandled(context, false);
                 }
             } catch (JSONException e) {
-                refreshNotification.handled(context, false);
+                Notification.currentNotificationHandled(context, false);
                 Log.e(TAG, "Failed to refresh notifications; JSON response malformed : " + e);
             }
         }
@@ -211,7 +211,7 @@ public class Notification extends SugarRecord<Notification> {
         }
     }
 
-    public void handled(Context context, boolean deleteNotification) {
+    public static void currentNotificationHandled(Context context, boolean deleteNotification) {
         Intent notificationHandled = new Intent(SeshNotificationManagerService.CURRENT_NOTIFICATION_HAS_BEEN_HANDLED, null,
                 context, SeshNotificationManagerService.class);
 
@@ -220,8 +220,6 @@ public class Notification extends SugarRecord<Notification> {
         }
 
         context.startService(notificationHandled);
-
-        Log.d(TAG, identifier + " has been handled.");
     }
 
     public NotificationType getNotificationType() {

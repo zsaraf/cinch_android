@@ -44,7 +44,7 @@ public class LocationNotesUpdatedNotificationHandler extends BannerNotificationH
     public void handleDisplayOutsideApp() {
         saveNewLocationNotes();
         showNotificationForIntent(viewSeshActionIntent(false, mNotification.correspondingSesh()));
-        mNotification.handled(mContext, true);
+        Notification.currentNotificationHandled(mContext, true);
     }
 
     public Runnable bannerTapCallback() {
@@ -52,7 +52,7 @@ public class LocationNotesUpdatedNotificationHandler extends BannerNotificationH
             @Override
             public void run() {
                 mContext.sendBroadcast(viewSeshActionIntent(true, mNotification.correspondingSesh()));
-                mNotification.handled(mContext, true);
+                Notification.currentNotificationHandled(mContext, true);
             }
         };
     }

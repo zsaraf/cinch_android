@@ -2,6 +2,7 @@ package com.seshtutoring.seshapp.view.animations;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.content.Intent;
 import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,7 +11,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.seshtutoring.seshapp.R;
+import com.seshtutoring.seshapp.model.Notification;
 import com.seshtutoring.seshapp.model.Sesh;
+import com.seshtutoring.seshapp.services.notifications.SeshNotificationManagerService;
 import com.seshtutoring.seshapp.view.ContainerState;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
 import com.seshtutoring.seshapp.view.fragments.SideMenuFragment;
@@ -33,22 +36,26 @@ public class SeshDisplayAnimation extends SideMenuFragment.SideMenuOpenAnimation
         this.sesh = sesh;
         this.seshRowContents = seshRowContents.findViewById(R.id.contents);
 
-        LayoutInflater inflater = mainContainerActivity.getLayoutInflater();
-        ViewGroup dummyPastRequestParentView = (ViewGroup) inflater.inflate(R.layout.open_request_list_row, null);
-        this.dummyPastRequestContents =
-                (LinearLayout) dummyPastRequestParentView.findViewById(R.id.contents);
-        dummyPastRequestParentView.removeView(dummyPastRequestContents);
+        if (sesh.isStudent) {
+            LayoutInflater inflater = mainContainerActivity.getLayoutInflater();
+            ViewGroup dummyPastRequestParentView = (ViewGroup) inflater.inflate(R.layout.open_request_list_row, null);
+            this.dummyPastRequestContents =
+                    (LinearLayout) dummyPastRequestParentView.findViewById(R.id.contents);
+            dummyPastRequestParentView.removeView(dummyPastRequestContents);
 
-        TextView classAbbrvTextView =
-                (TextView) dummyPastRequestContents.findViewById(R.id.open_request_list_row_class);
-        classAbbrvTextView.setText(sesh.className);
+            TextView classAbbrvTextView =
+                    (TextView) dummyPastRequestContents.findViewById(R.id.open_request_list_row_class);
+            classAbbrvTextView.setText(sesh.className);
+        }
     }
 
     public void prepareAnimation() {
         seshRowContents.setX(seshRowContents.getWidth());
 
-        this.seshRowParentView = (ViewGroup) seshRowContents.getParent();
-        seshRowParentView.addView(dummyPastRequestContents, 0);
+        if (sesh.isStudent) {
+            this.seshRowParentView = (ViewGroup) seshRowContents.getParent();
+            seshRowParentView.addView(dummyPastRequestContents, 0);
+        }
     }
 
     public void startAnimation() {
@@ -62,7 +69,9 @@ public class SeshDisplayAnimation extends SideMenuFragment.SideMenuOpenAnimation
     }
 
     public void onAnimationCompleted() {
-        seshRowParentView.removeView(dummyPastRequestContents);
+        if (sesh.isStudent) {
+            seshRowParentView.removeView(dummyPastRequestContents);
+        }
         (new AnimationCompleteAsyncTask()).execute();
     }
 
@@ -83,6 +92,7 @@ public class SeshDisplayAnimation extends SideMenuFragment.SideMenuOpenAnimation
                 @Override
                 public void run() {
                     mainContainerActivity.closeDrawer(true);
+                    Notification.currentNotificationHandled(mainContainerActivity, true);
                 }
             }, 1000);
         }

@@ -55,8 +55,6 @@ public class Sesh extends SugarRecord<Sesh> {
     public String seshDescription;
     public int seshEstTime;
     public int seshNumStudents;
-    public Date seshSetTime; // DUE TO SUGARORM BUG, CANNOT BE SET NULL
-    public Date startTime; // DUE TO SUGARORM BUG, CANNOT BE SET NULL
     public double tutorLatitude;
     public double tutorLongitude;
     public String userDescription;
@@ -66,6 +64,12 @@ public class Sesh extends SugarRecord<Sesh> {
     public String userSchool;
     public boolean isInstant;
     public boolean requiresAnimatedDisplay;
+
+    // Due to a bug in SugarORM, Date fields cannot be set to null, so, in order to communicate
+    // whether or not the following variables are set, we use longs representing Milliseconds since epoch
+    // time.  If variable == -1, it has not been set yet by the server/client (eg. as if it were set to null)
+    public long seshSetTime; // SET IN MILLIS SINCE EPOCH
+    public long startTime; // SET IN MILLIS SINCE EPOCH
 
     @Ignore
     public Set<AvailableBlock> availableBlocks;
@@ -84,7 +88,7 @@ public class Sesh extends SugarRecord<Sesh> {
     public Sesh(String class_name, boolean has_been_seen, boolean has_started, boolean is_student,
                 double latitude, String locationNotes, double longitude, int past_request_id,
                 String sesh_description, int sesh_est_time, int sesh_id, int sesh_num_students,
-                Date sesh_set_time, Date start_time, double tutor_latitude, double tutor_longitude,
+                long sesh_set_time, long start_time, double tutor_latitude, double tutor_longitude,
                 String user_description, String user_image_url, String user_major, String user_name,
                 String user_school, boolean is_instant, Set<AvailableBlock> availableBlocks) {
 
@@ -163,18 +167,19 @@ public class Sesh extends SugarRecord<Sesh> {
             }
 
             String seshSetTime = seshJson.getString("set_time");
-            if (!seshSetTime.equals("null")) {
-                sesh.seshSetTime = formattedTime(seshSetTime);
+            if (seshSetTime != null && !seshSetTime.equals("null")) {
+                sesh.seshSetTime = formattedTime(seshSetTime).getTime();
             } else {
-                // DUE TO SUGARORM BUG, WE CANNOT SET DATE TO NULL, SO WE SET DATE TO UNIX EPOCH TIME
-                sesh.seshSetTime = new Date(0);
+                // Due to SugarORM bug, we set time to -1 if retrieved result is null
+                sesh.seshSetTime = -1;
             }
+
             String startTime = seshJson.getString("start_time");
-            if (!startTime.equals("null")) {
-                sesh.startTime = formattedTime(startTime);
+            if (startTime != null && !startTime.equals("null")) {
+                sesh.startTime = formattedTime(startTime).getTime();
             } else {
-                // DUE TO SUGARORM BUG, WE CANNOT SET DATE TO NULL, SO WE SET DATE TO UNIX EPOCH TIME
-                sesh.startTime = new Date(0);
+                // Due to SugarORM bug, we set time to -1 if retrieved result is null
+                sesh.startTime = -1;
             }
 
             sesh.save();
@@ -262,7 +267,7 @@ public class Sesh extends SugarRecord<Sesh> {
     }
 
     public String getTimeAbbrvString() {
-        if (seshSetTime == null) {
+        if (seshSetTime == -1) {
             return "Time TBD";
         } else {
             DateTime setTime = new DateTime(seshSetTime);

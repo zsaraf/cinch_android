@@ -22,6 +22,6 @@ public class SeshStartedStudentNotificationHandler extends NotificationHandler {
 
     public void handleDisplayInsideApp() {
         // do nothing
-        mNotification.handled(mContext, true);
+        Notification.currentNotificationHandled(mContext, true);
     }
 }

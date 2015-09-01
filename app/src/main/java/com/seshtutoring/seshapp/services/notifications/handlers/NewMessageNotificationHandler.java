@@ -42,7 +42,7 @@ public class NewMessageNotificationHandler extends BannerNotificationHandler {
         return new Runnable() {
             @Override
             public void run() {
-                mNotification.handled(mContext, true);
+                Notification.currentNotificationHandled(mContext, true);
             }
         }; // todo implement when relevant
     }

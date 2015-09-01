@@ -114,7 +114,7 @@ public class ViewSeshSetTimeActivity extends SeshActivity {
         seshNetworking.setSetTime(sesh.seshId, dateTime, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject jsonObject) {
-                sesh.seshSetTime = dateTime.toDate();
+                sesh.seshSetTime = dateTime.getMillis();
                 onBackPressed();
             }
         }, new Response.ErrorListener() {

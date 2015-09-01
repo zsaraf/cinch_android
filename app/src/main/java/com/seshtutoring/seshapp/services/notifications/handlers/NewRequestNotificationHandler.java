@@ -31,7 +31,7 @@ public class NewRequestNotificationHandler extends BannerNotificationHandler {
     @Override
     public void handleDisplayOutsideApp() {
         showNotificationForIntent(showAvailableJobsIntent(false));
-        mNotification.handled(mContext, true);
+        Notification.currentNotificationHandled(mContext, true);
     }
 
     @Override

@@ -206,9 +206,8 @@ public class SeshBanner extends DialogFragment {
         timer.removeCallbacks(dismissTimerCallback);
         isShowing = false;
 
-        if (correspondingNotification != null) {
-            correspondingNotification.handled(mActivity, true);
-        }
+        Notification.currentNotificationHandled(mActivity, true);
+
         super.dismiss();
     }
 }

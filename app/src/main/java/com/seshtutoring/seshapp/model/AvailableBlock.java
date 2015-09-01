@@ -24,20 +24,26 @@ import java.util.Set;
  * Created by nadavhollander on 7/25/15.
  */
 public class AvailableBlock extends SugarRecord<AvailableBlock> {
+
     @Ignore
     private static final String TAG = AvailableBlock.class.getName();
 
     private static final String START_TIME_KEY = "start_time";
     private static final String END_TIME_KEY = "end_time";
 
-    public Date startTime;
-    public Date endTime;
+    // Due to a bug in SugarORM, Date fields cannot be set to null, so, in order to communicate
+    // whether or not the following variables are set, we use longs representing Milliseconds since epoch
+    // time.  If variable == -1, it has not been set yet by the server/client (eg. as if it were set to null)
+    public long startTime; // SET IN MILLIS SINCE EPOCH
+    public long endTime; // SET IN MILLIS SINCE EPOCH
+
     public LearnRequest learnRequest;
     public Sesh sesh;
 
-    public AvailableBlock() {}
+    public AvailableBlock() {
+    }
 
-    public AvailableBlock(Date startTime, Date endTime, LearnRequest learnRequest, Sesh sesh) {
+    public AvailableBlock(long startTime, long endTime, LearnRequest learnRequest, Sesh sesh) {
         this.startTime = startTime;
         this.endTime = endTime;
         this.learnRequest = learnRequest;
@@ -51,16 +57,16 @@ public class AvailableBlock extends SugarRecord<AvailableBlock> {
 
             String endTimeString = availableBlockJson.getString(END_TIME_KEY);
             if (endTimeString == null || endTimeString.equals("null")) {
-                availableBlock.endTime = new Date(0);
+                availableBlock.endTime = -1;
             } else {
-                availableBlock.endTime = formatter.parseDateTime(endTimeString).toDate();
+                availableBlock.endTime = formatter.parseDateTime(endTimeString).getMillis();
             }
 
             String startTimeString = availableBlockJson.getString(START_TIME_KEY);
             if (startTimeString == null || startTimeString.equals("null")) {
-                availableBlock.startTime = new Date(0);
+                availableBlock.startTime = -1;
             } else {
-                availableBlock.startTime = formatter.parseDateTime(startTimeString).toDate();
+                availableBlock.startTime = formatter.parseDateTime(startTimeString).getMillis();
             }
 
 //            int learnRequestId = availableBlockJson.getInt("learnRequestId");
@@ -75,11 +81,11 @@ public class AvailableBlock extends SugarRecord<AvailableBlock> {
         return availableBlock;
     }
 
-//    TEMP FIX UNTIL SCHEDULING IMPLEMENTED
+    //    TEMP FIX UNTIL SCHEDULING IMPLEMENTED
     public static AvailableBlock availableBlockForInstantRequest(LearnRequest instantRequest, int hoursUntilExpiration) {
         DateTime startTime = new DateTime(instantRequest.timestamp);
         DateTime endTime = startTime.plusHours(hoursUntilExpiration);
-        return new AvailableBlock(startTime.toDate(), endTime.toDate(), instantRequest, null);
+        return new AvailableBlock(startTime.getMillis(), endTime.getMillis(), instantRequest, null);
     }
 
     public Map<String, String> toMap() {
@@ -105,7 +111,7 @@ public class AvailableBlock extends SugarRecord<AvailableBlock> {
             String dayStr = days[day];
             if (day == today) {
                 dayStr = "TODAY";
-            }else if (day == today + 1) {
+            } else if (day == today + 1) {
                 dayStr = "TMRW";
             }
             dayStr = "<b>" + dayStr + "</b>";
@@ -139,7 +145,7 @@ public class AvailableBlock extends SugarRecord<AvailableBlock> {
             blockStr += startStr + "-" + endStr + "<br />";
         }
 
-        if(availableBlocks.size() == 0) {
+        if (availableBlocks.size() == 0) {
             blockStr = "<b>" + "NOW" + "</b>";
         }
         return blockStr;

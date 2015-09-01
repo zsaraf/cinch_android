@@ -124,7 +124,7 @@ public class InSeshActivity extends SeshActivity {
 
         long elapsedRealtimeOffset = System.currentTimeMillis() - SystemClock.elapsedRealtime();
 
-        timer.setBase(currentSesh.startTime.getTime() - elapsedRealtimeOffset);
+        timer.setBase(currentSesh.startTime - elapsedRealtimeOffset);
         timer.setOnChronometerTickListener(new Chronometer.OnChronometerTickListener() {
             @Override
             public void onChronometerTick(Chronometer chronometer) {

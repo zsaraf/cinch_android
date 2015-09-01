@@ -137,11 +137,7 @@ public class RatingActivity extends SeshActivity {
                         public void onResponse(JSONObject jsonObject) {
                             try {
                                 if (jsonObject.getString("status").equals("SUCCESS")) {
-                                    Notification currentNotification
-                                            = InAppNotificationDisplayQueue
-                                            .sharedInstance(getApplicationContext())
-                                            .getCurrentNotification();
-                                    currentNotification.handled(getApplicationContext(), true);
+                                    Notification.currentNotificationHandled(getApplicationContext(), true);
                                     finish();
                                     overridePendingTransition(0, R.anim.slide_down);
                                 } else {

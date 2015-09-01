@@ -64,7 +64,7 @@ public class SeshCreatedNotificationHandler extends NotificationHandler {
 
             public void onErrorException(Exception e) {
                 Log.e(TAG, "Failed to get sesh info for sesh id: " + e);
-                mNotification.handled(mContext, false);
+                Notification.currentNotificationHandled(mContext, false);
             }
         };
 
@@ -97,7 +97,7 @@ public class SeshCreatedNotificationHandler extends NotificationHandler {
                 }
             } catch (JSONException e) {
                 Log.e(TAG, "Failed to get sesh info for sesh id; malformed response: " + e);
-                mNotification.handled(mContext, false);
+                Notification.currentNotificationHandled(mContext, false);
             }
         }
     }
@@ -155,7 +155,6 @@ public class SeshCreatedNotificationHandler extends NotificationHandler {
                     foregroundActivity.startActivity(intent);
                 }
 
-                mNotification.handled(mContext, true);
                 seshDialog.dismiss();
             }
         });

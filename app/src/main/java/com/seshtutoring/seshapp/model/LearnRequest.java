@@ -42,7 +42,7 @@ public class LearnRequest extends SugarRecord<LearnRequest> {
     public double longitude;
     public int learnRequestId;
     public int numPeople;
-    public Date timestamp;
+    public long timestamp;
     public String locationNotes;
     public long expirationTime;
     public boolean requiresAnimatedDisplay;
@@ -61,7 +61,7 @@ public class LearnRequest extends SugarRecord<LearnRequest> {
 
     public LearnRequest(String classId, String classString, String descr, int estTime, boolean isInstant, double latitude,
                         double longitude, int learnRequestId, int numPeople,
-                        Date timestamp, String locationNotes, long expirationTime, Set<AvailableBlock> availableBlocks) {
+                        long timestamp, String locationNotes, long expirationTime, Set<AvailableBlock> availableBlocks) {
         this.classId = classId;
         this.classString = classString;
         this.descr = descr;
@@ -112,7 +112,8 @@ public class LearnRequest extends SugarRecord<LearnRequest> {
             learnRequest.longitude = learnRequestJson.getDouble("longitude");
             learnRequest.learnRequestId = learnRequestJson.getInt("id");
             learnRequest.numPeople = learnRequestJson.getInt("num_people");
-            learnRequest.timestamp = formatter.parseDateTime(learnRequestJson.getString("timestamp")).toDate();
+            learnRequest.timestamp = formatter
+                    .parseDateTime(learnRequestJson.getString("timestamp")).getMillis();
             learnRequest.locationNotes = learnRequestJson.getString("location_notes");
             learnRequest.requiresAnimatedDisplay = false;
 
@@ -190,9 +191,9 @@ public class LearnRequest extends SugarRecord<LearnRequest> {
 
     public void setIsInstant(boolean isInstant) {
         this.isInstant = isInstant;
-        if (isInstant) {
+//        if (isInstant) {
             // set timestamp to now
-            this.timestamp = new Date();
-        }
+            this.timestamp = new Date().getTime();
+//        }
     }
 }

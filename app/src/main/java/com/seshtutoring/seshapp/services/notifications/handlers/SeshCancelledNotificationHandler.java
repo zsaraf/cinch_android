@@ -44,7 +44,7 @@ public class SeshCancelledNotificationHandler extends SeshEndedNotificationHandl
             @Override
             public void onClick(View v) {
                 seshDialog.dismiss();
-                mNotification.handled(mContext, true);
+                Notification.currentNotificationHandled(mContext, true);
             }
         });
         seshDialog.setType(DIALOG_TYPE_SESH_CANCELLED);

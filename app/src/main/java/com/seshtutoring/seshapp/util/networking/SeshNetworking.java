@@ -544,9 +544,9 @@ public class SeshNetworking {
 
     public void createRequestWithLearnRequest(LearnRequest learnRequest, Response.Listener<JSONObject> successListener,
                                               Response.ErrorListener errorListener) {
-        Date expirationTime = new Date();
+        long expirationTime = 0;
         for (AvailableBlock block : learnRequest.availableBlocks) {
-            if (block.endTime.getTime() - expirationTime.getTime() > 0) {
+            if (block.endTime - expirationTime > 0) {
                 expirationTime = block.endTime;
             }
         }

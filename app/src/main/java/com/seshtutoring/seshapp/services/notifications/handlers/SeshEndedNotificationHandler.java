@@ -40,7 +40,7 @@ public abstract class SeshEndedNotificationHandler extends NotificationHandler {
             @Override
             public void onErrorException(Exception e) {
                 Log.e(TAG, "Failed to replace sesh with PastSesh: " + e);
-                mNotification.handled(mContext, false);
+                Notification.currentNotificationHandled(mContext, false);
             }
         };
 
@@ -58,11 +58,11 @@ public abstract class SeshEndedNotificationHandler extends NotificationHandler {
                     onSeshReplacedWithPastSesh(pastSesh);
                 } else {
                     Log.e(TAG, "Failed to replace sesh with PastSesh; " + jsonObject.getString("message"));
-                    mNotification.handled(mContext, false);
+                    Notification.currentNotificationHandled(mContext, false);
                 }
             } catch (JSONException e) {
                 Log.e(TAG, "Failed to replace sesh with PastSesh; json malformed: " + e);
-                mNotification.handled(mContext, false);
+                Notification.currentNotificationHandled(mContext, false);
             }
         }
     }

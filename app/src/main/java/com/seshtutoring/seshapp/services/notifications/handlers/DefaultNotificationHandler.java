@@ -15,6 +15,6 @@ public class DefaultNotificationHandler extends NotificationHandler {
 
     @Override
     public void handleDisplayInsideApp() {
-        mNotification.handled(mContext, true);
+        Notification.currentNotificationHandled(mContext, true);
     }
 }

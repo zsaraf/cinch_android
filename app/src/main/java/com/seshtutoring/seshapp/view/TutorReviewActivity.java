@@ -63,11 +63,7 @@ public class TutorReviewActivity extends SeshActivity {
         seshButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Notification currentNotification
-                        = InAppNotificationDisplayQueue
-                        .sharedInstance(getApplicationContext())
-                        .getCurrentNotification();
-                currentNotification.handled(getApplicationContext(), true);
+                Notification.currentNotificationHandled(getApplicationContext(), true);
                 finish();
                 overridePendingTransition(0, R.anim.slide_down);
             }

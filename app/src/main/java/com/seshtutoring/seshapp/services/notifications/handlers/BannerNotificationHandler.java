@@ -39,7 +39,7 @@ public abstract class BannerNotificationHandler extends NotificationHandler {
     @Override
     public void handleDisplayOutsideApp() {
         showNotificationForIntent(new Intent(mContext, MainContainerActivity.class));
-        mNotification.handled(mContext, true);
+        Notification.currentNotificationHandled(mContext, true);
     }
 
     // IF USING PROFILE PICTURE, MAKE SURE TO LOAD IMAGE INTO profilePicture FIRST

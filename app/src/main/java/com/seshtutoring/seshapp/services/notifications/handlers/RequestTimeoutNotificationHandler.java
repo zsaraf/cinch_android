@@ -63,18 +63,18 @@ public class RequestTimeoutNotificationHandler extends NotificationHandler {
                         showDialog(pastRequest, false);
                     } else {
                         Log.e(TAG, "Failed to get past request information: " + jsonObject.getString("message"));
-                        mNotification.handled(mContext, false);
+                        Notification.currentNotificationHandled(mContext, false);
                     }
                 } catch (JSONException e) {
                     Log.e(TAG, "Failed to get past request information; json malformed: " + e);
-                    mNotification.handled(mContext, false);
+                    Notification.currentNotificationHandled(mContext, false);
                 }
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError volleyError) {
                 Log.e(TAG, "Failed to get past request information; network error: " + volleyError);
-                mNotification.handled(mContext, false);
+                Notification.currentNotificationHandled(mContext, false);
             }
         });
     }
@@ -152,7 +152,7 @@ public class RequestTimeoutNotificationHandler extends NotificationHandler {
                 final Runnable dismissCallback = new Runnable() {
                     @Override
                     public void run() {
-                        mNotification.handled(mContext, true);
+                        Notification.currentNotificationHandled(mContext, true);
                     }
                 };
 
@@ -163,7 +163,7 @@ public class RequestTimeoutNotificationHandler extends NotificationHandler {
                             if (jsonObject.getString("status").equals("SUCCESS")) {
                                 LearnRequest.createOrUpdateLearnRequest(jsonObject.getJSONObject("learn_request"));
                                 seshDialog.setNetworking(false);
-                                mNotification.handled(mContext, true);
+                                Notification.currentNotificationHandled(mContext, true);
                             } else {
                                 Log.e(TAG, "Failed to recreate Learn request: " + jsonObject.getString("message"));
                                 seshDialog.networkOperationFailed("Error!", jsonObject.getString("message"), "OKAY",
@@ -187,7 +187,7 @@ public class RequestTimeoutNotificationHandler extends NotificationHandler {
         secondDialogButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mNotification.handled(mContext, true);
+                Notification.currentNotificationHandled(mContext, true);
                 seshDialog.dismiss(2);
             }
         });

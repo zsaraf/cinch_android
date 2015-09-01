@@ -25,7 +25,7 @@ public class SetTimeUpdatedNotificationHandler extends BannerNotificationHandler
         DateTimeFormatter formatter = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss").withZoneUTC();
 
         Sesh sesh = mNotification.correspondingSesh();
-        sesh.seshSetTime = formatter.parseDateTime((String) mNotification.getDataObject("set_time")).toDate();
+        sesh.seshSetTime = formatter.parseDateTime((String) mNotification.getDataObject("set_time")).getMillis();
         sesh.save();
     }
 
@@ -46,7 +46,7 @@ public class SetTimeUpdatedNotificationHandler extends BannerNotificationHandler
     public void handleDisplayOutsideApp() {
         saveNewSetTime();
         showNotificationForIntent(viewSeshActionIntent(false, mNotification.correspondingSesh()));
-        mNotification.handled(mContext, true);
+        Notification.currentNotificationHandled(mContext, true);
     }
 
     public Runnable bannerTapCallback() {
@@ -54,7 +54,7 @@ public class SetTimeUpdatedNotificationHandler extends BannerNotificationHandler
             @Override
             public void run() {
                 mContext.sendBroadcast(viewSeshActionIntent(true, mNotification.correspondingSesh()));
-                mNotification.handled(mContext, true);
+                Notification.currentNotificationHandled(mContext, true);
             }
         };
     }
