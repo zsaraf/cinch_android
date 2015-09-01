@@ -15,7 +15,6 @@ public class Course {
     private static final String DEPT_ABBREV_KEY = "deptAbbrev";
     private static final String CLASS_ID_KEY = "classId";
 
-
     public String className;
     public String classNumber;
     public String deptAbbrev;

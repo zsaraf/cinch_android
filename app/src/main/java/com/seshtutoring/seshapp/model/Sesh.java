@@ -125,15 +125,20 @@ public class Sesh extends SugarRecord<Sesh> {
 
             JSONObject otherPersonRow = isStudent ? tutorRow : studentRow;
 
+            boolean isNewlyCreatedSesh;
+
             if (Sesh.listAll(Sesh.class).size() > 0) {
                 List<Sesh> seshesFound = Sesh.find(Sesh.class, "sesh_id = ?", Integer.toString(seshId));
                 if (seshesFound.size() > 0) {
                     sesh = seshesFound.get(0);
+                    isNewlyCreatedSesh = false;
                 } else {
                     sesh = new Sesh();
+                    isNewlyCreatedSesh = false;
                 }
             } else {
                 sesh = new Sesh();
+                isNewlyCreatedSesh = false;
             }
 
             sesh.className = seshJson.getString("class_name");
@@ -152,7 +157,10 @@ public class Sesh extends SugarRecord<Sesh> {
             sesh.userMajor = otherPersonRow.getString("major");
             sesh.userName = otherPersonRow.getString("full_name");
             sesh.isInstant = (seshJson.getInt("is_instant") == 1) ? true : false;
-            sesh.requiresAnimatedDisplay = false;
+
+            if (isNewlyCreatedSesh) {
+                sesh.requiresAnimatedDisplay = false;
+            }
 
             String seshSetTime = seshJson.getString("set_time");
             if (!seshSetTime.equals("null")) {

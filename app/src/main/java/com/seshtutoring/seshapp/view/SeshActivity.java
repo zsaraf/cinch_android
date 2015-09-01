@@ -58,11 +58,6 @@ public abstract class SeshActivity extends AppCompatActivity implements SeshDial
     };
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
-    @Override
     public void onResume() {
         super.onResume();
 
@@ -74,7 +69,7 @@ public abstract class SeshActivity extends AppCompatActivity implements SeshDial
         registerReceiver(actionBroadcastReceiver, intentFilter);
 
         Intent intent = getIntent();
-        if (intent.getAction() != null) {
+        if (intent.getAction() != null && !intent.getBooleanExtra(INTENT_HANDLED, false)) {
             handleActionIntent(intent);
         }
 
@@ -93,10 +88,6 @@ public abstract class SeshActivity extends AppCompatActivity implements SeshDial
     }
 
     protected void handleActionIntent(Intent intent) {
-        if (intent.hasExtra(INTENT_HANDLED) && intent.getBooleanExtra(INTENT_HANDLED, false)) {
-            return;
-        }
-
         if (intent.hasExtra(SeshGCMListenerService.NOTIFICATION_ID_EXTRA)) {
             int notificationId = intent.getIntExtra(SeshGCMListenerService.NOTIFICATION_ID_EXTRA, -1);
             ((NotificationManager)

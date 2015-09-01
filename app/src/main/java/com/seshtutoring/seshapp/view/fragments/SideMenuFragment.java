@@ -5,6 +5,8 @@ import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -26,9 +28,11 @@ import com.seshtutoring.seshapp.model.LearnRequest.LearnRequestTableListener;
 import com.seshtutoring.seshapp.model.Sesh;
 import com.seshtutoring.seshapp.model.Sesh.SeshTableListener;
 import com.seshtutoring.seshapp.services.PeriodicFetchBroadcastReceiver;
+import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
 import com.seshtutoring.seshapp.view.ContainerState;
 import com.seshtutoring.seshapp.view.animations.LearnRequestDisplayAnimation;
+import com.seshtutoring.seshapp.view.animations.SeshDisplayAnimation;
 import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.DummyRequestSeshFragment;
 
 import java.util.ArrayList;
@@ -102,9 +106,9 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenList
                         break;
                 }
 
-//                updateSelectedItem();
-
+                updateSelectedItem();
                 mainContainerActivity.setCurrentState(selectedMenuOption, null);
+                mainContainerActivity.closeDrawer(true);
             }
         });
 
@@ -209,6 +213,7 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenList
         public View getView(int position, View convertView, ViewGroup parent) {
             Log.d(TAG, "refreshing position " + position);
             RequestsAndSeshesListItem item = getItem(position);
+            LayoutUtils utils = new LayoutUtils(getContext());
             if (item.isDivider) {
                 // if convertView is not instantiated, or is of the wrong type, we re-instantiate
                 if (convertView == null || isOpenRequestRow(convertView) || isOpenSeshRow(convertView)) {
@@ -223,19 +228,18 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenList
                 convertView.setOnClickListener(null);
             } else if (item.isSesh) {
                 // if convertView is not instantiated, or is of the wrong type, we re-instantiate
-                if (convertView == null || isOpenRequestRow(convertView)) {
+                if (convertView == null || isOpenRequestRow(convertView) || isDividerRow(convertView)) {
                     convertView = LayoutInflater.from(getContext()).inflate(R.layout.open_sesh_list_row,
                             null);
                 }
 
                 TextView classAbbrvTextView = (TextView) convertView.findViewById(R.id.open_sesh_list_row_class);
                 classAbbrvTextView.setText(item.sesh.className);
-
-                Typeface  medium = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Gotham-Medium.otf");
-                classAbbrvTextView.setTypeface(medium);
+                classAbbrvTextView.setTypeface(utils.getBookGothamTypeface());
 
                 TextView timeAbbrvTextView = (TextView) convertView.findViewById(R.id.open_sesh_list_row_time);
                 timeAbbrvTextView.setText(item.sesh.getTimeAbbrvString());
+                timeAbbrvTextView.setTypeface(utils.getLightGothamTypeface());
 
                 CircleImageView profileImage = (CircleImageView) convertView.findViewById(R.id.profile_image);
                 item.sesh.loadImageAsync(profileImage, getActivity());
@@ -256,31 +260,32 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenList
                         icon.setImageDrawable(getResources().getDrawable(drawableId, null));
                     }
                 }
+
+                if (item.sesh.requiresAnimatedDisplay) {
+                    sideMenuOpenAnimation = new SeshDisplayAnimation(mainContainerActivity, item.sesh,
+                            convertView);
+                }
             } else {
                 // if convertView is not instantiated, or is of the wrong type, we re-instantiate
-                if (convertView == null || isOpenSeshRow(convertView))
+                if (convertView == null || isOpenSeshRow(convertView) || isDividerRow(convertView)) {
                     convertView = LayoutInflater.from(getContext()).inflate(R.layout.open_request_list_row,
                             null);
+                }
 
                 TextView classAbbrvTextView = (TextView) convertView.findViewById(R.id.open_request_list_row_class);
                 classAbbrvTextView.setText(item.learnRequest.classString);
 
                 if (item.learnRequest.requiresAnimatedDisplay) {
-                    sideMenuOpenAnimation = new LearnRequestDisplayAnimation(getContext(), convertView);
+                    sideMenuOpenAnimation = new LearnRequestDisplayAnimation(mainContainerActivity,
+                            item.learnRequest, convertView);
                 }
             }
-
-//            // if view represents the newest request and side menu was opened in context of a new
-//            // request being created, animate row in to emphasize it to user.
-//            if (menuOpenFlag == MENU_OPEN_DISPLAY_NEW_REQUEST && position == getCount() - 1) {
-//                Log.d("meh", "allegadly animating");
-//                Animation newItemAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.fade_and_slide_in);
-//                convertView.startAnimation(newItemAnimation);
-//                Log.d(TAG, "bout to set this null:");
-//                setStatusFlag(null);
-//            }
             return convertView;
         }
+    }
+
+    private boolean isDividerRow(View view) {
+        return (view.findViewById(R.id.learn_divider) != null);
     }
 
     private boolean isOpenRequestRow(View view) {
@@ -299,15 +304,6 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenList
     public void deselectItem(TextView title) {
         Typeface light = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Gotham-Light.otf");
         title.setTypeface(light);
-    }
-
-    public RequestsAndSeshesAdapter getRequestsAndSeshesAdapter() {
-        return openRequestsAndSeshesAdapter;
-    }
-
-    public void setStatusFlag(String flag) {
-        Log.d(TAG, "SETTING MENUOPTIONFLAG " + flag);
-        this.menuOpenFlag = flag;
     }
 
     @Override
@@ -378,12 +374,15 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenList
                 openRequestsAndSeshesAdapter.add(requestItem);
             }
             Log.d(TAG, "updateLearnList() end " + new Date().toString());
+
+            openRequestsAndSeshesAdapter.notifyDataSetChanged();
         }
     }
 
     public static abstract class SideMenuOpenAnimation {
         public abstract void prepareAnimation();
         public abstract void startAnimation();
+        public abstract void onAnimationCompleted();
     }
 
     @Override

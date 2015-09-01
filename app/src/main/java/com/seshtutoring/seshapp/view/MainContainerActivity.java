@@ -2,6 +2,7 @@ package com.seshtutoring.seshapp.view;
 
 import android.app.ActionBar;
 import android.app.AlarmManager;
+import android.os.Looper;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.Fragment;
@@ -213,8 +214,7 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
                     setCurrentState(HOME);
                 }
             } else if (intent.getAction() == DISPLAY_SIDE_MENU_UPDATE) {
-                sideMenuFragment.setStatusFlag(SideMenuFragment.MENU_OPEN_DISPLAY_NEW_REQUEST);
-                Handler handler = new Handler();
+                Handler handler = new Handler(Looper.getMainLooper());
                 Runnable openSideMenu = new Runnable() {
                     @Override
                     public void run() {
@@ -361,31 +361,31 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
         TextView title = (TextView) findViewById(R.id.action_bar_title);
         title.setText(selectedMenuOption.title);
 
-        if (slidingMenu.isMenuShowing()) {
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .remove(currentContainerState.fragment)
-                    .commitAllowingStateLoss();
-            getSupportFragmentManager()
-                    .executePendingTransactions();
-            currentContainerState = selectedMenuOption;
-            fragmentLoadIndicator.setVisibility(View.VISIBLE);
-
-            slidingMenu.toggle(true);
-            slidingMenu.setOnClosedListener(new SlidingMenu.OnClosedListener() {
-                @Override
-                public void onClosed() {
-                    getSupportFragmentManager()
-                            .beginTransaction()
-                            .replace(R.id.main_container, currentContainerState.fragment, currentContainerState.fragment.getClass().getName())
-                            .addToBackStack(currentContainerState.fragment.getClass().getName())
-                            .commitAllowingStateLoss();
-                    fragmentLoadIndicator.setVisibility(View.GONE);
-
-                    slidingMenu.setOnClosedListener(null);
-                }
-            });
-        } else {
+//        if (slidingMenu.isMenuShowing()) {
+//            getSupportFragmentManager()
+//                    .beginTransaction()
+//                    .remove(currentContainerState.fragment)
+//                    .commitAllowingStateLoss();
+//            getSupportFragmentManager()
+//                    .executePendingTransactions();
+//            currentContainerState = selectedMenuOption;
+//            fragmentLoadIndicator.setVisibility(View.VISIBLE);
+//
+//            slidingMenu.toggle(true);
+//            slidingMenu.setOnClosedListener(new SlidingMenu.OnClosedListener() {
+//                @Override
+//                public void onClosed() {
+//                    getSupportFragmentManager()
+//                            .beginTransaction()
+//                            .replace(R.id.main_container, currentContainerState.fragment, currentContainerState.fragment.getClass().getName())
+//                            .addToBackStack(currentContainerState.fragment.getClass().getName())
+//                            .commitAllowingStateLoss();
+//                    fragmentLoadIndicator.setVisibility(View.GONE);
+//
+//                    slidingMenu.setOnClosedListener(null);
+//                }
+//            });
+//        } else {
             currentContainerState = selectedMenuOption;
 
             getSupportFragmentManager()
@@ -393,7 +393,7 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
                     .replace(R.id.main_container, currentContainerState.fragment, currentContainerState.fragment.getTag())
                     .addToBackStack(currentContainerState.fragment.getTag())
                     .commitAllowingStateLoss();
-        }
+//        }
 
         if (options != null) {
             FragmentOptionsReceiver flagReceiver = (FragmentOptionsReceiver) currentContainerState.fragment;
@@ -406,6 +406,13 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
 ////            slidingMenu.stretchOut();
 //            slidingMenu.toggle(true);
 //        }
+    }
+
+    public void closeDrawer(boolean animated) {
+        Log.d(TAG, "CLOSING DRAWER");
+        if (slidingMenu.isMenuShowing()) {
+            slidingMenu.toggle(animated);
+        }
     }
 
     @Override

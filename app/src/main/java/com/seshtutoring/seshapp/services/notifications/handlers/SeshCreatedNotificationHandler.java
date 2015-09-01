@@ -80,6 +80,9 @@ public class SeshCreatedNotificationHandler extends NotificationHandler {
                         learnRequestsFound.get(0).delete();
                     }
                     final Sesh createdSesh = Sesh.createOrUpdateSeshWithObject(jsonObject.getJSONObject("sesh"), mContext);
+                    createdSesh.requiresAnimatedDisplay = true;
+                    createdSesh.save();
+
                     final ImageView profilePicture = new ImageView(mContext);
                     loadImage(profilePicture, new Callback() {
                         @Override

@@ -39,7 +39,6 @@ public class NewRequestNotificationHandler extends BannerNotificationHandler {
         return new Runnable() {
             @Override
             public void run() {
-                mNotification.handled(mContext, true);
                 mContext.sendBroadcast(showAvailableJobsIntent(true));
             }
         };

@@ -2,46 +2,53 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingLeft="20dp"
     android:paddingBottom="10dp"
     android:paddingTop="10dp"
     android:background="@color/seshcharcoal">
-    <de.hdodenhof.circleimageview.CircleImageView
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/profile_image"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_centerVertical="true"
-        android:src="@drawable/profile"
-        app:border_width="1dp"
-        app:border_color="@color/seshorange"/>
-    <LinearLayout
+    <RelativeLayout
+        android:id="@+id/contents"
+        android:background="@color/seshcharcoal"
+        android:paddingLeft="10dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="15dp"
-        android:layout_centerVertical="true"
-        android:layout_toRightOf="@id/profile_image"
-        android:orientation="vertical">
-        <TextView
-            android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <de.hdodenhof.circleimageview.CircleImageView
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/profile_image"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_centerVertical="true"
+            android:src="@drawable/profile"
+            app:border_width="1dp"
+            app:border_color="@color/seshorange"/>
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="CS 107"
-            android:textSize="14sp"
-            android:textColor="@color/seshorange"
-            android:id="@+id/open_sesh_list_row_class"/>
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Now"
-            android:textSize="14sp"
-            android:textColor="@color/seshorange"
-            android:id="@+id/open_sesh_list_row_time"/>
-    </LinearLayout>
-    <ImageView
-        android:layout_width="25dp"
-        android:layout_height="25dp"
-        android:layout_alignParentRight="true"
-        android:layout_centerVertical="true"
-        android:layout_marginRight="20dp"
-        android:id="@+id/open_sesh_list_row_status_icon"/>
+            android:layout_marginLeft="10dp"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@id/profile_image"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="CS 107"
+                android:textSize="14sp"
+                android:textColor="@color/seshorange"
+                android:id="@+id/open_sesh_list_row_class"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Now"
+                android:textSize="14sp"
+                android:textColor="@color/seshorange"
+                android:id="@+id/open_sesh_list_row_time"/>
+        </LinearLayout>
+        <ImageView
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="20dp"
+            android:id="@+id/open_sesh_list_row_status_icon"/>
+    </RelativeLayout>
+
 </RelativeLayout>
