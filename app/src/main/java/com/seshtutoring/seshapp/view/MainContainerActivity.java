@@ -415,6 +415,22 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
         }
     }
 
+    /**
+     * Convenience method for closing the drawer after a delay of X seconds (eg. if we want to
+     * account for fragment replacement load times.
+     * @param animated
+     * @param millisDelay
+     */
+    public void closeDrawerWithDelay(final boolean animated, long millisDelay) {
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                closeDrawer(animated);
+            }
+        }, millisDelay);
+    }
+
     @Override
     protected void attachBaseContext(Context newBase) {
         super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));

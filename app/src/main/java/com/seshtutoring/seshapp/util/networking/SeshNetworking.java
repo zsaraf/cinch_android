@@ -88,7 +88,7 @@ public class SeshNetworking {
     private static final String AVAILABLE_BLOCKS_PARAM = "available_blocks";
     private static final String IS_INSTANT_PARAM = "is_instant";
     private static final String EXPIRATION_TIME_PARAM = "expiration_time";
-    private static final String TIMEZONE_OFFSET_PARAM = "timezone_offset";
+    private static final String TIMEZONE_NAME_PARAM = "timezone_name";
     private static final String TUTOR_COURSES_PARAM = "courses";
     private static final String REQUEST_ID_PARAM = "request_id";
     private static final String VERSION_NUMBER_PARAM = "version_number";
@@ -239,9 +239,8 @@ public class SeshNetworking {
         params.put(IS_DEV_PARAM, SeshApplication.IS_DEV ? "1" : "0");
 
         TimeZone timezone = TimeZone.getDefault();
-        int timeZoneOffset = timezone.getOffset(new Date().getTime()) / 1000 / 60 / 60;
 
-        params.put(TIMEZONE_OFFSET_PARAM, Integer.toString(timeZoneOffset));
+        params.put(TIMEZONE_NAME_PARAM, timezone.getDisplayName());
 
         postWithRelativeUrl("update_device_token.php", params, successListener, errorListener);
     }

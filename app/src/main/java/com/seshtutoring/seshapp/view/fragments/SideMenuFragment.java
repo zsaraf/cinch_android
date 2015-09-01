@@ -54,15 +54,13 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenList
     private static final int NUM_STATIC_MENU_OPTIONS = 5;
 
     private MainContainerActivity mainContainerActivity;
-    private SideMenuItem selectedItem;
     private ListView navigationMenu;
     private ListView openRequestsAndSeshesMenu;
     private RequestsAndSeshesAdapter openRequestsAndSeshesAdapter;
     private String menuOpenFlag;
     private SideMenuAdapter sideMenuAdapter;
     private SideMenuOpenAnimation sideMenuOpenAnimation;
-
-    private TextView[] menuOptionTitles;
+    private SelectableItem currentSelectedItem;
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.side_menu_fragment, container, false);
@@ -75,9 +73,11 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenList
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        menuOptionTitles = new TextView[5];
-
         sideMenuAdapter = new SideMenuAdapter(getActivity());
+
+        for (ContainerState state : mainContainerActivity.containerStates) {
+            sideMenuAdapter.add(new SideMenuItem(state.title, state.iconRes));
+        }
 
         navigationMenu.setAdapter(sideMenuAdapter);
 
@@ -106,13 +106,11 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenList
                         break;
                 }
 
-                updateSelectedItem();
+                updateSelectedItem(sideMenuAdapter.getItem(position));
                 mainContainerActivity.setCurrentState(selectedMenuOption, null);
-                mainContainerActivity.closeDrawer(true);
+                mainContainerActivity.closeDrawerWithDelay(true, 1000);
             }
         });
-
-        updateSelectedItem();
 
         openRequestsAndSeshesAdapter = new RequestsAndSeshesAdapter(getActivity());
         openRequestsAndSeshesAdapter.setNotifyOnChange(false);
@@ -123,9 +121,6 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenList
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 RequestsAndSeshesListItem item = openRequestsAndSeshesAdapter.getItem(position);
                 if (item.isDivider) return;
-
-                Map<String, Object> options = new HashMap<String, Object>();
-
                 if (item.isSesh) {
                     mainContainerActivity.setCurrentState(new ContainerState("Sesh!", 0,
                             ViewSeshFragment.newInstance(item.sesh.seshId)));
@@ -133,35 +128,50 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenList
                     mainContainerActivity.setCurrentState(new ContainerState("Request!", 0,
                             ViewRequestFragment.newInstance(item.learnRequest.learnRequestId)));
                 }
+
+                updateSelectedItem(item);
+                mainContainerActivity.closeDrawerWithDelay(true, 1000);
             }
         });
 
         Sesh.setTableListener(this);
         LearnRequest.setTableListener(this);
 
+        updateSelectedItem(sideMenuAdapter.getItem(0));
+
         (new UpdateRequestAndSeshListTask()).execute();
     }
 
-    public void updateSelectedItem() {
-        ContainerState selectedMenuOption = mainContainerActivity.getCurrentState();
-        sideMenuAdapter.clear();
-
-        for (ContainerState state : mainContainerActivity.containerStates) {
-            sideMenuAdapter.add(new SideMenuItem(state.title, state.iconRes,
-                    (selectedMenuOption == state) ? true : false));
+    public void updateSelectedItem(SelectableItem selectedItem) {
+        if (currentSelectedItem != null) {
+            currentSelectedItem.setSelected(false);
         }
 
+        currentSelectedItem = selectedItem;
+        currentSelectedItem.setSelected(true);
+
         sideMenuAdapter.notifyDataSetChanged();
+        openRequestsAndSeshesAdapter.notifyDataSetChanged();
     }
 
-    private class SideMenuItem {
+    private class SelectableItem {
+        private boolean selected;
+
+        public boolean isSelected() {
+            return selected;
+        }
+
+        public void setSelected(boolean selected) {
+            this.selected = selected;
+        }
+    }
+
+    private class SideMenuItem extends SelectableItem {
         public String tag;
         public int icon;
-        public boolean isSelected;
-        public SideMenuItem(String tag, int icon, boolean isSelected) {
+        public SideMenuItem(String tag, int icon) {
             this.tag = tag;
             this.icon = icon;
-            this.isSelected = isSelected;
         }
     }
 
@@ -180,23 +190,25 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenList
             icon.setImageResource(getItem(position).icon);
             TextView title = (TextView) convertView.findViewById(R.id.row_title);
             title.setText(getItem(position).tag);
-            if (getItem(position).isSelected) {
+
+            if (getItem(position).isSelected()) {
                 selectItem(title);
-                selectedItem = getItem(position);
             } else {
                 deselectItem(title);
             }
+
             return convertView;
         }
 
     }
 
-    private class RequestsAndSeshesListItem {
+    private class RequestsAndSeshesListItem extends SelectableItem {
         public boolean isSesh;
         public boolean isDivider;
         public LearnRequest learnRequest;
         public Sesh sesh;
         public String dividerText;
+
         public RequestsAndSeshesListItem(boolean isSesh, boolean isDivider, LearnRequest learnRequest, Sesh sesh,
                              String dividerText) {
             this.isSesh = isSesh;
@@ -235,7 +247,12 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenList
 
                 TextView classAbbrvTextView = (TextView) convertView.findViewById(R.id.open_sesh_list_row_class);
                 classAbbrvTextView.setText(item.sesh.className);
-                classAbbrvTextView.setTypeface(utils.getBookGothamTypeface());
+
+                if (item.isSelected()) {
+                    classAbbrvTextView.setTypeface(utils.getMediumGothamTypeface());
+                } else {
+                    classAbbrvTextView.setTypeface(utils.getBookGothamTypeface());
+                }
 
                 TextView timeAbbrvTextView = (TextView) convertView.findViewById(R.id.open_sesh_list_row_time);
                 timeAbbrvTextView.setText(item.sesh.getTimeAbbrvString());
@@ -275,6 +292,12 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenList
                 TextView classAbbrvTextView = (TextView) convertView.findViewById(R.id.open_request_list_row_class);
                 classAbbrvTextView.setText(item.learnRequest.classString);
 
+                if (item.isSelected()) {
+                    classAbbrvTextView.setTypeface(utils.getMediumGothamTypeface());
+                } else {
+                    classAbbrvTextView.setTypeface(utils.getLightGothamTypeface());
+                }
+
                 if (item.learnRequest.requiresAnimatedDisplay) {
                     sideMenuOpenAnimation = new LearnRequestDisplayAnimation(mainContainerActivity,
                             item.learnRequest, convertView);
@@ -297,13 +320,13 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenList
     }
 
     public void selectItem(TextView title) {
-        Typeface bold = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Gotham-Bold.otf");
-        title.setTypeface(bold);
+        LayoutUtils utils = new LayoutUtils(getActivity());
+        title.setTypeface(utils.getMediumGothamTypeface());
     }
 
     public void deselectItem(TextView title) {
-        Typeface light = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Gotham-Light.otf");
-        title.setTypeface(light);
+        LayoutUtils utils = new LayoutUtils(getActivity());
+        title.setTypeface(utils.getLightGothamTypeface());
     }
 
     @Override
