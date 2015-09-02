@@ -51,6 +51,7 @@ public class HomeFragment extends Fragment implements FragmentOptionsReceiver {
     private Button learnTabButton;
     private Button teachTabButton;
     private TabItem currTabItem;
+    private LinearLayout tabButtons;
 
     private Map<String, Object> options;
 
@@ -67,10 +68,10 @@ public class HomeFragment extends Fragment implements FragmentOptionsReceiver {
 
         LayoutUtils utils = new LayoutUtils(getActivity());
 
-        LinearLayout tabButtons = (LinearLayout) homeView.findViewById(R.id.home_tabs);
-        LinearLayout.MarginLayoutParams margins = (LinearLayout.MarginLayoutParams) tabButtons.getLayoutParams();
-        margins.topMargin = utils.getActionBarHeightPx();
-        tabButtons.setLayoutParams(margins);
+        tabButtons = (LinearLayout) homeView.findViewById(R.id.home_tabs);
+//        LinearLayout.MarginLayoutParams margins = (LinearLayout.MarginLayoutParams) tabButtons.getLayoutParams();
+//        margins.topMargin = utils.getActionBarHeightPx();
+//        tabButtons.setLayoutParams(margins);
 
         learnTabButton = (Button) homeView.findViewById(R.id.learn_button);
         teachTabButton = (Button) homeView.findViewById(R.id.teach_button);
@@ -210,5 +211,4 @@ public class HomeFragment extends Fragment implements FragmentOptionsReceiver {
     public void mapViewReady() {
         ((MainContainerActivity)getActivity()).onFragmentReplacedAndRendered();
     }
-
 }

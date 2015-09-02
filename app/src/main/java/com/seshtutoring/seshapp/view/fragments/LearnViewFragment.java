@@ -68,10 +68,10 @@ public class LearnViewFragment extends Fragment implements OnMapReadyCallback {
 
     private static GoogleMap mMap;
     private LocationManager locationManager;
+    private SeshButton requestButton;
     public static final String BLURRED_MAP_BITMAP_PATH_KEY = "blurred_map_bitmap";
     public static final String CHOSEN_LOCATION_LAT = "chosen_location_lat";
     public static final String CHOSEN_LOCATION_LONG = "chosen_location_long";
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -94,12 +94,7 @@ public class LearnViewFragment extends Fragment implements OnMapReadyCallback {
 
         setUpMapIfNeeded();
 
-        LayoutUtils utils = new LayoutUtils(getActivity());
-
         final ImageButton currentLocationButton = (ImageButton) view.findViewById(R.id.current_location_button);
-        LinearLayout.MarginLayoutParams margins = (LinearLayout.MarginLayoutParams) currentLocationButton.getLayoutParams();
-        margins.topMargin += utils.getActionBarHeightPx();
-        currentLocationButton.setLayoutParams(margins);
 
         currentLocationButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -111,8 +106,7 @@ public class LearnViewFragment extends Fragment implements OnMapReadyCallback {
             }
         });
 
-
-        SeshButton requestButton = (SeshButton) view.findViewById(R.id.request_button);
+        this.requestButton = (SeshButton) view.findViewById(R.id.request_button);
         requestButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -196,7 +190,9 @@ public class LearnViewFragment extends Fragment implements OnMapReadyCallback {
     }
 
     private void setUpMap() {
-        mMap.setMyLocationEnabled(true);
+        int topMapPadding = getResources().getDimensionPixelOffset(R.dimen.learn_view_map_padding_top);
+
+        mMap.setPadding(0, topMapPadding, 0, 0);
         moveCameraToLocation(locationManager.getCurrentLocation(), false);
     }
 

@@ -11,16 +11,16 @@
     <LinearLayout
         android:id="@+id/home_tabs"
         android:orientation="horizontal"
+        android:layout_marginTop="@dimen/action_bar_height"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/home_view_tab_buttons_height"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:alpha="0.95">
 
         <Button
             android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:padding="0dp"
+            android:layout_height="@dimen/home_view_tab_buttons_height"
             android:text="@string/learn_tab_button_title"
             android:textColor="@color/seshcharcoal"
             android:id="@+id/learn_button"
@@ -33,7 +33,7 @@
 
         <Button
             android:layout_width="wrap_content"
-            android:layout_height="40dp"
+            android:layout_height="@dimen/home_view_tab_buttons_height"
             android:padding="0dp"
             android:text="@string/teach_tab_button_title"
             android:textColor="@color/seshcharcoal"

@@ -10,6 +10,7 @@ import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.stripe.android.compat.AsyncTask;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
@@ -29,17 +30,23 @@ public class UserInfoFetcher {
 
     public void fetch(final UserInfoSavedListener listener) {
         SeshNetworking seshNetworking = new SeshNetworking(mContext);
-        seshNetworking.getFullUserInfo(new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject json) {
-                (new SaveUserInfoAsyncTask()).execute(mContext, json, listener);
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError volleyError) {
-                Log.e(TAG, "Failed to fetch user info from server; network error: " + volleyError);
-            }
-        });
+
+            seshNetworking.getFullUserInfo(new Response.Listener<JSONObject>() {
+                @Override
+                public void onResponse(JSONObject json) {
+                    try  {
+                        (new SaveUserInfoAsyncTask()).execute(mContext, json.getJSONObject("data"), listener);
+                    } catch (JSONException e) {
+                        Log.e(TAG, "Failed to fetch user info from server; json malformed: ");
+                    }
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError volleyError) {
+                    Log.e(TAG, "Failed to fetch user info from server; network error: " + volleyError);
+                }
+            });
+
     }
 
     /**

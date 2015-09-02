@@ -68,9 +68,9 @@ public class ApplicationLifecycleTracker  {
                         null, mContext, SeshNotificationManagerService.class);
                 mContext.startService(startNotificationQueueHandling);
             }
-        }
 
-        userInfoFetcher.fetch();
+            userInfoFetcher.fetch();
+        }
     }
 
     public void activityPaused() {

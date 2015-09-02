@@ -568,15 +568,15 @@ public class SeshNetworking {
         JSONObject params = new JSONObject();
         try  {
             params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
-            params.put(LATITUDE_PARAM, Double.toString(learnRequest.latitude));
-            params.put(LONGITUDE_PARAM, Double.toString(learnRequest.latitude));
-            params.put(NUM_PEOPLE_PARAM, Integer.toString(learnRequest.numPeople));
+            params.put(LATITUDE_PARAM, learnRequest.latitude);
+            params.put(LONGITUDE_PARAM, learnRequest.longitude);
+            params.put(NUM_PEOPLE_PARAM, learnRequest.numPeople);
             params.put(CLASS_ID_PARAM, learnRequest.classId);
             params.put(DESCRIPTION_PARAM, learnRequest.descr);
-            params.put(EST_TIME_PARAM, Integer.toString(learnRequest.estTime));
-            params.put(RATE_PARAM, Float.toString(Constants.getHourlyRate(mContext)));
+            params.put(EST_TIME_PARAM, learnRequest.estTime);
+            params.put(RATE_PARAM, Constants.getHourlyRate(mContext));
             params.put(FAVORITES_PARAM, new ArrayList<>());  // until Favorites implemented....
-            params.put(IS_INSTANT_PARAM, learnRequest.isInstant() ? "1" : "0");
+            params.put(IS_INSTANT_PARAM, learnRequest.isInstant());
             params.put(EXPIRATION_TIME_PARAM, formatter.print(new DateTime(expirationTime)));
 
             JSONArray availableBlocksJson = new JSONArray();

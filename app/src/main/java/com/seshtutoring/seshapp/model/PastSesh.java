@@ -53,7 +53,7 @@ public class PastSesh extends SugarRecord<PastSesh> {
             if (pastSeshObject.has("past_sesh_id")) {
                 pastSeshId = pastSeshObject.getInt("past_sesh_id");
 
-                List<PastSesh> pastSeshesFound = PastSesh.find(PastSesh.class, "past_request_id = ?", Integer.toString(pastSeshId));
+                List<PastSesh> pastSeshesFound = PastSesh.find(PastSesh.class, "past_sesh_id = ?", Integer.toString(pastSeshId));
 
                 if (pastSeshesFound.size() > 0) {
                     pastSesh = pastSeshesFound.get(0);

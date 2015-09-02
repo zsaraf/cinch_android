@@ -114,11 +114,9 @@ public class User extends SugarRecord<User> {
         Log.i(TAG, "User logged out locally.");
     }
 
-    public static User createOrUpdateUserWithObject(JSONObject json, Context context) {
+    public static User createOrUpdateUserWithObject(JSONObject dataJson, Context context) {
         User user = null;
         try {
-            JSONObject dataJson = json.getJSONObject("data");
-
             JSONObject userRow = dataJson.getJSONObject("user");
             JSONObject studentRow = dataJson.getJSONObject("student");
             JSONObject tutorRow = dataJson.getJSONObject("tutor");

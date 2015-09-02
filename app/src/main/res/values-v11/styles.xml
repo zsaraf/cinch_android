@@ -11,6 +11,7 @@
         <item name="android:background">@color/seshorange</item>
         <item name="android:icon">@drawable/ic_action_menu</item>
         <item name="background">@color/seshorange</item>
+        <item name="android:height">@dimen/action_bar_height</item>
     </style>
 
     <style name="SeshFullScreen" parent="@style/Theme.AppCompat.Light">
