@@ -120,11 +120,13 @@ public class LearnRequest extends SugarRecord<LearnRequest> {
             learnRequest.save();
 
             if(!learnRequest.isInstant) {
+                AvailableBlock.deleteAll(AvailableBlock.class, "learn_request = ?", Long.toString(learnRequest.getId()));
                 JSONArray availableBlockObjects = learnRequestJson.getJSONArray("available_blocks");
 
-                for (int i = 0; i < learnRequest.availableBlocks.size(); i++) {
+                for (int i = 0; i < availableBlockObjects.length(); i++) {
                     JSONObject availableBlockJson = availableBlockObjects.getJSONObject(i);
-                    AvailableBlock.createAvailableBlock(availableBlockJson);
+                    AvailableBlock availableBlock = AvailableBlock.createAvailableBlock(availableBlockJson);
+                    availableBlock.learnRequest = learnRequest;
                 }
             }
         } catch (JSONException e) {
@@ -148,6 +150,8 @@ public class LearnRequest extends SugarRecord<LearnRequest> {
 
     @Override
     public void delete() {
+        AvailableBlock.deleteAll(AvailableBlock.class, "learn_request = ?", Long.toString(getId()));
+
         super.delete();
         if (listener != null) {
             listener.tableUpdated();

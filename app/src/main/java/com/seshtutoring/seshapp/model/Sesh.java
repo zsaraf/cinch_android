@@ -184,10 +184,11 @@ public class Sesh extends SugarRecord<Sesh> {
 
             sesh.save();
 
+            AvailableBlock.deleteAll(AvailableBlock.class, "sesh = ?", Long.toString(sesh.getId()));
+            Set<AvailableBlock> availableBlocksVal = new HashSet<AvailableBlock>();
             if (seshJson.get(AVAILABLE_BLOCKS_KEY) != null) {
                 JSONArray availableBlocksJson = seshJson.getJSONArray(AVAILABLE_BLOCKS_KEY);
                 for (int i = 0; i < availableBlocksJson.length(); i++) {
-
                     JSONObject availableBlockJson = availableBlocksJson.getJSONObject(i);
                     AvailableBlock availableBlockObj = AvailableBlock.createAvailableBlock(availableBlockJson);
                     availableBlockObj.sesh = sesh;
@@ -228,6 +229,9 @@ public class Sesh extends SugarRecord<Sesh> {
 
     @Override
     public void delete() {
+        // Delete all available blocks associated with this Sesh
+        AvailableBlock.deleteAll(AvailableBlock.class, "sesh = ?", Long.toString(this.getId()));
+
         super.delete();
         if (listener != null) {
             listener.tableUpdated();
@@ -292,12 +296,6 @@ public class Sesh extends SugarRecord<Sesh> {
                     JSONObject openRequestObject = openRequests.getJSONObject(i);
                     LearnRequest.createOrUpdateLearnRequest(openRequestObject);
                 }
-
-//                        JSONArray unseenPastRequests = jsonObject.getJSONArray(("unseen_past_requests"));
-//                        for (int i = 0; i < unseenPastRequests.length(); i++) {
-//                            JSONObject unseenPastRequestObject = unseenPastRequests.getJSONObject(i);
-//                            // DO SOMETHING
-//                        }
             } else {
                 Log.e(TAG, "Failed to fetch full user info from server: " + jsonObject.getString("message"));
             }
@@ -334,4 +332,5 @@ public class Sesh extends SugarRecord<Sesh> {
         this.locationNotes = locationNotes;
         this.save();
     }
+
 }

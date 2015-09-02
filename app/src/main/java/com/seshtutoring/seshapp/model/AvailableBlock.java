@@ -69,11 +69,6 @@ public class AvailableBlock extends SugarRecord<AvailableBlock> {
                 availableBlock.startTime = formatter.parseDateTime(startTimeString).getMillis();
             }
 
-//            int learnRequestId = availableBlockJson.getInt("learnRequestId");
-//            List<LearnRequest> learnRequestList =
-//                    LearnRequest.find(LearnRequest.class, "learn_request_id = ?", Integer.toString(learnRequestId));
-//            availableBlock.learnRequest = learnRequestList.get(0);
-
             availableBlock.save();
         } catch (JSONException e) {
             Log.e(TAG, "Failed to create available block; " + e.getMessage());
