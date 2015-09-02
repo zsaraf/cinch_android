@@ -63,7 +63,7 @@
             android:gravity="center"/>
         <TextView
             android:id="@+id/student_name"
-            android:textSize="20sp"
+            android:textSize="18sp"
             android:padding="5dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -88,7 +88,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/student_name"
             android:padding="5dp"
-            android:paddingTop="7dp"
+            android:paddingTop="10dp"
             custom:informationLabelText="default"
             custom:informationLabelIcon="@drawable/book" />
         <com.seshtutoring.seshapp.view.components.SeshInformationLabel

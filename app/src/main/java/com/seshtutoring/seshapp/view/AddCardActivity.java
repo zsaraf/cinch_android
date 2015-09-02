@@ -16,6 +16,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.components.SeshButton;
+import com.seshtutoring.seshapp.view.components.SeshDialog;
 import com.seshtutoring.seshapp.view.components.SeshEditText;
 
 import com.seshtutoring.seshapp.R;
@@ -31,6 +32,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import me.brendanweinstein.util.ToastUtils;
+import me.brendanweinstein.util.ViewUtils;
 import me.brendanweinstein.views.FieldHolder;
 
 public class AddCardActivity extends SeshActivity {
@@ -104,7 +106,7 @@ public class AddCardActivity extends SeshActivity {
     private View.OnClickListener mSubmitBtnListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            //ViewUtils.hideSoftKeyboard(AddCardActivity.this);
+            ViewUtils.hideSoftKeyboard(AddCardActivity.this);
             if (mFieldHolder.isFieldsValid()) {
                 //valid entry, get stripe token
                 String cardNumber = mFieldHolder.getCardNumHolder().getCardField().getText().toString();
@@ -114,7 +116,7 @@ public class AddCardActivity extends SeshActivity {
                 final Card card = new Card(cardNumber, month, year, cvv);
 
                 if ( !card.validateCard() ) {
-                    ToastUtils.showToast(AddCardActivity.this, "Invalid card, please re-enter information");
+                    showErrorDialog("Whoops!", "Invalid card, please re-enter information");
                     return;
                 }
 
@@ -129,16 +131,13 @@ public class AddCardActivity extends SeshActivity {
 
                             public void onError(Exception error) {
                                 // Show localized error message
-                                Toast.makeText(AddCardActivity.this,
-                                        error.getLocalizedMessage(),
-                                        Toast.LENGTH_LONG
-                                ).show();
+                                showErrorDialog("Whoops!", error.getLocalizedMessage());
                             }
                         }
                 );
 
             } else {
-                ToastUtils.showToast(AddCardActivity.this, getResources().getString(R.string.pk_error_invalid_card_no));
+                showErrorDialog("Whoops!", getResources().getString(R.string.pk_error_invalid_card_no));
             }
         }
     };
@@ -167,10 +166,7 @@ public class AddCardActivity extends SeshActivity {
 
                     public void onError(Exception error) {
                         // Show localized error message
-                        Toast.makeText(AddCardActivity.this,
-                                error.getLocalizedMessage(),
-                                Toast.LENGTH_LONG
-                        ).show();
+                        showErrorDialog("Whoops!", error.getLocalizedMessage());
                     }
                 }
         );
@@ -187,20 +183,23 @@ public class AddCardActivity extends SeshActivity {
 
             }else if (responseJson.get("status").equals("FAILURE")) {
                 String message = responseJson.get("message").toString();
-                Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+                showErrorDialog("Whoops!", message);
             }
         } catch (JSONException e) {
             Log.e(TAG, e.toString());
-            Toast.makeText(this, "Error adding card", Toast.LENGTH_LONG).show();
+            showErrorDialog("Whoops!", "Error adding card");
         }
 
     }
 
     private void onAddCardFailure(String message) {
-
         Log.e(TAG, message);
-        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+        showErrorDialog("Whoops!", message);
+    }
 
+    private void showErrorDialog(String title, String message) {
+        SeshDialog.showDialog(getFragmentManager(), title, message,
+                "OKAY", null, "view_request_network_error");
     }
 
 }

@@ -1,12 +1,13 @@
 package com.seshtutoring.seshapp.view.fragments.MainContainerFragments;
 
-import android.app.ListFragment;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.TypedArray;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.app.Fragment;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,41 +16,35 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.seshtutoring.seshapp.R;
-import com.seshtutoring.seshapp.model.AvailableJob;
 import com.seshtutoring.seshapp.model.Course;
 import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
-import com.seshtutoring.seshapp.view.AboutActivity;
-import com.seshtutoring.seshapp.view.ChangePasswordActivity;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
-import com.seshtutoring.seshapp.view.PrivacyActivity;
-import com.seshtutoring.seshapp.view.SupportActivity;
-import com.seshtutoring.seshapp.view.TermsActivity;
-import com.seshtutoring.seshapp.view.components.SeshDialog;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by lillioetting on 7/14/15.
  */
-public class ViewClassesFragment extends ListFragment {
-    private static final String TAG =ViewClassesFragment.class.getName();
+public class ViewClassesView extends RelativeLayout {
+    private static final String TAG = ViewClassesView.class.getName();
 
     private MainContainerActivity mainContainerActivity;
     private ListView menu;
     private ArrayList<CourseHolder> tutorCourses;
     private ViewClassesAdapter classesAdapter;
     private SeshNetworking seshNetworking;
+    private Context mContext;
 
     private class CourseHolder {
 
@@ -63,17 +58,27 @@ public class ViewClassesFragment extends ListFragment {
 
     }
 
-    public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
-        menu = (ListView) layoutInflater.inflate(R.layout.view_classes_fragment, null);
-        LayoutUtils layUtils = new LayoutUtils(getActivity());
-        mainContainerActivity = (MainContainerActivity) getActivity();
+    public ViewClassesView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        mContext = context;
 
-        this.seshNetworking = new SeshNetworking(getActivity());
+        LayoutInflater mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View v = mInflater.inflate(R.layout.view_classes_view, this, true);
+        menu = (ListView)v.findViewById(R.id.list);
+
+        init(attrs, 0);
+    }
+
+    private void init(AttributeSet attrs, int defStyle) {
+        // Load attributes
+        LayoutUtils layUtils = new LayoutUtils(mContext);
+
+        this.seshNetworking = new SeshNetworking(mContext);
 
         this.tutorCourses = new ArrayList<CourseHolder>();
         //adds edit classes button
         tutorCourses.add(new CourseHolder(null, 2));
-        this.classesAdapter = new ViewClassesAdapter(getActivity(), tutorCourses);
+        this.classesAdapter = new ViewClassesAdapter(mContext, tutorCourses);
         menu.setAdapter(classesAdapter);
 
         //get courses from server
@@ -103,15 +108,6 @@ public class ViewClassesFragment extends ListFragment {
             }
         });
 
-        return menu;
-    }
-
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        //String email = user.getEmail();
-
-        //seshNetworking = new SeshNetworking(getActivity());
-
         menu.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
@@ -123,13 +119,12 @@ public class ViewClassesFragment extends ListFragment {
                     Intent viewIntent =
                             new Intent("android.intent.action.VIEW",
                                     Uri.parse("https://www.seshtutoring.com"));
-                    startActivity(viewIntent);
+                    mContext.startActivity(viewIntent);
 
                 }
 
             }
         });
-
     }
 
     private class ViewHolder {
@@ -161,7 +156,7 @@ public class ViewClassesFragment extends ListFragment {
                 viewHolder = new ViewHolder();
 
                 int textID = R.id.course_title;
-                Typeface typeFace = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Gotham-Light.otf");
+                Typeface typeFace = Typeface.createFromAsset(mContext.getAssets(), "fonts/Gotham-Light.otf");
 
                 if (item.type == 2) {
                     //do something special for button?

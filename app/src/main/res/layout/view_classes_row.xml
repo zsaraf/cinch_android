@@ -6,11 +6,11 @@
     android:layout_height="match_parent">
     <TextView
         android:id="@+id/course_title"
-        android:textSize="20sp"
+        android:textSize="18sp"
         android:gravity="center"
         android:padding="5dp"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:textColor="@color/seshorange"/>
+        android:textColor="@color/seshlightgray"/>
 
 </RelativeLayout>

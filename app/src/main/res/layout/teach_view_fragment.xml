@@ -9,21 +9,16 @@
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/tab_button_unpressed">
+        android:background="@color/white">
 
         <ImageView
             android:id="@+id/tutor_classes_icon"
-            android:layout_width="22dp"
-            android:layout_height="22dp"
+            android:layout_width="19dp"
+            android:layout_height="19dp"
             android:layout_weight="0"
             android:layout_centerVertical="true"
-            android:layout_marginLeft="12dp" />
-        <View
-            android:layout_width="1dp"
-            android:layout_height="25dp"
-            android:background="@color/seshorange"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="46dp" />
+            android:layout_marginLeft="12dp"
+            android:src="@drawable/book_gray"/>
 
         <TextView
             android:background="#00000000"
@@ -36,8 +31,8 @@
             android:scrollHorizontally="true"
             android:ellipsize="end"
             android:layout_gravity="center_vertical"
-            android:textSize="20sp"
-            android:textColor="@color/seshorange"
+            android:textSize="18sp"
+            android:textColor="@color/seshlightgray"
             android:inputType="textFilter"
             android:layout_marginLeft="8dp"
             android:paddingLeft="52dp"
@@ -54,5 +49,27 @@
         android:layout_below="@id/view_classes_button"
         android:background="@color/white">
     </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1sp"
+        android:background="@color/seshlightgray"
+        android:layout_below="@+id/view_classes_button"/>
+
+    <View
+        android:id="@+id/tint_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/black_overlay"
+        android:layout_below="@+id/view_classes_button"
+        android:alpha="0"/>
+
+    <com.seshtutoring.seshapp.view.fragments.MainContainerFragments.ViewClassesView
+        android:id="@+id/view_classes_view"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_below="@id/view_classes_button">
+
+    </com.seshtutoring.seshapp.view.fragments.MainContainerFragments.ViewClassesView>
 
 </RelativeLayout>

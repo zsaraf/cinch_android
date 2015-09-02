@@ -26,6 +26,7 @@ import com.seshtutoring.seshapp.view.fragments.LearnViewFragment;
 import com.seshtutoring.seshapp.view.fragments.TeachViewFragment;
 import com.seshtutoring.seshapp.view.MainContainerActivity.FragmentOptionsReceiver;
 
+import java.lang.reflect.Field;
 import java.util.Map;
 
 /**
@@ -209,4 +210,5 @@ public class HomeFragment extends Fragment implements FragmentOptionsReceiver {
     public void mapViewReady() {
         ((MainContainerActivity)getActivity()).onFragmentReplacedAndRendered();
     }
+
 }

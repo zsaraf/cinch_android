@@ -8,6 +8,7 @@ import android.graphics.Typeface;
 import android.media.Image;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.Html;
 import android.util.Log;
@@ -17,6 +18,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -63,7 +65,7 @@ public class ViewAvailableJobsFragment extends ListFragment {
     private SeshNetworking seshNetworking;
     private Queue<ViewHolder> bidQueue;
     private Handler handler;
-    private SwipeRefreshLayout mSwipeRefreshLayout;
+    private ListFragmentSwipeRefreshLayout mSwipeRefreshLayout;
     private TextView brokenPencilTextView;
 
     private class JobHolder {
@@ -92,17 +94,10 @@ public class ViewAvailableJobsFragment extends ListFragment {
     };
 
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
-//        refreshLayout = (SwipeRefreshLayout) layoutInflater.inflate(R.layout.view_available_jobs_fragment, null);
-//        refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-//            @Override
-//            public void onRefresh() {
-//                getAvailableJobs();
-//            }
-//        });
-        LinearLayout v = (LinearLayout) layoutInflater.inflate(R.layout.view_available_jobs_fragment, null);
+        RelativeLayout v = (RelativeLayout) layoutInflater.inflate(R.layout.view_available_jobs_fragment, null);
 
         // Now create a SwipeRefreshLayout to wrap the fragment's content view
-        mSwipeRefreshLayout = new SwipeRefreshLayout(container.getContext());
+        mSwipeRefreshLayout = new ListFragmentSwipeRefreshLayout(container.getContext());
 
         // Add the list fragment's content view to the SwipeRefreshLayout, making sure that it fills
         // the SwipeRefreshLayout
@@ -144,34 +139,37 @@ public class ViewAvailableJobsFragment extends ListFragment {
         this.availableJobsAdapter = new ViewAvailableJobsAdapter(getActivity(), availableJobs);
         getListView().setAdapter(availableJobsAdapter);
 
+
+        //get available jobs from server
+        getAvailableJobs();
+
         //get courses from server
-        seshNetworking.getTutorCourses(new Response.Listener<JSONObject>() {
-            public void onResponse(JSONObject jsonResponse) {
-                try {
-                    if (jsonResponse.get("status").equals("SUCCESS")) {
-                        tutorCourses.clear();
-                        JSONArray tutorCoursesArrayJson = jsonResponse.getJSONArray("classes");
-                        for (int i = 0; i < tutorCoursesArrayJson.length(); i++) {
-                            JSONObject obj = tutorCoursesArrayJson.getJSONObject(i);
-                            Course c = Course.fromJson(obj);
-                            tutorCourses.add(Course.fromJson((tutorCoursesArrayJson.getJSONObject(i))));
-                        }
-
-                        //get available jobs from server
-                        getAvailableJobs();
-
-                    } else {
-                        Log.e(TAG, jsonResponse.getString("message"));
-                    }
-                } catch (JSONException e) {
-                    Log.e(TAG, e.getMessage());
-                }
-            }
-        }, new Response.ErrorListener() {
-            public void onErrorResponse(VolleyError volleyError) {
-                Log.e(TAG, volleyError.getMessage());
-            }
-        });
+//        seshNetworking.getTutorCourses(new Response.Listener<JSONObject>() {
+//            public void onResponse(JSONObject jsonResponse) {
+//                try {
+//                    if (jsonResponse.get("status").equals("SUCCESS")) {
+//                        tutorCourses.clear();
+//                        JSONArray tutorCoursesArrayJson = jsonResponse.getJSONArray("classes");
+//                        for (int i = 0; i < tutorCoursesArrayJson.length(); i++) {
+//                            JSONObject obj = tutorCoursesArrayJson.getJSONObject(i);
+//                            Course c = Course.fromJson(obj);
+//                            tutorCourses.add(Course.fromJson((tutorCoursesArrayJson.getJSONObject(i))));
+//                        }
+//
+//
+//
+//                    } else {
+//                        Log.e(TAG, jsonResponse.getString("message"));
+//                    }
+//                } catch (JSONException e) {
+//                    Log.e(TAG, e.getMessage());
+//                }
+//            }
+//        }, new Response.ErrorListener() {
+//            public void onErrorResponse(VolleyError volleyError) {
+//                Log.e(TAG, volleyError.getMessage());
+//            }
+//        });
 
     }
 
@@ -426,6 +424,48 @@ public class ViewAvailableJobsFragment extends ListFragment {
 
     public void stopRepeatingTask() {
         handler.removeCallbacks(mStatusChecker);
+    }
+
+    private class ListFragmentSwipeRefreshLayout extends SwipeRefreshLayout {
+
+        public ListFragmentSwipeRefreshLayout(Context context) {
+            super(context);
+        }
+
+        /**
+         * As mentioned above, we need to override this method to properly signal when a
+         * 'swipe-to-refresh' is possible.
+         *
+         * @return true if the {@link android.widget.ListView} is visible and can scroll up.
+         */
+        @Override
+        public boolean canChildScrollUp() {
+            final ListView listView = getListView();
+            if (listView.getVisibility() == View.VISIBLE) {
+                return canListViewScrollUp(listView);
+            } else {
+                return false;
+            }
+        }
+
+    }
+
+    /**
+     * Utility method to check whether a {@link ListView} can scroll up from it's current position.
+     * Handles platform version differences, providing backwards compatible functionality where
+     * needed.
+     */
+    private static boolean canListViewScrollUp(ListView listView) {
+        if (android.os.Build.VERSION.SDK_INT >= 14) {
+            // For ICS and above we can call canScrollVertically() to determine this
+            return ViewCompat.canScrollVertically(listView, -1);
+        } else {
+            // Pre-ICS we need to manually check the first visible item and the child view's top
+            // value
+            return listView.getChildCount() > 0 &&
+                    (listView.getFirstVisiblePosition() > 0
+                            || listView.getChildAt(0).getTop() < listView.getPaddingTop());
+        }
     }
 
 }

@@ -127,6 +127,7 @@ public class LearnRequest extends SugarRecord<LearnRequest> {
                     JSONObject availableBlockJson = availableBlockObjects.getJSONObject(i);
                     AvailableBlock availableBlock = AvailableBlock.createAvailableBlock(availableBlockJson);
                     availableBlock.learnRequest = learnRequest;
+                    availableBlock.save();
                 }
             }
         } catch (JSONException e) {

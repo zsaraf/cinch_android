@@ -49,7 +49,6 @@ public class SeshInformationLabel extends RelativeLayout {
             a.recycle();
         }
 
-
         textView = (TextView) findViewById(R.id.text_view);
         iconView = (ImageView) findViewById(R.id.icon);
 
