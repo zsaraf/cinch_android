@@ -94,6 +94,9 @@ public class SeshCreatedNotificationHandler extends NotificationHandler {
                             showDialog(createdSesh, profilePicture);
                         }
                     });
+                } else {
+                    Log.e(TAG, "Failed to get sesh info for sesh id: " + jsonObject.getString("message"));
+                    Notification.currentNotificationHandled(mContext, false);
                 }
             } catch (JSONException e) {
                 Log.e(TAG, "Failed to get sesh info for sesh id; malformed response: " + e);

@@ -29,6 +29,7 @@ import com.squareup.picasso.Picasso;
 import com.stripe.android.Stripe;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.json.JSONObject;
@@ -238,9 +239,9 @@ public class SeshNetworking {
         params.put(DEVICE_TYPE_PARAM, "android");
         params.put(IS_DEV_PARAM, SeshApplication.IS_DEV ? "1" : "0");
 
-        TimeZone timezone = TimeZone.getDefault();
+        DateTimeZone timezone = DateTimeZone.getDefault();
 
-        params.put(TIMEZONE_NAME_PARAM, timezone.getDisplayName());
+        params.put(TIMEZONE_NAME_PARAM, timezone.getID());
 
         postWithRelativeUrl("update_device_token.php", params, successListener, errorListener);
     }
