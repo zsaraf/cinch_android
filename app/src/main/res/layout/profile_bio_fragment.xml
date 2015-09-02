@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white">
+
+    <TextView
+        android:id="@+id/header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="BIO"
+        android:padding="15dp"
+        android:textColor="@color/seshorange"
+        android:gravity="center"/>
+
+    <View
+        android:id="@+id/divider"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="@color/light_gray"
+        android:layout_below="@id/header"/>
+
+    <com.seshtutoring.seshapp.view.components.SeshIconTextView
+        android:id="@+id/school_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="100dp"
+        android:paddingTop="200dp"
+        android:layout_below="@id/divider"></com.seshtutoring.seshapp.view.components.SeshIconTextView>
+
+    <com.seshtutoring.seshapp.view.components.SeshIconTextView
+        android:id="@+id/email"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="100dp"
+        android:layout_below="@id/school_name"></com.seshtutoring.seshapp.view.components.SeshIconTextView>
+
+    <com.seshtutoring.seshapp.view.components.SeshIconTextView
+        android:id="@+id/major"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="100dp"
+        android:layout_below="@id/email"></com.seshtutoring.seshapp.view.components.SeshIconTextView>
+
+    <TextView
+        android:id="@+id/bio"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:padding="100dp"
+        android:textSize="20sp"
+        android:layout_below="@id/major"/>
+
+    <Button
+        android:id="@+id/edit_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:gravity="center"
+        android:padding="5dp"
+        android:textSize="10sp"
+        android:background="@drawable/sesh_white_button"
+        android:layout_centerHorizontal="true"
+        android:text="edit"/>
+
+</RelativeLayout>

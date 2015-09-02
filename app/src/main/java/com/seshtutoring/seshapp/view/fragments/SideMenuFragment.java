@@ -346,6 +346,7 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenList
         sideMenuOpenAnimation = null;
     }
 
+
     public class UpdateRequestAndSeshListTask extends AsyncTask<Void, Void, Void> {
         private List<Sesh> studentSeshes;
         private List<Sesh> tutorSeshes;
@@ -362,6 +363,7 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenList
 
             learnRequests = LearnRequest.listAll(LearnRequest.class);
             return null;
+
         }
 
         protected void onPostExecute(Void result) {

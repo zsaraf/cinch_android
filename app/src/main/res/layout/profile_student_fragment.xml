@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white">
+
+    <TextView
+        android:id="@+id/header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="STUDENT"
+        android:padding="15dp"
+        android:textColor="@color/seshorange"
+        android:gravity="center"/>
+
+    <View
+        android:id="@+id/divider"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="@color/light_gray"
+        android:layout_below="@id/header"/>
+
+    <LinearLayout
+        android:id="@+id/numbers"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/divider"
+        android:paddingTop="250dp"
+        android:weightSum="2">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="0.38"
+            android:textColor="@color/seshorange"
+            android:id="@+id/hours_learned_number"
+            android:gravity="center"
+            android:layout_weight="1" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="59.00"
+            android:textColor="@color/seshgreen"
+            android:gravity="center"
+            android:id="@+id/student_credits_number"
+            android:layout_weight="1"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/labels"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/numbers"
+        android:paddingTop="10dp"
+        android:weightSum="2">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="hours learned"
+            android:id="@+id/hours_learned"
+            android:textColor="@color/seshlightgray"
+            android:gravity="center"
+            android:layout_weight="1" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="credits"
+            android:textColor="@color/seshlightgray"
+            android:gravity="center"
+            android:id="@+id/student_credits"
+            android:layout_weight="1"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/list_tabs"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/labels"
+        android:paddingTop="20dp"
+        android:weightSum="2">
+
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="TUTOR HISTORY"
+            android:id="@+id/tutor_history_tab"
+            android:textColor="@color/seshlightgray"
+            android:gravity="center"
+            android:layout_weight="1"
+            android:background="@drawable/sesh_white_button"/>
+
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="FAVORITES"
+            android:textColor="@color/seshlightgray"
+            android:gravity="center"
+            android:id="@+id/favorites_tab"
+            android:layout_weight="1"
+            android:background="@drawable/sesh_white_button"/>
+
+    </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/profile_student_view_frame"
+        android:layout_below="@id/list_tabs"></RelativeLayout>
+
+</RelativeLayout>
