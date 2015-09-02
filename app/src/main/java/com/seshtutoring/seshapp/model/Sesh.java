@@ -85,39 +85,6 @@ public class Sesh extends SugarRecord<Sesh> {
         void tableUpdated();
     }
 
-    public Sesh(String class_name, boolean has_been_seen, boolean has_started, boolean is_student,
-                double latitude, String locationNotes, double longitude, int past_request_id,
-                String sesh_description, int sesh_est_time, int sesh_id, int sesh_num_students,
-                long sesh_set_time, long start_time, double tutor_latitude, double tutor_longitude,
-                String user_description, String user_image_url, String user_major, String user_name,
-                String user_school, boolean is_instant, Set<AvailableBlock> availableBlocks) {
-
-        this.className = class_name;
-        this.hasBeenSeen = has_been_seen;
-        this.hasStarted = has_started;
-        this.isStudent = is_student;
-        this.latitude = latitude;
-        this.locationNotes = locationNotes;
-        this.longitude = longitude;
-        this.pastRequestId = past_request_id;
-        this.seshDescription = sesh_description;
-        this.seshEstTime = sesh_est_time;
-        this.seshId = sesh_id;
-        this.seshNumStudents = sesh_num_students;
-        this.seshSetTime = sesh_set_time;
-        this.startTime = start_time;
-        this.tutorLatitude = tutor_latitude;
-        this.tutorLongitude = tutor_longitude;
-        this.userDescription = user_description;
-        this.userImageUrl = user_image_url;
-        this.userMajor = user_major;
-        this.userName = user_name;
-        this.userSchool = user_school;
-        this.isInstant = is_instant;
-        this.availableBlocks = availableBlocks;
-    }
-
-
     public static Sesh createOrUpdateSeshWithObject(JSONObject seshJson, Context context) {
         Sesh sesh = null;
         try {

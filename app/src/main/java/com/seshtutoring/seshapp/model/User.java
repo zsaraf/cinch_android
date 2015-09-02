@@ -15,10 +15,13 @@ import com.seshtutoring.seshapp.util.networking.SeshAuthManager;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.stripe.android.compat.AsyncTask;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by nadavhollander on 7/6/15.
@@ -45,30 +48,37 @@ public class User extends SugarRecord<User> {
     public Tutor tutor;
     public School school;
 
+//    @Ignore
+//    public Set<Favorite> favorites;
+
+
+
     // empty constructor necessary for SugarORM to work
     public User() {}
 
-    public User(int userId, String email, String sessionId, String fullName,
-                String profilePictureUrl, String bio, String stripeCustomerId, String major,
-                boolean notificationsEnabled, boolean completedAppTour, boolean isVerified,
-                String fullLegalName, String shareCode, Student student, Tutor tutor, School school) {
-        this.userId = userId;
-        this.email = email;
-        this.sessionId = sessionId;
-        this.fullName = fullName;
-        this.profilePictureUrl = profilePictureUrl;
-        this.bio = bio;
-        this.stripeCustomerId = stripeCustomerId;
-        this.major = major;
-        this.notificationsEnabled = notificationsEnabled;
-        this.completedAppTour = completedAppTour;
-        this.isVerified = isVerified;
-        this.fullLegalName = fullLegalName;
-        this.shareCode = shareCode;
-        this.student = student;
-        this.tutor = tutor;
-        this.school = school;
-    }
+//    public User(int userId, String email, String sessionId, String fullName,
+//                String profilePictureUrl, String bio, String stripeCustomerId, String major,
+//                boolean notificationsEnabled, boolean completedAppTour, boolean isVerified,
+//                String fullLegalName, String shareCode, Student student, Tutor tutor, School school,
+//                Set<>) {
+//        this.userId = userId;
+//        this.email = email;
+//        this.sessionId = sessionId;
+//        this.fullName = fullName;
+//        this.profilePictureUrl = profilePictureUrl;
+//        this.bio = bio;
+//        this.stripeCustomerId = stripeCustomerId;
+//        this.major = major;
+//        this.notificationsEnabled = notificationsEnabled;
+//        this.completedAppTour = completedAppTour;
+//        this.isVerified = isVerified;
+//        this.fullLegalName = fullLegalName;
+//        this.shareCode = shareCode;
+//        this.student = student;
+//        this.tutor = tutor;
+//        this.school = school;
+//    }
+
 
     public static User currentUser(Context context) {
         return User.findAll(User.class).next();
@@ -104,13 +114,15 @@ public class User extends SugarRecord<User> {
         Log.i(TAG, "User logged out locally.");
     }
 
-    public static User createOrUpdateUserWithObject(JSONObject userJson, Context context) {
+    public static User createOrUpdateUserWithObject(JSONObject json, Context context) {
         User user = null;
         try {
-            JSONObject userRow = userJson.getJSONObject("user");
-            JSONObject studentRow = userJson.getJSONObject("student");
-            JSONObject tutorRow = userJson.getJSONObject("tutor");
-            JSONObject schoolRow = userJson.getJSONObject("school");
+            JSONObject dataJson = json.getJSONObject("data");
+
+            JSONObject userRow = dataJson.getJSONObject("user");
+            JSONObject studentRow = dataJson.getJSONObject("student");
+            JSONObject tutorRow = dataJson.getJSONObject("tutor");
+            JSONObject schoolRow = dataJson.getJSONObject("school");
 
             int userId = userRow.getInt("id");
 
@@ -127,7 +139,7 @@ public class User extends SugarRecord<User> {
 
             user.userId = userId;
             user.email = userRow.getString("email");
-            user.sessionId = userJson.getString("session_id");
+            user.sessionId = dataJson.getString("session_id");
             user.fullName = userRow.getString("full_name");
             user.profilePictureUrl = userRow.getString("profile_picture");
             user.bio = userRow.getString("bio");
@@ -146,6 +158,36 @@ public class User extends SugarRecord<User> {
 
             SeshAuthManager.sharedManager(context).foundSessionId(user.sessionId);
 
+            if (dataJson.has("past_seshes")) {
+                JSONArray pastSeshes = dataJson.getJSONArray("past_seshes");
+                for (int i = 0; i < pastSeshes.length(); i++) {
+                    JSONObject pastSeshJson = pastSeshes.getJSONObject(i);
+                    PastSesh.createOrUpdatePastSesh(pastSeshJson);
+                }
+            }
+
+            if (dataJson.has("open_seshes")) {
+                JSONArray openSeshes = dataJson.getJSONArray("open_seshes");
+                for (int i = 0; i < openSeshes.length(); i++) {
+                    JSONObject openSeshJson = openSeshes.getJSONObject(i);
+                    Sesh.createOrUpdateSeshWithObject(openSeshJson, context);
+                }
+            }
+
+            if (dataJson.has("open_requests")) {
+                JSONArray openRequests = dataJson.getJSONArray("open_requests");
+                for (int i = 0; i < openRequests.length(); i++) {
+                    JSONObject openRequestJson = openRequests.getJSONObject(i);
+                    LearnRequest.createOrUpdateLearnRequest(openRequestJson);
+                }
+            }
+
+//            Add hinting mechanism, eg:
+//            if (!currentUser.hint_displays) {
+//                currentUser.hint_displays = [HintDisplays createNewHintDisplays];
+//            }
+
+
         } catch (JSONException e) {
             Log.e(TAG, "Failed to create or update user in db; JSON user object from server is malformed: " + e);
             return null;
@@ -157,74 +199,20 @@ public class User extends SugarRecord<User> {
         return student.credits + tutor.cashAvailable;
     }
 
-    public int getUserId() {
-        return userId;
+    public List<PastSesh> getPastSeshes() {
+       List<PastSesh> studentPastSeshes =
+               PastSesh.find(PastSesh.class, "student_user_id = ?", Integer.toString(userId));
+        List<PastSesh> tutorPastSeshes =
+                PastSesh.find(PastSesh.class, "tutor_user_id = ?", Integer.toString(userId));
+        studentPastSeshes.addAll(tutorPastSeshes);
+        return studentPastSeshes;
     }
 
-    public String getEmail() {
-        return email;
+    public List<Sesh> getOpenSeshes() {
+        return Sesh.listAll(Sesh.class);
     }
 
-    public String getSessionId() {
-        return sessionId;
-    }
-
-    public String getFullName() {
-        return fullName;
-    }
-
-    public String getProfilePictureUrl() {
-        return profilePictureUrl;
-    }
-
-    public String getBio() {
-        return bio;
-    }
-
-    public String getStripeCustomerId() {
-        return stripeCustomerId;
-    }
-
-    public String getMajor() {
-        return major;
-    }
-
-    public boolean isNotificationsEnabled() {
-        return notificationsEnabled;
-    }
-
-    public boolean completedAppTour() {
-        return completedAppTour;
-    }
-
-    public boolean isVerified() {
-        return isVerified;
-    }
-
-    public String getFullLegalName() {
-        return fullLegalName;
-    }
-
-    public String getShareCode() {
-        return shareCode;
-    }
-
-    public static class CreateOrUpdateUserAsyncTask extends AsyncTask<Object, Void, User> {
-        private Runnable runnable;
-
-        @Override
-        protected User doInBackground(Object... params) {
-            Context context = (Context) params[0];
-            JSONObject jsonObject = (JSONObject) params[1];
-            this.runnable = (Runnable) params[2];
-            return User.createOrUpdateUserWithObject(jsonObject, context);
-        }
-
-        @Override
-        protected void onPostExecute(User user) {
-            super.onPostExecute(user);
-            Handler handler = new Handler(Looper.getMainLooper());
-            handler.post(runnable);
-        }
+    public List<LearnRequest> getOpenRequests() {
+        return LearnRequest.listAll(LearnRequest.class);
     }
 }

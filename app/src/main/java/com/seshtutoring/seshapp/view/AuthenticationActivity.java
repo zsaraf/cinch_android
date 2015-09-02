@@ -41,6 +41,8 @@ import com.seshtutoring.seshapp.SeshApplication;
 import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.services.GCMRegistrationIntentService;
 import com.seshtutoring.seshapp.services.SeshInstanceIDListenerService;
+import com.seshtutoring.seshapp.services.UserInfoFetcher.SaveUserInfoAsyncTask;
+import com.seshtutoring.seshapp.services.UserInfoFetcher.UserInfoSavedListener;
 import com.seshtutoring.seshapp.util.LaunchPrerequisiteAsyncTask;
 import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.util.SeshMixpanelAPI;
@@ -512,9 +514,9 @@ public class AuthenticationActivity extends SeshActivity implements SeshDialog.O
             if (responseJson.get("status").equals("SUCCESS")) {
                 seshMixpanelAPI.track("User Logged In");
 
-                (new User.CreateOrUpdateUserAsyncTask()).execute(this, responseJson, new Runnable() {
+                (new SaveUserInfoAsyncTask()).execute(this, responseJson, new UserInfoSavedListener() {
                     @Override
-                    public void run() {
+                    public void onUserInfoSaved() {
                         setNetworkOperationInProgress(false);
 
                         // Refresh device on server via GCM service

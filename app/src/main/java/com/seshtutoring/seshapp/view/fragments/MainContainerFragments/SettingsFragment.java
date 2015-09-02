@@ -107,14 +107,13 @@ public class SettingsFragment extends ListFragment implements FragmentOptionsRec
         //RowObject selectedItem = mainContainerActivity.getCurrentState();
        // RowObject selectedItem = mainContainerActivity.getCurrentState();
 //        SeshButton logOut = (SeshButton) view.findViewById(R.id.log_out_button);
-        String email = user.getEmail();
 
         //seshNetworking = new SeshNetworking(getActivity());
 
         SettingsMenuAdapter adapter = new SettingsMenuAdapter(getActivity());
         for (RowObject obj : RowObject.values()) {
             if (obj.title == "Email") {
-                obj.rightText = email;
+                obj.rightText = user.email;
             }
             adapter.add(obj);
         }

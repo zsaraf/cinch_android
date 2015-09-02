@@ -173,8 +173,6 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
     public void onResume() {
         super.onResume();
 
-        User.fetchUserInfoFromServer(this);
-
         // Refresh device token on server via GCM service
         Intent gcmIntent = new Intent(this, GCMRegistrationIntentService.class);
         gcmIntent.putExtra(SeshInstanceIDListenerService.IS_TOKEN_STALE_KEY, false);
@@ -211,7 +209,7 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
                     setCurrentState(HOME);
                 }
             } else if (intent.getAction() == DISPLAY_SIDE_MENU_UPDATE) {
-                Handler handler = new Handler(Looper.getMainLooper());
+                Handler handler = new Handler();
                 Runnable openSideMenu = new Runnable() {
                     @Override
                     public void run() {
@@ -221,7 +219,7 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
 
                 if (!slidingMenu.isMenuShowing()) {
                     // hacky, but delay menu open animation to account for activity transition
-                    handler.postDelayed(openSideMenu, 1000);
+                    handler.postDelayed(openSideMenu, 2000);
                 }
             }
         }

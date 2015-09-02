@@ -149,6 +149,12 @@ public abstract class SeshActivity extends AppCompatActivity implements SeshDial
         super.startActivity(intent);
     }
 
+    @Override
+    public void startActivityForResult(Intent intent, int requestCode) {
+        ApplicationLifecycleTracker.sharedInstance(this).setActivityTransitionInProgress(true);
+        super.startActivityForResult(intent, requestCode);
+    }
+
     public boolean isInSeshActivity() {
         return DEFAULT_IS_IN_SESH_ACTIVITY;
     }

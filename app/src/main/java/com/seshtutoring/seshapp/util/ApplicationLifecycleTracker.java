@@ -15,7 +15,7 @@ import com.seshtutoring.seshapp.SeshStateManager;
 import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.services.GCMRegistrationIntentService;
 import com.seshtutoring.seshapp.services.PeriodicFetchBroadcastReceiver;
-import com.seshtutoring.seshapp.services.SeshInfoFetcher;
+import com.seshtutoring.seshapp.services.UserInfoFetcher;
 import com.seshtutoring.seshapp.services.notifications.SeshNotificationManagerService;
 import com.seshtutoring.seshapp.util.networking.SeshAuthManager;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
@@ -33,7 +33,7 @@ public class ApplicationLifecycleTracker  {
 
     private boolean someActivityInForeground;
     private boolean activityTransitionInProgress;
-    private SeshInfoFetcher seshInfoFetcher;
+    private UserInfoFetcher userInfoFetcher;
 
     private Activity activityInForeground;
 
@@ -53,19 +53,15 @@ public class ApplicationLifecycleTracker  {
     public ApplicationLifecycleTracker(Context context) {
         this.mContext = context;
         this.activityTransitionInProgress = false;
-//        this.seshInfoFetcher = new SeshInfoFetcher(context);
-
+        this.userInfoFetcher = new UserInfoFetcher(mContext);
     }
 
     public void activityResumed(Activity activity) {
         someActivityInForeground = true;
-        activityTransitionInProgress = false;
         activityInForeground = activity;
-
-//        seshInfoFetcher.fetch();
+        activityTransitionInProgress = false;
 
         if (SeshAuthManager.sharedManager(mContext).isValidSession() && SeshApplication.IS_LIVE) {
-
             if (((SeshActivity)activityInForeground).supportsSeshDialog()) {
                 Intent startNotificationQueueHandling
                         = new Intent(SeshNotificationManagerService.START_IN_APP_DISPLAY_QUEUE_HANDLING,
@@ -73,6 +69,8 @@ public class ApplicationLifecycleTracker  {
                 mContext.startService(startNotificationQueueHandling);
             }
         }
+
+        userInfoFetcher.fetch();
     }
 
     public void activityPaused() {

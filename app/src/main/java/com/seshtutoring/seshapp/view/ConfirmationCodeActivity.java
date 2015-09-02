@@ -21,6 +21,8 @@ import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.util.SeshMixpanelAPI;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.components.SeshButton;
+import com.seshtutoring.seshapp.services.UserInfoFetcher.UserInfoSavedListener;
+import com.seshtutoring.seshapp.services.UserInfoFetcher.SaveUserInfoAsyncTask;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -118,9 +120,9 @@ public class ConfirmationCodeActivity extends SeshActivity {
             public void onResponse(JSONObject jsonObject) {
                 try {
                     if (jsonObject.get("status").equals("SUCCESS")) {
-                        (new User.CreateOrUpdateUserAsyncTask()).execute(getApplicationContext(), jsonObject, new Runnable() {
+                        (new SaveUserInfoAsyncTask()).execute(getApplicationContext(), jsonObject, new UserInfoSavedListener() {
                             @Override
-                            public void run() {
+                            public void onUserInfoSaved() {
                                 seshMixpanelAPI.track("User Verified Signup");
 
                                 if (SeshApplication.IS_LIVE) {

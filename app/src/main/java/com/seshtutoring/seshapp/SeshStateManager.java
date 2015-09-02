@@ -6,8 +6,7 @@ import android.content.Intent;
 import android.util.Log;
 
 import com.seshtutoring.seshapp.model.Sesh;
-import com.seshtutoring.seshapp.services.SeshInfoFetcher;
-import com.seshtutoring.seshapp.services.SeshInfoFetcher.FetchUpdateListener;
+import com.seshtutoring.seshapp.services.UserInfoFetcher;
 import com.seshtutoring.seshapp.util.ApplicationLifecycleTracker;
 import com.seshtutoring.seshapp.view.InSeshActivity;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
@@ -80,10 +79,10 @@ public class SeshStateManager {
             case IN_SESH:
                 if (!foregroundActivity.isInSeshActivity()) {
                     if (Sesh.getCurrentSesh() == null) {
-                        SeshInfoFetcher seshInfoFetcher = new SeshInfoFetcher(mContext);
-                        seshInfoFetcher.fetch(new FetchUpdateListener() {
+                        UserInfoFetcher seshInfoFetcher = new UserInfoFetcher(mContext);
+                        seshInfoFetcher.fetch(new UserInfoFetcher.UserInfoSavedListener() {
                             @Override
-                            public void onFetchUpdate() {
+                            public void onUserInfoSaved() {
                                 startInSeshActivity();
                             }
                         });
