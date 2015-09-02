@@ -167,7 +167,7 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
         this.fragmentLoadIndicator =
                 (SeshActivityIndicator) findViewById(R.id.fragment_loading_indicator);
 
-        setCurrentState(PROMOTE, null);
+        setCurrentState(HOME, null);
 
         PeriodicFetchBroadcastReceiver.setSeshInfoUpdateListener(this);
     }
