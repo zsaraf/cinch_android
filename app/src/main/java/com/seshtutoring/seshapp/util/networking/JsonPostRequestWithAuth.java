@@ -22,7 +22,7 @@ import java.util.Map;
  * Custom Request class that encapsulates most common request type for our usage of
  * Volley networking library.
  */
-public class JsonPostRequestWithAuth extends StringRequest {
+public class JsonPostRequestWithAuth extends JsonObjectRequest {
     private final static String TAG = JsonPostRequestWithAuth.class.getName();
 
     private final static String BASIC_AUTH_USERNAME = "teamsesh";
@@ -30,25 +30,10 @@ public class JsonPostRequestWithAuth extends StringRequest {
 
     public Map<String, String> mParams;
 
-    public JsonPostRequestWithAuth(String url, Map<String, String> params,
-                                   final Response.Listener<JSONObject> successListener,
-                                   final Response.ErrorListener errorListener) {
-        super(Method.POST, url, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                try {
-                    JSONObject parsedJSON;
-                    Log.i(TAG, "RAW JSON response: " + response);
-                    parsedJSON = new JSONObject(response);
-                    successListener.onResponse(parsedJSON);
-                } catch (JSONException e) {
-                    Log.e(TAG, "Failed to parse JSON response.");
-                    errorListener.onErrorResponse(new VolleyError(e));
-                }
-            }
-        }, errorListener);
-
-        this.mParams = params;
+    public JsonPostRequestWithAuth(String url, JSONObject params,
+                                   Response.Listener<JSONObject> successListener,
+                                   Response.ErrorListener errorListener) {
+        super(url, params, successListener, errorListener);
     }
 
     @Override
@@ -57,13 +42,7 @@ public class JsonPostRequestWithAuth extends StringRequest {
         params.put("Authorization", String.format("Basic %s", Base64.encodeToString(
                 String.format("%s:%s", BASIC_AUTH_USERNAME, BASIC_AUTH_PASSWORD).getBytes(),
                 Base64.NO_WRAP)));
-        params.put("Content-Type", "application/x-www-form-urlencoded");
         Log.d(TAG, "USING HEADERS: " + params.toString());
         return params;
-    }
-
-    @Override
-    public Map<String, String> getParams() throws AuthFailureError {
-        return this.mParams;
     }
 }

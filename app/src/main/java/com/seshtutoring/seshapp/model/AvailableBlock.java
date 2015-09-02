@@ -83,13 +83,14 @@ public class AvailableBlock extends SugarRecord<AvailableBlock> {
         return new AvailableBlock(startTime.getMillis(), endTime.getMillis(), instantRequest, null);
     }
 
-    public Map<String, String> toMap() {
-        HashMap<String, String> map = new HashMap<>();
+    public JSONObject toJson() throws JSONException {
+        JSONObject json = new JSONObject();
         DateTimeFormatter formatter = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss");
 
-        map.put(START_TIME_KEY, formatter.print(new DateTime(startTime)));
-        map.put(END_TIME_KEY, formatter.print(new DateTime(endTime)));
-        return map;
+        json.put(START_TIME_KEY, formatter.print(new DateTime(startTime)));
+        json.put(END_TIME_KEY, formatter.print(new DateTime(endTime)));
+
+        return json;
     }
 
     public static String getReadableBlocks(List<AvailableBlock> availableBlocks) {

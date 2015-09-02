@@ -7,7 +7,6 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.seshtutoring.seshapp.model.Sesh;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
-import com.seshtutoring.seshapp.services.PeriodicFetchBroadcastReceiver.FetchUpdateListener;
 import com.stripe.android.compat.AsyncTask;
 
 import org.json.JSONObject;
@@ -25,6 +24,10 @@ public class SeshInfoFetcher {
         this.mContext = context;
     }
 
+    public interface FetchUpdateListener {
+        void onFetchUpdate();
+    }
+
     public void fetch(final FetchUpdateListener listener) {
         SeshNetworking seshNetworking = new SeshNetworking(mContext);
         seshNetworking.getSeshInformation(new Response.Listener<JSONObject>() {
@@ -36,6 +39,18 @@ public class SeshInfoFetcher {
             @Override
             public void onErrorResponse(VolleyError volleyError) {
                 Log.e(TAG, "Failed to fetch sesh info from server; network error: " + volleyError);
+            }
+        });
+    }
+
+    /**
+     * Convenience method for fetching without an update listener
+     */
+    public void fetch() {
+        fetch(new FetchUpdateListener() {
+            @Override
+            public void onFetchUpdate() {
+                // do nothing
             }
         });
     }

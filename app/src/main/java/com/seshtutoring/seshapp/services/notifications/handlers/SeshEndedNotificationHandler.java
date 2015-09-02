@@ -45,7 +45,7 @@ public abstract class SeshEndedNotificationHandler extends NotificationHandler {
         };
 
         JSONObject jsonObject = request.execute();
-
+        Log.d(TAG, "REPLACE SESH CALLED");
         if (jsonObject != null) {
             try {
                 if (jsonObject.getString("status").equals("SUCCESS")) {
@@ -53,7 +53,12 @@ public abstract class SeshEndedNotificationHandler extends NotificationHandler {
                     List<Sesh> seshesFound = Sesh.find(Sesh.class, "past_request_id = ?",
                             Integer.toString(pastSesh.pastRequestId));
                     if (seshesFound.size() > 0) {
+                        Log.d(TAG, "SESH HAS BEEN DELETED");
                         seshesFound.get(0).delete();
+                    } else {
+                        Log.d(TAG, "NO SESHES FOUND");
+                        List<Sesh> seshesInGeneral = Sesh.listAll(Sesh.class);
+                        Log.d(TAG, "seshes in DB: " + seshesInGeneral.size());
                     }
                     onSeshReplacedWithPastSesh(pastSesh);
                 } else {

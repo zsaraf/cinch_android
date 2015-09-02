@@ -5,9 +5,6 @@ import android.content.Context;
 
 import com.seshtutoring.seshapp.SeshStateManager;
 import com.seshtutoring.seshapp.model.Notification;
-import com.seshtutoring.seshapp.util.ApplicationLifecycleTracker;
-import com.seshtutoring.seshapp.util.ApplicationLifecycleTracker.ApplicationResumeListener;
-import com.seshtutoring.seshapp.view.SeshActivity;
 
 /**
  * Created by nadavhollander on 8/20/15.

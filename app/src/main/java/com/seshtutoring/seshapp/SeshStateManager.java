@@ -6,10 +6,8 @@ import android.content.Intent;
 import android.util.Log;
 
 import com.seshtutoring.seshapp.model.Sesh;
-import com.seshtutoring.seshapp.services.PeriodicFetchBroadcastReceiver;
-import com.seshtutoring.seshapp.services.PeriodicFetchBroadcastReceiver.FetchUpdateListener;
 import com.seshtutoring.seshapp.services.SeshInfoFetcher;
-import com.seshtutoring.seshapp.services.SeshStateFetcher;
+import com.seshtutoring.seshapp.services.SeshInfoFetcher.FetchUpdateListener;
 import com.seshtutoring.seshapp.util.ApplicationLifecycleTracker;
 import com.seshtutoring.seshapp.view.InSeshActivity;
 import com.seshtutoring.seshapp.view.MainContainerActivity;

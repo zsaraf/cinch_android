@@ -15,6 +15,7 @@ import com.seshtutoring.seshapp.SeshStateManager;
 import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.services.GCMRegistrationIntentService;
 import com.seshtutoring.seshapp.services.PeriodicFetchBroadcastReceiver;
+import com.seshtutoring.seshapp.services.SeshInfoFetcher;
 import com.seshtutoring.seshapp.services.notifications.SeshNotificationManagerService;
 import com.seshtutoring.seshapp.util.networking.SeshAuthManager;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
@@ -32,8 +33,7 @@ public class ApplicationLifecycleTracker  {
 
     private boolean someActivityInForeground;
     private boolean activityTransitionInProgress;
-    private AlarmManager fetchSeshInfoAlarm;
-    private PendingIntent fetchSeshInfoPendingIntent;
+    private SeshInfoFetcher seshInfoFetcher;
 
     private Activity activityInForeground;
 
@@ -41,10 +41,6 @@ public class ApplicationLifecycleTracker  {
 
     private static final int FIFTEEN_SECONDS = 1000 * 15;
 
-
-    public interface ApplicationResumeListener {
-        void onApplicationResume();
-    }
 
     public static ApplicationLifecycleTracker sharedInstance(Context context) {
         if (applicationLifecycleTracker == null) {
@@ -57,11 +53,8 @@ public class ApplicationLifecycleTracker  {
     public ApplicationLifecycleTracker(Context context) {
         this.mContext = context;
         this.activityTransitionInProgress = false;
+//        this.seshInfoFetcher = new SeshInfoFetcher(context);
 
-        this.fetchSeshInfoAlarm = (AlarmManager) mContext.getSystemService(mContext.ALARM_SERVICE);
-        Intent infoIntent = new Intent(PeriodicFetchBroadcastReceiver.PERIODIC_FETCH_ACTION);
-        this.fetchSeshInfoPendingIntent =
-                PendingIntent.getBroadcast(mContext, 1, infoIntent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
     public void activityResumed(Activity activity) {
@@ -69,17 +62,11 @@ public class ApplicationLifecycleTracker  {
         activityTransitionInProgress = false;
         activityInForeground = activity;
 
+//        seshInfoFetcher.fetch();
+
         if (SeshAuthManager.sharedManager(mContext).isValidSession() && SeshApplication.IS_LIVE) {
-            fetchSeshInfoAlarm.
-                    setRepeating(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime(),
-                            FIFTEEN_SECONDS, fetchSeshInfoPendingIntent);
 
             if (((SeshActivity)activityInForeground).supportsSeshDialog()) {
-                Intent refreshNotifications =
-                        new Intent(SeshNotificationManagerService.REFRESH_NOTIFICATIONS_ACTION, null,
-                                mContext, SeshNotificationManagerService.class);
-                mContext.startService(refreshNotifications);
-
                 Intent startNotificationQueueHandling
                         = new Intent(SeshNotificationManagerService.START_IN_APP_DISPLAY_QUEUE_HANDLING,
                         null, mContext, SeshNotificationManagerService.class);
@@ -91,8 +78,6 @@ public class ApplicationLifecycleTracker  {
     public void activityPaused() {
         someActivityInForeground = false;
         activityInForeground = null;
-
-        fetchSeshInfoAlarm.cancel(fetchSeshInfoPendingIntent);
 
         if (SeshAuthManager.sharedManager(mContext).isValidSession() && SeshApplication.IS_LIVE) {
             Intent pauseNotificationQueueHandling

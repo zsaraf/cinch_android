@@ -410,6 +410,7 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenList
 
     @Override
     public void tableUpdated() {
+        Log.d(TAG, "TABLE UPDATED HAS BEEN CALLED");
         (new UpdateRequestAndSeshListTask()).execute();
     }
 }

@@ -64,8 +64,7 @@ import java.util.Map;
 
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
-public class MainContainerActivity extends SeshActivity implements SeshDialog.OnSelectionListener,
-        PeriodicFetchBroadcastReceiver.FetchUpdateListener {
+public class MainContainerActivity extends SeshActivity implements SeshDialog.OnSelectionListener {
     private static final String TAG = MainContainerActivity.class.getName();
     public static final String MAIN_CONTAINER_STATE_INDEX = "main_container_state_index";
     public static final String FRAGMENT_FLAG_KEY = "fragment_flags";
@@ -168,8 +167,6 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
                 (SeshActivityIndicator) findViewById(R.id.fragment_loading_indicator);
 
         setCurrentState(HOME, null);
-
-        PeriodicFetchBroadcastReceiver.setSeshInfoUpdateListener(this);
     }
 
     @Override
@@ -434,11 +431,6 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
     @Override
     protected void attachBaseContext(Context newBase) {
         super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
-    }
-
-    @Override
-    public void onFetchUpdate() {
-//        sideMenuFragment.updateRequestAndSeshList();
     }
 
     @Override

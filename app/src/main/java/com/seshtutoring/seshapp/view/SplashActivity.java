@@ -11,7 +11,7 @@ import android.widget.ImageView;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.SeshApplication;
 import com.seshtutoring.seshapp.services.SeshGCMListenerService;
-import com.seshtutoring.seshapp.util.LaunchPrerequisiteUtil;
+import com.seshtutoring.seshapp.util.LaunchPrerequisiteAsyncTask;
 import com.seshtutoring.seshapp.util.networking.SeshAuthManager;
 import com.seshtutoring.seshapp.view.AuthenticationActivity.EntranceType;
 
@@ -74,11 +74,10 @@ public class SplashActivity extends SeshActivity {
 
         if (SeshAuthManager.sharedManager(this).isValidSession()) {
             if (SeshApplication.IS_LIVE) {
-                LaunchPrerequisiteUtil.asyncPrepareForLaunch(this, new Runnable() {
+                (new LaunchPrerequisiteAsyncTask()).execute(this, new Runnable() {
                     @Override
                     public void run() {
                         Intent mainContainerIntent = new Intent(getApplicationContext(), MainContainerActivity.class);
-//                        Intent mainContainerIntent = new Intent(getApplicationContext(), MainContainerActivity.class);
                         mainContainerIntent.putExtra(ViewSeshSetTimeActivity.SET_TIME_SESH_ID_KEY, 99);
                         startActivity(mainContainerIntent);
                         overridePendingTransition(R.anim.fade_in, R.anim.fade_out);

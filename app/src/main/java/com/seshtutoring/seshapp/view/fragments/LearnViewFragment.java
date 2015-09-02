@@ -9,12 +9,13 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Criteria;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.InflateException;
 import android.view.LayoutInflater;
@@ -28,6 +29,14 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.enrique.stackblur.StackBlurManager;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
+import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
+import com.google.android.gms.common.stats.ConnectionEvent;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -38,6 +47,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.seshtutoring.seshapp.R;
+import com.seshtutoring.seshapp.util.LocationManager;
 import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.util.StorageUtils;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
@@ -57,12 +67,16 @@ public class LearnViewFragment extends Fragment implements OnMapReadyCallback {
     private static View view;
 
     private static GoogleMap mMap;
+    private LocationManager locationManager;
     public static final String BLURRED_MAP_BITMAP_PATH_KEY = "blurred_map_bitmap";
     public static final String CHOSEN_LOCATION_LAT = "chosen_location_lat";
     public static final String CHOSEN_LOCATION_LONG = "chosen_location_long";
-    private LocationManager locationManager;
-    private LocationListener locationListener;
-    private Location currentBestLocation;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        this.locationManager = LocationManager.sharedInstance(getActivity());
+    }
 
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
         if (view != null) {
@@ -90,14 +104,12 @@ public class LearnViewFragment extends Fragment implements OnMapReadyCallback {
         currentLocationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Location currentLocation = getCurrentLocation();
+                Location currentLocation = locationManager.getCurrentLocation();
                 if (currentLocation != null) {
-                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(
-                            new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), 18), 500, null);
+                    moveCameraToLocation(currentLocation, true);
                 }
             }
         });
-
 
 
         SeshButton requestButton = (SeshButton) view.findViewById(R.id.request_button);
@@ -108,47 +120,7 @@ public class LearnViewFragment extends Fragment implements OnMapReadyCallback {
             }
         });
 
-        locationManager =
-                (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
-        locationListener = new LocationListener() {
-            @Override
-            public void onLocationChanged(Location location) {
-                currentBestLocation = location;
-            }
-
-            @Override
-            public void onStatusChanged(String provider, int status, Bundle extras) {
-//                do nothing
-            }
-
-            @Override
-            public void onProviderEnabled(String provider) {
-//                do nothing
-
-            }
-
-            @Override
-            public void onProviderDisabled(String provider) {
-//                do nothing
-
-            }
-        };
-
         return view;
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 10, locationListener);
-    }
-
-    @Override
-    public void onPause()
-    {
-        super.onPause();
-        Log.d(TAG, "Removing location updates");
-        locationManager.removeUpdates(locationListener);
     }
 
     private void startRequestActivityWithBlurTransition() {
@@ -225,23 +197,16 @@ public class LearnViewFragment extends Fragment implements OnMapReadyCallback {
 
     private void setUpMap() {
         mMap.setMyLocationEnabled(true);
-
-        Location location = getCurrentLocation();
-        LatLng coordinates = new LatLng(0, 0);
-        if (location != null) {
-            coordinates = new LatLng(location.getLatitude(), location.getLongitude());
-        }
-
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(coordinates, 18));
+        moveCameraToLocation(locationManager.getCurrentLocation(), false);
     }
 
-    private Location getCurrentLocation() {
-        if (currentBestLocation != null) {
-            return currentBestLocation;
+    private void moveCameraToLocation(Location location, boolean animated) {
+        if (animated) {
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(
+                    new LatLng(location.getLatitude(), location.getLongitude()), 18), 500, null);
         } else {
-            Criteria criteria = new Criteria();
-            criteria.setAccuracy(Criteria.ACCURACY_FINE);
-            return locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
+                    new LatLng(location.getLatitude(), location.getLongitude()), 18));
         }
     }
 }

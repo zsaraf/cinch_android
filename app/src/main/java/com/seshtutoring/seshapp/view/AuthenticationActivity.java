@@ -41,7 +41,7 @@ import com.seshtutoring.seshapp.SeshApplication;
 import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.services.GCMRegistrationIntentService;
 import com.seshtutoring.seshapp.services.SeshInstanceIDListenerService;
-import com.seshtutoring.seshapp.util.LaunchPrerequisiteUtil;
+import com.seshtutoring.seshapp.util.LaunchPrerequisiteAsyncTask;
 import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.util.SeshMixpanelAPI;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
@@ -524,7 +524,7 @@ public class AuthenticationActivity extends SeshActivity implements SeshDialog.O
                         startService(gcmIntent);
 
                         if (SeshApplication.IS_LIVE) {
-                            LaunchPrerequisiteUtil.asyncPrepareForLaunch(getApplicationContext(), new Runnable() {
+                            (new LaunchPrerequisiteAsyncTask()).execute(getApplicationContext(), new Runnable() {
                                 @Override
                                 public void run() {
                                     Intent mainContainerIntent = new Intent(getApplicationContext(), MainContainerActivity.class);

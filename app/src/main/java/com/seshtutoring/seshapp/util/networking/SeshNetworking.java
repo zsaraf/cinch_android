@@ -32,11 +32,14 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -99,6 +102,8 @@ public class SeshNetworking {
     private static final String PAST_SESH_ID_PARAM = "past_sesh_id";
     private static final String CONTENT_PARAM = "content";
     private static final String SET_TIME_PARAM = "start_time";
+    private static final String HANDLED_NOTIFICATIONS_PARAM = "handled_notifications";
+
 
 
     private Context mContext;
@@ -158,12 +163,19 @@ public class SeshNetworking {
     public void postWithRelativeUrl(String relativeUrl, Map<String, String> params,
                                     Response.Listener<JSONObject> successListener,
                                     Response.ErrorListener errorListener) {
+        postWithRelativeUrl(relativeUrl, new JSONObject(params), successListener, errorListener);
+    }
+
+    public void postWithRelativeUrl(String relativeUrl, JSONObject jsonParams,
+                                    Response.Listener<JSONObject> successListener,
+                                    Response.ErrorListener errorListener) {
         String absoluteUrl = baseUrl() + "/ios-php/" + relativeUrl;
 
         Log.i(TAG, "Issuing POST request to URL:  " + absoluteUrl + " with params: " +
-                params.toString());
+                jsonParams.toString());
+
         JsonPostRequestWithAuth requestWithAuth = new JsonPostRequestWithAuth(absoluteUrl,
-                params, successListener, errorListener);
+                jsonParams, successListener, errorListener);
 
         VolleyNetworkingWrapper.getInstance(mContext).addToRequestQueue(requestWithAuth);
     }
@@ -176,7 +188,7 @@ public class SeshNetworking {
         Log.i(TAG, "Issuing POST request to URL:  " + absoluteUrl + " with params: " +
                 params.toString());
         JsonPostRequestWithAuth requestWithAuth = new JsonPostRequestWithAuth(absoluteUrl,
-                params, successListener, errorListener);
+                new JSONObject(params), successListener, errorListener);
         requestWithAuth.setRetryPolicy(new DefaultRetryPolicy(
                 10000,
                 DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
@@ -553,27 +565,29 @@ public class SeshNetworking {
 
         DateTimeFormatter formatter = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss").withZoneUTC();
 
-        Map<String, String> params = new HashMap<>();
-        params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
-        params.put(LATITUDE_PARAM, Double.toString(learnRequest.latitude));
-        params.put(LONGITUDE_PARAM, Double.toString(learnRequest.latitude));
-        params.put(NUM_PEOPLE_PARAM, Integer.toString(learnRequest.numPeople));
-        params.put(CLASS_ID_PARAM, learnRequest.classId);
-        params.put(DESCRIPTION_PARAM, learnRequest.descr);
-        params.put(EST_TIME_PARAM, Integer.toString(learnRequest.estTime));
-        params.put(RATE_PARAM, Float.toString(Constants.getHourlyRate(mContext)));
-        params.put(FAVORITES_PARAM, "[]");  // until Favorites implemented....
-        params.put(IS_INSTANT_PARAM, learnRequest.isInstant() ? "1" : "0");
-        params.put(EXPIRATION_TIME_PARAM, formatter.print(new DateTime(expirationTime)));
+        JSONObject params = new JSONObject();
+        try  {
+            params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
+            params.put(LATITUDE_PARAM, Double.toString(learnRequest.latitude));
+            params.put(LONGITUDE_PARAM, Double.toString(learnRequest.latitude));
+            params.put(NUM_PEOPLE_PARAM, Integer.toString(learnRequest.numPeople));
+            params.put(CLASS_ID_PARAM, learnRequest.classId);
+            params.put(DESCRIPTION_PARAM, learnRequest.descr);
+            params.put(EST_TIME_PARAM, Integer.toString(learnRequest.estTime));
+            params.put(RATE_PARAM, Float.toString(Constants.getHourlyRate(mContext)));
+            params.put(FAVORITES_PARAM, new ArrayList<>());  // until Favorites implemented....
+            params.put(IS_INSTANT_PARAM, learnRequest.isInstant() ? "1" : "0");
+            params.put(EXPIRATION_TIME_PARAM, formatter.print(new DateTime(expirationTime)));
 
-        // hacky fix for adding nested hashmap params to POST request
-        Iterator<AvailableBlock> blockIterator = learnRequest.availableBlocks.iterator();
-        for (int counter = 0; blockIterator.hasNext(); counter++) {
-            AvailableBlock block = blockIterator.next();
-            params.put(AVAILABLE_BLOCKS_PARAM + "[" + counter + "][start_time]",
-                    formatter.print(new DateTime(block.startTime)));
-            params.put(AVAILABLE_BLOCKS_PARAM + "[" + counter + "][end_time]",
-                    formatter.print(new DateTime(block.endTime)));
+            JSONArray availableBlocksJson = new JSONArray();
+            for (AvailableBlock availableBlock : learnRequest.availableBlocks) {
+                availableBlocksJson.put(availableBlock.toJson());
+            }
+
+            params.put(AVAILABLE_BLOCKS_PARAM, availableBlocksJson);
+        } catch (JSONException e) {
+            Log.e(TAG, "Failed to create request, json error: " + e);
+            return;
         }
 
         postWithRelativeUrl("create_request.php", params, successListener, errorListener);
@@ -626,12 +640,20 @@ public class SeshNetworking {
 
     public void refreshNotifications(List<Notification> handledNotifications, Response.Listener<JSONObject> successListener,
                                      Response.ErrorListener errorListener) {
-        Map<String, String> params = new HashMap<>();
-        params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
+        JSONObject params = new JSONObject();
 
-        for (int i = 0; i < handledNotifications.size(); i++) {
-            params.put("handled_notifications[" + i + "]",
-                    Integer.toString(handledNotifications.get(i).notificationId));
+        try  {
+            params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
+
+            JSONArray handledNotificationIds = new JSONArray();
+            for (Notification notification : handledNotifications) {
+                handledNotificationIds.put(notification.notificationId);
+            }
+
+            params.put(HANDLED_NOTIFICATIONS_PARAM, handledNotificationIds);
+        } catch (JSONException e) {
+            Log.e(TAG, "Failed to refresh notifications; json error: " + e);
+            return;
         }
 
         postWithRelativeUrl("refresh_notifications.php", params, successListener, errorListener);
