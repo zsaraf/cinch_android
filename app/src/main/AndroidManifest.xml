@@ -195,8 +195,10 @@
         <activity
             android:name=".view.MessagingActivity"
             android:label="@string/messaging_activity"
-            android:parentActivityName=".view.MainContainerActivity" >
+            android:parentActivityName=".view.MainContainerActivity"
             android:launchMode="singleTop"
+            android:windowSoftInputMode="adjustResize|stateHidden"
+            android:theme="@style/SeshActionBarTheme" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.seshtutoring.seshapp.view.MainContainerActivity" />
