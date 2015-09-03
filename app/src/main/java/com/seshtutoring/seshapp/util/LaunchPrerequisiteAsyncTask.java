@@ -16,17 +16,67 @@ import com.seshtutoring.seshapp.util.networking.SeshNetworking.SynchronousReques
 
 import org.json.JSONObject;
 
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 /**
  * Created by nadavhollander on 8/3/15.
  */
-public class LaunchPrerequisiteAsyncTask extends AsyncTask<Object, Void, Void>
+public class LaunchPrerequisiteAsyncTask extends AsyncTask<Void, Void, Void>
         implements LocationManager.LocationManagerSetUpListener {
     private static final String TAG = LaunchPrerequisiteAsyncTask.class.getName();
 
     private Context mContext;
-    private Runnable callback;
+    private PrereqsFulfilledListener listener;
     private Object lock = new Object();
-    private boolean locationManagerSetUp = false;
+
+    public enum LaunchPrerequisiteFlag {
+        LOCATION_MANAGER_LOADED, CONSTANTS_FETCHED, SESH_INFORMATION_FETCHED
+    }
+
+    private boolean locationManagerLoaded;
+    private boolean constantsFetched;
+    private boolean seshInformationFetched;
+
+    public static abstract class PrereqsFulfilledListener {
+        public abstract void onPrereqsFulfilled();
+    }
+
+    public LaunchPrerequisiteAsyncTask(Context context, PrereqsFulfilledListener listener) {
+        this.mContext = context;
+        this.listener = listener;
+        locationManagerLoaded = false;
+        constantsFetched = false;
+        seshInformationFetched = false;
+    }
+
+    public LaunchPrerequisiteAsyncTask(Context context, Set<LaunchPrerequisiteFlag> launchPrerequisitesFulfilled,
+                                       PrereqsFulfilledListener listener) {
+        this.mContext = context;
+        this.listener = listener;
+        locationManagerLoaded = false;
+        constantsFetched = false;
+        seshInformationFetched = false;
+
+        if (launchPrerequisitesFulfilled.contains(LaunchPrerequisiteFlag.CONSTANTS_FETCHED)) {
+            constantsFetched = true;
+        } else {
+            constantsFetched = false;
+        }
+
+        if (launchPrerequisitesFulfilled.contains(LaunchPrerequisiteFlag.LOCATION_MANAGER_LOADED)) {
+            locationManagerLoaded = true;
+        } else {
+            locationManagerLoaded = false;
+        }
+
+        if (launchPrerequisitesFulfilled.contains(LaunchPrerequisiteFlag.SESH_INFORMATION_FETCHED)) {
+            seshInformationFetched = true;
+        } else {
+            seshInformationFetched = false;
+        }
+    }
 
     /**
      *
@@ -34,57 +84,58 @@ public class LaunchPrerequisiteAsyncTask extends AsyncTask<Object, Void, Void>
      * @return
      */
     @Override
-    public Void doInBackground(Object... params) {
-        this.mContext = (Context) params[0];
-        this.callback = (Runnable) params[1];
+    public Void doInBackground(Void... params) {
+        if (!constantsFetched) {
+            Constants.fetchConstantsFromServer(mContext);
+        }
 
-        Constants.fetchConstantsFromServer(mContext);
+        if (!locationManagerLoaded) {
+            LocationManager locationManager = LocationManager.sharedInstance(mContext);
+            locationManager.setUp(this);
 
-        LocationManager locationManager = LocationManager.sharedInstance(mContext);
-        locationManager.setUp(this);
-
-        synchronized (lock) {
-            if (!locationManagerSetUp) {
-                try {
-                    lock.wait(); // block until location manager is ready in onLocationManagerSetUp()
-                } catch (InterruptedException e) {
-                    return null;
+            synchronized (lock) {
+                if (!locationManagerLoaded) {
+                    try {
+                        lock.wait(); // block until location manager is ready in onLocationManagerSetUp()
+                    } catch (InterruptedException e) {
+                        return null;
+                    }
                 }
             }
         }
 
-        final Handler mainThreadHandler = new Handler(Looper.getMainLooper());
-        final SeshNetworking seshNetworking = new SeshNetworking(mContext);
-        SynchronousRequest request = new SynchronousRequest() {
-            @Override
-            public void request(RequestFuture<JSONObject> blocker) {
-                seshNetworking.getSeshInformation(blocker, blocker);
-            }
+        if (!seshInformationFetched) {
+            final SeshNetworking seshNetworking = new SeshNetworking(mContext);
+            SynchronousRequest request = new SynchronousRequest() {
+                @Override
+                public void request(RequestFuture<JSONObject> blocker) {
+                    seshNetworking.getSeshInformation(blocker, blocker);
+                }
 
-            @Override
-            public void onErrorException(Exception e) {
-                Log.e(TAG, "Failed to fetch user info from server; network error: " + e);
-                mainThreadHandler.post(callback);
-            }
-        };
+                @Override
+                public void onErrorException(Exception e) {
+                    Log.e(TAG, "Failed to fetch user info from server; network error: " + e);
+                }
+            };
 
-        JSONObject json = request.execute();
+            JSONObject json = request.execute();
 
-        if (json == null) return null;
-        Sesh.updateSeshInfoWithObject(mContext, json);
+            if (json == null) return null;
+            Sesh.updateSeshInfoWithObject(mContext, json);
+        }
 
         return null;
     }
 
     @Override
     public void onPostExecute(Void result) {
-        callback.run();
+        listener.onPrereqsFulfilled();
     }
 
     @Override
     public void onLocationManagerSetUp() {
         synchronized (lock) {
-            locationManagerSetUp = true;
+            locationManagerLoaded = true;
             lock.notify();
         }
     }

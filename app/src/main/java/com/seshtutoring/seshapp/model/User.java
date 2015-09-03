@@ -52,7 +52,6 @@ public class User extends SugarRecord<User> {
 //    public Set<Favorite> favorites;
 
 
-
     // empty constructor necessary for SugarORM to work
     public User() {}
 

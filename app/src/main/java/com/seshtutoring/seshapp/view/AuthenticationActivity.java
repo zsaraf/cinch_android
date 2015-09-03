@@ -41,9 +41,10 @@ import com.seshtutoring.seshapp.SeshApplication;
 import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.services.GCMRegistrationIntentService;
 import com.seshtutoring.seshapp.services.SeshInstanceIDListenerService;
+import com.seshtutoring.seshapp.services.UserInfoFetcher;
 import com.seshtutoring.seshapp.services.UserInfoFetcher.SaveUserInfoAsyncTask;
-import com.seshtutoring.seshapp.services.UserInfoFetcher.UserInfoSavedListener;
 import com.seshtutoring.seshapp.util.LaunchPrerequisiteAsyncTask;
+import com.seshtutoring.seshapp.util.LaunchPrerequisiteAsyncTask.PrereqsFulfilledListener;
 import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.util.SeshMixpanelAPI;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
@@ -56,6 +57,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
@@ -514,11 +516,9 @@ public class AuthenticationActivity extends SeshActivity implements SeshDialog.O
             if (responseJson.get("status").equals("SUCCESS")) {
                 seshMixpanelAPI.track("User Logged In");
 
-                (new SaveUserInfoAsyncTask()).execute(this, responseJson, new UserInfoSavedListener() {
+                (new SaveUserInfoAsyncTask()).execute(this, responseJson, new UserInfoFetcher.UserInfoSavedListener() {
                     @Override
-                    public void onUserInfoSaved() {
-                        setNetworkOperationInProgress(false);
-
+                    public void onUserInfoSaved(User user) {
                         // Refresh device on server via GCM service
                         Intent gcmIntent = new Intent(getApplicationContext(), GCMRegistrationIntentService.class);
                         gcmIntent.putExtra(SeshInstanceIDListenerService.IS_TOKEN_STALE_KEY, true);
@@ -526,14 +526,17 @@ public class AuthenticationActivity extends SeshActivity implements SeshDialog.O
                         startService(gcmIntent);
 
                         if (SeshApplication.IS_LIVE) {
-                            (new LaunchPrerequisiteAsyncTask()).execute(getApplicationContext(), new Runnable() {
-                                @Override
-                                public void run() {
-                                    Intent mainContainerIntent = new Intent(getApplicationContext(), MainContainerActivity.class);
-                                    startActivity(mainContainerIntent);
-                                    overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-                                }
-                            });
+                            HashSet<LaunchPrerequisiteAsyncTask.LaunchPrerequisiteFlag> fulfilledPrereqs = new HashSet<>();
+                            fulfilledPrereqs.add(LaunchPrerequisiteAsyncTask.LaunchPrerequisiteFlag.SESH_INFORMATION_FETCHED);
+                            (new LaunchPrerequisiteAsyncTask(getApplicationContext(), fulfilledPrereqs,
+                                    new PrereqsFulfilledListener() {
+                                        @Override
+                                        public void onPrereqsFulfilled() {
+                                            Intent mainContainerIntent = new Intent(getApplicationContext(), MainContainerActivity.class);
+                                            startActivity(mainContainerIntent);
+                                            overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+                                        }
+                                    })).execute();
                         } else {
                             Intent unreleasedLaunchIntent = new Intent(getApplicationContext(), UnreleasedLaunchActivity.class);
                             startActivity(unreleasedLaunchIntent);

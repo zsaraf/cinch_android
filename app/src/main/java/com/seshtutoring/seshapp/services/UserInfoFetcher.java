@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.seshtutoring.seshapp.SeshStateManager;
 import com.seshtutoring.seshapp.model.Sesh;
 import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
@@ -25,28 +26,26 @@ public class UserInfoFetcher {
     }
 
     public static abstract class UserInfoSavedListener {
-        public abstract void onUserInfoSaved();
+        public abstract void onUserInfoSaved(User user);
     }
 
     public void fetch(final UserInfoSavedListener listener) {
         SeshNetworking seshNetworking = new SeshNetworking(mContext);
-
-            seshNetworking.getFullUserInfo(new Response.Listener<JSONObject>() {
-                @Override
-                public void onResponse(JSONObject json) {
-                    try  {
-                        (new SaveUserInfoAsyncTask()).execute(mContext, json.getJSONObject("data"), listener);
-                    } catch (JSONException e) {
-                        Log.e(TAG, "Failed to fetch user info from server; json malformed: ");
-                    }
+        seshNetworking.getFullUserInfo(new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject json) {
+                try  {
+                    (new SaveUserInfoAsyncTask()).execute(mContext, json.getJSONObject("data"), listener);
+                } catch (JSONException e) {
+                    Log.e(TAG, "Failed to fetch user info from server; json malformed: ");
                 }
-            }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError volleyError) {
-                    Log.e(TAG, "Failed to fetch user info from server; network error: " + volleyError);
-                }
-            });
-
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+                Log.e(TAG, "Failed to fetch user info from server; network error: " + volleyError);
+            }
+        });
     }
 
     /**
@@ -55,28 +54,29 @@ public class UserInfoFetcher {
     public void fetch() {
         fetch(new UserInfoSavedListener() {
             @Override
-            public void onUserInfoSaved() {
+            public void onUserInfoSaved(User user) {
                 // do nothing
             }
         });
     }
 
     public static class SaveUserInfoAsyncTask extends AsyncTask<Object, Void, Void> {
-       private UserInfoSavedListener updateListener;
+        private UserInfoSavedListener updateListener;
+        private User user;
 
         @Override
         protected Void doInBackground(Object... params) {
             Context context = (Context) params[0];
             JSONObject jsonObject = (JSONObject) params[1];
             updateListener = (UserInfoSavedListener) params[2];
-            User.createOrUpdateUserWithObject(jsonObject, context);
+            user = User.createOrUpdateUserWithObject(jsonObject, context);
             return null;
         }
 
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
-            updateListener.onUserInfoSaved();
+            updateListener.onUserInfoSaved(user);
         }
     }
 }

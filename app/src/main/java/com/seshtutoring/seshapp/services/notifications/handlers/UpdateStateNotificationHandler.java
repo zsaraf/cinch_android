@@ -17,8 +17,6 @@ public class UpdateStateNotificationHandler extends NotificationHandler {
     @Override
     public void handleDisplayInsideApp() {
         SeshStateManager.sharedInstance(mContext).updateSeshState((String) mNotification.getDataObject("state"));
-        SeshStateManager seshStateManager = SeshStateManager.sharedInstance(mContext);
-        seshStateManager.displayActivityForSeshStateUpdate();
 
         Notification.currentNotificationHandled(mContext, true);
     }

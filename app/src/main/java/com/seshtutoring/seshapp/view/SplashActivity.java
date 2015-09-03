@@ -12,6 +12,7 @@ import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.SeshApplication;
 import com.seshtutoring.seshapp.services.SeshGCMListenerService;
 import com.seshtutoring.seshapp.util.LaunchPrerequisiteAsyncTask;
+import com.seshtutoring.seshapp.util.LaunchPrerequisiteAsyncTask.PrereqsFulfilledListener;
 import com.seshtutoring.seshapp.util.networking.SeshAuthManager;
 import com.seshtutoring.seshapp.view.AuthenticationActivity.EntranceType;
 
@@ -74,15 +75,15 @@ public class SplashActivity extends SeshActivity {
 
         if (SeshAuthManager.sharedManager(this).isValidSession()) {
             if (SeshApplication.IS_LIVE) {
-                (new LaunchPrerequisiteAsyncTask()).execute(this, new Runnable() {
+                (new LaunchPrerequisiteAsyncTask(this, new PrereqsFulfilledListener() {
                     @Override
-                    public void run() {
+                    public void onPrereqsFulfilled() {
                         Intent mainContainerIntent = new Intent(getApplicationContext(), MainContainerActivity.class);
                         mainContainerIntent.putExtra(ViewSeshSetTimeActivity.SET_TIME_SESH_ID_KEY, 99);
                         startActivity(mainContainerIntent);
                         overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
                     }
-                });
+                })).execute();
             } else {
                 Intent intent = new Intent(getApplicationContext(), UnreleasedLaunchActivity.class);
                 startActivity(intent);
@@ -103,7 +104,7 @@ public class SplashActivity extends SeshActivity {
     }
 
     @Override
-    public boolean supportsSeshDialog() {
-        return false;
+    public boolean isSplashScreen() {
+        return true;
     }
 }

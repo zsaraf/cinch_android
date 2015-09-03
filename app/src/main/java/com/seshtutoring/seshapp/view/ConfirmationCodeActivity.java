@@ -18,6 +18,9 @@ import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.SeshApplication;
 import com.seshtutoring.seshapp.model.Sesh;
 import com.seshtutoring.seshapp.model.User;
+import com.seshtutoring.seshapp.util.LaunchPrerequisiteAsyncTask;
+import com.seshtutoring.seshapp.util.LaunchPrerequisiteAsyncTask.LaunchPrerequisiteFlag;
+import com.seshtutoring.seshapp.util.LaunchPrerequisiteAsyncTask.PrereqsFulfilledListener;
 import com.seshtutoring.seshapp.util.SeshMixpanelAPI;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.components.SeshButton;
@@ -28,6 +31,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -122,12 +126,20 @@ public class ConfirmationCodeActivity extends SeshActivity {
                     if (jsonObject.get("status").equals("SUCCESS")) {
                         (new SaveUserInfoAsyncTask()).execute(getApplicationContext(), jsonObject, new UserInfoSavedListener() {
                             @Override
-                            public void onUserInfoSaved() {
+                            public void onUserInfoSaved(User user) {
                                 seshMixpanelAPI.track("User Verified Signup");
 
                                 if (SeshApplication.IS_LIVE) {
-                                    Intent intent = new Intent(getApplicationContext(), MainContainerActivity.class);
-                                    startActivity(intent);
+                                    HashSet<LaunchPrerequisiteFlag> fulfilledPrereqs = new HashSet<>();
+                                    fulfilledPrereqs.add(LaunchPrerequisiteFlag.SESH_INFORMATION_FETCHED);
+                                    (new LaunchPrerequisiteAsyncTask(getApplicationContext(), fulfilledPrereqs,
+                                            new PrereqsFulfilledListener() {
+                                                @Override
+                                                public void onPrereqsFulfilled() {
+                                                    Intent intent = new Intent(getApplicationContext(), MainContainerActivity.class);
+                                                    startActivity(intent);
+                                                }
+                                            })).execute();
                                 } else {
                                     Intent intent = new Intent(getApplicationContext(), UnreleasedLaunchActivity.class);
                                     startActivity(intent);

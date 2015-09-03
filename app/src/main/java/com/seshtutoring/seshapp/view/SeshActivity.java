@@ -18,6 +18,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.SeshApplication;
+import com.seshtutoring.seshapp.SeshStateManager;
 import com.seshtutoring.seshapp.model.Sesh;
 import com.seshtutoring.seshapp.services.SeshGCMListenerService;
 import com.seshtutoring.seshapp.util.ApplicationLifecycleTracker;
@@ -41,7 +42,7 @@ public abstract class SeshActivity extends AppCompatActivity implements SeshDial
     public static final String APP_IS_LIVE_ACTION = "app_is_live";
     private static final String INTENT_HANDLED = "intent_handled";
 
-    private static final boolean DEFAULT_SUPPORTS_SESH_DIALOG = true;
+    private static final boolean DEFAULT_IS_SPLASH_SCREEN = false;
     private static final boolean DEFAULT_IS_FULLSCREEN = false;
     private static final boolean DEFAULT_IS_IN_SESH_ACTIVITY = false;
     private static final boolean DEFAULT_IS_MAIN_CONTAINER_ACTIVITY = false;
@@ -134,8 +135,8 @@ public abstract class SeshActivity extends AppCompatActivity implements SeshDial
         return DEFAULT_BLUR_BACKGROUND_OVERRIDE;
     }
 
-    public boolean supportsSeshDialog() {
-        return DEFAULT_SUPPORTS_SESH_DIALOG;
+    public boolean isSplashScreen() {
+        return DEFAULT_IS_SPLASH_SCREEN;
     }
 
     @Override

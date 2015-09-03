@@ -56,20 +56,24 @@ public class ApplicationLifecycleTracker  {
         this.userInfoFetcher = new UserInfoFetcher(mContext);
     }
 
-    public void activityResumed(Activity activity) {
+    public void activityResumed(final Activity activity) {
         someActivityInForeground = true;
         activityInForeground = activity;
         activityTransitionInProgress = false;
 
-        if (SeshAuthManager.sharedManager(mContext).isValidSession() && SeshApplication.IS_LIVE) {
-            if (((SeshActivity)activityInForeground).supportsSeshDialog()) {
-                Intent startNotificationQueueHandling
-                        = new Intent(SeshNotificationManagerService.START_IN_APP_DISPLAY_QUEUE_HANDLING,
-                        null, mContext, SeshNotificationManagerService.class);
-                mContext.startService(startNotificationQueueHandling);
-            }
+        if (SeshAuthManager.sharedManager(mContext).isValidSession() && SeshApplication.IS_LIVE
+                && !((SeshActivity)activityInForeground).isSplashScreen()) {
+            Intent startNotificationQueueHandling
+                    = new Intent(SeshNotificationManagerService.START_IN_APP_DISPLAY_QUEUE_HANDLING,
+                    null, mContext, SeshNotificationManagerService.class);
+            mContext.startService(startNotificationQueueHandling);
 
-            userInfoFetcher.fetch();
+            userInfoFetcher.fetch(new UserInfoFetcher.UserInfoSavedListener() {
+                @Override
+                public void onUserInfoSaved(User user) {
+                    (new SeshStateManager.VerifySeshStateAsyncTask()).execute(activity, user);
+                }
+            });
         }
     }
 
