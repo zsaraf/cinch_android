@@ -23,7 +23,9 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.ImageButton;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -43,6 +45,7 @@ import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.services.SeshGCMListenerService;
 import com.seshtutoring.seshapp.services.SeshInstanceIDListenerService;
 import com.seshtutoring.seshapp.util.ApplicationLifecycleTracker;
+import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.components.SeshActivityIndicator;
 import com.seshtutoring.seshapp.view.components.SeshBanner;

@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.Typeface;
+import android.os.Build;
 import android.os.SystemClock;
 import android.text.TextPaint;
 import android.text.style.ClickableSpan;
@@ -17,8 +18,11 @@ import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
+import android.view.WindowManager;
 
 import com.enrique.stackblur.StackBlurManager;
+
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * Created by nadavhollander on 7/16/15.
@@ -75,6 +79,7 @@ public class LayoutUtils {
 
         return stackBlurManager.returnBlurredImage();
     }
+
 
     public int getScreenHeightPx(Activity baseActivity) {
         Display display = baseActivity.getWindowManager().getDefaultDisplay();

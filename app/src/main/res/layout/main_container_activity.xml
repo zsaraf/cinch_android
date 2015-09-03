@@ -2,7 +2,8 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context="com.seshtutoring.seshapp.view.MainContainerActivity">
+        tools:context="com.seshtutoring.seshapp.view.MainContainerActivity"
+        android:id="@+id/main_main_container">
         <com.seshtutoring.seshapp.view.components.SeshActivityIndicator
             android:id="@+id/fragment_loading_indicator"
             android:visibility="gone"

@@ -17,6 +17,5 @@ public class MessagingActivity extends SeshActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_messaging);
 
-
     }
 }

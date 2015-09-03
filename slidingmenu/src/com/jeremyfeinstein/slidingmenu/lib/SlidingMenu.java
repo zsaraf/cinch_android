@@ -1,5 +1,6 @@
 package com.jeremyfeinstein.slidingmenu.lib;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import android.annotation.SuppressLint;
@@ -19,10 +20,14 @@ import android.os.Handler;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
+import android.view.KeyCharacterMap;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
@@ -639,7 +644,7 @@ public class SlidingMenu extends RelativeLayout {
 		} catch (Exception e) {
 			width = display.getWidth();
 		}
-		setBehindOffset(width-i);
+		setBehindOffset(width - i);
 	}
 
 	/**
@@ -782,7 +787,7 @@ public class SlidingMenu extends RelativeLayout {
 	 * @param resId The dimension resource id to be set as the shadow width.
 	 */
 	public void setShadowWidthRes(int resId) {
-		setShadowWidth((int)getResources().getDimension(resId));
+		setShadowWidth((int) getResources().getDimension(resId));
 	}
 
 	/**
@@ -982,6 +987,49 @@ public class SlidingMenu extends RelativeLayout {
 		mViewAbove.setCurrentItem(ss.getItem());
 	}
 
+	public static Point getNavigationBarSize(Context context) {
+		Point appUsableSize = getAppUsableScreenSize(context);
+		Point realScreenSize = getRealScreenSize(context);
+
+		// navigation bar on the right
+		if (appUsableSize.x < realScreenSize.x) {
+			return new Point(realScreenSize.x - appUsableSize.x, appUsableSize.y);
+		}
+
+		// navigation bar at the bottom
+		if (appUsableSize.y < realScreenSize.y) {
+			return new Point(appUsableSize.x, realScreenSize.y - appUsableSize.y);
+		}
+
+		// navigation bar is not present
+		return new Point();
+	}
+
+	public static Point getAppUsableScreenSize(Context context) {
+		WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+		Display display = windowManager.getDefaultDisplay();
+		Point size = new Point();
+		display.getSize(size);
+		return size;
+	}
+
+	public static Point getRealScreenSize(Context context) {
+		WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+		Display display = windowManager.getDefaultDisplay();
+		Point size = new Point();
+
+		if (Build.VERSION.SDK_INT >= 17) {
+			display.getRealSize(size);
+		} else if (Build.VERSION.SDK_INT >= 14) {
+			try {
+				size.x = (Integer) Display.class.getMethod("getRawWidth").invoke(display);
+				size.y = (Integer) Display.class.getMethod("getRawHeight").invoke(display);
+			} catch (IllegalAccessException e) {} catch (InvocationTargetException e) {} catch (NoSuchMethodException e) {}
+		}
+
+		return size;
+	}
+
 	/* (non-Javadoc)
 	 * @see android.view.ViewGroup#fitSystemWindows(android.graphics.Rect)
 	 */
@@ -992,13 +1040,22 @@ public class SlidingMenu extends RelativeLayout {
 		int rightPadding = insets.right;
 		int topPadding = insets.top;
 		int bottomPadding = insets.bottom;
-        if (Build.VERSION.SDK_INT >= 21) {
-            Resources resources = getContent().getResources();
-            int resourceId = resources.getIdentifier("navigation_bar_height", "dimen", "android");
-            if (resourceId > 0) {
-                bottomPadding += resources.getDimensionPixelSize(resourceId);
-            }
-        }
+
+		if (Build.VERSION.SDK_INT >= 21) {
+
+			Point navigationBarSize = getNavigationBarSize(getContext());
+			if(navigationBarSize.y > 0) {
+				bottomPadding += navigationBarSize.y;
+				// OLD STUFFS
+//				// Do whatever you need to do, this device has a navigation bar
+//				Resources resources = getContent().getResources();
+//				int resourceId = resources.getIdentifier("navigation_bar_height", "dimen", "android");
+//				if (resourceId > 0) {
+//					bottomPadding += resources.getDimensionPixelSize(resourceId);
+//				}
+			}
+		}
+
 		if (!mActionbarOverlay) {
 			Log.v(TAG, "setting padding!");
 			setPadding(leftPadding, topPadding, rightPadding, bottomPadding);

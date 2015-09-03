@@ -37,6 +37,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -104,8 +105,6 @@ public class SeshNetworking {
     private static final String SET_TIME_PARAM = "start_time";
     private static final String HANDLED_NOTIFICATIONS_PARAM = "handled_notifications";
 
-
-
     private Context mContext;
 
     public SeshNetworking(Context context) {
@@ -169,7 +168,7 @@ public class SeshNetworking {
     public void postWithRelativeUrl(String relativeUrl, JSONObject jsonParams,
                                     Response.Listener<JSONObject> successListener,
                                     Response.ErrorListener errorListener) {
-        String absoluteUrl = baseUrl() + "/ios-php/" + relativeUrl;
+        String absoluteUrl = baseUrl() + apiUrl() + relativeUrl;
 
         Log.i(TAG, "Issuing POST request to URL:  " + absoluteUrl + " with params: " +
                 jsonParams.toString());
@@ -183,7 +182,7 @@ public class SeshNetworking {
     public void postWithLongTimeout(String relativeUrl, Map<String, String> params,
                                           Response.Listener<JSONObject> successListener,
                                           Response.ErrorListener errorListener) {
-        String absoluteUrl = baseUrl() + "/ios-php/" + relativeUrl;
+        String absoluteUrl = baseUrl() + apiUrl() + relativeUrl;
 
         Log.i(TAG, "Issuing POST request to URL:  " + absoluteUrl + " with params: " +
                 params.toString());
@@ -544,6 +543,22 @@ public class SeshNetworking {
                 errorListener);
     }
 
+    private String loadUserJSON() {
+        String json = null;
+        try {
+            InputStream is = mContext.getResources().getAssets().open("json/user.json");
+            int size = is.available();
+            byte[] buffer = new byte[size];
+            is.read(buffer);
+            is.close();
+            json = new String(buffer, "UTF-8");
+        } catch (IOException ex) {
+            Log.e(TAG, "Couldn't open user.json file -- make sure you've added this asset! " + ex.getMessage());
+            return null;
+        }
+        return json;
+    }
+
     private String baseUrl() {
         String baseUrl;
         if (SeshApplication.IS_DEV) {
@@ -552,6 +567,25 @@ public class SeshNetworking {
             baseUrl = "https://www.seshtutoring.com/";
         }
         return baseUrl;
+    }
+
+    private String apiUrl() {
+        String apiUrl;
+        String user = "";
+        try {
+            JSONObject obj = new JSONObject(loadUserJSON());
+            user = obj.getString("user");
+        } catch (JSONException ex) {
+            ex.printStackTrace();
+            return "/ios-php/";
+        }
+
+        if (SeshApplication.USE_PERSONAL) {
+            apiUrl = "/users/" + user + "/";
+        } else {
+            apiUrl = "/ios-php/";
+        }
+        return apiUrl;
     }
 
     public void createRequestWithLearnRequest(LearnRequest learnRequest, Response.Listener<JSONObject> successListener,
