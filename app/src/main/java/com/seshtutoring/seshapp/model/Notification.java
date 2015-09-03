@@ -60,24 +60,9 @@ public class Notification extends SugarRecord<Notification> {
     public int priority;
     public String title;
     public User user;
-    public boolean dataUpdateHandled;
-    public boolean displayHandled;
+    public boolean wasDisplayedOutsideApp;
 
     public Notification() {}
-
-    public Notification(String data, String identifier, String message, int notification_id,
-                        boolean pending_deletion, int priority, String title, boolean updated_with_data,
-                        User user, boolean dataUpdateHandled, boolean displayHandled) {
-        this.data = data;
-        this.identifier = identifier;
-        this.message = message;
-        this.notificationId = notification_id;
-        this.pendingDeletion = pending_deletion;
-        this.priority = priority;
-        this.title = title;
-        this.dataUpdateHandled = dataUpdateHandled;
-        this.displayHandled = displayHandled;
-    }
 
     public synchronized static Notification createOrUpdateNotification(JSONObject bundleNotification, Context context) {
         Notification notification = null;
@@ -101,8 +86,7 @@ public class Notification extends SugarRecord<Notification> {
             notification.data = bundleNotification.getString("data");
             notification.priority = bundleNotification.getInt("priority");
             notification.pendingDeletion = false;
-            notification.displayHandled = false;
-            notification.dataUpdateHandled = false;
+            notification.wasDisplayedOutsideApp = false;
 
             if (SeshAuthManager.sharedManager(context).isValidSession()) {
                 notification.user = User.currentUser(context);
@@ -145,8 +129,7 @@ public class Notification extends SugarRecord<Notification> {
         refreshNotification.identifier = "REFRESH_NOTIFICATIONS";
         refreshNotification.priority = 1;
         refreshNotification.pendingDeletion = false;
-        refreshNotification.dataUpdateHandled = false;
-        refreshNotification.displayHandled = false;
+        refreshNotification.wasDisplayedOutsideApp = false;
 
         refreshNotification.save();
 
@@ -216,7 +199,7 @@ public class Notification extends SugarRecord<Notification> {
                 context, SeshNotificationManagerService.class);
 
         if (deleteNotification) {
-            notificationHandled.putExtra(SeshNotificationManagerService.NOTIFICATION_PENDING_DELETION_KEY, true);
+            notificationHandled.putExtra(SeshNotificationManagerService.SET_NOTIFICATION_PENDING_DELETION_KEY, true);
         }
 
         context.startService(notificationHandled);

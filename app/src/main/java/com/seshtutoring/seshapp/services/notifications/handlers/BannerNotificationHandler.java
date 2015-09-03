@@ -39,11 +39,19 @@ public abstract class BannerNotificationHandler extends NotificationHandler {
     @Override
     public void handleDisplayOutsideApp() {
         showNotificationForIntent(new Intent(mContext, MainContainerActivity.class));
-        Notification.currentNotificationHandled(mContext, true);
+        mNotification.wasDisplayedOutsideApp = true;
+        mNotification.save();
     }
 
     // IF USING PROFILE PICTURE, MAKE SURE TO LOAD IMAGE INTO profilePicture FIRST
     protected void displayBanner() {
+
+        // if notificaiton has already been displayed outside app, we do not display banner in app
+        if (mNotification.wasDisplayedOutsideApp) {
+            Notification.currentNotificationHandled(mContext, true);
+            return;
+        }
+
         SeshBanner seshBanner = SeshBanner.createBanner(6000,
                 mNotification.title,
                 mNotification.message,

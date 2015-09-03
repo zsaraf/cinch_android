@@ -56,7 +56,6 @@ public class NewMessageNotificationHandler extends BannerNotificationHandler {
     public void handleDisplayOutsideApp() {
         saveNewMessage();
         showNotificationForIntent(viewSeshActionIntent(false, mNotification.correspondingSesh()));
-        Notification.currentNotificationHandled(mContext, true);
     }
 
     public Runnable bannerTapCallback() {

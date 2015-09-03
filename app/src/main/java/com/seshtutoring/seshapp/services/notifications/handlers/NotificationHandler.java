@@ -59,6 +59,9 @@ public abstract class NotificationHandler {
         NotificationManager notificationManager =
                 (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.notify(DEFAULT_NOTIFICATION_ID, notificationBuilder.build());
+
+        mNotification.wasDisplayedOutsideApp = true;
+        mNotification.save();
     }
 
     protected void loadImage(final ImageView imageView, final Callback callback) {

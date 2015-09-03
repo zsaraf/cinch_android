@@ -30,7 +30,7 @@ public class SeshNotificationManagerService extends IntentService {
             = "com.seshtutoring.seshapp.services.notifications.CURRENT_NOTIFICATION_HAS_BEEN_HANDLED";
     public static final String REFRESH_NOTIFICATIONS_ACTION
             = "com.seshtutoring.seshapp.services.notifications.REFRESH_NOTIFICATIONS";
-    public static final String NOTIFICATION_PENDING_DELETION_KEY = "pending_deletion";
+    public static final String SET_NOTIFICATION_PENDING_DELETION_KEY = "pending_deletion";
     private boolean paused;
     private ApplicationLifecycleTracker applicationLifecycleTracker;
     private InAppNotificationDisplayQueue displayQueue;
@@ -61,10 +61,8 @@ public class SeshNotificationManagerService extends IntentService {
 
                     if (!applicationLifecycleTracker.applicationInForeground()) {
                         notificationHandler.handleDisplayOutsideApp();
-                    } else {
-                        if (!displayQueue.notificationHandlingInProgress()) {
-                            displayQueue.handleNext();
-                        }
+                    } else if (!displayQueue.notificationHandlingInProgress()) {
+                        displayQueue.handleNext();
                     }
                 } catch (JSONException e) {
                     Log.e(TAG, "Failed to enqueue / handle new notification; json response malformed: " + e);
@@ -77,7 +75,7 @@ public class SeshNotificationManagerService extends IntentService {
                 }
                 break;
             case CURRENT_NOTIFICATION_HAS_BEEN_HANDLED:
-                if (intent.getBooleanExtra(NOTIFICATION_PENDING_DELETION_KEY, false)) {
+                if (intent.getBooleanExtra(SET_NOTIFICATION_PENDING_DELETION_KEY, false)) {
                     Notification currentNotification = displayQueue.getCurrentNotification();
                     currentNotification.pendingDeletion = true;
                     currentNotification.save();

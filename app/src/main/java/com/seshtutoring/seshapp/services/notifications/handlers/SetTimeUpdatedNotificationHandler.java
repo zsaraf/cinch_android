@@ -46,7 +46,6 @@ public class SetTimeUpdatedNotificationHandler extends BannerNotificationHandler
     public void handleDisplayOutsideApp() {
         saveNewSetTime();
         showNotificationForIntent(viewSeshActionIntent(false, mNotification.correspondingSesh()));
-        Notification.currentNotificationHandled(mContext, true);
     }
 
     public Runnable bannerTapCallback() {

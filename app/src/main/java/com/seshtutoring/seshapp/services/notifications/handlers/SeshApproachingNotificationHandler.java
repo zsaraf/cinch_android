@@ -38,7 +38,6 @@ public class SeshApproachingNotificationHandler  extends BannerNotificationHandl
     @Override
     public void handleDisplayOutsideApp() {
         showNotificationForIntent(viewSeshActionIntent(false));
-        Notification.currentNotificationHandled(mContext, true);
     }
 
     public Runnable bannerTapCallback() {
