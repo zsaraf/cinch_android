@@ -167,7 +167,7 @@ public class Sesh extends SugarRecord<Sesh> {
                 JSONArray messagesJSON = seshJson.getJSONArray(MESSAGES_KEY);
                 for (int i = 0; i < messagesJSON.length(); i++) {
                     JSONObject messageJSON = messagesJSON.getJSONObject(i);
-                    Message message = Message.createOrUpdateMessageWithJSON(messageJSON, sesh);
+                    Message message = Message.createOrUpdateMessageWithJSON(messageJSON, sesh, context);
                     message.save();
                 }
             }

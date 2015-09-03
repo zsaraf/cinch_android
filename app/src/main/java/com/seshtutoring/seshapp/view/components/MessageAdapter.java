@@ -1,6 +1,8 @@
 package com.seshtutoring.seshapp.view.components;
 
 import android.content.Context;
+import android.graphics.Typeface;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,6 +10,7 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.Message;
+import com.seshtutoring.seshapp.util.LayoutUtils;
 
 import java.util.List;
 
@@ -17,13 +20,18 @@ import java.util.List;
 public class MessageAdapter extends BaseAdapter {
 
     Context context;
-    List<Message> messages;
+    public List<Message> messages;
     private static LayoutInflater inflater = null;
+    private Typeface tf;
 
     public MessageAdapter(Context context, List<Message> messages) {
         // TODO Auto-generated constructor stub
         this.context = context;
         this.messages = messages;
+        LayoutUtils layUtils = new LayoutUtils(context);
+
+        this.tf = layUtils.getLightGothamTypeface();
+
         inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
@@ -54,8 +62,26 @@ public class MessageAdapter extends BaseAdapter {
             vi = inflater.inflate(R.layout.message_row, null);
 
         Message currentMessage = this.getItem(position);
-        TextView text = (TextView) vi.findViewById(R.id.left_text);
-        text.setText(currentMessage.content);
+
+        TextView leftText = (TextView) vi.findViewById(R.id.left_text);
+        TextView rightText =  (TextView)vi.findViewById(R.id.right_text);
+
+        leftText.setTypeface(this.tf);
+        rightText.setTypeface(this.tf);
+
+        if (currentMessage.fromYou) {
+            leftText.setText("");
+            rightText.setText(currentMessage.content.trim());
+            if (rightText.getLineCount() > 1) {
+                rightText.setGravity(Gravity.LEFT);
+            } else {
+                rightText.setGravity(Gravity.RIGHT);
+            }
+        } else {
+            rightText.setText("");
+            leftText.setText(currentMessage.content.trim());
+        }
+
         return vi;
     }
 }

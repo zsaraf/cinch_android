@@ -104,6 +104,7 @@ public class SeshNetworking {
     private static final String CONTENT_PARAM = "content";
     private static final String SET_TIME_PARAM = "start_time";
     private static final String HANDLED_NOTIFICATIONS_PARAM = "handled_notifications";
+    private static final String MESSAGE_ID_PARAM = "message_id";
 
     private Context mContext;
 
@@ -796,6 +797,24 @@ public class SeshNetworking {
         postWithRelativeUrl("set_location_notes.php", params, successListener, errorListener);
     }
 
+    public void sendMessage(String message, int seshId, Response.Listener<JSONObject> successListener, Response.ErrorListener errorListener) {
+        Map<String, String> params = new HashMap<>();
+        params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
+        params.put(SESH_ID_PARAM, Integer.toString(seshId));
+        params.put(CONTENT_PARAM, message);
+
+        postWithRelativeUrl("send_message.php", params, successListener, errorListener);
+    }
+
+    public void hasReadUpToMessage(int messageId, int seshId, Response.Listener<JSONObject> successListener, Response.ErrorListener errorListener) {
+        Map<String, String> params = new HashMap<>();
+        params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
+        params.put(SESH_ID_PARAM, Integer.toString(seshId));
+        params.put(MESSAGE_ID_PARAM, Integer.toString(messageId));
+
+        postWithRelativeUrl("has_read_up_to_message.php", params, successListener, errorListener);
+    }
+
     public static abstract class SynchronousRequest {
         public JSONObject execute() {
             RequestFuture<JSONObject> blocker = RequestFuture.newFuture();
@@ -829,11 +848,7 @@ public class SeshNetworking {
 //    public void createBidForRequest(...)
 //    public void getPossibleJobsForCourses(...)
 //    public void uploadProfilePicture(...)
-//    public void endSesh(...)
-//    public void cancelSesh(...)
-//    public void sendMessage(...)
 //    public void hasReadCurrentMessage(...)
-//    public void getAllMessagesForSesh(...)
 
 //    public void payOutstandingCharges(...)
 }

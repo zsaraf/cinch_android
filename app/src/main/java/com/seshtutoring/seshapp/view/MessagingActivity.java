@@ -2,7 +2,9 @@ package com.seshtutoring.seshapp.view;
 
 import android.app.ActionBar;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.Editable;
@@ -11,6 +13,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -18,11 +21,19 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.Message;
 import com.seshtutoring.seshapp.model.Sesh;
 import com.seshtutoring.seshapp.util.LayoutUtils;
+import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.components.MessageAdapter;
+import com.seshtutoring.seshapp.view.components.SeshDialog;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.List;
 import java.util.logging.Handler;
@@ -30,7 +41,7 @@ import java.util.logging.Handler;
 /**
  * Created by franzwarning on 8/31/15.
  */
-public class MessagingActivity extends SeshActivity {
+public class MessagingActivity extends SeshActivity implements View.OnClickListener{
 
     private static final String TAG = MessagingActivity.class.getName();
     public static final String SESH_ID = "sesh_id";
@@ -41,6 +52,8 @@ public class MessagingActivity extends SeshActivity {
     private ListView listView;
     private MessageAdapter messageAdapter;
     private Sesh sesh;
+    private boolean wasKeyboardOpen = false;
+    private SeshNetworking seshNetworking;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -75,6 +88,7 @@ public class MessagingActivity extends SeshActivity {
         this.textFieldContainer = (RelativeLayout)findViewById(R.id.text_field_container);
         this.sendTextView = (TextView)findViewById(R.id.send_text);
         this.listView = (ListView)findViewById(R.id.list_view);
+        this.seshNetworking = new SeshNetworking(this);
 
         LayoutUtils layUtils = new LayoutUtils(this);
 
@@ -106,6 +120,97 @@ public class MessagingActivity extends SeshActivity {
         this.listView.setOverScrollMode(ListView.OVER_SCROLL_ALWAYS);
         this.listView.setAdapter(this.messageAdapter);
 
+        watchKeyboard();
+
+    }
+
+    private void watchKeyboard() {
+
+        try {
+            final View v = findViewById(R.id.messaging_root);
+            v.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                @Override
+                public void onGlobalLayout() {
+
+                    Rect r = new Rect();
+                    v.getWindowVisibleDisplayFrame(r);
+
+                    int heightDiff = v.getRootView().getHeight() - (r.bottom - r.top);
+                    if (heightDiff > 100) {
+                        wasKeyboardOpen = true;
+                        // kEYBOARD IS OPEN
+
+                    } else {
+                        if (wasKeyboardOpen) {
+                            wasKeyboardOpen = false;
+                            // Do your toast here
+                            textField.clearFocus();
+                            listView.smoothScrollToPosition(messageAdapter.getCount() - 1);
+                        }
+                        // kEYBOARD IS HIDDEN
+                    }
+                }
+            });
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void onClick(View v) {
+        if (v == this.sendTextView) {
+            String currentMessage = this.textField.getText().toString();
+            if (currentMessage == null || currentMessage.equals("")) {
+                return;
+            }
+            this.textField.setText("");
+            this.textField.setHint("Sending...");
+            this.textField.setCursorVisible(false);
+            seshNetworking.sendMessage(currentMessage, this.sesh.seshId, new Response.Listener<JSONObject>() {
+                @Override
+                public void onResponse(JSONObject jsonObject) {
+                    try {
+                        if (jsonObject.getString("status").equals("SUCCESS")) {
+
+                            JSONArray messagesJSON = jsonObject.getJSONArray("messages");
+                            for (int i = 0; i < messagesJSON.length(); i++) {
+                                JSONObject messageJSON = messagesJSON.getJSONObject(i);
+                                Message message = Message.createOrUpdateMessageWithJSON(messageJSON, sesh, getApplicationContext());
+                                message.save();
+                            }
+                            messageAdapter.messages = sesh.getMessages();
+                            messageAdapter.notifyDataSetChanged();
+                            listView.smoothScrollToPosition(messageAdapter.getCount() - 1);
+                            textField.setHint("Message...");
+                            textField.setCursorVisible(true);
+
+
+                        } else {
+//                        setNetworkOperationInProgress(false);
+
+                            SeshDialog.showDialog(getFragmentManager(), "Whoops",
+                                    jsonObject.getString("message"),
+                                    "Okay", null, "SEND_MESSAGE");
+                        }
+                    } catch (JSONException e) {
+//                    setNetworkOperationInProgress(false);
+
+                        Log.e(TAG, "Failed to send report problem; JSON malformed: " + e);
+                        SeshDialog.showDialog(getFragmentManager(), "Whoops",
+                                "Something went wrong.  Try again later.",
+                                "Okay", null, "error");
+                    }
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError volleyError) {
+//                setNetworkOperationInProgress(false);
+                    SeshDialog.showDialog(getFragmentManager(), "Whoops",
+                            "Something went wrong.  Try again later.",
+                            "Okay", null, "error");
+                }
+            });
+        }
+
     }
 
     private View.OnFocusChangeListener focusListener = new View.OnFocusChangeListener(){
@@ -122,4 +227,13 @@ public class MessagingActivity extends SeshActivity {
             }
         }
     };
+
+    @Override
+    public void onBackPressed() {
+        if (this.textField.hasFocus()) {
+            this.textField.clearFocus();
+        } else {
+            finish();
+        }
+    }
 }

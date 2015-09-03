@@ -1,5 +1,6 @@
 package com.seshtutoring.seshapp.model;
 
+import android.content.Context;
 import android.util.Log;
 
 import com.orm.SugarRecord;
@@ -32,19 +33,23 @@ public class Message extends SugarRecord<Message> {
     public long timestamp;
     public boolean hasBeenRead;
     public int messageId;
+    public boolean fromYou;
+    public boolean isPending;
 
     // empty constructor necessary for SugarORM to work
     public Message() {}
 
-    public Message(String content, Sesh sesh, long timestmap, boolean hasBeenRead, int messageId) {
+    public Message(String content, Sesh sesh, long timestmap, boolean hasBeenRead, int messageId, boolean fromYou, boolean isPending) {
         this.content = content;
         this.sesh = sesh;
         this.timestamp = timestmap;
         this.hasBeenRead = hasBeenRead;
         this.messageId = messageId;
+        this.fromYou = fromYou;
+        this.isPending = isPending;
     }
 
-    public static Message createOrUpdateMessageWithJSON(JSONObject jsonObject, Sesh sesh) {
+    public static Message createOrUpdateMessageWithJSON(JSONObject jsonObject, Sesh sesh, Context context) {
 
         Message message = null;
         try {
@@ -63,6 +68,10 @@ public class Message extends SugarRecord<Message> {
             message.sesh = sesh;
             message.hasBeenRead = (jsonObject.getInt(HAS_BEEN_READ_KEY) != 0);
             message.messageId = messageId;
+            message.isPending = false;
+
+            User currentUser = User.currentUser(context);
+            message.fromYou = (jsonObject.getInt(FROM_USER_ID_KEY) == currentUser.userId);
 
         } catch (JSONException e) {
             Log.e(TAG, "Failed to create or update user in db; JSON user object from server is malformed: " + e.getMessage());

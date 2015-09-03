@@ -52,6 +52,7 @@ public class LocationNotesUpdatedNotificationHandler extends BannerNotificationH
             @Override
             public void run() {
                 mContext.sendBroadcast(viewSeshActionIntent(true, mNotification.correspondingSesh()));
+                Notification.currentNotificationHandled(mContext, true);
             }
         };
     }

@@ -195,6 +195,7 @@
         <activity
             android:name=".view.MessagingActivity"
             android:label="@string/messaging_activity"
+            android:screenOrientation="portrait"
             android:parentActivityName=".view.MainContainerActivity"
             android:launchMode="singleTop"
             android:windowSoftInputMode="adjustResize|stateHidden"
