@@ -7,6 +7,9 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 import com.seshtutoring.seshapp.R;
+import com.seshtutoring.seshapp.model.Message;
+
+import java.util.List;
 
 /**
  * Created by franzwarning on 9/2/15.
@@ -14,13 +17,13 @@ import com.seshtutoring.seshapp.R;
 public class MessageAdapter extends BaseAdapter {
 
     Context context;
-    String[] data;
+    List<Message> messages;
     private static LayoutInflater inflater = null;
 
-    public MessageAdapter(Context context, String[] data) {
+    public MessageAdapter(Context context, List<Message> messages) {
         // TODO Auto-generated constructor stub
         this.context = context;
-        this.data = data;
+        this.messages = messages;
         inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
@@ -28,19 +31,19 @@ public class MessageAdapter extends BaseAdapter {
     @Override
     public int getCount() {
         // TODO Auto-generated method stub
-        return data.length;
+        return messages.size();
     }
 
     @Override
-    public Object getItem(int position) {
+    public Message getItem(int position) {
         // TODO Auto-generated method stub
-        return data[position];
+        return this.messages.get(position);
     }
 
     @Override
     public long getItemId(int position) {
         // TODO Auto-generated method stub
-        return position;
+        return this.getItem(position).messageId;
     }
 
     @Override
@@ -49,8 +52,10 @@ public class MessageAdapter extends BaseAdapter {
         View vi = convertView;
         if (vi == null)
             vi = inflater.inflate(R.layout.message_row, null);
-        TextView text = (TextView) vi.findViewById(R.id.text);
-        text.setText(data[position]);
+
+        Message currentMessage = this.getItem(position);
+        TextView text = (TextView) vi.findViewById(R.id.left_text);
+        text.setText(currentMessage.content);
         return vi;
     }
 }

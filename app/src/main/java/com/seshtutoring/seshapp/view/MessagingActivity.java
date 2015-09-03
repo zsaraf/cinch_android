@@ -19,9 +19,12 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.seshtutoring.seshapp.R;
+import com.seshtutoring.seshapp.model.Message;
+import com.seshtutoring.seshapp.model.Sesh;
 import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.view.components.MessageAdapter;
 
+import java.util.List;
 import java.util.logging.Handler;
 
 /**
@@ -30,12 +33,14 @@ import java.util.logging.Handler;
 public class MessagingActivity extends SeshActivity {
 
     private static final String TAG = MessagingActivity.class.getName();
+    public static final String SESH_ID = "sesh_id";
 
     private EditText textField;
     private RelativeLayout textFieldContainer;
     private TextView sendTextView;
     private ListView listView;
     private MessageAdapter messageAdapter;
+    private Sesh sesh;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -83,9 +88,19 @@ public class MessagingActivity extends SeshActivity {
         paint.setTextSize(this.textField.getTextSize());
         paint.setTypeface(layUtils.getLightGothamTypeface());
 
+        // Get the the sesh
+        Bundle b = getIntent().getExtras();
+        final int seshId = b.getInt(SESH_ID);
+
+        List<Sesh> foundSeshes = Sesh.find(Sesh.class, "sesh_id = ?", Integer.toString(new Integer(seshId)));
+        this.sesh = foundSeshes.get(0);
+
+        if (this.sesh == null) {
+            Log.e(TAG, "Couldn't find sesh with ID: " + seshId);
+        }
+
         // Setup the message adapter
-        this.messageAdapter = new MessageAdapter(this, new String[]{"data1",
-                "data2", "test", "test222", "test333", "test222", "test333", "test222", "test333", "test222", "test333", "test222", "test333", "test222", "test333", "test222", "test333", "test222", "test333"});
+        this.messageAdapter = new MessageAdapter(this, this.sesh.getMessages());
 
         // Setup the list view
         this.listView.setOverScrollMode(ListView.OVER_SCROLL_ALWAYS);

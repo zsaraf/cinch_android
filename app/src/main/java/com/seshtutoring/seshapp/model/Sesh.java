@@ -179,7 +179,7 @@ public class Sesh extends SugarRecord<Sesh> {
     }
 
     public List<Message> getMessages() {
-        return Message.find(Message.class, "sesh.sesh_id = ?", Integer.toString(seshId));
+        return Message.find(Message.class, "sesh = ?", Long.toString(this.getId()));
     }
 
     public static void setTableListener(SeshTableListener tableListener) {
@@ -198,7 +198,7 @@ public class Sesh extends SugarRecord<Sesh> {
     public void delete() {
         // Delete all available blocks associated with this Sesh
         AvailableBlock.deleteAll(AvailableBlock.class, "sesh = ?", Long.toString(this.getId()));
-
+        Message.deleteAll(Message.class, "sesh = ?", Long.toString(this.getId()));
         super.delete();
         if (listener != null) {
             listener.tableUpdated();

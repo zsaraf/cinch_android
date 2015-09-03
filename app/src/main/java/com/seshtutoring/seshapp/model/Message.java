@@ -48,18 +48,9 @@ public class Message extends SugarRecord<Message> {
 
         Message message = null;
         try {
-            int messageId = jsonObject.getInt(MESSAGE_ID_KEY);
 
-            if (Message.listAll(Message.class).size() > 0) {
-                List<Message> messagesFound = Message.find(Message.class, "message_id = ?", Integer.toString(messageId));
-                if (messagesFound.size() > 0) {
-                    message = messagesFound.get(0);
-                } else {
-                    message = new Message();
-                }
-            } else {
-                message = new Message();
-        }
+            int messageId = jsonObject.getInt(MESSAGE_ID_KEY);
+            message = createOrUpdateMessageWithId(messageId);
 
             // Assign all the properties of the message
             String timestamp = jsonObject.getString(TIMESTAMP_KEY);
@@ -77,6 +68,19 @@ public class Message extends SugarRecord<Message> {
             Log.e(TAG, "Failed to create or update user in db; JSON user object from server is malformed: " + e.getMessage());
             return null;
         }
+        return message;
+    }
+
+    private static Message createOrUpdateMessageWithId(int messageId) {
+        Message message = null;
+        List<Message> messagesFound = Message.find(Message.class, "message_id = ?", Integer.toString(messageId));
+        if (messagesFound.size() > 0) {
+            message = messagesFound.get(0);
+        } else {
+            message = new Message();
+            message.messageId = messageId;
+        }
+
         return message;
     }
 

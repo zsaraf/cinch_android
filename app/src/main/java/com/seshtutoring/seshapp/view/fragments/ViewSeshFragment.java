@@ -283,6 +283,7 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
 
     private void messageButtonClicked() {
         Intent intent = new Intent(myContext, MessagingActivity.class);
+        intent.putExtra(MessagingActivity.SESH_ID, this.sesh.seshId);
         startActivityForResult(intent, 1);
     }
 
