@@ -16,6 +16,7 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -25,6 +26,7 @@ import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.Course;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.RequestActivity;
+import com.seshtutoring.seshapp.view.components.RequestFlowScrollView;
 import com.seshtutoring.seshapp.view.components.SeshEditText;
 
 import org.json.JSONArray;
@@ -45,6 +47,7 @@ public class LearnRequestCourseFragment extends Fragment implements RequestActiv
     private ListView courseResultsListView;
     private CourseResultsAdapter courseResultsAdapter;
     private ArrayList<Course> courseResults;
+    private RequestFlowScrollView requestFlowScrollView;
 
     private Course selectedCourse = null;
 
@@ -62,17 +65,12 @@ public class LearnRequestCourseFragment extends Fragment implements RequestActiv
         this.courseResultsListView.setOnItemClickListener(new ListView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 selectedCourse = courseResults.get(position);
+                saveValues();
+
                 courseEditText.setText(selectedCourse.formatForTextView());
                 courseResults.clear();
-                courseResultsAdapter.notifyDataSetChanged();
 
-                // wait 0.8 seconds before transitioning to next fragment...let user see selection
-                (new Handler()).postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        parentActivity.nextFragment();
-                    }
-                }, 800);
+                requestFlowScrollView.flingNextFragment();
             }
         });
         this.seshNetworking = new SeshNetworking(getActivity());
@@ -90,7 +88,10 @@ public class LearnRequestCourseFragment extends Fragment implements RequestActiv
 
             @Override
             public void afterTextChanged(Editable s) {
-                if (selectedCourse != null) return;
+                if (s.toString().equals("") || selectedCourse != null) {
+                    courseResults.clear();
+                    return;
+                }
                 seshNetworking.searchForClassName(s.toString(), new Response.Listener<JSONObject>() {
                     public void onResponse(JSONObject jsonResponse) {
                         try {
@@ -116,10 +117,9 @@ public class LearnRequestCourseFragment extends Fragment implements RequestActiv
             }
         });
 
-        courseEditText.setOnEditorActionListener(parentActivity);
-
         return v;
     }
+
 
     private class CourseResultsAdapter extends ArrayAdapter<Course> {
         private Context mContext;
@@ -156,7 +156,7 @@ public class LearnRequestCourseFragment extends Fragment implements RequestActiv
     }
 
     @Override
-    public void saveValues()  {
+    public void saveValues() {
         parentActivity.getCurrentLearnRequest().classId = String.format("%d", selectedCourse.classId);
         parentActivity.getCurrentLearnRequest().classString = String.format("%s %s",
                 selectedCourse.deptAbbrev, selectedCourse.classNumber);
@@ -165,5 +165,24 @@ public class LearnRequestCourseFragment extends Fragment implements RequestActiv
     @Override
     public boolean isCompleted() {
         return (selectedCourse != null);
+    }
+
+    @Override
+    public void attachRequestFlowScrollView(RequestFlowScrollView requestFlowScrollView) {
+        this.requestFlowScrollView = requestFlowScrollView;
+    }
+
+    @Override
+    public void onFragmentInForeground() {
+        courseEditText.setText("");
+        courseEditText.requestEditTextFocus();
+        selectedCourse = null;
+        parentActivity.showKeyboard();
+        parentActivity.showRequestFlowNextButton();
+    }
+
+    @Override
+    public void beforeFragmentInForeground() {
+        // do nothing
     }
 }

@@ -7,52 +7,118 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:alpha="0.2"
-        android:background="#BC8B5A" />
-
+        android:alpha="0.8"
+        android:background="#000000" />
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/learn_request_top_bar">
-        <ImageButton
-            android:id="@+id/request_flow_close"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:scaleX="0.7"
-            android:scaleY="0.7"
-            android:background="@drawable/close" />
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
-            android:textColor="@color/seshorange"
-            android:textSize="20sp"
-            android:text="Request"/>
-        <ImageButton
-            android:id="@+id/request_flow_next"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:scaleX="0.7"
-            android:scaleY="0.7"
-            android:layout_alignParentRight="true"
-            android:background="@drawable/next"/>
-    </RelativeLayout>
-
-    <com.seshtutoring.seshapp.view.components.LearnRequestProgressBar
-        android:id="@+id/learn_request_progress_bar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="40dp"
-        android:layout_marginRight="40dp"
-        android:layout_below="@id/learn_request_top_bar"/>
-
-    <com.seshtutoring.seshapp.view.components.RequestFlowViewPager
-        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/learn_request_view_pager"
-        android:layout_alignParentBottom="true"
-        android:layout_marginTop="115dp" />
+        android:id="@+id/request_layout_container">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/learn_request_top_bar">
+            <RelativeLayout
+                android:id="@+id/request_flow_close"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_margin="20dp"
+                    android:background="@drawable/close" />
+            </RelativeLayout>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:textColor="@color/seshorange"
+                android:textSize="18sp"
+                android:text="Request"/>
+            <RelativeLayout
+                android:id="@+id/request_flow_next"
+                android:layout_alignParentRight="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_margin="20dp"
+                    android:background="@drawable/next"/>
+            </RelativeLayout>
+        </RelativeLayout>
+
+
+        <com.seshtutoring.seshapp.view.components.RequestFlowScrollView
+            android:id="@+id/request_flow_slider"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingTop="5dp"
+            android:paddingBottom="10dp"
+            android:layout_below="@id/learn_request_top_bar"
+            >
+            <com.seshtutoring.seshapp.view.components.LearnRequestProgressBar
+                    android:id="@+id/learn_request_progress_bar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+            <RelativeLayout
+                android:id="@+id/progress_underline_container"
+                android:layout_below="@id/learn_request_progress_bar"
+                android:layout_width="match_parent"
+                android:layout_height="20dp">
+                <View
+                    android:id="@+id/progress_underline"
+                    android:layout_centerVertical="true"
+                    android:background="@color/seshorange"
+                    android:layout_width="20dp"
+                    android:layout_height="2dp"/>
+            </RelativeLayout>
+            <HorizontalScrollView
+                android:id="@+id/scroll_view"
+                android:layout_below="@id/progress_underline_container"
+                android:layout_marginTop="10dp"
+                android:scrollbars="none"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <LinearLayout
+                    android:id="@+id/request_fragments_container"
+                    android:orientation="horizontal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent">
+                    <FrameLayout
+                        android:id="@+id/leftBufferZone"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"/>
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:id="@+id/course_fragment"/>
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:id="@+id/assignment_fragment"/>
+                    <FrameLayout
+                        android:layout_toRightOf="@id/assignment_fragment"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:id="@+id/num_students_fragment"/>
+                    <FrameLayout
+                        android:layout_toRightOf="@id/num_students_fragment"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:id="@+id/duration_fragment"/>
+                    <FrameLayout
+                        android:layout_toRightOf="@id/duration_fragment"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:id="@+id/confirm_fragment"/>
+                    <FrameLayout
+                        android:id="@+id/rightBufferZone"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"/>
+                </LinearLayout>
+            </HorizontalScrollView>
+        </com.seshtutoring.seshapp.view.components.RequestFlowScrollView>
+    </RelativeLayout>
 </RelativeLayout>

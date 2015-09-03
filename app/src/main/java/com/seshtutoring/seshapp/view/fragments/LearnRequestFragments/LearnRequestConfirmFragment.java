@@ -11,32 +11,38 @@ import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.LearnRequest;
 import com.seshtutoring.seshapp.view.RequestActivity;
 import com.seshtutoring.seshapp.view.SeshActivity;
+import com.seshtutoring.seshapp.view.components.RequestFlowScrollView;
 import com.seshtutoring.seshapp.view.components.SeshActivityIndicator;
 import com.seshtutoring.seshapp.view.components.SeshButton;
 import com.seshtutoring.seshapp.view.components.SeshEditText;
+import com.seshtutoring.seshapp.view.components.SeshInformationLabel;
 
 /**
  * Created by nadavhollander on 7/24/15.
  */
-public class LearnRequestConfirmFragment extends Fragment {
+public class LearnRequestConfirmFragment extends Fragment implements RequestActivity.InputFragment {
     private RequestActivity parentActivity;
-    private SeshEditText classTextBox;
-    private SeshEditText assignmentTextBox;
-    private SeshEditText numStudentsTextBox;
-    private SeshEditText durationTextBox;
+    private SeshInformationLabel classLabel;
+    private SeshInformationLabel assignmentLabel;
+    private SeshInformationLabel numStudentsLabel;
+    private SeshInformationLabel durationLabel;
+    private SeshInformationLabel timeLabel;
     private SeshButton requestButton;
     private SeshActivityIndicator activityIndicator;
     private LinearLayout confirmationDetailsList;
+    private RequestFlowScrollView requestFlowScrollView;
 
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
         View v = layoutInflater.inflate(R.layout.learn_request_confirm_fragment, container, false);
 
         this.parentActivity = (RequestActivity) getActivity();
 
-        this.classTextBox = (SeshEditText) v.findViewById(R.id.class_confirmation_box);
-        this.assignmentTextBox = (SeshEditText) v.findViewById(R.id.assignment_confirmation_box);
-        this.numStudentsTextBox = (SeshEditText) v.findViewById(R.id.num_students_confirmation_box);
-        this.durationTextBox = (SeshEditText) v.findViewById(R.id.duration_confirmation_box);
+        this.classLabel = (SeshInformationLabel) v.findViewById(R.id.class_label);
+        this.assignmentLabel = (SeshInformationLabel) v.findViewById(R.id.assignment_label);
+        this.numStudentsLabel = (SeshInformationLabel) v.findViewById(R.id.num_people_label);
+        this.durationLabel = (SeshInformationLabel) v.findViewById(R.id.duration_label);
+        this.timeLabel = (SeshInformationLabel) v.findViewById(R.id.time_label);
+
         this.activityIndicator = (SeshActivityIndicator) v.findViewById(R.id.request_activity_indicator);
         this.confirmationDetailsList = (LinearLayout) v.findViewById(R.id.confirmation_detail_list);
 
@@ -66,19 +72,51 @@ public class LearnRequestConfirmFragment extends Fragment {
     public void fillInConfirmationBoxes() {
         LearnRequest currentLearnRequest = parentActivity.getCurrentLearnRequest();
 
-        classTextBox.setText(currentLearnRequest.classString);
-        assignmentTextBox.setText(currentLearnRequest.descr);
+        classLabel.setText(currentLearnRequest.classString);
+        assignmentLabel.setText(currentLearnRequest.descr);
 
         if (currentLearnRequest.numPeople > 1) {
-            numStudentsTextBox.setText(currentLearnRequest.numPeople + " Students");
+            numStudentsLabel.setText(currentLearnRequest.numPeople + " people");
         } else {
-            numStudentsTextBox.setText(currentLearnRequest.numPeople + " Student");
+            numStudentsLabel.setText(currentLearnRequest.numPeople + " person");
         }
 
-        durationTextBox.setText(currentLearnRequest.getEstTimeString());
+        durationLabel.setText(currentLearnRequest.getEstTimeString());
+
+        if (currentLearnRequest.isInstant()) {
+            timeLabel.setText("NOW");
+        } else  {
+            // @TODO implement when scheduling is implemented
+        }
     }
 
     public void enableRequestButton() {
         this.requestButton.setEnabled(true);
+    }
+
+
+    @Override
+    public void saveValues() {
+        // do nothing
+    }
+
+    @Override
+    public boolean isCompleted() {
+        return true;
+    }
+
+    @Override
+    public void attachRequestFlowScrollView(RequestFlowScrollView requestFlowScrollView) {
+        this.requestFlowScrollView = requestFlowScrollView;
+    }
+
+    @Override
+    public void onFragmentInForeground() {
+        parentActivity.hideRequestFlowNextButton();
+    }
+
+    @Override
+    public void beforeFragmentInForeground() {
+        fillInConfirmationBoxes();
     }
 }

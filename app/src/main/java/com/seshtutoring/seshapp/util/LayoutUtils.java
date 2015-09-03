@@ -12,6 +12,7 @@ import android.os.Build;
 import android.os.SystemClock;
 import android.text.TextPaint;
 import android.text.style.ClickableSpan;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Display;
@@ -80,13 +81,27 @@ public class LayoutUtils {
         return stackBlurManager.returnBlurredImage();
     }
 
+    public int getDimensionPx(int id) {
+        return mContext.getResources().getDimensionPixelSize(id);
+    }
 
-    public int getScreenHeightPx(Activity baseActivity) {
-        Display display = baseActivity.getWindowManager().getDefaultDisplay();
-        Point size = new Point();
-        display.getSize(size);
+    public int getScreenWidthPx(Context context) {
+        DisplayMetrics metrics = context.getResources().getDisplayMetrics();
+        return metrics.widthPixels;
+    }
 
-        return size.y;
+    public int getScreenHeightPx(Context context) {
+        DisplayMetrics metrics = context.getResources().getDisplayMetrics();
+        return metrics.heightPixels;
+    }
+
+    public int getStatusBarHeight() {
+        int result = 0;
+        int resourceId = mContext.getResources().getIdentifier("status_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            result = mContext.getResources().getDimensionPixelSize(resourceId);
+        }
+        return result;
     }
 
     public Typeface getLightGothamTypeface() {

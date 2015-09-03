@@ -1,4 +1,7 @@
 <resources>
+    <!--AuthenticationActivity-->
+    <dimen name="authentication_edit_text_bottom_margin">10dp</dimen>
+
     <!-- Default screen margins, per the Android Design guidelines. -->
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
@@ -12,4 +15,9 @@
     <dimen name="view_sesh_profile_image_size">140dp</dimen>
 
     <dimen name="view_request_spinner_size">120dp</dimen>
+
+    <dimen name="request_flow_buffer_width">200dp</dimen>
+    <dimen name="request_flow_underline_width">20dp</dimen>
+
+    <dimen name="sesh_edit_text_height">40dp</dimen>
 </resources>

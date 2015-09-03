@@ -15,14 +15,16 @@ import android.widget.TextView;
 
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.view.RequestActivity;
+import com.seshtutoring.seshapp.view.components.RequestFlowScrollView;
 import com.seshtutoring.seshapp.view.components.SeshEditText;
 
 /**
  * Created by nadavhollander on 7/21/15.
  */
-public class LearnRequestAssignmentFragment extends Fragment implements RequestActivity.InputFragment {
+public class LearnRequestAssignmentFragment extends Fragment implements RequestActivity.InputFragment, EditText.OnEditorActionListener {
     private SeshEditText assignmentInput;
     private RequestActivity parentActivity;
+    private RequestFlowScrollView requestFlowScrollView;
 
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
         View v = layoutInflater.inflate(R.layout.learn_request_assignment_fragment, container, false);
@@ -30,9 +32,19 @@ public class LearnRequestAssignmentFragment extends Fragment implements RequestA
         this.parentActivity = (RequestActivity) getActivity();
 
         this.assignmentInput = (SeshEditText) v.findViewById(R.id.assignment_edit_text);
-        assignmentInput.setOnEditorActionListener(parentActivity);
+        assignmentInput.setOnEditorActionListener(this);
 
         return v;
+    }
+
+    @Override
+    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+        if (actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_ACTION_NEXT) {
+            saveValues();
+            requestFlowScrollView.flingNextFragment();
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -43,5 +55,22 @@ public class LearnRequestAssignmentFragment extends Fragment implements RequestA
     @Override
     public boolean isCompleted() {
         return (assignmentInput.getText().length() > 0);
+    }
+
+    @Override
+    public void attachRequestFlowScrollView(RequestFlowScrollView requestFlowScrollView) {
+        this.requestFlowScrollView = requestFlowScrollView;
+    }
+
+    @Override
+    public void onFragmentInForeground() {
+        assignmentInput.requestEditTextFocus();
+        parentActivity.showKeyboard();
+        parentActivity.showRequestFlowNextButton();
+    }
+
+    @Override
+    public void beforeFragmentInForeground() {
+        // do nothing
     }
  }

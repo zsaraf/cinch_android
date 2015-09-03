@@ -49,8 +49,6 @@ public class SeshEditText extends RelativeLayout {
         }
     }
 
-    public static final float SESH_EDIT_TEXT_HEIGHT_DP = 42.5f;
-
     private SeshEditTextType editTextType;
     private String hint;
     private EditTextWithKeyDownListener editText;

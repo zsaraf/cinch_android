@@ -2,31 +2,39 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="@dimen/sesh_edit_text_height"
     android:id="@+id/sesh_edit_text_background"
     android:background="@color/seshorangeopaque">
-    <ImageView
-        android:id="@+id/icon"
-        android:layout_width="18dp"
-        android:layout_height="18dp"
-        android:layout_weight="0"
-        android:layout_centerVertical="true"
-        android:layout_marginLeft="12dp" />
+    <RelativeLayout
+        android:id="@+id/icon_container"
+        android:layout_width="@dimen/sesh_edit_text_height"
+        android:layout_height="@dimen/sesh_edit_text_height">
+        <ImageView
+            android:id="@+id/icon"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:layout_weight="0"
+            android:layout_centerInParent="true" />
+    </RelativeLayout>
     <View
+        android:id="@+id/divider"
+        android:layout_toRightOf="@id/icon_container"
         android:layout_width="1dp"
-        android:layout_height="25dp"
+        android:layout_height="match_parent"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
         android:background="@color/seshorange"
-        android:layout_centerVertical="true"
-        android:layout_marginLeft="42dp" />
+        android:layout_centerVertical="true" />
 
     <com.seshtutoring.seshapp.view.components.EditTextWithKeyDownListener
         android:background="@null"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/divider"
         android:id="@+id/editText"
         android:inputType="textNoSuggestions|textVisiblePassword"
         android:layout_gravity="center_vertical"
-        android:textSize="18sp"
+        android:textSize="16sp"
         android:textColor="@color/seshorange"
         android:textColorHint="@color/seshorange"
         android:lines="1"
@@ -35,9 +43,9 @@
         android:scrollHorizontally="true"
         android:ellipsize="end"
         android:textCursorDrawable="@null"
-        android:layout_marginLeft="56dp"
         android:paddingBottom="10dp"
         android:paddingTop="10dp"
+        android:layout_marginLeft="10dp"
         android:paddingRight="10dp"/>
 
 

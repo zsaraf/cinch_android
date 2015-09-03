@@ -42,9 +42,11 @@ public class SeshInformationLabel extends RelativeLayout {
 
         Drawable icon;
         String text;
+        int textColor;
         try {
             text= a.getString(R.styleable.SeshInformationLabel_informationLabelText);
             icon = a.getDrawable(R.styleable.SeshInformationLabel_informationLabelIcon);
+            textColor = a.getColor(R.styleable.SeshInformationLabel_textColor, getResources().getColor(R.color.seshlightgray));
         } finally {
             a.recycle();
         }
@@ -56,6 +58,7 @@ public class SeshInformationLabel extends RelativeLayout {
         iconView.setImageDrawable(icon);
         Typeface medium = Typeface.createFromAsset(mContext.getAssets(), "fonts/Gotham-Light.otf");
         textView.setTypeface(medium);
+        textView.setTextColor(textColor);
     }
 
     public void setText(CharSequence text) {

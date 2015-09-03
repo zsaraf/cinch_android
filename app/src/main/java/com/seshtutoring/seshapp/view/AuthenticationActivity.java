@@ -68,7 +68,6 @@ public class AuthenticationActivity extends SeshActivity implements SeshDialog.O
     public static final String ENTRANCE_TYPE_KEY = "entrance_type";
     public static final String SIGN_UP_EMAIL_KEY = "email";
     public static final String SIGN_UP_PASSWORD_KEY = "password";
-    private static final int EDITTEXT_BOTTOM_MARGIN_DP = 10;
     private static final int TERMS_TEXT_OFFSET_DP = 30;
     private static final int ACCOUNT_TEXT_OFFSET_DP = 102;
     private static final String DIALOG_TYPE_ERROR = "dialog_type_error";
@@ -289,17 +288,17 @@ public class AuthenticationActivity extends SeshActivity implements SeshDialog.O
                         .setInterpolator(decelerateInterpolator)
                         .setDuration(500).start();
 
-                float emailYRelativeToCenter = 0 - (EDITTEXT_BOTTOM_MARGIN_DP / 2) - SeshEditText.SESH_EDIT_TEXT_HEIGHT_DP;
+                float emailYRelativeToCenter = 0 - (getEditTextBottomMarginPx() / 2) - getSeshEditTextHeightPx();
                 float fullNameYRelativeToCenter =
-                        emailYRelativeToCenter - EDITTEXT_BOTTOM_MARGIN_DP - SeshEditText.SESH_EDIT_TEXT_HEIGHT_DP;
-                float passwordYRelativeToCenter = EDITTEXT_BOTTOM_MARGIN_DP / 2;
+                        emailYRelativeToCenter - getEditTextBottomMarginPx() - getSeshEditTextHeightPx();
+                float passwordYRelativeToCenter = getEditTextBottomMarginPx() / 2;
                 float reenterPasswordYRelativeToCenter =
-                        passwordYRelativeToCenter + EDITTEXT_BOTTOM_MARGIN_DP + SeshEditText.SESH_EDIT_TEXT_HEIGHT_DP;
+                        passwordYRelativeToCenter + getEditTextBottomMarginPx() + getSeshEditTextHeightPx();
 
-                int emailY = resizedScreenCenter + utils.dpToPixels(emailYRelativeToCenter);
-                int fullNameY = resizedScreenCenter + utils.dpToPixels(fullNameYRelativeToCenter);
-                int passwordY = resizedScreenCenter + utils.dpToPixels(passwordYRelativeToCenter);
-                int reenterPasswordY = resizedScreenCenter + utils.dpToPixels(reenterPasswordYRelativeToCenter);
+                int emailY = resizedScreenCenter + (int) emailYRelativeToCenter;
+                int fullNameY = resizedScreenCenter + (int) fullNameYRelativeToCenter;
+                int passwordY = resizedScreenCenter + (int) passwordYRelativeToCenter;
+                int reenterPasswordY = resizedScreenCenter + (int) reenterPasswordYRelativeToCenter;
 
                 fullnameEditText
                         .animate()
@@ -669,9 +668,11 @@ public class AuthenticationActivity extends SeshActivity implements SeshDialog.O
                     loginSignupButton.setText("Log in");
                 } else if (entranceType == EntranceType.SIGNUP) {
                     int alreadyHaveAccountY = content.getHeight() - utils.dpToPixels(ACCOUNT_TEXT_OFFSET_DP);
-                    int loginSignupY = alreadyHaveAccountY - utils.dpToPixels(EDITTEXT_BOTTOM_MARGIN_DP + SeshEditText.SESH_EDIT_TEXT_HEIGHT_DP);
-                    int passwordEditTextY = loginSignupY - (utils.dpToPixels(EDITTEXT_BOTTOM_MARGIN_DP + SeshEditText.SESH_EDIT_TEXT_HEIGHT_DP) * 2);
-                    int emailEditTextY = passwordEditTextY - utils.dpToPixels(EDITTEXT_BOTTOM_MARGIN_DP + SeshEditText.SESH_EDIT_TEXT_HEIGHT_DP);
+                    int loginSignupY = alreadyHaveAccountY - getEditTextBottomMarginPx()
+                            + getSeshEditTextHeightPx();
+                    int passwordEditTextY = loginSignupY -
+                            (getEditTextBottomMarginPx() + getSeshEditTextHeightPx()) * 2;
+                    int emailEditTextY = passwordEditTextY - getEditTextBottomMarginPx() + getSeshEditTextHeightPx();
                     int seshLogoY = (fullnameEditText.getTop() / 2) - (seshLogo.getHeight() / 2);
 
                     loginSignupButton.setY(loginSignupY);
@@ -763,8 +764,8 @@ public class AuthenticationActivity extends SeshActivity implements SeshDialog.O
     public void toggleEntranceTypeWithAnimation() {
         LayoutUtils utils = new LayoutUtils(this);
         final int yDeltaEmailAndPassword =
-                utils.dpToPixels(EDITTEXT_BOTTOM_MARGIN_DP + TERMS_TEXT_OFFSET_DP +
-                        SeshEditText.SESH_EDIT_TEXT_HEIGHT_DP);
+                getEditTextBottomMarginPx() + utils.dpToPixels(TERMS_TEXT_OFFSET_DP) +
+                        getSeshEditTextHeightPx();
         final int yDeltaTextAndButton = utils.dpToPixels(TERMS_TEXT_OFFSET_DP);
 
         if (entranceType == EntranceType.LOGIN) {
@@ -998,6 +999,16 @@ public class AuthenticationActivity extends SeshActivity implements SeshDialog.O
     }
 
     public void onDialogSelection(int selection, String type) {
+    }
+
+    private int getEditTextBottomMarginPx() {
+        LayoutUtils utils = new LayoutUtils(this);
+        return utils.getDimensionPx(R.dimen.authentication_edit_text_bottom_margin);
+    }
+
+    private int getSeshEditTextHeightPx() {
+        LayoutUtils utils = new LayoutUtils(this);
+        return utils.getDimensionPx(R.dimen.sesh_edit_text_height);
     }
 
     private void forgotPassword() {

@@ -7,27 +7,16 @@
         android:id="@+id/request_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginRight="35dp"
-        android:layout_marginLeft="35dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginLeft="20dp"
         android:layout_marginBottom="35dp"
         android:layout_gravity="center_horizontal"
         android:layout_alignParentBottom="true"
         android:text="REQUEST"/>
-    <TextView
-        android:id="@+id/review_details_label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="35dp"
-        android:layout_marginRight="35dp"
-        android:gravity="center_horizontal"
-        android:layout_centerHorizontal="true"
-        android:text="@string/review_details_text"
-        android:textColor="@color/seshlightgray"
-        android:textSize="16sp" />
     <RelativeLayout
-        android:layout_below="@id/review_details_label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        android:layout_above="@id/request_button"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
         <com.seshtutoring.seshapp.view.components.SeshActivityIndicator
             android:id="@+id/request_activity_indicator"
             android:alpha="0"
@@ -38,44 +27,68 @@
             android:id="@+id/confirmation_detail_list"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:layout_marginRight="35dp"
-            android:layout_marginLeft="35dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginLeft="20dp"
             android:orientation="vertical"
-            android:layout_gravity="center"
+            android:layout_centerInParent="true"
             >
-            <com.seshtutoring.seshapp.view.components.SeshEditText
-                android:id="@+id/class_confirmation_box"
+            <com.seshtutoring.seshapp.view.components.SeshInformationLabel
+                android:id="@+id/class_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                custom:editTextType="choose_class"
-                custom:editTextTransparentMode="true"
-                custom:editTextEditable="false"
-                android:layout_marginTop="10dp"/>
-            <com.seshtutoring.seshapp.view.components.SeshEditText
-                android:id="@+id/assignment_confirmation_box"
+                android:layout_marginRight="20dp"
+                android:layout_marginLeft="20dp"
+                custom:informationLabelText="class"
+                custom:informationLabelIcon="@drawable/book"
+                custom:textColor="@color/white"/>
+
+            <com.seshtutoring.seshapp.view.components.SeshInformationLabel
+                android:id="@+id/assignment_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginRight="20dp"
+                android:layout_marginLeft="20dp"
                 android:layout_marginTop="10dp"
-                custom:editTextEditable="false"
-                custom:editTextTransparentMode="true"
-                custom:editTextType="assignment"/>
-            <com.seshtutoring.seshapp.view.components.SeshEditText
-                android:id="@+id/num_students_confirmation_box"
+                android:layout_below="@+id/class_label"
+                custom:informationLabelText="hello"
+                custom:informationLabelIcon="@drawable/subject"
+                custom:textColor="@color/white"/>
+
+            <com.seshtutoring.seshapp.view.components.SeshInformationLabel
+                android:id="@+id/duration_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginRight="20dp"
+                android:layout_marginLeft="20dp"
                 android:layout_marginTop="10dp"
-                custom:editTextEditable="false"
-                custom:editTextTransparentMode="true"
-                custom:editTextType="number"/>
-            <com.seshtutoring.seshapp.view.components.SeshEditText
-                android:id="@+id/duration_confirmation_box"
+                android:layout_below="@+id/subject_label"
+                custom:informationLabelText="hello"
+                custom:informationLabelIcon="@drawable/clock_orange"
+                custom:textColor="@color/white"/>
+
+            <com.seshtutoring.seshapp.view.components.SeshInformationLabel
+                android:id="@+id/num_people_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginRight="20dp"
+                android:layout_marginLeft="20dp"
                 android:layout_marginTop="10dp"
-                custom:editTextEditable="false"
-                custom:editTextTransparentMode="true"
-                custom:editTextType="time"/>
+                android:layout_below="@+id/subject_label"
+                custom:informationLabelText="hello"
+                custom:informationLabelIcon="@drawable/hashtag_orange"
+                custom:textColor="@color/white"/>
+
+            <com.seshtutoring.seshapp.view.components.SeshInformationLabel
+                android:id="@+id/time_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="20dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="10dp"
+                android:layout_below="@+id/subject_label"
+                custom:informationLabelText="hello"
+                custom:informationLabelIcon="@drawable/calendar_unfilled"
+                custom:textColor="@color/white"/>
         </LinearLayout>
     </RelativeLayout>
 

@@ -6,13 +6,16 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.Constants;
+import com.seshtutoring.seshapp.model.LearnRequest;
 import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.util.CostUtils;
 import com.seshtutoring.seshapp.view.RequestActivity;
+import com.seshtutoring.seshapp.view.components.RequestFlowScrollView;
 import com.seshtutoring.seshapp.view.components.SeshDurationPicker;
 import com.seshtutoring.seshapp.view.components.SeshEditText;
 
@@ -24,6 +27,8 @@ public class LearnRequestTimeFragment extends Fragment implements RequestActivit
     private TextView timeCostLabel;
     private TextView timeCostNumber;
     private TextView creditsAppliedNumber;
+    private RelativeLayout additionalStudentsRow;
+    private TextView additionalStudentsNumber;
     private TextView estimatedTotalLabel;
     private TextView estimatedTotalNumber;
     private SeshEditText durationTextBox;
@@ -31,6 +36,9 @@ public class LearnRequestTimeFragment extends Fragment implements RequestActivit
     private RequestActivity parentActivity;
     private float hourlyRate;
     private User currentUser;
+    private RequestFlowScrollView requestFlowScrollView;
+    private boolean isCompleted;
+    private LearnRequest currentLearnRequest;
 
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
         View v = layoutInflater.inflate(R.layout.learn_request_time_fragment, container, false);
@@ -43,29 +51,32 @@ public class LearnRequestTimeFragment extends Fragment implements RequestActivit
 
         hourlyRate = Constants.getHourlyRate(getActivity());
         String perMinuteString = CostUtils.floatToString(hourlyRate / 60, 2).substring(1);
-        timeCostLabel.setText("Time X Cost ($" + perMinuteString + "/min)");
+        timeCostLabel.setText("Estimated cost ($" + perMinuteString + "/min)");
 
         creditsAppliedNumber = (TextView) v.findViewById(R.id.credits_applied_number);
+
+        additionalStudentsRow = (RelativeLayout) v.findViewById(R.id.additional_students_row);
+        additionalStudentsNumber = (TextView) v.findViewById(R.id.additional_students_number);
 
         estimatedTotalLabel = (TextView) v.findViewById(R.id.estimated_total_label);
         estimatedTotalNumber = (TextView) v.findViewById(R.id.estimated_total_number);
 
         Typeface bold = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Gotham-Bold.otf");
         estimatedTotalLabel.setTypeface(bold);
-        estimatedTotalNumber.setTypeface(bold);
 
         durationTextBox = (SeshEditText) v.findViewById(R.id.duration_edit_text);
         seshDurationPicker = (SeshDurationPicker) v.findViewById(R.id.duration_picker);
+
+        isCompleted = false;
 
         seshDurationPicker.setOnDurationChangedListener(this);
         seshDurationPicker.setNextButtonOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                parentActivity.nextFragment();
+                isCompleted = true;
+                requestFlowScrollView.flingNextFragment();
             }
         });
-
-        onDurationChanged(seshDurationPicker.getHourValue(), seshDurationPicker.getMinuteValue());
 
         return v;
     }
@@ -92,15 +103,18 @@ public class LearnRequestTimeFragment extends Fragment implements RequestActivit
     private void updateCostValues(int hourValue, int minuteValue) {
         float timeCostFloat = CostUtils.calculateCostForDuration(hourValue, minuteValue, hourlyRate);
         float creditsAppliedFloat = Math.min(timeCostFloat, currentUser.getCreditSum());
-        float estimatedTotalFloat = CostUtils.calculateEstimatedTotal(timeCostFloat, creditsAppliedFloat);
+        float additionalStudentsFloat
+                = CostUtils.calculateAdditionalStudentCharge(hourValue, minuteValue, currentLearnRequest.numPeople);
+        float estimatedTotalFloat = CostUtils.calculateEstimatedTotal(timeCostFloat, additionalStudentsFloat, creditsAppliedFloat);
         creditsAppliedNumber.setText("-$" + CostUtils.floatToString(creditsAppliedFloat, 2));
         timeCostNumber.setText("$" + CostUtils.floatToString(timeCostFloat, 2));
+        additionalStudentsNumber.setText("$" + CostUtils.floatToString(additionalStudentsFloat, 2));
         estimatedTotalNumber.setText("$" + CostUtils.floatToString(estimatedTotalFloat, 2));
     }
 
     @Override
     public boolean isCompleted() {
-        return true;
+        return isCompleted;
     }
 
     @Override
@@ -108,5 +122,27 @@ public class LearnRequestTimeFragment extends Fragment implements RequestActivit
         parentActivity.getCurrentLearnRequest().estTime =
                 (seshDurationPicker.getHourValue() * 60) + seshDurationPicker.getMinuteValue();
         parentActivity.getCurrentLearnRequest().setEstTimeString(durationTextBox.getText());
+    }
+
+    @Override
+    public void attachRequestFlowScrollView(RequestFlowScrollView requestFlowScrollView) {
+        this.requestFlowScrollView = requestFlowScrollView;
+    }
+
+    @Override
+    public void onFragmentInForeground() {
+        parentActivity.showRequestFlowNextButton();
+    }
+
+    @Override
+    public void beforeFragmentInForeground() {
+        currentLearnRequest = parentActivity.getCurrentLearnRequest();
+        if (currentLearnRequest.numPeople > 1) {
+            additionalStudentsRow.setVisibility(View.VISIBLE);
+        } else {
+            additionalStudentsRow.setVisibility(View.GONE);
+        }
+
+        onDurationChanged(seshDurationPicker.getHourValue(), seshDurationPicker.getMinuteValue());
     }
 }

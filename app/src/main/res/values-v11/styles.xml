@@ -29,6 +29,7 @@
         <item name="windowActionBar">false</item>
         <item name="android:windowIsFloating">false</item>
         <item name="android:backgroundDimEnabled">false</item>
+        <item name="android:windowTranslucentStatus">true</item>
         <item name="numberPickerStyle">@style/NPWidget.Holo.NumberPicker</item>
     </style>
 

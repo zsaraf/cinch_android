@@ -153,7 +153,7 @@
     <com.seshtutoring.seshapp.view.components.SeshEditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
+        android:layout_marginBottom="@dimen/authentication_edit_text_bottom_margin"
         android:id="@+id/passwordEditText"
         android:layout_marginLeft="25dp"
         android:layout_marginRight="25dp"
@@ -164,7 +164,7 @@
     <com.seshtutoring.seshapp.view.components.SeshEditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
+        android:layout_marginBottom="@dimen/authentication_edit_text_bottom_margin"
         android:layout_marginLeft="25dp"
         android:layout_marginRight="25dp"
         android:id="@+id/emailEditText"
@@ -177,7 +177,7 @@
     <com.seshtutoring.seshapp.view.components.SeshEditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingBottom="10dp"
+        android:paddingBottom="@dimen/authentication_edit_text_bottom_margin"
         android:layout_marginLeft="25dp"
         android:layout_marginRight="25dp"
         android:id="@+id/dummyEditText"

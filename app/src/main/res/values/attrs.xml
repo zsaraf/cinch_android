@@ -40,6 +40,7 @@
     <declare-styleable name="SeshInformationLabel">
         <attr name="informationLabelText" format="string" />
         <attr name="informationLabelIcon" format="color|reference" />
+        <attr name="textColor" format="color"/>
     </declare-styleable>
     <declare-styleable name="RequestTimeoutButton">
         <attr name="numHours" format="integer" />
