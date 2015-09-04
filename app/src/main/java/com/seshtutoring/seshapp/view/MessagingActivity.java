@@ -1,12 +1,14 @@
 package com.seshtutoring.seshapp.view;
 
 import android.app.ActionBar;
+import android.app.Service;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -30,13 +32,14 @@ import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.components.MessageAdapter;
 import com.seshtutoring.seshapp.view.components.SeshDialog;
+import com.seshtutoring.seshapp.util.SoftKeyboard;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.List;
-import java.util.logging.Handler;
+import android.os.Handler;
 
 /**
  * Created by franzwarning on 8/31/15.
@@ -54,6 +57,7 @@ public class MessagingActivity extends SeshActivity implements View.OnClickListe
     private Sesh sesh;
     private boolean wasKeyboardOpen = false;
     private SeshNetworking seshNetworking;
+    private SoftKeyboard softKeyboard;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -97,7 +101,7 @@ public class MessagingActivity extends SeshActivity implements View.OnClickListe
         this.textField.setTypeface(layUtils.getLightGothamTypeface());
 
         this.textField.clearFocus();
-        this.textField.setOnFocusChangeListener(focusListener);
+
         final Paint paint = new Paint();
         paint.setTextSize(this.textField.getTextSize());
         paint.setTypeface(layUtils.getLightGothamTypeface());
@@ -126,34 +130,44 @@ public class MessagingActivity extends SeshActivity implements View.OnClickListe
 
     private void watchKeyboard() {
 
-        try {
-            final View v = findViewById(R.id.messaging_root);
-            v.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-                @Override
-                public void onGlobalLayout() {
+        RelativeLayout mainLayout = (RelativeLayout)findViewById(R.id.messaging_root); // You must use your root layout
+        InputMethodManager im = (InputMethodManager) getSystemService(Service.INPUT_METHOD_SERVICE);
 
-                    Rect r = new Rect();
-                    v.getWindowVisibleDisplayFrame(r);
+        /*
+        Instantiate and pass a callback
+        */
+        softKeyboard = new SoftKeyboard(mainLayout, im);
+        softKeyboard.setSoftKeyboardCallback(new SoftKeyboard.SoftKeyboardChanged()
+        {
 
-                    int heightDiff = v.getRootView().getHeight() - (r.bottom - r.top);
-                    if (heightDiff > 100) {
-                        wasKeyboardOpen = true;
-                        // kEYBOARD IS OPEN
+            @Override
+            public void onSoftKeyboardHide()
+            {
+                Handler mainHandler = new Handler(Looper.getMainLooper());
 
-                    } else {
-                        if (wasKeyboardOpen) {
-                            wasKeyboardOpen = false;
-                            // Do your toast here
-                            textField.clearFocus();
-                            listView.smoothScrollToPosition(messageAdapter.getCount() - 1);
-                        }
-                        // kEYBOARD IS HIDDEN
+                Runnable myRunnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        textField.clearFocus();
+                        listView.smoothScrollToPosition(messageAdapter.getCount() - 1);
                     }
-                }
-            });
-        } catch (Throwable e) {
-            e.printStackTrace();
-        }
+                };
+                mainHandler.post(myRunnable);
+
+            }
+
+            @Override
+            public void onSoftKeyboardShow()
+            {
+                // Code here
+                listView.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        listView.smoothScrollToPosition(messageAdapter.getCount() - 1);
+                    }
+                }, 250);
+            }
+        });
     }
 
     public void onClick(View v) {
@@ -185,15 +199,11 @@ public class MessagingActivity extends SeshActivity implements View.OnClickListe
 
 
                         } else {
-//                        setNetworkOperationInProgress(false);
-
                             SeshDialog.showDialog(getFragmentManager(), "Whoops",
                                     jsonObject.getString("message"),
                                     "Okay", null, "SEND_MESSAGE");
                         }
                     } catch (JSONException e) {
-//                    setNetworkOperationInProgress(false);
-
                         Log.e(TAG, "Failed to send report problem; JSON malformed: " + e);
                         SeshDialog.showDialog(getFragmentManager(), "Whoops",
                                 "Something went wrong.  Try again later.",
@@ -203,7 +213,6 @@ public class MessagingActivity extends SeshActivity implements View.OnClickListe
             }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError volleyError) {
-//                setNetworkOperationInProgress(false);
                     SeshDialog.showDialog(getFragmentManager(), "Whoops",
                             "Something went wrong.  Try again later.",
                             "Okay", null, "error");
@@ -213,27 +222,15 @@ public class MessagingActivity extends SeshActivity implements View.OnClickListe
 
     }
 
-    private View.OnFocusChangeListener focusListener = new View.OnFocusChangeListener(){
-        public void onFocusChange(View v, boolean hasFocus){
-            if (hasFocus){
-                listView.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        listView.smoothScrollToPosition(messageAdapter.getCount() - 1);
-                    }
-                }, 250);
-            } else {
-
-            }
-        }
-    };
-
     @Override
     public void onBackPressed() {
-        if (this.textField.hasFocus()) {
-            this.textField.clearFocus();
-        } else {
-            finish();
-        }
+        finish();
+    }
+
+    @Override
+    public void onDestroy()
+    {
+        super.onDestroy();
+        softKeyboard.unRegisterSoftKeyboardCallback();
     }
 }
