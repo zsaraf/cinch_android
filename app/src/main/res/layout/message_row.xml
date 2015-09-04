@@ -22,6 +22,7 @@
         android:text="this is a message from you"
         android:layout_alignParentRight="true"
         android:textSize="18dp"
+        android:gravity="left"
         android:padding="10dp"
         android:textColor="@color/white"
         android:background="@drawable/rounded_corner_orange"/>

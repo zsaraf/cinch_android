@@ -38,19 +38,15 @@ public class MessageRow {
         int topSpecialMargin = 10;
         int bottomSpecialMargin = 10;
 
+        activeTextView.setText(message.content.trim());
+
         if (activeTextView == rightText) {
 
-            if (rightText.getLineCount() > 1) {
-                rightText.setGravity(Gravity.LEFT);
-            } else {
-                rightText.setGravity(Gravity.RIGHT);
-            }
             leftMargin = 100;
         } else {
             rightMargin = 100;
         }
 
-        activeTextView.setText(message.content.trim());
         activeTextView.setVisibility(View.VISIBLE);
 
         inactiveTextView.setText("");
