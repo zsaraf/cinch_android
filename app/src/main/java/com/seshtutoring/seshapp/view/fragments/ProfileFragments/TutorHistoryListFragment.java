@@ -22,11 +22,13 @@ import com.seshtutoring.seshapp.model.PastSesh;
 import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
+import com.squareup.picasso.Callback;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,19 +41,35 @@ public class TutorHistoryListFragment extends ListFragment{
     private List<PastSesh> pastSeshes;
     private List<PastRequest> pastRequests;
     private TutorHistoryAdapter tutorHistoryAdapter;
+    private SeshNetworking seshNetworking;
+    private MainContainerActivity mainContainerActivity;
+    private User user;
 
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
 
         this.list = (ListView) layoutInflater.inflate(R.layout.tutor_history_list_fragment, null);
 
+        mainContainerActivity = (MainContainerActivity) getActivity();
+        this.user = User.currentUser(mainContainerActivity.getApplicationContext());
+        this.seshNetworking = new SeshNetworking(mainContainerActivity);
+
         this.pastSeshes = PastSesh.listAll(PastSesh.class);
-        this.pastRequests = PastRequest.listAll(PastRequest.class);
+        filterPastSeshesForStudent();
 
         this.tutorHistoryAdapter = new TutorHistoryAdapter(getActivity(), pastSeshes);
         this.list.setAdapter(tutorHistoryAdapter);
 
         return this.list;
 
+    }
+
+    private void filterPastSeshesForStudent() {
+        for (int i = 0; i < pastSeshes.size(); i++) {
+            if (pastSeshes.get(i).tutorUserId == user.userId) {
+                //user is the tutor in this sesh, do not include on this page
+                pastSeshes.remove(i);
+            }
+        }
     }
 
     private class ViewHolder {
@@ -80,14 +98,14 @@ public class TutorHistoryListFragment extends ListFragment{
             PastSesh item = (PastSesh) getItem(position);
 
             if (convertView == null) {
-                convertView = LayoutInflater.from(getContext()).inflate(R.layout.view_classes_row,
+                convertView = LayoutInflater.from(getContext()).inflate(R.layout.profile_list_view_row,
                         null);
 
                 viewHolder = new ViewHolder();
 
                 viewHolder.mainTextView = (TextView) convertView.findViewById(R.id.profile_list_main_text);
                 viewHolder.subTextView = (TextView) convertView.findViewById(R.id.profile_list_sub_text);
-                viewHolder.subTextView = (TextView) convertView.findViewById(R.id.profile_list_right_text);
+                viewHolder.rightTextView = (TextView) convertView.findViewById(R.id.profile_list_right_text);
                 viewHolder.profileImageView = (de.hdodenhof.circleimageview.CircleImageView) convertView.findViewById(R.id.profile_list_profile_image);
 
                 convertView.setTag(viewHolder);
@@ -95,6 +113,24 @@ public class TutorHistoryListFragment extends ListFragment{
             }else {
                 viewHolder = (ViewHolder) convertView.getTag();
             }
+
+            String abbrName = item.studentFullName.substring(0,item.tutorFullName.lastIndexOf(" ")+2) + ".";
+            viewHolder.mainTextView.setText(abbrName);
+            viewHolder.subTextView.setText(item.className);
+            NumberFormat formatter = NumberFormat.getCurrencyInstance();
+            viewHolder.rightTextView.setText(formatter.format(item.cost));
+
+//            seshNetworking.downloadProfilePictureAsync(item.tutorProfilePicture, viewHolder.profileImageView, new Callback() {
+//                    @Override
+//                    public void onSuccess() {
+//
+//                    }
+//
+//                    @Override
+//                    public void onError() {
+//
+//                    }
+//                });
 
             return convertView;
         }

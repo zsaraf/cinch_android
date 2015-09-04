@@ -7,13 +7,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.User;
+import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
 import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.ViewAvailableJobsFragment;
 import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.ViewClassesFragment;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.Map;
 
 /**
@@ -22,69 +26,34 @@ import java.util.Map;
 public class ProfileStudentViewFragment extends Fragment implements MainContainerActivity.FragmentOptionsReceiver {
     private Map<String, Object> options;
     private User user;
-    private MainContainerActivity mainContainerActivity;
     private View homeView;
     private View listViewFrame;
-    private Button tutorHistoryTab;
-    private Button favoritesTab;
-    private int selectedTab;
-
+    private SeshNetworking seshNetworking;
+    private MainContainerActivity mainContainerActivity;
 
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
 
         this.homeView = layoutInflater.inflate(R.layout.profile_student_fragment, container, false);
 
-        this.listViewFrame = this.homeView.findViewById(R.id.profile_student_view_frame);
-        this.selectedTab = 0;
+        mainContainerActivity = (MainContainerActivity) getActivity();
+        this.user = User.currentUser(mainContainerActivity.getApplicationContext());
+        this.seshNetworking = new SeshNetworking(mainContainerActivity);
 
-        this.tutorHistoryTab = (Button) this.homeView.findViewById(R.id.tutor_history_tab);
-        this.favoritesTab = (Button) this.homeView.findViewById(R.id.favorites_tab);
+        TextView hoursLearnedView = (TextView) this.homeView.findViewById(R.id.hours_learned_number);
+        TextView creditsView = (TextView) this.homeView.findViewById(R.id.student_credits_number);
 
-        this.tutorHistoryTab.setOnClickListener(firstTabPress);
-        this.favoritesTab.setOnClickListener(secondTabPress);
+        DecimalFormat df = new DecimalFormat("0.00");
+        hoursLearnedView.setText(df.format(this.user.student.hoursLearned));
+
+        NumberFormat formatter = NumberFormat.getCurrencyInstance();
+        creditsView.setText(formatter.format(this.user.student.credits));
+
+//        getActivity().getFragmentManager()
+//                .beginTransaction()
+//                .replace(R.id.profile_student_view_frame, new TutorHistoryListFragment(), "TutorHistoryListFragment")
+//                .commit();
 
         return this.homeView;
-
-    }
-
-
-    private View.OnClickListener firstTabPress = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-
-            if (selectedTab != 0) {
-                selectedTab = 0;
-                setCurrentListView();
-            }
-        }
-    };
-
-    private View.OnClickListener secondTabPress = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-
-            if (selectedTab != 1) {
-                selectedTab = 1;
-                setCurrentListView();
-            }
-        }
-    };
-
-    private void setCurrentListView() {
-
-        if (selectedTab == 0) {
-            getActivity().getFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.profile_student_view_frame, new TutorHistoryListFragment(), "TutorHistoryListFragment")
-                    .commit();
-
-        }else {
-            getActivity().getFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.profile_student_view_frame, new ViewClassesFragment(), "FavoritesListFragment")
-                    .commit();
-
-        }
 
     }
 

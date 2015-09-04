@@ -228,6 +228,7 @@ public class Sesh extends SugarRecord<Sesh> {
             @Override
             public void onSuccess() {
                 // do nothing
+                int i = 0;
             }
 
             @Override
