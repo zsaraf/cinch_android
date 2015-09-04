@@ -1,12 +1,14 @@
 package com.seshtutoring.seshapp.view.components;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.Message;
@@ -57,32 +59,23 @@ public class MessageAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         // TODO Auto-generated method stub
-        View vi = convertView;
-        if (vi == null)
-            vi = inflater.inflate(R.layout.message_row, null);
 
+        MessageRow messageRow = null;
         Message currentMessage = this.getItem(position);
 
-        TextView leftText = (TextView) vi.findViewById(R.id.left_text);
-        TextView rightText =  (TextView)vi.findViewById(R.id.right_text);
-
-        leftText.setTypeface(this.tf);
-        rightText.setTypeface(this.tf);
-
-        if (currentMessage.fromYou) {
-            leftText.setText("");
-            rightText.setText(currentMessage.content.trim());
-            if (rightText.getLineCount() > 1) {
-                rightText.setGravity(Gravity.LEFT);
-            } else {
-                rightText.setGravity(Gravity.RIGHT);
-            }
+        if (convertView == null) {
+            convertView = inflater.inflate(R.layout.message_row, null);
+            messageRow = new MessageRow();
+            messageRow.leftText = (TextView)convertView.findViewById(R.id.left_text);
+            messageRow.rightText = (TextView)convertView.findViewById(R.id.right_text);
+            convertView.setTag(messageRow);
         } else {
-            rightText.setText("");
-            leftText.setText(currentMessage.content.trim());
+            messageRow = (MessageRow)convertView.getTag();
         }
 
-        return vi;
+        messageRow.setCurrentMessage(currentMessage, tf, position, getCount(), context);
+
+        return convertView;
     }
 }
 

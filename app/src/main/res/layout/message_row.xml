@@ -1,33 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-    <TextView android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="this is a test message to you"
-        android:id="@+id/left_text"
-        android:layout_alignParentLeft="true"
-        android:layout_marginLeft="10dp"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="10dp"
-        android:layout_marginRight="100dp"
-        android:layout_marginBottom="10dp"
-        android:textSize="18dp" />
+    android:layout_height="match_parent"
+    android:background="@color/white">
 
     <TextView
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/left_text"
+        android:text="to you"
+        android:layout_alignParentLeft="true"
+        android:textSize="18dp"
+        android:padding="10dp"
+        android:background="@drawable/rounded_corner_gray"
+        android:textColor="@color/sesh_gray_button_text_color" />
+
+    <TextView
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/right_text"
-        android:text="this is a test message from you"
-        android:layout_alignParentTop="true"
+        android:text="this is a message from you"
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginTop="10dp"
-        android:layout_marginLeft="100dp"
-        android:layout_marginRight="10dp"
-        android:layout_marginBottom="10dp"
-        android:gravity="right"
-        android:textSize="18dp" />
+        android:textSize="18dp"
+        android:padding="10dp"
+        android:textColor="@color/white"
+        android:background="@drawable/rounded_corner_orange"/>
 
 </RelativeLayout>
