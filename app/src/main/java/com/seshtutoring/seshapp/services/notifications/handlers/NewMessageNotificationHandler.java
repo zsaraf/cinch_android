@@ -76,6 +76,7 @@ public class NewMessageNotificationHandler extends BannerNotificationHandler {
                     null, mContext, MainContainerActivity.class);
         }
         intent.putExtra(ViewSeshFragment.SESH_KEY, sesh.seshId);
+        intent.putExtra(ViewSeshFragment.OPEN_MESSAGING, true);
         return intent;
     }
 }

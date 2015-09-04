@@ -204,8 +204,9 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
                 setCurrentState(containerStates[mainContainerStateIndex], options);
             } else if (intent.getAction().equals(VIEW_SESH_ACTION)) {
                 int seshId = intent.getIntExtra(ViewSeshFragment.SESH_KEY, -1);
+                boolean openMessaging = intent.getBooleanExtra(ViewSeshFragment.OPEN_MESSAGING, false);
 
-                setCurrentState(new ContainerState("Sesh", 0, ViewSeshFragment.newInstance(seshId)));
+                setCurrentState(new ContainerState("Sesh", 0, ViewSeshFragment.newInstance(seshId, openMessaging)));
             } else if (intent.getAction() == SESH_CANCELLED_ACTION) {
                 // IF SESH HAS BEEN CANCELLED AND MAIN CONTAINER IS IN FOREGROUND, WE ENSURE VIEWSESHFRAGMENT IS NOT VISIBLE
                 if (currentContainerState.fragment instanceof ViewSeshFragment) {

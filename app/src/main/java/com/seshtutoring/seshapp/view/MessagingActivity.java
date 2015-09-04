@@ -126,6 +126,13 @@ public class MessagingActivity extends SeshActivity implements View.OnClickListe
 
         watchKeyboard();
 
+        listView.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                listView.smoothScrollToPosition(messageAdapter.getCount() - 1);
+            }
+        }, 250);
+
     }
 
     private void watchKeyboard() {

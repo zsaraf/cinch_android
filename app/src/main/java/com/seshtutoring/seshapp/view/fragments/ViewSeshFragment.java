@@ -53,6 +53,7 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_SESH_ID = "sesh";
     public static final String SESH_KEY = "sesh_key";
+    public static final String OPEN_MESSAGING = "open_messaging";
 
     private int seshId;
     private Sesh sesh;
@@ -74,10 +75,11 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
      * @param seshId Sesh to view.
      * @return A new instance of fragment ViewSeshFragment.
      */
-    public static ViewSeshFragment newInstance(int seshId) {
+    public static ViewSeshFragment newInstance(int seshId, boolean openMessaging) {
         ViewSeshFragment fragment = new ViewSeshFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_SESH_ID, seshId);
+        args.putBoolean(OPEN_MESSAGING, openMessaging);
         fragment.setArguments(args);
         return fragment;
     }
@@ -89,6 +91,12 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
             seshId = getArguments().getInt(ARG_SESH_ID);
             List<Sesh> seshesFound = Sesh.find(Sesh.class, "sesh_id = ?", Integer.toString(new Integer(seshId)));
             sesh = seshesFound.get(0);
+
+            boolean openMessaging = getArguments().getBoolean(OPEN_MESSAGING);
+            if (openMessaging) {
+                messageButtonClicked();
+            }
+
         }
     }
 
