@@ -60,7 +60,7 @@ public class TeachViewFragment extends Fragment {
         }
 
         LayoutUtils layUtils = new LayoutUtils(getActivity());
-        view.setPadding(0, layUtils.getActionBarHeightPx() + layUtils.dpToPixels(40f) - 1, 0, 0);
+        view.setPadding(0, layUtils.getActionBarHeightPx() + (int)getResources().getDimensionPixelSize(R.dimen.home_view_tab_buttons_height) - 1, 0, 0);
 
         viewClassesButton = view.findViewById(R.id.view_classes_button);
         classesButtonText = (TextView) view.findViewById(R.id.classes_button_text);
@@ -86,7 +86,12 @@ public class TeachViewFragment extends Fragment {
 
             canSeeClasses = !canSeeClasses;
 
-            classesButtonText.setText(R.string.view_classes_off_text);
+            if (canSeeClasses) {
+                classesButtonText.setText(R.string.view_classes_on_text);
+            } else {
+                classesButtonText.setText(R.string.view_classes_off_text);
+            }
+
             /* Animate frame */
             ValueAnimator frameAnimator = null;
             if (canSeeClasses) {

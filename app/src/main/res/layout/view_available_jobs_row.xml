@@ -13,7 +13,14 @@
         android:layout_gravity="left"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/seshgreen">
+        android:background="@color/terms_text_light_gray" >
+        <ImageView
+            android:id="@+id/swipe_view_check_icon"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_centerVertical="true"
+            android:paddingLeft="30dp"
+            android:src="@drawable/fat_check" />
     </RelativeLayout>
 
     <!-- Top view of swipe layout-->
@@ -76,7 +83,7 @@
             android:layout_alignParentRight="true"/>
         <TextView
             android:id="@+id/hourly_rate"
-            android:textSize="20sp"
+            android:textSize="15sp"
             android:padding="5dp"
             android:gravity="right"
             android:layout_width="match_parent"
@@ -88,7 +95,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/student_name"
             android:padding="5dp"
-            android:paddingTop="10dp"
+            android:paddingTop="20dp"
             custom:informationLabelText="default"
             custom:informationLabelIcon="@drawable/book" />
         <com.seshtutoring.seshapp.view.components.SeshInformationLabel

@@ -4,23 +4,47 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:id="@+id/sesh_information_label_background"
-    tools:context="com.seshtutoring.seshapp.view.components.SeshInformationLabel">
+    tools:context="com.seshtutoring.seshapp.view.components.SeshInformationLabel"
+    android:layerType="software">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
     <ImageView
         android:id="@+id/icon"
-        android:layout_width="13dp"
-        android:layout_height="13dp"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
         android:layout_weight="0"
         android:layout_centerVertical="true"
         android:layout_marginLeft="0dp" />
+
+    <TextView
+        android:background="#00000000"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:singleLine="true"
+        android:scrollHorizontally="true"
+        android:ellipsize="end"
+        android:textSize="15sp"
+        android:text="cool"
+        android:textColor="@color/transparent"
+        android:layout_marginLeft="8dp"
+        android:paddingLeft="48dp"
+        android:paddingRight="0dp"
+        android:gravity="right"
+        android:layout_centerVertical="true"/>
+
+    </RelativeLayout>
 
     <ImageView
         android:id="@+id/dotted_line"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="1dp"
-        android:layout_below="@id/icon"
-        android:src="@drawable/dotted" />
+        android:layout_below="@+id/text_view"
+        android:src="@drawable/dotted"
+        android:layerType="software"/>
 
     <TextView
         android:background="#00000000"

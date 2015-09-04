@@ -72,28 +72,24 @@ public class HomeFragment extends Fragment implements FragmentOptionsReceiver {
 //        LinearLayout.MarginLayoutParams margins = (LinearLayout.MarginLayoutParams) tabButtons.getLayoutParams();
 //        margins.topMargin = utils.getActionBarHeightPx();
 //        tabButtons.setLayoutParams(margins);
-
         learnTabButton = (Button) homeView.findViewById(R.id.learn_button);
         teachTabButton = (Button) homeView.findViewById(R.id.teach_button);
 
-        learnTabButton.setOnTouchListener(new View.OnTouchListener() {
+        learnTabButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onTouch(View v, MotionEvent event) {
+            public void onClick(View v) {
                 learnTabButton.setPressed(true);
                 setCurrentTabItem(TabItem.LEARN_TAB, true);
-                return false;
             }
         });
 
-        teachTabButton.setOnTouchListener(new View.OnTouchListener() {
+        teachTabButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onTouch(View v, MotionEvent event) {
+            public void onClick(View v) {
                 teachTabButton.setPressed(true);
                 setCurrentTabItem(TabItem.TEACH_TAB, true);
-                return false;
             }
         });
-
 
         if (options != null && options.containsKey(SHOW_AVAILABLE_JOBS_FLAG) &&
                 (boolean) options.get(SHOW_AVAILABLE_JOBS_FLAG)) {
@@ -115,7 +111,7 @@ public class HomeFragment extends Fragment implements FragmentOptionsReceiver {
                 viewJobsFragment.stopRepeatingTask();
             }
             learnTabButton.setTextColor(getResources().getColor(R.color.seshorange));
-            teachTabButton.setTextColor(getResources().getColor(R.color.seshcharcoal));
+            teachTabButton.setTextColor(getResources().getColor(R.color.seshextralightgray));
         } else if (tabItem == TabItem.TEACH_TAB) {
             //turn on calls to refresh open jobs when we enter the teach tab
             ViewAvailableJobsFragment viewJobsFragment = (ViewAvailableJobsFragment)getActivity().getFragmentManager().findFragmentByTag("ViewJobsFragment");
@@ -123,7 +119,7 @@ public class HomeFragment extends Fragment implements FragmentOptionsReceiver {
                 viewJobsFragment.startRepeatingTask();
             }
             teachTabButton.setTextColor(getResources().getColor(R.color.seshorange));
-            learnTabButton.setTextColor(getResources().getColor(R.color.seshcharcoal));
+            learnTabButton.setTextColor(getResources().getColor(R.color.seshextralightgray));
         }
         currTabItem = tabItem;
     }

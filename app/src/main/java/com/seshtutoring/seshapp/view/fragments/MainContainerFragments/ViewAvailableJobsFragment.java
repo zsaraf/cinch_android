@@ -4,7 +4,9 @@ import android.animation.LayoutTransition;
 import android.app.ActionBar;
 import android.app.ListFragment;
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.ColorDrawable;
 import android.media.Image;
 import android.os.Bundle;
 import android.os.Handler;
@@ -174,12 +176,13 @@ public class ViewAvailableJobsFragment extends ListFragment {
     }
 
     private class ViewHolder {
-
+        public RelativeLayout bottomWrapper;
         public TextView nameTextView;
         public TextView rateTextView;
         public TextView overlayTextView;
         //public TextView loadingTextView;
         public ImageView checkImageView;
+        public ImageView backingCheckImageView;
         public SeshInformationLabel courseInformationLabel;
         public SeshInformationLabel assignmentInformationLabel;
         public SeshInformationLabel distanceInformationLabel;
@@ -187,6 +190,8 @@ public class ViewAvailableJobsFragment extends ListFragment {
         public SeshInformationLabel availableBlocksInformationLabel;
 
         public ViewGroup topGroup;
+
+        public Boolean shouldBid;
 
         //public MultiStateAnimation animation;
 
@@ -217,6 +222,12 @@ public class ViewAvailableJobsFragment extends ListFragment {
                 convertView = LayoutInflater.from(getContext()).inflate(R.layout.view_available_jobs_row, null);
 
                 viewHolder = new ViewHolder();
+
+                viewHolder.shouldBid = false;
+                viewHolder.backingCheckImageView = (ImageView) convertView.findViewById(R.id.swipe_view_check_icon);
+                viewHolder.backingCheckImageView.setColorFilter(Color.argb(255, 255, 255, 255));
+
+                viewHolder.bottomWrapper = (RelativeLayout) convertView.findViewById(R.id.bottom_wrapper);
 
                 viewHolder.topGroup = (ViewGroup) convertView.findViewById(R.id.top_wrapper);
 
@@ -277,6 +288,7 @@ public class ViewAvailableJobsFragment extends ListFragment {
 
                 SwipeLayout swipeView = (SwipeLayout) convertView.findViewById(R.id.swipe_view);
                 swipeView.setShowMode(SwipeLayout.ShowMode.LayDown);
+                swipeView.setDragEdge(SwipeLayout.DragEdge.Left);
 
                 swipeView.addSwipeListener(new SwipeLayout.SwipeListener() {
 
@@ -288,6 +300,15 @@ public class ViewAvailableJobsFragment extends ListFragment {
                     @Override
                     public void onUpdate(SwipeLayout layout, int leftOffset, int topOffset) {
                         //you are swiping.
+                        if (leftOffset > viewHolder.backingCheckImageView.getMeasuredWidth() + viewHolder.backingCheckImageView.getPaddingLeft()) {
+                            viewHolder.bottomWrapper.setBackgroundColor(mContext.getResources().getColor(R.color.seshgreen));
+                            viewHolder.backingCheckImageView.setX(leftOffset - viewHolder.backingCheckImageView.getMeasuredWidth() - viewHolder.backingCheckImageView.getPaddingLeft());
+                            viewHolder.shouldBid = true;
+                        } else {
+                            viewHolder.bottomWrapper.setBackgroundColor(mContext.getResources().getColor(R.color.terms_text_light_gray));
+                            viewHolder.backingCheckImageView.setX(0);
+                            viewHolder.shouldBid = false;
+                        }
                     }
 
                     @Override
@@ -298,35 +319,33 @@ public class ViewAvailableJobsFragment extends ListFragment {
                     @Override
                     public void onOpen(SwipeLayout layout) {
 
-                        layout.close();
-                        layout.setSwipeEnabled(false);
-                        ViewHolder viewHolder = (ViewHolder) layout.getTag();
-                        ((JobHolder)viewHolder.nameTextView.getTag()).select();
-                        viewHolder.nameTextView.setTextColor(getResources().getColor(R.color.seshgreen));
-                        seshNetworking.createBid(((JobHolder)viewHolder.nameTextView.getTag()).job.requestId, 2, 2,
-                                new Response.Listener<JSONObject>() {
-                                    @Override
-                                    public void onResponse(JSONObject responseJson) {
-                                        onJobResponse(responseJson);
-                                    }
-                                }, new Response.ErrorListener() {
-                                    @Override
-                                    public void onErrorResponse(VolleyError volleyError) {
-                                        onJobFailure(volleyError.getMessage());
-                                    }
-                                });
-                        //replace 2s with lat/long
-
                     }
 
                     @Override
                     public void onStartClose(SwipeLayout layout) {
-
                     }
 
                     @Override
                     public void onHandRelease(SwipeLayout layout, float xvel, float yvel) {
-
+                        ViewHolder viewHolder = (ViewHolder) layout.getTag();
+                        if (viewHolder.shouldBid) {
+                            viewHolder.shouldBid = false;
+                            layout.setSwipeEnabled(false);
+                            ((JobHolder)viewHolder.nameTextView.getTag()).select();
+                            viewHolder.nameTextView.setTextColor(getResources().getColor(R.color.seshgreen));
+                            seshNetworking.createBid(((JobHolder)viewHolder.nameTextView.getTag()).job.requestId, 2, 2,
+                                    new Response.Listener<JSONObject>() {
+                                        @Override
+                                        public void onResponse(JSONObject responseJson) {
+                                            onJobResponse(responseJson);
+                                        }
+                                    }, new Response.ErrorListener() {
+                                        @Override
+                                        public void onErrorResponse(VolleyError volleyError) {
+                                            onJobFailure(volleyError.getMessage());
+                                        }
+                                    });
+                        }
                     }
                 });
 
