@@ -13,9 +13,6 @@ import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
-import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.ViewAvailableJobsFragment;
-import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.ViewClassesFragment;
-
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Map;

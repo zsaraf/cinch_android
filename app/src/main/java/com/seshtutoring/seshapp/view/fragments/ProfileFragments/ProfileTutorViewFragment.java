@@ -13,8 +13,6 @@ import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
-import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.ViewAvailableJobsFragment;
-import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.ViewClassesFragment;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -103,10 +101,10 @@ public class ProfileTutorViewFragment extends Fragment implements MainContainerA
         }else {
             this.studentHistoryTab.setTextColor(getResources().getColor(R.color.light_gray));
             this.classesTab.setTextColor(getResources().getColor(R.color.seshorange));
-            getActivity().getFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.profile_tutor_view_frame, new ViewClassesFragment(), "ClassesListFragment")
-                    .commit();
+//            getActivity().getFragmentManager()
+//                    .beginTransaction()
+//                    .replace(R.id.profile_tutor_view_frame, new ViewClassesFragment(), "ClassesListFragment")
+//                    .commit();
 
         }
 

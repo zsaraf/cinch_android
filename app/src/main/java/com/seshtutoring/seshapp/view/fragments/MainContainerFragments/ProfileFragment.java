@@ -95,7 +95,7 @@ public class ProfileFragment extends Fragment implements FragmentOptionsReceiver
 
         final ImageView profileImageView = (ImageView)this.homeView.findViewById(R.id.profile_picture);
         SeshNetworking seshNetworking = new SeshNetworking(mainContainerActivity);
-        seshNetworking.downloadProfilePictureAsync(user.getProfilePictureUrl(), profileImageView, new Callback() {
+        seshNetworking.downloadProfilePictureAsync(user.profilePictureUrl, profileImageView, new Callback() {
             @Override
             public void onSuccess() {
 
