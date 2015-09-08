@@ -2,8 +2,11 @@ package com.seshtutoring.seshapp.view;
 
 import android.app.ActionBar;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Typeface;
@@ -48,6 +51,7 @@ public class MessagingActivity extends SeshActivity implements View.OnClickListe
 
     private static final String TAG = MessagingActivity.class.getName();
     public static final String SESH_ID = "sesh_id";
+    public static final String REFRESH_MESSAGES = "refresh_messages";
 
     private EditText textField;
     private RelativeLayout textFieldContainer;
@@ -58,6 +62,7 @@ public class MessagingActivity extends SeshActivity implements View.OnClickListe
     private boolean wasKeyboardOpen = false;
     private SeshNetworking seshNetworking;
     private SoftKeyboard softKeyboard;
+    private BroadcastReceiver broadcastReceiver;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -133,7 +138,38 @@ public class MessagingActivity extends SeshActivity implements View.OnClickListe
             }
         }, 250);
 
+        broadcastReceiver = actionBroadcastReceiver;
+
+
+
     }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        // Listen for new messages
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(REFRESH_MESSAGES);
+        this.registerReceiver(broadcastReceiver, intentFilter);
+
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        this.unregisterReceiver(broadcastReceiver);
+    }
+
+
+    private BroadcastReceiver actionBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            messageAdapter.messages = sesh.getMessages();
+            messageAdapter.notifyDataSetChanged();
+            listView.smoothScrollToPosition(messageAdapter.getCount() - 1);
+        }
+    };
 
     private void watchKeyboard() {
 

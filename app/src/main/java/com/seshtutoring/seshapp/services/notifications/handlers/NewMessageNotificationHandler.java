@@ -14,6 +14,7 @@ import com.seshtutoring.seshapp.model.Notification;
 import com.seshtutoring.seshapp.model.Sesh;
 import com.seshtutoring.seshapp.util.ApplicationLifecycleTracker;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
+import com.seshtutoring.seshapp.view.MessagingActivity;
 import com.seshtutoring.seshapp.view.fragments.ViewSeshFragment;
 import com.squareup.picasso.Callback;
 
@@ -34,6 +35,7 @@ public class NewMessageNotificationHandler extends BannerNotificationHandler {
         JSONObject messageJSON = (JSONObject) mNotification.getDataObject("message");
         Message message = Message.createOrUpdateMessageWithJSON(messageJSON, sesh, mContext);
         message.save();
+        mContext.sendBroadcast(refreshMessagesIntent());
     }
 
     @Override
@@ -67,12 +69,16 @@ public class NewMessageNotificationHandler extends BannerNotificationHandler {
         };
     }
 
+    private Intent refreshMessagesIntent() {
+        return new Intent(MessagingActivity.REFRESH_MESSAGES);
+    }
+
     private Intent viewSeshActionIntent(boolean forBroadcast, Sesh sesh) {
         Intent intent;
         if (forBroadcast) {
-            intent = new Intent(MainContainerActivity.VIEW_SESH_ACTION);
+            intent = new Intent(MainContainerActivity.NEW_MESSAGE_ACTION);
         } else {
-            intent = new Intent(MainContainerActivity.VIEW_SESH_ACTION,
+            intent = new Intent(MainContainerActivity.NEW_MESSAGE_ACTION,
                     null, mContext, MainContainerActivity.class);
         }
         intent.putExtra(ViewSeshFragment.SESH_KEY, sesh.seshId);

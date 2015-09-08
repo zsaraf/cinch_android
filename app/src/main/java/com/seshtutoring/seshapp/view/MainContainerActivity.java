@@ -77,6 +77,7 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
     public static final String DISPLAY_SIDE_MENU_UPDATE = "display_side_menu_update";
     public static final String VIEW_SESH_ACTION = "view_sesh";
     public static final String SESH_CANCELLED_ACTION = "sesh_cancelled";
+    public static final String NEW_MESSAGE_ACTION = "new_message";
     public static final String FOUND_TUTOR_ACTION = "com.seshtutoring.seshapp.FOUND_TUTOR";
 
     /**
@@ -203,6 +204,11 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
 
                 setCurrentState(containerStates[mainContainerStateIndex], options);
             } else if (intent.getAction().equals(VIEW_SESH_ACTION)) {
+                int seshId = intent.getIntExtra(ViewSeshFragment.SESH_KEY, -1);
+                boolean openMessaging = intent.getBooleanExtra(ViewSeshFragment.OPEN_MESSAGING, false);
+
+                setCurrentState(new ContainerState("Sesh", 0, ViewSeshFragment.newInstance(seshId, openMessaging)));
+            } else if (intent.getAction().equals(NEW_MESSAGE_ACTION)) {
                 int seshId = intent.getIntExtra(ViewSeshFragment.SESH_KEY, -1);
                 boolean openMessaging = intent.getBooleanExtra(ViewSeshFragment.OPEN_MESSAGING, false);
 
