@@ -3,7 +3,10 @@ package com.seshtutoring.seshapp.view.fragments;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Handler;
@@ -27,6 +30,7 @@ import android.widget.TextView;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.seshtutoring.seshapp.R;
+import com.seshtutoring.seshapp.model.Message;
 import com.seshtutoring.seshapp.model.Sesh;
 import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.util.StorageUtils;
@@ -54,6 +58,8 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
     private static final String ARG_SESH_ID = "sesh";
     public static final String SESH_KEY = "sesh_key";
     public static final String OPEN_MESSAGING = "open_messaging";
+    static final int MESSAGE_ACTIVITY_CLOSED = 1;
+
 
     private int seshId;
     private Sesh sesh;
@@ -67,6 +73,9 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
     private SeshButton startSeshButton;
 
     private Map<String, Object> options;
+
+    private BroadcastReceiver broadcastReceiver;
+
 
     /**
      * Use this factory method to create a new instance of
@@ -160,6 +169,8 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
             }
         });
 
+        refreshMessageButtonText();
+
         if (!sesh.isStudent) {
             startSeshButton = (SeshButton) v.findViewById(R.id.start_sesh_button);
             startSeshButton.setOnClickListener(new View.OnClickListener() {
@@ -169,6 +180,8 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
                 }
             });
         }
+
+        broadcastReceiver = actionBroadcastReceiver;
 
         seshActivityIndicator = (SeshActivityIndicator) v.findViewById(R.id.view_sesh_activity_indicator);
         seshActivityIndicator.setAlpha(0);
@@ -195,6 +208,55 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
 
         return v;
     }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        //if the RequestCode = RESULT_DIAL then do waht you want
+        if (requestCode == MESSAGE_ACTIVITY_CLOSED) {
+            refreshMessageButtonText();
+        }
+    }
+
+    public void refreshMessageButtonText() {
+        // Check to see if any messages are unread
+        List<Message> messages = sesh.getMessages();
+        int unreadMessages  = Message.getUnreadMessagesCount(messages);
+        String messageText = "MESSAGE";
+        if (unreadMessages > 0 && unreadMessages < 10) {
+            messageText += " (" + unreadMessages + ")";
+        } else if (unreadMessages >= 10) {
+            messageText += " (10+)";
+        }
+
+        messageButton.setText(messageText);
+
+    }
+
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        // Listen for new messages
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(MessagingActivity.REFRESH_MESSAGES);
+        this.getActivity().registerReceiver(broadcastReceiver, intentFilter);
+
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        this.getActivity().unregisterReceiver(broadcastReceiver);
+    }
+
+
+    private BroadcastReceiver actionBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            refreshMessageButtonText();
+        }
+    };
 
     @Override
     public void onAttach(Activity activity) {
@@ -292,7 +354,7 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
     private void messageButtonClicked() {
         Intent intent = new Intent(myContext, MessagingActivity.class);
         intent.putExtra(MessagingActivity.SESH_ID, this.sesh.seshId);
-        startActivityForResult(intent, 1);
+        startActivityForResult(intent, MESSAGE_ACTIVITY_CLOSED);
     }
 
     private void createDialog(String title, String message, String firstChoice, String secondChoice, final View.OnClickListener firstClickListener) {

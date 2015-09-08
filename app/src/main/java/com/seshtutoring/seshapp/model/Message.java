@@ -80,6 +80,30 @@ public class Message extends SugarRecord<Message> {
         return message;
     }
 
+    public static int getUnreadMessagesCount(List<Message> messages) {
+        int count = 0;
+
+        for (int i = 0; i < messages.size(); i++) {
+            Message currentMessage = messages.get(i);
+
+            if (!currentMessage.hasBeenRead) {
+                count++;
+                if (count >= 10) return count;
+            }
+        }
+
+        return count;
+    }
+
+    public static void listMesssagesAsRead(List<Message> messages) {
+
+        for (int i = 0; i < messages.size(); i++) {
+            Message message = messages.get(i);
+            message.hasBeenRead = true;
+            message.save();
+        }
+    }
+
     private static Message createOrUpdateMessageWithId(int messageId) {
         Message message = null;
         List<Message> messagesFound = Message.find(Message.class, "message_id = ?", Integer.toString(messageId));

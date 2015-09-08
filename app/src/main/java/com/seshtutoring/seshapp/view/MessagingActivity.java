@@ -140,7 +140,45 @@ public class MessagingActivity extends SeshActivity implements View.OnClickListe
 
         broadcastReceiver = actionBroadcastReceiver;
 
+        isCurrentOnMessages();
 
+    }
+
+    private void isCurrentOnMessages() {
+
+        List<Message> messages =  this.sesh.getMessages();
+
+        if (messages.size() <= 0) return;
+
+        Message.listMesssagesAsRead(messages);
+
+        Message lastMessage = messages.get(messages.size() - 1);
+
+        this.seshNetworking.hasReadUpToMessage(lastMessage.messageId, this.sesh.seshId, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject jsonObject) {
+                try {
+                    if (jsonObject.getString("status").equals("SUCCESS")) {
+
+                        Log.d(TAG, "Updated read messages");
+
+
+                    }
+                } catch (JSONException e) {
+                    Log.e(TAG, "Failed to update read messages; JSON malformed: " + e);
+                    SeshDialog.showDialog(getFragmentManager(), "Whoops",
+                            "Something went wrong.  Try again later.",
+                            "Okay", null, "error");
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+                SeshDialog.showDialog(getFragmentManager(), "Whoops",
+                        "Something went wrong.  Try again later.",
+                        "Okay", null, "error");
+            }
+        });
 
     }
 
@@ -165,6 +203,7 @@ public class MessagingActivity extends SeshActivity implements View.OnClickListe
     private BroadcastReceiver actionBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            isCurrentOnMessages();
             messageAdapter.messages = sesh.getMessages();
             messageAdapter.notifyDataSetChanged();
             listView.smoothScrollToPosition(messageAdapter.getCount() - 1);
@@ -196,7 +235,6 @@ public class MessagingActivity extends SeshActivity implements View.OnClickListe
                     }
                 };
                 mainHandler.post(myRunnable);
-
             }
 
             @Override
@@ -234,6 +272,8 @@ public class MessagingActivity extends SeshActivity implements View.OnClickListe
                                 Message message = Message.createOrUpdateMessageWithJSON(messageJSON, sesh, getApplicationContext());
                                 message.save();
                             }
+                            isCurrentOnMessages();
+
                             messageAdapter.messages = sesh.getMessages();
                             messageAdapter.notifyDataSetChanged();
                             listView.smoothScrollToPosition(messageAdapter.getCount() - 1);
