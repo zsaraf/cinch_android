@@ -317,8 +317,10 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
     }
 
     public void refresh() {
-        updateNavBarTitle();
-        ((ViewSeshPagerAdapter)viewPager.getAdapter()).refresh();
+        if (sesh != null) {
+            updateNavBarTitle();
+            ((ViewSeshPagerAdapter)viewPager.getAdapter()).refresh();
+        }
     }
 
 
