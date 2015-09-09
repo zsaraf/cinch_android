@@ -47,6 +47,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.seshtutoring.seshapp.R;
+import com.seshtutoring.seshapp.model.LearnRequest;
 import com.seshtutoring.seshapp.util.LocationManager;
 import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.util.StorageUtils;
@@ -55,6 +56,7 @@ import com.seshtutoring.seshapp.view.RequestActivity;
 import com.seshtutoring.seshapp.view.components.SeshButton;
 import com.seshtutoring.seshapp.view.components.SeshDialog;
 import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.HomeFragment;
+import com.stripe.android.compat.AsyncTask;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -110,7 +112,7 @@ public class LearnViewFragment extends Fragment implements OnMapReadyCallback {
         requestButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startRequestActivityWithBlurTransition();
+                (new CheckForInstantRequestsAndStartActivityAsyncTask()).execute();
             }
         });
 
@@ -203,6 +205,22 @@ public class LearnViewFragment extends Fragment implements OnMapReadyCallback {
         } else {
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
                     new LatLng(location.getLatitude(), location.getLongitude()), 18));
+        }
+    }
+
+    private class CheckForInstantRequestsAndStartActivityAsyncTask extends AsyncTask<Void, Void, Boolean> {
+        public Boolean doInBackground(Void... params) {
+            return LearnRequest.find(LearnRequest.class, "is_instant = ?", "1").size() > 0;
+        }
+
+        public void onPostExecute(Boolean instantRequestExists) {
+            if (instantRequestExists) {
+                SeshDialog.showDialog(getActivity().getFragmentManager(), "Whoops!", "You can't have multiple requests out" +
+                        " at once!  Cancel your current request if you wish to create a new Sesh request",
+                        "OKAY", null, "only_one_instant");
+            } else {
+                startRequestActivityWithBlurTransition();
+            }
         }
     }
 }

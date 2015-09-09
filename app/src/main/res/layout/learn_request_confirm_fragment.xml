@@ -36,54 +36,65 @@
                 android:id="@+id/class_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginRight="20dp"
-                android:layout_marginLeft="20dp"
                 custom:informationLabelText="class"
                 custom:informationLabelIcon="@drawable/book"
                 custom:textColor="@color/white"/>
+            <View
+                android:layerType="software"
+                android:layout_width="match_parent"
+                android:layout_height="3dp"
+                android:background="@drawable/dotted_line"/>
 
             <com.seshtutoring.seshapp.view.components.SeshInformationLabel
                 android:id="@+id/assignment_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginRight="20dp"
-                android:layout_marginLeft="20dp"
                 android:layout_marginTop="10dp"
                 android:layout_below="@+id/class_label"
                 custom:informationLabelText="hello"
                 custom:informationLabelIcon="@drawable/subject"
                 custom:textColor="@color/white"/>
+            <View
+                android:layerType="software"
+                android:layout_width="match_parent"
+                android:layout_height="3dp"
+                android:background="@drawable/dotted_line"/>
 
             <com.seshtutoring.seshapp.view.components.SeshInformationLabel
                 android:id="@+id/duration_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginRight="20dp"
-                android:layout_marginLeft="20dp"
+
                 android:layout_marginTop="10dp"
                 android:layout_below="@+id/subject_label"
                 custom:informationLabelText="hello"
                 custom:informationLabelIcon="@drawable/clock_orange"
                 custom:textColor="@color/white"/>
+            <View
+                android:layerType="software"
+                android:layout_width="match_parent"
+                android:layout_height="3dp"
+                android:background="@drawable/dotted_line"/>
 
             <com.seshtutoring.seshapp.view.components.SeshInformationLabel
                 android:id="@+id/num_people_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginRight="20dp"
-                android:layout_marginLeft="20dp"
                 android:layout_marginTop="10dp"
                 android:layout_below="@+id/subject_label"
                 custom:informationLabelText="hello"
                 custom:informationLabelIcon="@drawable/hashtag_orange"
                 custom:textColor="@color/white"/>
+            <View
+                android:layerType="software"
+                android:layout_width="match_parent"
+                android:layout_height="3dp"
+                android:background="@drawable/dotted_line"/>
 
             <com.seshtutoring.seshapp.view.components.SeshInformationLabel
                 android:id="@+id/time_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginRight="20dp"
-                android:layout_marginLeft="20dp"
                 android:layout_marginTop="10dp"
                 android:layout_below="@+id/subject_label"
                 custom:informationLabelText="hello"

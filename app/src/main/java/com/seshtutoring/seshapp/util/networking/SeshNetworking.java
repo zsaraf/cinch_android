@@ -592,9 +592,15 @@ public class SeshNetworking {
     public void createRequestWithLearnRequest(LearnRequest learnRequest, Response.Listener<JSONObject> successListener,
                                               Response.ErrorListener errorListener) {
         long expirationTime = 0;
-        for (AvailableBlock block : learnRequest.availableBlocks) {
-            if (block.endTime - expirationTime > 0) {
-                expirationTime = block.endTime;
+        long thirtyMinutesMillis = 30 * 60 * 1000;
+
+        if (learnRequest.isInstant()) {
+            expirationTime = learnRequest.timestamp + thirtyMinutesMillis;
+        } else {
+            for (AvailableBlock block : learnRequest.availableBlocks) {
+                if (block.endTime - expirationTime > 0) {
+                    expirationTime = block.endTime;
+                }
             }
         }
 
@@ -611,7 +617,7 @@ public class SeshNetworking {
             params.put(EST_TIME_PARAM, learnRequest.estTime);
             params.put(RATE_PARAM, Constants.getHourlyRate(mContext));
             params.put(FAVORITES_PARAM, new ArrayList<>());  // until Favorites implemented....
-            params.put(IS_INSTANT_PARAM, learnRequest.isInstant());
+            params.put(IS_INSTANT_PARAM, learnRequest.isInstant() ? "1" :    "0");
             params.put(EXPIRATION_TIME_PARAM, formatter.print(new DateTime(expirationTime)));
 
             JSONArray availableBlocksJson = new JSONArray();

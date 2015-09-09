@@ -237,12 +237,10 @@ public class RequestActivity extends SeshActivity implements
     }
 
     public void createLearnRequest() {
-        // temp until scheduling implemented
-        currentLearnRequest.setIsInstant(false);
-
-        if (currentLearnRequest.availableBlocks.size() == 0) {
-            currentLearnRequest.createAvailableBlockForNow(1);
-        }
+        // @TODO temp until scheduling implemented
+//        if (currentLearnRequest.availableBlocks.size() == 0) {
+//            currentLearnRequest.createAvailableBlockForNow(1);
+//        }
 
         (new CreateLearnRequestAsyncTask()).execute(this, currentLearnRequest);
     }
