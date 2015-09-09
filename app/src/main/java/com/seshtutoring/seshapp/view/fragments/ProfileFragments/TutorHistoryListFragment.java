@@ -2,21 +2,15 @@ package com.seshtutoring.seshapp.view.fragments.ProfileFragments;
 
 import android.app.ListFragment;
 import android.content.Context;
-import android.graphics.Typeface;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.seshtutoring.seshapp.R;
-import com.seshtutoring.seshapp.model.Course;
 import com.seshtutoring.seshapp.model.PastRequest;
 import com.seshtutoring.seshapp.model.PastSesh;
 import com.seshtutoring.seshapp.model.User;
@@ -24,12 +18,7 @@ import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
 import com.squareup.picasso.Callback;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.text.NumberFormat;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -47,7 +36,7 @@ public class TutorHistoryListFragment extends ListFragment{
 
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
 
-        this.list = (ListView) layoutInflater.inflate(R.layout.tutor_history_list_fragment, null);
+        this.list = (ListView) layoutInflater.inflate(R.layout.profile_list_view, null);
 
         mainContainerActivity = (MainContainerActivity) getActivity();
         this.user = User.currentUser(mainContainerActivity.getApplicationContext());
@@ -120,17 +109,17 @@ public class TutorHistoryListFragment extends ListFragment{
             NumberFormat formatter = NumberFormat.getCurrencyInstance();
             viewHolder.rightTextView.setText(formatter.format(item.cost));
 
-//            seshNetworking.downloadProfilePictureAsync(item.tutorProfilePicture, viewHolder.profileImageView, new Callback() {
-//                    @Override
-//                    public void onSuccess() {
-//
-//                    }
-//
-//                    @Override
-//                    public void onError() {
-//
-//                    }
-//                });
+            seshNetworking.downloadProfilePictureAsync(item.tutorProfilePicture, viewHolder.profileImageView, new Callback() {
+                @Override
+                public void onSuccess() {
+
+                }
+
+                @Override
+                public void onError() {
+
+                }
+            });
 
             return convertView;
         }

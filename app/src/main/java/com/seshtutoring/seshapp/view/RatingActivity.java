@@ -235,17 +235,17 @@ public class RatingActivity extends SeshActivity {
     }
 
     private void setupImageView() {
-        this.seshNetworking.downloadProfilePictureAsync(this.pastSesh.tutorProfilePicture, this.profilePicture, new Callback() {
-            @Override
-            public void onSuccess() {
-
-            }
-
-            @Override
-            public void onError() {
-
-            }
-        });
+//        this.seshNetworking.downloadProfilePictureAsync(this.pastSesh.tutorProfilePicture, this.profilePicture, new Callback() {
+//            @Override
+//            public void onSuccess() {
+//
+//            }
+//
+//            @Override
+//            public void onError() {
+//
+//            }
+//        });
     }
 
     private void setNetworkOperationInProgress(boolean inProgress) {

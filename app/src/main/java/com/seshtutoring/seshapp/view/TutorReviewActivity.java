@@ -116,17 +116,17 @@ public class TutorReviewActivity extends SeshActivity {
     }
 
     private void setupImageView() {
-        this.seshNetworking.downloadProfilePictureAsync(this.pastSesh.studentProfilePicture, this.profilePicture, new Callback() {
-            @Override
-            public void onSuccess() {
-
-            }
-
-            @Override
-            public void onError() {
-
-            }
-        });
+//        this.seshNetworking.downloadProfilePictureAsync(this.pastSesh.studentProfilePicture, this.profilePicture, new Callback() {
+//            @Override
+//            public void onSuccess() {
+//
+//            }
+//
+//            @Override
+//            public void onError() {
+//
+//            }
+//        });
     }
 
     @Override

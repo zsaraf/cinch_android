@@ -35,7 +35,6 @@ import org.joda.time.format.DateTimeFormatter;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -113,26 +112,10 @@ public class SeshNetworking {
     }
 
     public Bitmap downloadProfilePictureSynchronous(String profilePictureUrl) {
-        profilePictureUrl = baseUrl() + "resources/images/profile_pictures/" + profilePictureUrl;
-        OkHttpClient picassoClient = new OkHttpClient();
-        picassoClient.interceptors().add(new Interceptor() {
-            @Override
-            public com.squareup.okhttp.Response intercept(Chain chain) throws IOException {
-                Request newRequest = chain.request().newBuilder()
-                        .addHeader("Authorization", "Basic dGVhbXNlc2g6RWFibHRmMSE=")
-                        .build();
-                return chain.proceed(newRequest);
-            }
-        });
-        Picasso.Builder builder = new Picasso.Builder(mContext);
-
-        Picasso picasso =  builder
-                .downloader(new OkHttpDownloader(picassoClient))
-                .memoryCache(SeshImageCache.sharedInstance(mContext)).build();
 
         Bitmap bitmap = null;
         try {
-            bitmap = picasso.load(profilePictureUrl).get();
+            bitmap = PicassoWrapper.getInstance(mContext).picasso.load(profilePictureUrl).get();
         } catch (IOException e) {
             Log.e(TAG, "Failed to get profile picture; " + e);
         }
@@ -141,23 +124,10 @@ public class SeshNetworking {
     }
 
     public void downloadProfilePictureAsync(String profilePictureUrl, ImageView imageView, Callback callback) {
-        profilePictureUrl = baseUrl() + "resources/images/profile_pictures/" + profilePictureUrl;
-        OkHttpClient picassoClient = new OkHttpClient();
-        picassoClient.interceptors().add(new Interceptor() {
-            @Override
-            public com.squareup.okhttp.Response intercept(Chain chain) throws IOException {
-                Request newRequest = chain.request().newBuilder()
-                        .addHeader("Authorization", "Basic dGVhbXNlc2g6RWFibHRmMSE=")
-                        .build();
-                return chain.proceed(newRequest);
-            }
-        });
-        Picasso.Builder builder = new Picasso.Builder(mContext);
 
-        Picasso picasso =  builder
-                .downloader(new OkHttpDownloader(picassoClient))
-                .memoryCache(SeshImageCache.sharedInstance(mContext)).build();
-        picasso.load(profilePictureUrl).placeholder(R.drawable.default_profile_picture).into(imageView, callback);
+        profilePictureUrl = baseUrl() + "resources/images/profile_pictures/" + profilePictureUrl;
+        PicassoWrapper.getInstance(mContext).picasso.load(profilePictureUrl).placeholder(R.drawable.default_profile_picture).into(imageView, callback);
+
     }
 
     public void postWithRelativeUrl(String relativeUrl, Map<String, String> params,

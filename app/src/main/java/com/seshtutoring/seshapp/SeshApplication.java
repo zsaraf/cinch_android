@@ -5,11 +5,19 @@ import com.crashlytics.android.Crashlytics;
 import com.mixpanel.android.mpmetrics.MixpanelAPI;
 import com.orm.SugarApp;
 import com.seshtutoring.seshapp.util.ApplicationLifecycleTracker;
+import com.seshtutoring.seshapp.util.SeshImageCache;
 import com.seshtutoring.seshapp.util.SeshMixpanelAPI;
+import com.squareup.okhttp.Interceptor;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
 import com.squareup.picasso.LruCache;
+import com.squareup.picasso.OkHttpDownloader;
+import com.squareup.picasso.Picasso;
 
 import io.fabric.sdk.android.Fabric;
 import org.joda.time.DateTime;
+
+import java.io.IOException;
 
 import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
 
@@ -43,6 +51,7 @@ public class SeshApplication extends SugarApp {
                 .build());
 
         this.seshMixpanelAPI = SeshMixpanelAPI.getInstance(this);
+
     }
 
     public ApplicationLifecycleTracker getApplicationLifecycleTracker() {
@@ -66,4 +75,5 @@ public class SeshApplication extends SugarApp {
     public SeshMixpanelAPI getSeshMixpanelAPI() {
         return seshMixpanelAPI;
     }
+
 }

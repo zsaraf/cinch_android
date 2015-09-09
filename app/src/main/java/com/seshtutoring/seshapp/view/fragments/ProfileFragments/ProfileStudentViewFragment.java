@@ -45,10 +45,10 @@ public class ProfileStudentViewFragment extends Fragment implements MainContaine
         NumberFormat formatter = NumberFormat.getCurrencyInstance();
         creditsView.setText(formatter.format(this.user.student.credits));
 
-//        getActivity().getFragmentManager()
-//                .beginTransaction()
-//                .replace(R.id.profile_student_view_frame, new TutorHistoryListFragment(), "TutorHistoryListFragment")
-//                .commit();
+        getActivity().getFragmentManager()
+                .beginTransaction()
+                .replace(R.id.profile_student_view_frame, new TutorHistoryListFragment(), "TutorHistoryListFragment")
+                .commit();
 
         return this.homeView;
 

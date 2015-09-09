@@ -4,7 +4,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/icon_text_view"
     android:orientation="horizontal"
-    android:layout_width="match_parent"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:paddingTop="20dp"
     android:background="@color/white">
@@ -26,7 +26,7 @@
 
     <TextView
         android:background="#00000000"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/icon_text_view_text"
         android:layout_alignParentTop="true"

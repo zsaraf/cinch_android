@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import com.squareup.picasso.Callback;
 
@@ -38,7 +39,8 @@ public class ProfileBioViewFragment extends Fragment implements MainContainerAct
         SeshIconTextView emailView = (SeshIconTextView) v.findViewById(R.id.email);
         SeshIconTextView majorView = (SeshIconTextView) v.findViewById(R.id.major);
         TextView bioView = (TextView) v.findViewById(R.id.bio);
-        Button editButton = (Button) v.findViewById(R.id.edit_button);
+        TextView editButton = (TextView) v.findViewById(R.id.edit_button);
+
 
         schoolView.setText(user.school.schoolName);
         schoolView.setIconResourceId(R.drawable.university_big);
@@ -48,19 +50,6 @@ public class ProfileBioViewFragment extends Fragment implements MainContainerAct
         majorView.setIconResourceId(R.drawable.book);
         bioView.setText(user.bio);
 
-//        final ImageView profileImageView = (ImageView)v.findViewById(R.id.profile_picture);
-//        SeshNetworking seshNetworking = new SeshNetworking(mainContainerActivity);
-//        seshNetworking.downloadProfilePicture(user.getProfilePictureUrl(), profileImageView, new Callback() {
-//            @Override
-//            public void onSuccess() {
-//
-//            }
-//
-//            @Override
-//            public void onError() {
-//
-//            }
-//        });
         return v;
 
     }

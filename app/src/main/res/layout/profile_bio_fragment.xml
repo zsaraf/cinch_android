@@ -23,25 +23,25 @@
 
     <com.seshtutoring.seshapp.view.components.SeshIconTextView
         android:id="@+id/school_name"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingLeft="100dp"
-        android:paddingTop="200dp"
+        android:layout_centerInParent="true"
+        android:paddingTop="250dp"
         android:layout_below="@id/divider"></com.seshtutoring.seshapp.view.components.SeshIconTextView>
 
     <com.seshtutoring.seshapp.view.components.SeshIconTextView
         android:id="@+id/email"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingLeft="100dp"
-        android:layout_below="@id/school_name"></com.seshtutoring.seshapp.view.components.SeshIconTextView>
+        android:layout_below="@id/school_name"
+        android:layout_alignLeft="@id/school_name"></com.seshtutoring.seshapp.view.components.SeshIconTextView>
 
     <com.seshtutoring.seshapp.view.components.SeshIconTextView
         android:id="@+id/major"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingLeft="100dp"
-        android:layout_below="@id/email"></com.seshtutoring.seshapp.view.components.SeshIconTextView>
+        android:layout_below="@id/email"
+        android:layout_alignLeft="@id/email"></com.seshtutoring.seshapp.view.components.SeshIconTextView>
 
     <TextView
         android:id="@+id/bio"
@@ -52,16 +52,20 @@
         android:textSize="20sp"
         android:layout_below="@id/major"/>
 
-    <Button
+    <TextView
         android:id="@+id/edit_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:gravity="center"
-        android:padding="5dp"
-        android:textSize="10sp"
+        android:paddingRight="20dp"
+        android:paddingLeft="20dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:layout_marginBottom="25dp"
+        android:textSize="12sp"
         android:background="@drawable/sesh_white_button"
-        android:layout_centerHorizontal="true"
+        android:layout_centerInParent="true"
         android:text="edit"/>
 
 </RelativeLayout>

@@ -101,10 +101,10 @@ public class ProfileTutorViewFragment extends Fragment implements MainContainerA
         }else {
             this.studentHistoryTab.setTextColor(getResources().getColor(R.color.light_gray));
             this.classesTab.setTextColor(getResources().getColor(R.color.seshorange));
-//            getActivity().getFragmentManager()
-//                    .beginTransaction()
-//                    .replace(R.id.profile_tutor_view_frame, new ViewClassesFragment(), "ClassesListFragment")
-//                    .commit();
+            getActivity().getFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.profile_tutor_view_frame, new ClassesListFragment(), "ClassesListFragment")
+                    .commit();
 
         }
 

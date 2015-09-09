@@ -60,17 +60,17 @@ public class InSeshActivity extends SeshActivity {
 
         CircleImageView circleImageView = (CircleImageView)findViewById(R.id.profile_image);
         SeshNetworking seshNetworking = new SeshNetworking(getApplicationContext());
-        seshNetworking.downloadProfilePictureAsync(this.currentSesh.userImageUrl, circleImageView, new Callback() {
-            @Override
-            public void onSuccess() {
-
-            }
-
-            @Override
-            public void onError() {
-
-            }
-        });
+//        seshNetworking.downloadProfilePictureAsync(this.currentSesh.userImageUrl, circleImageView, new Callback() {
+//            @Override
+//            public void onSuccess() {
+//
+//            }
+//
+//            @Override
+//            public void onError() {
+//
+//            }
+//        });
 
         ImageButton backButton = (ImageButton) findViewById(R.id.action_bar_back_button);
         ViewGroup layout = (ViewGroup) backButton.getParent();

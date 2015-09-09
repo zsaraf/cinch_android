@@ -1,9 +1,13 @@
 package com.seshtutoring.seshapp.model;
 
+import android.content.Context;
 import android.util.Log;
+import android.widget.ImageView;
 
 import com.orm.SugarRecord;
 import com.orm.dsl.Ignore;
+import com.seshtutoring.seshapp.util.networking.SeshNetworking;
+import com.squareup.picasso.Callback;
 
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -110,4 +114,5 @@ public class PastSesh extends SugarRecord<PastSesh> {
         DateTimeFormatter formatter = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss").withZoneUTC();
         return formatter.parseDateTime(rawTimeString).toDate();
     }
+
 }
