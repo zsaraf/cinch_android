@@ -127,6 +127,12 @@ public class SeshBanner extends DialogFragment {
     }
 
     @Override
+    public void onPause() {
+        dismiss();
+        super.onPause();
+    }
+
+    @Override
     public Dialog onCreateDialog(Bundle savedInstanceState)
     {
         final Dialog dialog = super.onCreateDialog(savedInstanceState);
