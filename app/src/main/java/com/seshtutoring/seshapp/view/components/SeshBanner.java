@@ -128,7 +128,9 @@ public class SeshBanner extends DialogFragment {
 
     @Override
     public void onPause() {
-        dismiss();
+        if (isShowing) {
+            dismiss();
+        }
         super.onPause();
     }
 
@@ -193,9 +195,9 @@ public class SeshBanner extends DialogFragment {
         @Override
         public boolean onSingleTapUp(MotionEvent me) {
             if (singleTapCallback != null) {
+                dismiss();
                 Handler handler = new Handler();
                 handler.post(singleTapCallback);
-                dismiss();
             }
             return true;
         }
