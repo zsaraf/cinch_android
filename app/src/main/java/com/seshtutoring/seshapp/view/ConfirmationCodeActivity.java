@@ -131,7 +131,7 @@ public class ConfirmationCodeActivity extends SeshActivity {
 
                                 if (SeshApplication.IS_LIVE) {
                                     HashSet<LaunchPrerequisiteFlag> fulfilledPrereqs = new HashSet<>();
-                                    fulfilledPrereqs.add(LaunchPrerequisiteFlag.SESH_INFORMATION_FETCHED);
+                                    fulfilledPrereqs.add(LaunchPrerequisiteFlag.USER_INFORMATION_FETCHED);
                                     (new LaunchPrerequisiteAsyncTask(getApplicationContext(), fulfilledPrereqs,
                                             new PrereqsFulfilledListener() {
                                                 @Override

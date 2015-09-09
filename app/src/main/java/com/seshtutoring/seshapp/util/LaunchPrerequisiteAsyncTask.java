@@ -11,9 +11,11 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.RequestFuture;
 import com.seshtutoring.seshapp.model.Constants;
 import com.seshtutoring.seshapp.model.Sesh;
+import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking.SynchronousRequest;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashSet;
@@ -32,12 +34,12 @@ public class LaunchPrerequisiteAsyncTask extends AsyncTask<Void, Void, Void>
     private Object lock = new Object();
 
     public enum LaunchPrerequisiteFlag {
-        LOCATION_MANAGER_LOADED, CONSTANTS_FETCHED, SESH_INFORMATION_FETCHED
+        LOCATION_MANAGER_LOADED, CONSTANTS_FETCHED, USER_INFORMATION_FETCHED
     }
 
     private boolean locationManagerLoaded;
     private boolean constantsFetched;
-    private boolean seshInformationFetched;
+    private boolean userInformationFetched;
 
     public static abstract class PrereqsFulfilledListener {
         public abstract void onPrereqsFulfilled();
@@ -48,7 +50,7 @@ public class LaunchPrerequisiteAsyncTask extends AsyncTask<Void, Void, Void>
         this.listener = listener;
         locationManagerLoaded = false;
         constantsFetched = false;
-        seshInformationFetched = false;
+        userInformationFetched = false;
     }
 
     public LaunchPrerequisiteAsyncTask(Context context, Set<LaunchPrerequisiteFlag> launchPrerequisitesFulfilled,
@@ -57,7 +59,7 @@ public class LaunchPrerequisiteAsyncTask extends AsyncTask<Void, Void, Void>
         this.listener = listener;
         locationManagerLoaded = false;
         constantsFetched = false;
-        seshInformationFetched = false;
+        userInformationFetched = false;
 
         if (launchPrerequisitesFulfilled.contains(LaunchPrerequisiteFlag.CONSTANTS_FETCHED)) {
             constantsFetched = true;
@@ -71,10 +73,10 @@ public class LaunchPrerequisiteAsyncTask extends AsyncTask<Void, Void, Void>
             locationManagerLoaded = false;
         }
 
-        if (launchPrerequisitesFulfilled.contains(LaunchPrerequisiteFlag.SESH_INFORMATION_FETCHED)) {
-            seshInformationFetched = true;
+        if (launchPrerequisitesFulfilled.contains(LaunchPrerequisiteFlag.USER_INFORMATION_FETCHED)) {
+            userInformationFetched = true;
         } else {
-            seshInformationFetched = false;
+            userInformationFetched = false;
         }
     }
 
@@ -104,12 +106,12 @@ public class LaunchPrerequisiteAsyncTask extends AsyncTask<Void, Void, Void>
             }
         }
 
-        if (!seshInformationFetched) {
+        if (!userInformationFetched) {
             final SeshNetworking seshNetworking = new SeshNetworking(mContext);
             SynchronousRequest request = new SynchronousRequest() {
                 @Override
                 public void request(RequestFuture<JSONObject> blocker) {
-                    seshNetworking.getSeshInformation(blocker, blocker);
+                    seshNetworking.getFullUserInfo(blocker, blocker);
                 }
 
                 @Override
@@ -121,7 +123,12 @@ public class LaunchPrerequisiteAsyncTask extends AsyncTask<Void, Void, Void>
             JSONObject json = request.execute();
 
             if (json == null) return null;
-            Sesh.updateSeshInfoWithObject(mContext, json);
+
+            try  {
+                User.createOrUpdateUserWithObject(json.getJSONObject("data"), mContext);
+            } catch (JSONException e) {
+                Log.e(TAG, "Failed to fetch user info; json malformed: " + e);
+            }
         }
 
         return null;

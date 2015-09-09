@@ -3,12 +3,17 @@ package com.seshtutoring.seshapp.view.animations;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
+import android.os.Debug;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 
+import com.facebook.rebound.SimpleSpringListener;
+import com.facebook.rebound.Spring;
+import com.facebook.rebound.SpringConfig;
+import com.facebook.rebound.SpringSystem;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.LearnRequest;
 import com.seshtutoring.seshapp.util.LayoutUtils;
@@ -26,6 +31,7 @@ public class LearnRequestDisplayAnimation extends SideMenuOpenAnimation {
     private MainContainerActivity mainContainerActivity;
     private LearnRequest learnRequest;
     private LinearLayout contents;
+    private Spring spring;
 
 
     public LearnRequestDisplayAnimation(MainContainerActivity mainContainerActivity,
@@ -33,6 +39,19 @@ public class LearnRequestDisplayAnimation extends SideMenuOpenAnimation {
         this.mainContainerActivity = mainContainerActivity;
         this.learnRequest = learnRequest;
         this.contents = (LinearLayout) learnRequestRowItem.findViewById(R.id.contents);
+        this.spring = SpringSystem.create().createSpring();
+        spring.setSpringConfig(SpringConfig.fromOrigamiTensionAndFriction(60, 7));
+        spring.addListener(new SimpleSpringListener() {
+            @Override
+            public void onSpringUpdate(Spring spring) {
+                contents.setX((int) spring.getCurrentValue());
+            }
+
+            @Override
+            public void onSpringAtRest(Spring spring) {
+                onAnimationCompleted();
+            }
+        });
     }
 
     public void prepareAnimation() {
@@ -40,13 +59,8 @@ public class LearnRequestDisplayAnimation extends SideMenuOpenAnimation {
     }
 
     public void startAnimation() {
-        contents.animate().x(0).setDuration(300).setListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                super.onAnimationEnd(animation);
-                onAnimationCompleted();
-            }
-        }).start();
+        spring.setCurrentValue(contents.getWidth());
+        spring.setEndValue(0);
     }
 
     public void onAnimationCompleted() {
@@ -56,8 +70,8 @@ public class LearnRequestDisplayAnimation extends SideMenuOpenAnimation {
     private class AnimationCompleteAsyncTask extends AsyncTask<Void, Void, Void> {
         @Override
         public Void doInBackground(Void... params) {
-            learnRequest.requiresAnimatedDisplay = false;
-            learnRequest.save();
+//            learnRequest.requiresAnimatedDisplay = false;
+//            learnRequest.save();
             return null;
         }
 

@@ -526,7 +526,7 @@ public class AuthenticationActivity extends SeshActivity implements SeshDialog.O
 
                         if (SeshApplication.IS_LIVE) {
                             HashSet<LaunchPrerequisiteAsyncTask.LaunchPrerequisiteFlag> fulfilledPrereqs = new HashSet<>();
-                            fulfilledPrereqs.add(LaunchPrerequisiteAsyncTask.LaunchPrerequisiteFlag.SESH_INFORMATION_FETCHED);
+                            fulfilledPrereqs.add(LaunchPrerequisiteAsyncTask.LaunchPrerequisiteFlag.USER_INFORMATION_FETCHED);
                             (new LaunchPrerequisiteAsyncTask(getApplicationContext(), fulfilledPrereqs,
                                     new PrereqsFulfilledListener() {
                                         @Override
