@@ -43,30 +43,16 @@ public class LearnRequestConfirmFragment extends Fragment implements RequestActi
         this.durationLabel = (SeshInformationLabel) v.findViewById(R.id.duration_label);
         this.timeLabel = (SeshInformationLabel) v.findViewById(R.id.time_label);
 
-        this.activityIndicator = (SeshActivityIndicator) v.findViewById(R.id.request_activity_indicator);
-        this.confirmationDetailsList = (LinearLayout) v.findViewById(R.id.confirmation_detail_list);
-
         this.requestButton = (SeshButton) v.findViewById(R.id.request_button);
 
         requestButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showActivityIndicator();
                 parentActivity.createLearnRequest();
                 requestButton.setEnabled(false);
             }
         });
         return v;
-    }
-
-    public void showActivityIndicator() {
-        activityIndicator.animate().alpha(1).setDuration(300).start();
-        confirmationDetailsList.animate().alpha(0).setDuration(300).start();
-    }
-
-    public void hideActivityIndicator() {
-        activityIndicator.animate().alpha(0).setDuration(300).start();
-        confirmationDetailsList.animate().alpha(1).setDuration(300).start();
     }
 
     public void fillInConfirmationBoxes() {

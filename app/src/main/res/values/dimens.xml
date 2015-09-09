@@ -20,4 +20,8 @@
     <dimen name="request_flow_underline_width">20dp</dimen>
 
     <dimen name="sesh_edit_text_height">40dp</dimen>
+
+    <dimen name="sesh_animated_checkmark_circle_radius">40dp</dimen>
+    <dimen name="sesh_animated_checkmark_check_width">30dp</dimen>
+    <dimen name="sesh_animated_checkmark_check_height">30dp</dimen>
 </resources>

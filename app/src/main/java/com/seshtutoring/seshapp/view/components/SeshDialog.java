@@ -103,7 +103,7 @@ public class SeshDialog extends DialogFragment {
             mCallback = (OnSelectionListener) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString()
-                    + " must implement OnHeadlineSelectedListener");
+                    + " must implement OnSelectionListener");
         }
 
         this.mActivity = activity;
@@ -232,6 +232,12 @@ public class SeshDialog extends DialogFragment {
     private void replaceContentLayout(View dialogView, View contentView) {
         ViewGroup contentContainer = (ViewGroup) dialogView.findViewById(R.id.dialog_content_area);
         contentContainer.removeAllViews();
+
+        ViewGroup contentViewParent = (ViewGroup) contentView.getParent();
+        if (contentViewParent != null) {
+            contentViewParent.removeView(contentView);
+        }
+
         contentContainer.addView(contentView);
     }
 

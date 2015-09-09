@@ -45,6 +45,9 @@
     <declare-styleable name="RequestTimeoutButton">
         <attr name="numHours" format="integer" />
     </declare-styleable>
+    <declare-styleable name="SeshAnimatedCheckmark">
+        <attr name="labelText" format="string"/>
+    </declare-styleable>
 
     <!--<declare-styleable name="AnimatedEllipsisTextView">-->
         <!--<attr name="text" format="string"/>-->

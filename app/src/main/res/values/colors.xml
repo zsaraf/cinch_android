@@ -39,4 +39,5 @@
     <color name="midnight_blue">#404E5C</color>
 
     <color name="view_sesh_top_portion_background">#ccffffff</color>
+    <color name="request_flow_overlay_background">#E6FFFFFF</color>
 </resources>

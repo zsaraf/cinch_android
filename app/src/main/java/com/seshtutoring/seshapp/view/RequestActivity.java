@@ -1,5 +1,7 @@
 package com.seshtutoring.seshapp.view;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.animation.TimeInterpolator;
 import android.app.ActionBar;
 import android.app.Activity;
@@ -60,6 +62,8 @@ import com.seshtutoring.seshapp.util.networking.SeshNetworking.SynchronousReques
 import com.seshtutoring.seshapp.view.components.LearnRequestProgressBar;
 import com.seshtutoring.seshapp.view.components.RequestFlowScrollView;
 import com.seshtutoring.seshapp.view.components.RequestFlowViewPager;
+import com.seshtutoring.seshapp.view.components.SeshActivityIndicator;
+import com.seshtutoring.seshapp.view.components.SeshAnimatedCheckmark;
 import com.seshtutoring.seshapp.view.components.SeshDialog;
 import com.seshtutoring.seshapp.view.fragments.LearnRequestFragments.LearnRequestAssignmentFragment;
 import com.seshtutoring.seshapp.view.fragments.LearnRequestFragments.LearnRequestConfirmFragment;
@@ -88,6 +92,9 @@ public class RequestActivity extends SeshActivity implements
     private RequestFlowScrollView requestFlowSlider;
     private LearnRequestProgressBar learnRequestProgressBar;
     private RelativeLayout learnRequestTopBar;
+    private RelativeLayout requestFlowOverlay;
+    private SeshActivityIndicator activityIndicator;
+    private SeshAnimatedCheckmark animatedCheckmark;
     private boolean isKeyboardShowing;
 
     public static final String DIALOG_TYPE_LEARN_REQUEST_SUCCESS = "learn_request_success";
@@ -226,10 +233,15 @@ public class RequestActivity extends SeshActivity implements
                     rootView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
                 } else {
                     rootView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                }            }
+                }
+            }
         });
 
         requestFlowSlider.setRequestFlowFragments(requestFlowFragments);
+
+        this.requestFlowOverlay = (RelativeLayout) findViewById(R.id.request_flow_overlay);
+        this.activityIndicator = (SeshActivityIndicator) findViewById(R.id.request_activity_indicator);
+        this.animatedCheckmark = (SeshAnimatedCheckmark) findViewById(R.id.animated_check_mark);
     }
 
     public LearnRequest getCurrentLearnRequest() {
@@ -237,22 +249,14 @@ public class RequestActivity extends SeshActivity implements
     }
 
     public void createLearnRequest() {
-        // @TODO temp until scheduling implemented
-//        if (currentLearnRequest.availableBlocks.size() == 0) {
-//            currentLearnRequest.createAvailableBlockForNow(1);
-//        }
+        requestFlowOverlay.animate().alpha(1).setDuration(300).start();
 
         (new CreateLearnRequestAsyncTask()).execute(this, currentLearnRequest);
     }
 
     @Override
     public void onDialogSelection(int selection, String type) {
-        if (type.equals(DIALOG_TYPE_LEARN_REQUEST_SUCCESS)) {
-            Intent intent = new Intent(MainContainerActivity.DISPLAY_SIDE_MENU_UPDATE, null, this,
-                    MainContainerActivity.class);
-            startActivity(intent);
-            overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-        }
+        // do nothing
     }
 
     @Override
@@ -303,11 +307,10 @@ public class RequestActivity extends SeshActivity implements
     private void reenableConfirmFragmentUsage() {
         LearnRequestConfirmFragment fragment = (LearnRequestConfirmFragment) requestFlowFragments[4];
         fragment.enableRequestButton();
-        fragment.hideActivityIndicator();
     }
 
     private class CreateLearnRequestAsyncTask extends AsyncTask<Object, Void, Void> {
-        private SeshDialog responseDialog;
+        private SeshDialog errorDialog;
         private Context mContext;
 
         /**
@@ -329,7 +332,7 @@ public class RequestActivity extends SeshActivity implements
 
                 @Override
                 public void onErrorException(Exception e) {
-                    responseDialog = SeshDialog.createDialog("Network Error",
+                    errorDialog = SeshDialog.createDialog("Network Error",
                             "We couldn't reach the server.  Check your network settings and try again.",
                             "Got it", null,
                             DIALOG_TYPE_LEARN_REQUEST_FAILURE);
@@ -339,26 +342,23 @@ public class RequestActivity extends SeshActivity implements
 
             JSONObject jsonObject = request.execute();
 
+            if (jsonObject == null) return null;
+
             try {
                 if (jsonObject.getString("status").equals("SUCCESS")) {
                     LearnRequest newLearnRequest
                             = LearnRequest.createOrUpdateLearnRequest(jsonObject.getJSONObject("learn_request"));
                     newLearnRequest.requiresAnimatedDisplay = true;
                     newLearnRequest.save();
-
-                    responseDialog = SeshDialog.createDialog("Request Created",
-                            "Help is on the way! We'll notify you as soon as a tutor has accepted your Sesh request.  Hold tight!",
-                            "Got it", null,
-                            DIALOG_TYPE_LEARN_REQUEST_SUCCESS);
                 } else {
-                    responseDialog = SeshDialog.createDialog("Whoops!",
+                    errorDialog = SeshDialog.createDialog("Whoops!",
                             jsonObject.getString("message"),
                             "Got it", null,
                             DIALOG_TYPE_LEARN_REQUEST_FAILURE);
                     Log.e(TAG, "Failed to create request, server error: " + jsonObject.getString("message"));
                 }
             } catch (JSONException e) {
-                responseDialog = SeshDialog.createDialog("Whoops!",
+                errorDialog = SeshDialog.createDialog("Whoops!",
                         "Something went wrong.  Try again later.",
                         "Got it", null,
                         DIALOG_TYPE_LEARN_REQUEST_FAILURE);
@@ -369,13 +369,45 @@ public class RequestActivity extends SeshActivity implements
         }
 
         protected void onPostExecute(Void result) {
-            if (responseDialog == null) {
-                Log.e(TAG, "No response dialog has been set for CreateLearnRequestAsyncTask");
+            if (errorDialog != null) {
+                requestFlowOverlay
+                        .animate()
+                        .setListener(null)
+                        .alpha(0)
+                        .setDuration(300)
+                        .setListener(new AnimatorListenerAdapter() {
+                            @Override
+                            public void onAnimationEnd(Animator animation) {
+                                super.onAnimationEnd(animation);
+                                errorDialog.show(getFragmentManager(), null);
+                                reenableConfirmFragmentUsage();
+                            }
+                        });
                 return;
-            }
+            } else {
+                activityIndicator
+                        .animate()
+                        .alpha(0)
+                        .setDuration(300)
+                        .setListener(new AnimatorListenerAdapter() {
+                            @Override
+                            public void onAnimationEnd(Animator animation) {
+                                super.onAnimationEnd(animation);
+                                animatedCheckmark.setListener(new SeshAnimatedCheckmark.AnimationCompleteListener() {
+                                    @Override
+                                    public void onAnimationComplete() {
+                                        Intent intent = new Intent(MainContainerActivity.DISPLAY_SIDE_MENU_UPDATE, null,
+                                                getApplicationContext(),
+                                                MainContainerActivity.class);
+                                        startActivity(intent);
+                                        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+                                    }
+                                });
+                                animatedCheckmark.startAnimation();
 
-            reenableConfirmFragmentUsage();
-            responseDialog.show(getFragmentManager(), null);
+                            }
+                        });
+            }
         }
     }
 

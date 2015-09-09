@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -120,5 +121,23 @@
                 </LinearLayout>
             </HorizontalScrollView>
         </com.seshtutoring.seshapp.view.components.RequestFlowScrollView>
+    </RelativeLayout>
+    <RelativeLayout
+        android:id="@+id/request_flow_overlay"
+        android:alpha="0"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/request_flow_overlay_background">
+            <com.seshtutoring.seshapp.view.components.SeshActivityIndicator
+                android:id="@+id/request_activity_indicator"
+                android:layout_centerInParent="true"
+                android:layout_width="50dp"
+                android:layout_height="50dp"/>
+            <com.seshtutoring.seshapp.view.components.SeshAnimatedCheckmark
+                android:id="@+id/animated_check_mark"
+                android:layout_centerInParent="true"
+                custom:labelText="Request Created!"
+                android:layout_width="200dp"
+                android:layout_height="200dp"/>
     </RelativeLayout>
 </RelativeLayout>

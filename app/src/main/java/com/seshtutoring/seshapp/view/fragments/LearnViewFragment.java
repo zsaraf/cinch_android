@@ -112,7 +112,7 @@ public class LearnViewFragment extends Fragment implements OnMapReadyCallback {
         requestButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                (new CheckForInstantRequestsAndStartActivityAsyncTask()).execute();
+                (new StartRequestActivityAsyncTask()).execute();
             }
         });
 
@@ -208,9 +208,20 @@ public class LearnViewFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
-    private class CheckForInstantRequestsAndStartActivityAsyncTask extends AsyncTask<Void, Void, Boolean> {
+    /**
+     * Blocking SQL call that determines if an instant request is already open
+     * @return Boolean instantRequestExists
+     */
+    private Boolean instantRequestAlreadyExists() {
+        return LearnRequest.find(LearnRequest.class, "is_instant = ?", "1").size() > 0;
+    }
+
+    /**
+     * Task checks to see if any instant requests already exist before launching the request flow.
+     */
+    private class StartRequestActivityAsyncTask extends AsyncTask<Void, Void, Boolean> {
         public Boolean doInBackground(Void... params) {
-            return LearnRequest.find(LearnRequest.class, "is_instant = ?", "1").size() > 0;
+            return instantRequestAlreadyExists();
         }
 
         public void onPostExecute(Boolean instantRequestExists) {
