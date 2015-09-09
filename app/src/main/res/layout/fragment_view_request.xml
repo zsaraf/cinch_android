@@ -139,7 +139,7 @@
                 android:layout_marginRight="35dp"
                 android:layout_marginLeft="35dp"
                 custom:informationLabelText="class"
-                custom:informationLabelIcon="@drawable/book" />
+                custom:informationLabelIcon="@drawable/book_orange" />
 
             <com.seshtutoring.seshapp.view.components.SeshInformationLabel
                 android:id="@+id/subject_label"

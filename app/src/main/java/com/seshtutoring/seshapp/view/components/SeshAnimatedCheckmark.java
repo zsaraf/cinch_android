@@ -154,13 +154,13 @@ public class SeshAnimatedCheckmark extends RelativeLayout implements ValueAnimat
         ImageView check = new ImageView(getContext());
         if (Build.VERSION.SDK_INT < 16) {
             check.setBackgroundDrawable(getResources()
-                    .getDrawable(R.drawable.check_green));
+                    .getDrawable(R.drawable.check_orange));
         } else if (Build.VERSION.SDK_INT < 21) {
             check.setBackground(getResources()
-                    .getDrawable(R.drawable.check_green));
+                    .getDrawable(R.drawable.check_orange));
         } else  {
             check.setBackground(getResources()
-                    .getDrawable(R.drawable.check_green));
+                    .getDrawable(R.drawable.check_orange));
         }
 
         addView(check);

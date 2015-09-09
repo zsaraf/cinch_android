@@ -97,7 +97,7 @@
                 android:layout_marginTop="10dp"
                 android:layout_below="@+id/money_label"
                 custom:informationLabelText="CS 107E"
-                custom:informationLabelIcon="@drawable/book"/>
+                custom:informationLabelIcon="@drawable/book_orange"/>
         </RelativeLayout>
     </RelativeLayout>
 </RelativeLayout>

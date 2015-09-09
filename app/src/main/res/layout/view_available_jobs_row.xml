@@ -97,7 +97,7 @@
             android:padding="5dp"
             android:paddingTop="20dp"
             custom:informationLabelText="default"
-            custom:informationLabelIcon="@drawable/book" />
+            custom:informationLabelIcon="@drawable/book_orange" />
         <com.seshtutoring.seshapp.view.components.SeshInformationLabel
             android:id="@+id/assignment"
             android:layout_width="match_parent"

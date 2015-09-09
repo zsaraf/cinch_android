@@ -37,7 +37,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 custom:informationLabelText="class"
-                custom:informationLabelIcon="@drawable/book"
+                custom:informationLabelIcon="@drawable/book_orange"
                 custom:textColor="@color/white"/>
             <View
                 android:layerType="software"

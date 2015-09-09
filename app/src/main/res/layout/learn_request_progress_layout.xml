@@ -20,7 +20,7 @@
             android:layout_height="18dp"
             android:alpha="0"
             android:layout_gravity="center_vertical"
-            android:background="@drawable/book"/>
+            android:background="@drawable/book_orange"/>
     </RelativeLayout>
     <View
         android:layout_width="0dp"
@@ -33,14 +33,14 @@
             android:id="@+id/assignment_icon"
             android:layout_width="15dp"
             android:layout_height="15dp"
-            android:background="@drawable/assignment"
+            android:background="@drawable/assignment_white"
             android:layout_gravity="center_vertical"/>
         <ImageButton
             android:id="@+id/assignment_icon_clickable"
             android:layout_width="15dp"
             android:layout_height="15dp"
             android:alpha="0"
-            android:background="@drawable/assignment_big"
+            android:background="@drawable/assignment_orange"
             android:layout_gravity="center_vertical"/>
     </RelativeLayout>
 
@@ -56,14 +56,14 @@
             android:layout_width="15dp"
             android:layout_height="15dp"
             android:layout_gravity="center_vertical"
-            android:background="@drawable/hashtag"/>
+            android:background="@drawable/hashtag_white"/>
         <ImageButton
             android:id="@+id/number_students_icon_clickable"
             android:layout_width="15dp"
             android:layout_height="15dp"
             android:alpha="0"
             android:layout_gravity="center_vertical"
-            android:background="@drawable/hashtag_orange"/>
+                android:background="@drawable/hashtag_orange"/>
     </RelativeLayout>
     <View
         android:layout_width="0dp"
@@ -77,7 +77,7 @@
             android:layout_width="15dp"
             android:layout_height="15dp"
             android:layout_gravity="center_vertical"
-            android:background="@drawable/clock"/>
+            android:background="@drawable/clock_white"/>
         <ImageButton
             android:id="@+id/duration_icon_clickable"
             android:layout_width="15dp"
