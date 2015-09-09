@@ -49,15 +49,6 @@ public class PromoteFragment extends Fragment implements FragmentOptionsReceiver
         View.OnClickListener onButtonClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                if (v == fbShareButton) {
-//                    shareFB();
-//                } else if (v == tweetButton) {
-//                    shareTweet();
-//                } else if (v == messageButton) {
-//                    shareMessage();
-//                } else if (v == emailButton) {
-//                    shareEmail();
-//                }
                     Intent shareIntent = new Intent(android.content.Intent.ACTION_SEND);
                     shareIntent.setType("text/plain");
                     shareIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "share subject");

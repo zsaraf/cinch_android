@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.orm.SugarRecord;
 import com.orm.dsl.Ignore;
+import com.seshtutoring.seshapp.util.DateUtils;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -13,6 +14,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.sql.Timestamp;
 import java.util.HashMap;
@@ -96,54 +100,84 @@ public class AvailableBlock extends SugarRecord<AvailableBlock> {
     public static String getReadableBlocks(List<AvailableBlock> availableBlocks) {
 
         DateTime now = new DateTime();
-        int today = now.getDayOfWeek();
+        int today = now.getDayOfWeek() - 1;
         String[] days = {"Sun", "Mon", "Tues", "Wed", "Thurs", "Fri", "Sat"};
 
-        String blockStr = "";
-
-        for (AvailableBlock block : availableBlocks) {
-            DateTime st = new DateTime(block.startTime);
-            int day = st.getDayOfWeek() - 1;
-            String dayStr = days[day];
-            if (day == today) {
-                dayStr = "TODAY";
-            } else if (day == today + 1) {
-                dayStr = "TMRW";
+        String blockString = "";
+        List<AvailableBlock> filteredList = new ArrayList<AvailableBlock>();
+        for (AvailableBlock availableBlock : availableBlocks) {
+            if (availableBlock.endTime >= now.getMillis()) {
+                filteredList.add(availableBlock);
             }
-            dayStr = "<b>" + dayStr + "</b>";
-            String ampm = "a";
-            int hour = st.getHourOfDay();
-            if (hour > 12) {
-                hour = hour - 12;
-                ampm = "p";
-            }
-            int min = st.getMinuteOfHour();
-            String minStr = "";
-            if (min > 15 && min < 45) {
-                minStr = ":30";
-            }
-            String startStr = dayStr + ": " + hour + minStr + ampm;
-            DateTime et = new DateTime(block.endTime);
-//            day = et.getDayOfWeek();
-//            dayStr = days[day];
-            ampm = "a";
-            hour = et.getHourOfDay() + 1;
-            if (hour > 12) {
-                hour = hour - 12;
-                ampm = "p";
-            }
-            min = et.getMinuteOfHour();
-            minStr = "";
-            if (min > 15 && min < 45) {
-                minStr = ":30";
-            }
-            String endStr = hour + minStr + ampm;
-            blockStr += startStr + "-" + endStr + "<br />";
         }
 
-        if (availableBlocks.size() == 0) {
-            blockStr = "<b>" + "NOW" + "</b>";
+        Collections.sort(filteredList, new Comparator<AvailableBlock>() {
+            @Override
+            public int compare(AvailableBlock lhs, AvailableBlock rhs) {
+                return (int)(lhs.startTime - rhs.startTime);
+            }
+        });
+
+        int counter = 0;
+        while (counter < filteredList.size()) {
+            DateTime startTime = new DateTime(filteredList.get(counter).startTime);
+            int startDay = startTime.getDayOfWeek();
+            String dayString = "<b>" + DateUtils.getSeshFormattedDayString(startTime) + "</b>: ";
+
+            while ((startTime = new DateTime(filteredList.get(counter).startTime)).getDayOfWeek() == startDay) {
+                DateTime endTime = new DateTime(filteredList.get(counter).endTime);
+                dayString = dayString + DateUtils.getSeshFormattedTimeString(startTime) + "-" + DateUtils.getSeshFormattedTimeString(endTime) + ", ";
+            }
+            // Remove final comma and space
+            dayString = dayString.substring(0, dayString.length() - 2) + "<br />";
+            blockString = blockString + dayString;
         }
-        return blockStr;
+        return blockString;
+
+
+//        for (AvailableBlock block : filteredList) {
+//            DateTime st = new DateTime(block.startTime);
+//            int day = st.getDayOfWeek() - 1;
+//            String dayStr = days[day];
+//            if (day == today) {
+//                dayStr = "TODAY";
+//            } else if (day == today + 1) {
+//                dayStr = "TMRW";
+//            }
+//            dayStr = "<b>" + dayStr + "</b>";
+//            String ampm = "a";
+//            int hour = st.getHourOfDay();
+//            if (hour > 12) {
+//                hour = hour - 12;
+//                ampm = "p";
+//            }
+//            int min = st.getMinuteOfHour();
+//            String minStr = "";
+//            if (min > 15 && min < 45) {
+//                minStr = ":30";
+//            }
+//            String startStr = dayStr + ": " + hour + minStr + ampm;
+//            DateTime et = new DateTime(block.endTime);
+////            day = et.getDayOfWeek();
+////            dayStr = days[day];
+//            ampm = "a";
+//            hour = et.getHourOfDay() + 1;
+//            if (hour > 12) {
+//                hour = hour - 12;
+//                ampm = "p";
+//            }
+//            min = et.getMinuteOfHour();
+//            minStr = "";
+//            if (min > 15 && min < 45) {
+//                minStr = ":30";
+//            }
+//            String endStr = hour + minStr + ampm;
+//            blockStr += startStr + "-" + endStr + "<br />";
+//        }
+//
+//        if (availableBlocks.size() == 0) {
+//            blockStr = "<b>" + "NOW" + "</b>";
+//        }
+//        return blockStr;
     }
 }
