@@ -8,4 +8,8 @@
 
     <!--The sum of home_view_tab_buttons and action_bar heights-->
     <dimen name="learn_view_map_padding_top">91dp</dimen>
+    <dimen name="view_sesh_top_portion_height">200dp</dimen>
+    <dimen name="view_sesh_profile_image_size">140dp</dimen>
+
+    <dimen name="view_request_spinner_size">120dp</dimen>
 </resources>

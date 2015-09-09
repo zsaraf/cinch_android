@@ -363,8 +363,7 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
             optionsReceiver.clearFragmentOptions();
         }
 
-        TextView title = (TextView) findViewById(R.id.action_bar_title);
-        title.setText(selectedMenuOption.title);
+        setActionBarTitle(selectedMenuOption.title);
 
 //        if (slidingMenu.isMenuShowing()) {
 //            getSupportFragmentManager()
@@ -404,6 +403,11 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
             FragmentOptionsReceiver flagReceiver = (FragmentOptionsReceiver) currentContainerState.fragment;
             flagReceiver.updateFragmentOptions(options);
         }
+    }
+
+    public void setActionBarTitle(String title) {
+        TextView titleTextView = (TextView) findViewById(R.id.action_bar_title);
+        titleTextView.setText(title);
     }
 
     public void onFragmentReplacedAndRendered() {

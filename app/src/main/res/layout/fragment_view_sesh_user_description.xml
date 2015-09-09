@@ -25,7 +25,7 @@
                 android:layout_marginRight="35dp"
                 android:layout_marginLeft="35dp"
                 custom:informationLabelText="class"
-                custom:informationLabelIcon="@drawable/book" />
+                custom:informationLabelIcon="@drawable/university_big" />
 
             <com.seshtutoring.seshapp.view.components.SeshInformationLabel
                 android:id="@+id/major_label"
@@ -36,7 +36,7 @@
                 android:layout_marginTop="10dp"
                 android:layout_below="@+id/school_label"
                 custom:informationLabelText="hello"
-                custom:informationLabelIcon="@drawable/subject" />
+                custom:informationLabelIcon="@drawable/major_profile" />
 
             <TextView
                 android:id="@+id/bio_text_view"

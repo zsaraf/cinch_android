@@ -162,4 +162,5 @@ If You have any questions about this privacy statement, the practices of Sesh, o
 
     <string name="sesh_request_timeout_dialog_text">We could not find you a tutor for %1$s right now.  Would you like us to keep looking?  For how long?</string>
     <string name="title_activity_view_sesh_set_time">ViewSeshSetTimeActivity</string>
+    <string name="title_activity_view_sesh_map">ViewSeshMapActivity</string>
 </resources>

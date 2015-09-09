@@ -399,6 +399,11 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenList
             Log.d(TAG, "updateLearnList() end " + new Date().toString());
 
             openRequestsAndSeshesAdapter.notifyDataSetChanged();
+
+            if (mainContainerActivity.getCurrentState().fragment instanceof ViewSeshFragment) {
+                ViewSeshFragment viewSeshFragment = (ViewSeshFragment) mainContainerActivity.getCurrentState().fragment;
+                viewSeshFragment.refresh();
+            }
         }
     }
 

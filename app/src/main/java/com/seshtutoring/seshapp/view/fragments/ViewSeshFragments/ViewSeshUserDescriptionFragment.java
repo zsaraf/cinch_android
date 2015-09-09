@@ -31,6 +31,10 @@ public class ViewSeshUserDescriptionFragment extends Fragment {
     private int seshId;
     private Sesh sesh;
 
+    private SeshInformationLabel schoolLabel;
+    private SeshInformationLabel majorLabel;
+    private TextView bioTextView;
+
     /**
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
@@ -66,20 +70,25 @@ public class ViewSeshUserDescriptionFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_view_sesh_user_description, container, false);
 
         // Update user bio
-        TextView textView = (TextView)view.findViewById(R.id.bio_text_view);
-        textView.setText(sesh.userDescription);
+        bioTextView = (TextView)view.findViewById(R.id.bio_text_view);
         Typeface medium = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Gotham-Light.otf");
-        textView.setTypeface(medium);
+        bioTextView.setTypeface(medium);
 
         // Update user school
-        SeshInformationLabel schoolLabel = (SeshInformationLabel)view.findViewById(R.id.school_label);
-        schoolLabel.setText(User.currentUser(getActivity()).school.schoolName);
+        schoolLabel = (SeshInformationLabel)view.findViewById(R.id.school_label);
 
         // Update user school
-        SeshInformationLabel majorLabel = (SeshInformationLabel)view.findViewById(R.id.major_label);
-        majorLabel.setText(sesh.userMajor);
+        majorLabel = (SeshInformationLabel)view.findViewById(R.id.major_label);
+
+        refresh();
 
         return view;
+    }
+
+    public void refresh() {
+        bioTextView.setText(sesh.userDescription);
+        schoolLabel.setText(User.currentUser(getActivity()).school.schoolName);
+        majorLabel.setText(sesh.userMajor);
     }
 
 }

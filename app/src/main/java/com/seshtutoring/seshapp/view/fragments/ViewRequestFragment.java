@@ -14,16 +14,23 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.AvailableBlock;
 import com.seshtutoring.seshapp.model.LearnRequest;
 import com.seshtutoring.seshapp.model.Sesh;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
+import com.seshtutoring.seshapp.view.ViewSeshMapActivity;
 import com.seshtutoring.seshapp.view.components.SeshActivityIndicator;
 import com.seshtutoring.seshapp.view.components.SeshButton;
 import com.seshtutoring.seshapp.view.components.SeshDialog;
@@ -36,7 +43,7 @@ import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Map;
 
-public class ViewRequestFragment extends Fragment implements MainContainerActivity.FragmentOptionsReceiver  {
+public class ViewRequestFragment extends Fragment implements MainContainerActivity.FragmentOptionsReceiver, OnMapReadyCallback {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
 
     private static final String ARG_REQUEST_ID = "request";
@@ -48,6 +55,9 @@ public class ViewRequestFragment extends Fragment implements MainContainerActivi
     SeshActivityIndicator seshActivityIndicator;
     LinearLayout middleContentView;
     EditText locationNotesEditText;
+    RelativeLayout topLayout;
+
+    private GoogleMap mMap;
 
     private Map<String, Object> options;
 
@@ -126,6 +136,21 @@ public class ViewRequestFragment extends Fragment implements MainContainerActivi
             }
         });
 
+        topLayout = (RelativeLayout) view.findViewById(R.id.top_layout);
+        topLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), ViewSeshMapActivity.class);
+                intent.putExtra(ViewSeshMapActivity.LATITUDE, request.latitude);
+                intent.putExtra(ViewSeshMapActivity.LONGITUDE, request.longitude);
+                String classString = request.classString.replace(" ", "");
+                intent.putExtra(ViewSeshMapActivity.TITLE, classString + " Request Location");
+                startActivityForResult(intent, 1);
+            }
+        });
+
+        setUpMapIfNeeded();
+
         return view;
     }
 
@@ -143,7 +168,7 @@ public class ViewRequestFragment extends Fragment implements MainContainerActivi
                         try {
                             if (jsonObject.getString("status").equals("SUCCESS")) {
                                 request.delete();
-                                MainContainerActivity mainContainerActivity = (MainContainerActivity)getActivity();
+                                MainContainerActivity mainContainerActivity = (MainContainerActivity) getActivity();
                                 mainContainerActivity.setCurrentState(mainContainerActivity.HOME, null);
                             } else {
                                 SeshDialog.showDialog(getActivity().getFragmentManager(), "Whoops!", jsonObject.getString("message"),
@@ -250,6 +275,45 @@ public class ViewRequestFragment extends Fragment implements MainContainerActivi
     @Override
     public void clearFragmentOptions() {
         this.options = null;
+    }
+
+    public GoogleMap getMap() {
+        return mMap;
+    }
+
+    /**
+     * Sets up the map if it is possible to do so (i.e., the Google Play services APK is correctly
+     * installed) and the map has not already been instantiated.. This will ensure that we only ever
+     * call {@link #setUpMap()} once when {@link #mMap} is not null.
+     * <p/>
+     * If it isn't installed {@link SupportMapFragment} (and
+     * {@link com.google.android.gms.maps.MapView MapView}) will show a prompt for the user to
+     * install/update the Google Play services APK on their device.
+     * <p/>
+     * A user can return to this FragmentActivity after following the prompt and correctly
+     * installing/updating/enabling the Google Play services. Since the FragmentActivity may not
+     * have been completely destroyed during this process (it is likely that it would only be
+     * stopped or paused), {@link #onCreate(Bundle)} may not be called again so we should call this
+     * method in {@link #onResume()} to guarantee that it will be called.
+     */
+    private void setUpMapIfNeeded() {
+        // Do a null check to confirm that we have not already instantiated the map.
+//        if (mMap == null) {
+        // Try to obtain the map from the SupportMapFragment.
+        ((SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map))
+                .getMapAsync(this);
+//        }
+    }
+
+    @Override
+    public void onMapReady(GoogleMap map) {
+        mMap = map;
+        setUpMap();
+    }
+
+    private void setUpMap() {
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
+                new LatLng(request.latitude, request.longitude), 18));
     }
 
 }

@@ -28,6 +28,11 @@ public class ViewSeshSeshDescriptionFragment extends Fragment {
     private int seshId;
     private Sesh sesh;
 
+    private SeshInformationLabel classLabel;
+    private SeshInformationLabel subjectLabel;
+    private SeshInformationLabel timeLabel;
+    private SeshInformationLabel miscLabel;
+
     /**
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
@@ -62,29 +67,17 @@ public class ViewSeshSeshDescriptionFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_view_sesh_sesh_description, container, false);
 
-        // Set class text
-        SeshInformationLabel classLabel = (SeshInformationLabel)view.findViewById(R.id.class_label);
-        classLabel.setText(sesh.className);
+        classLabel = (SeshInformationLabel)view.findViewById(R.id.class_label);
 
-        // Set subject text
-        SeshInformationLabel subjectLabel = (SeshInformationLabel)view.findViewById(R.id.subject_label);
-        subjectLabel.setText(sesh.seshDescription);
+        subjectLabel = (SeshInformationLabel)view.findViewById(R.id.subject_label);
 
-        // Set time text
-        SeshInformationLabel timeLabel = (SeshInformationLabel)view.findViewById(R.id.time_label);
-        /* Round to nearest half hour */
-        Double numHours = (sesh.seshEstTime/30) / 2.0;
-        DecimalFormat df = new DecimalFormat("0.#");
-        String suffix = (numHours == 1.0) ? " Hour" : " Hours";
-        classLabel.setText(df.format(numHours) + suffix);
+        timeLabel = (SeshInformationLabel)view.findViewById(R.id.time_label);
 
         // Handle display of either set time or location notes
-        SeshInformationLabel miscLabel = (SeshInformationLabel)view.findViewById(R.id.misc_label);
-        if (sesh.isStudent) {
-            updateLabelForStudent(miscLabel);
-        } else {
-            updateLabelForTutor(miscLabel);
-        }
+        miscLabel = (SeshInformationLabel)view.findViewById(R.id.misc_label);
+
+        refresh();
+
         return view;
     }
 
@@ -92,9 +85,9 @@ public class ViewSeshSeshDescriptionFragment extends Fragment {
         // Set estimated time text
         Drawable drawable = null;
         if (Build.VERSION.SDK_INT < 21) {
-            drawable = getActivity().getResources().getDrawable(R.drawable.clock_orange);
+            drawable = getActivity().getResources().getDrawable(R.drawable.calendar_unfilled);
         } else {
-            drawable = getActivity().getResources().getDrawable(R.drawable.clock_orange, null);
+            drawable = getActivity().getResources().getDrawable(R.drawable.calendar_unfilled, null);
         }
         estimatedTimeLabel.setIcon(drawable);
         if (sesh.isInstant) {
@@ -120,6 +113,27 @@ public class ViewSeshSeshDescriptionFragment extends Fragment {
             locationNotesLabel.setText(sesh.locationNotes);
         } else {
             locationNotesLabel.setText("waiting for location notes...");
+        }
+    }
+
+    public void refresh() {
+        // Set class text
+        classLabel.setText(sesh.className);
+
+        // Set subject text
+        subjectLabel.setText(sesh.seshDescription);
+
+        // Set time text
+        /* Round to nearest half hour */
+        Double numHours = (sesh.seshEstTime/30) / 2.0;
+        DecimalFormat df = new DecimalFormat("0.#");
+        String suffix = (numHours == 1.0) ? " Hour" : " Hours";
+        timeLabel.setText(df.format(numHours) + suffix);
+
+        if (sesh.isStudent) {
+            updateLabelForStudent(miscLabel);
+        } else {
+            updateLabelForTutor(miscLabel);
         }
     }
 

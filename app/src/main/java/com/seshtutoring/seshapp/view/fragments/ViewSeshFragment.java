@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -29,31 +30,41 @@ import android.widget.TextView;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.Message;
 import com.seshtutoring.seshapp.model.Sesh;
+import com.seshtutoring.seshapp.util.DateUtils;
 import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.util.StorageUtils;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
 import com.seshtutoring.seshapp.view.MessagingActivity;
 import com.seshtutoring.seshapp.view.ReportProblemActivity;
+import com.seshtutoring.seshapp.view.ViewSeshMapActivity;
 import com.seshtutoring.seshapp.view.ViewSeshSetTimeActivity;
 import com.seshtutoring.seshapp.view.components.SeshActivityIndicator;
 import com.seshtutoring.seshapp.view.components.SeshButton;
 import com.seshtutoring.seshapp.view.components.SeshDialog;
+import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.HomeFragment;
 import com.seshtutoring.seshapp.view.fragments.ViewSeshFragments.ViewSeshSeshDescriptionFragment;
 import com.seshtutoring.seshapp.view.fragments.ViewSeshFragments.ViewSeshUserDescriptionFragment;
 import com.squareup.picasso.Callback;
 
+import org.joda.time.DateTime;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.io.File;
 import java.util.List;
 import java.util.Map;
 
-public class ViewSeshFragment extends Fragment implements MainContainerActivity.FragmentOptionsReceiver {
+public class ViewSeshFragment extends Fragment implements MainContainerActivity.FragmentOptionsReceiver, OnMapReadyCallback {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_SESH_ID = "sesh";
     public static final String SESH_KEY = "sesh_key";
@@ -71,6 +82,10 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
     private SeshButton cancelSeshButton;
     private SeshButton messageButton;
     private SeshButton startSeshButton;
+
+    RelativeLayout topLayout;
+
+    private GoogleMap mMap;
 
     private Map<String, Object> options;
 
@@ -131,6 +146,10 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
         } else {
             v = inflater.inflate(R.layout.fragment_view_sesh_tutor, container, false);
             final RelativeLayout middleBar = (RelativeLayout) v.findViewById(R.id.middleBar);
+            final TextView textView = (TextView) v.findViewById(R.id.icon_text_view_text);
+            if (sesh.seshSetTime > 0) {
+                textView.setText(DateUtils.getSeshFormattedDate(new DateTime(sesh.seshSetTime)));
+            }
             middleBar.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -186,6 +205,19 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
         seshActivityIndicator = (SeshActivityIndicator) v.findViewById(R.id.view_sesh_activity_indicator);
         seshActivityIndicator.setAlpha(0);
 
+        topLayout = (RelativeLayout) v.findViewById(R.id.top_layout);
+        topLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(myContext, ViewSeshMapActivity.class);
+                intent.putExtra(ViewSeshMapActivity.LATITUDE, sesh.latitude);
+                intent.putExtra(ViewSeshMapActivity.LONGITUDE, sesh.longitude);
+                String classString = sesh.className.replace(" ", "");
+                intent.putExtra(ViewSeshMapActivity.TITLE, classString + " Sesh Location");
+                startActivityForResult(intent, 1);
+            }
+        });
+
         viewPager = (ViewPager) v.findViewById(R.id.view_sesh_view_pager);
 
         viewPager.setAdapter(new ViewSeshPagerAdapter(myContext.getSupportFragmentManager(), sesh));
@@ -205,6 +237,10 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
                 // do nothing
             }
         });
+
+        setUpMapIfNeeded();
+
+        refresh();
 
         return v;
     }
@@ -264,10 +300,34 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
         super.onAttach(activity);
     }
 
+    private void updateNavBarTitle() {
+        String classString = sesh.className.replace(" ", "");
+        String navigationItemTitle = "";
+        if (sesh.isInstant) {
+            navigationItemTitle = classString + " @ NOW";
+        } else if (sesh.seshSetTime > 0) {
+            DateTime dateTime = new DateTime(sesh.seshSetTime);
+            navigationItemTitle = classString + " " + DateUtils.getSeshFormattedDate(dateTime);
+        } else {
+            String firstName = sesh.firstName();
+            navigationItemTitle = classString + " with " + firstName;
+        }
+
+        ((MainContainerActivity)getActivity()).setActionBarTitle(navigationItemTitle);
+    }
+
+    public void refresh() {
+        updateNavBarTitle();
+        ((ViewSeshPagerAdapter)viewPager.getAdapter()).refresh();
+    }
+
+
     private class ViewSeshPagerAdapter extends FragmentStatePagerAdapter {
         private static final int NUM_FRAGMENTS = 2;
         private Sesh sesh;
         private Fragment viewSeshFragments[];
+        private ViewSeshUserDescriptionFragment viewSeshUserDescriptionFragment;
+        private ViewSeshSeshDescriptionFragment viewSeshSeshDescriptionFragment;
 
         public ViewSeshPagerAdapter(FragmentManager fm, Sesh sesh) {
             super(fm);
@@ -290,6 +350,13 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
         @Override
         public int getCount() {
             return NUM_FRAGMENTS;
+        }
+
+        public void refresh() {
+            if (viewSeshUserDescriptionFragment != null && viewSeshSeshDescriptionFragment != null) {
+                viewSeshUserDescriptionFragment.refresh();
+                viewSeshSeshDescriptionFragment.refresh();
+            }
         }
     }
 
@@ -316,7 +383,7 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
                     public void onResponse(JSONObject jsonObject) {
                         setNetworking(false);
                         sesh.delete();
-                        MainContainerActivity mainContainerActivity = (MainContainerActivity)getActivity();
+                        MainContainerActivity mainContainerActivity = (MainContainerActivity) getActivity();
                         mainContainerActivity.setCurrentState(mainContainerActivity.HOME, null);
                     }
                 }, new Response.ErrorListener() {
@@ -443,6 +510,45 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
                 "OKAY", null, "view_request_network_error");
         final EditText editText = (EditText) getView().findViewById(R.id.icon_text_view_text);
         editText.setText(oldLocationNotes);
+    }
+
+    public GoogleMap getMap() {
+        return mMap;
+    }
+
+    /**
+     * Sets up the map if it is possible to do so (i.e., the Google Play services APK is correctly
+     * installed) and the map has not already been instantiated.. This will ensure that we only ever
+     * call {@link #setUpMap()} once when {@link #mMap} is not null.
+     * <p/>
+     * If it isn't installed {@link SupportMapFragment} (and
+     * {@link com.google.android.gms.maps.MapView MapView}) will show a prompt for the user to
+     * install/update the Google Play services APK on their device.
+     * <p/>
+     * A user can return to this FragmentActivity after following the prompt and correctly
+     * installing/updating/enabling the Google Play services. Since the FragmentActivity may not
+     * have been completely destroyed during this process (it is likely that it would only be
+     * stopped or paused), {@link #onCreate(Bundle)} may not be called again so we should call this
+     * method in {@link #onResume()} to guarantee that it will be called.
+     */
+    private void setUpMapIfNeeded() {
+        // Do a null check to confirm that we have not already instantiated the map.
+//        if (mMap == null) {
+        // Try to obtain the map from the SupportMapFragment.
+        ((SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map))
+                .getMapAsync(this);
+//        }
+    }
+
+    @Override
+    public void onMapReady(GoogleMap map) {
+        mMap = map;
+        setUpMap();
+    }
+
+    private void setUpMap() {
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
+                new LatLng(sesh.latitude, sesh.longitude), 15));
     }
 
 }
