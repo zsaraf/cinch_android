@@ -548,13 +548,14 @@ public class SeshNetworking {
             user = obj.getString("user");
         } catch (JSONException ex) {
             ex.printStackTrace();
-            return "/ios-php/";
+            return "ios-php/";
         }
 
         if (SeshApplication.USE_PERSONAL) {
-            apiUrl = "/users/" + user + "/";
+            //apiUrl = "users/" + user + "/";
+            apiUrl = "ios-php/";
         } else {
-            apiUrl = "/ios-php/";
+            apiUrl = "ios-php/";
         }
         return apiUrl;
     }

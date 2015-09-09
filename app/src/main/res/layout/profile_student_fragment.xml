@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="STUDENT"
-        android:padding="15dp"
+        android:padding="10dp"
         android:textColor="@color/seshorange"
         android:gravity="center"/>
 
@@ -26,7 +26,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/divider"
-        android:paddingTop="250dp"
+        android:paddingTop="200dp"
         android:weightSum="2">
 
         <TextView

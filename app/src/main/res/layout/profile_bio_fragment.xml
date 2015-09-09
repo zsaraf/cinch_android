@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="BIO"
-        android:padding="15dp"
+        android:padding="10dp"
         android:textColor="@color/seshorange"
         android:gravity="center"/>
 
@@ -26,7 +26,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:paddingTop="250dp"
+        android:paddingTop="200dp"
         android:layout_below="@id/divider"></com.seshtutoring.seshapp.view.components.SeshIconTextView>
 
     <com.seshtutoring.seshapp.view.components.SeshIconTextView
@@ -34,12 +34,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/school_name"
+        android:paddingTop="15dp"
         android:layout_alignLeft="@id/school_name"></com.seshtutoring.seshapp.view.components.SeshIconTextView>
 
     <com.seshtutoring.seshapp.view.components.SeshIconTextView
         android:id="@+id/major"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:paddingTop="15dp"
         android:layout_below="@id/email"
         android:layout_alignLeft="@id/email"></com.seshtutoring.seshapp.view.components.SeshIconTextView>
 
@@ -48,8 +50,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:padding="100dp"
-        android:textSize="20sp"
+        android:padding="25dp"
+        android:textSize="14sp"
         android:layout_below="@id/major"/>
 
     <TextView
@@ -60,8 +62,8 @@
         android:gravity="center"
         android:paddingRight="20dp"
         android:paddingLeft="20dp"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp"
         android:layout_marginBottom="25dp"
         android:textSize="12sp"
         android:background="@drawable/sesh_white_button"
