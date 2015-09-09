@@ -175,6 +175,7 @@ public class SettingsFragment extends ListFragment implements FragmentOptionsRec
 
         public TextView mainTextView;
         public TextView secondTextView;
+        public View divider;
 
     }
 
@@ -212,11 +213,18 @@ public class SettingsFragment extends ListFragment implements FragmentOptionsRec
                 viewHolder.mainTextView.setBackgroundResource(resourceID);
                 viewHolder.mainTextView.setTypeface(typeFace);
                 viewHolder.secondTextView = (TextView) convertView.findViewById(rightTextID);
+                viewHolder.divider = (View)convertView.findViewById(R.id.divider);
 
                 convertView.setTag(viewHolder);
 
             }else {
                 viewHolder = (ViewHolder) convertView.getTag();
+            }
+
+            if (getItem(position).type == 3) {
+                viewHolder.divider.setBackgroundColor(getResources().getColor(R.color.tableview_background));
+            } else {
+                viewHolder.divider.setBackgroundColor(getResources().getColor(R.color.light_gray));
             }
 
             viewHolder.mainTextView.setText(getItem(position).title);

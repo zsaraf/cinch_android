@@ -163,6 +163,16 @@ public class User extends SugarRecord<User> {
                 }
             }
 
+            // Load the cards
+            if (dataJson.has("cards")) {
+                JSONArray cards = dataJson.getJSONArray("cards");
+                for (int i = 0; i < cards.length(); i++) {
+                    JSONObject cardsJson = cards.getJSONObject(i);
+                    Card newCard = Card.createOrUpdateCardWithJSON(cardsJson, user);
+                    newCard.save();
+                }
+            }
+
             if (dataJson.has("open_seshes")) {
                 JSONArray openSeshes = dataJson.getJSONArray("open_seshes");
                 for (int i = 0; i < openSeshes.length(); i++) {
@@ -203,6 +213,10 @@ public class User extends SugarRecord<User> {
                 PastSesh.find(PastSesh.class, "tutor_user_id = ?", Integer.toString(userId));
         studentPastSeshes.addAll(tutorPastSeshes);
         return studentPastSeshes;
+    }
+
+    public List<Card> getCards() {
+        return Card.find(Card.class, "user = ?", Long.toString(this.getId()));
     }
 
     public List<Sesh> getOpenSeshes() {

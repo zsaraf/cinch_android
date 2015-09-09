@@ -6,7 +6,7 @@
 
     <TextView
         android:id="@+id/settings_row_title"
-        android:textColor="@color/seshcharcoal"
+        android:textColor="@color/sesh_gray_button_text_color"
         android:textSize="14sp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -47,5 +47,13 @@
         android:layout_height="wrap_content"
         android:gravity="right"
         android:padding="10dp"/>
+    <View
+        android:layout_height="1dp"
+        android:layout_width="match_parent"
+        android:layout_alignParentBottom="true"
+        android:id="@+id/divider"
+        android:paddingTop="1dp"
+        android:background="@color/light_gray"
+        />
 
 </RelativeLayout>

@@ -18,6 +18,7 @@ import android.widget.Toast;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.seshtutoring.seshapp.R;
+import com.seshtutoring.seshapp.model.Card;
 import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
@@ -30,6 +31,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -37,9 +39,7 @@ import java.util.Map;
  */
 
 public class PaymentFragment extends ListFragment implements FragmentOptionsReceiver {
-    //private SeshNetworking seshNetworking;
     private static final String TAG = SettingsFragment.class.getName();
-    //private static final int RESULT_OK = 1;
 
     public static final String MAIN_WRAPPER_STATE_KEY = "main_wrapper_state";
     private MainContainerActivity mainContainerActivity;
@@ -56,7 +56,7 @@ public class PaymentFragment extends ListFragment implements FragmentOptionsRece
         menu.setPadding(0, layUtils.getActionBarHeightPx(), 0, 0);
         mainContainerActivity = (MainContainerActivity) getActivity();
         user = User.currentUser(mainContainerActivity.getApplicationContext());
-        //updateCards();
+
         return menu;
     }
 
@@ -70,15 +70,16 @@ public class PaymentFragment extends ListFragment implements FragmentOptionsRece
                                     int position, long id) {
 
                 PaymentListItem item = (PaymentListItem) menu.getItemAtPosition(position);
-
-                if (item.tag.equals("Add a New Card")) {
-                    Intent intent = new Intent(mainContainerActivity.getApplicationContext(), AddCardActivity.class);
-                    intent.putExtra("is_cashout_card", false);
-                    startActivityForResult(intent, 1);
-                }else if (item.tag.equals("Add a New Debit Card")) {
-                    Intent intent = new Intent(mainContainerActivity.getApplicationContext(), AddCardActivity.class);
-                    intent.putExtra("is_cashout_card", true);
-                    startActivityForResult(intent, 1);
+                if (item.type == PaymentListItem.ADD_CARD_TYPE) {
+                    if (item.text.equals("Add a New Card")) {
+                        Intent intent = new Intent(mainContainerActivity.getApplicationContext(), AddCardActivity.class);
+                        intent.putExtra("is_cashout_card", false);
+                        startActivityForResult(intent, 1);
+                    }else if (item.text.equals("Add a New Debit Card")) {
+                        Intent intent = new Intent(mainContainerActivity.getApplicationContext(), AddCardActivity.class);
+                        intent.putExtra("is_cashout_card", true);
+                        startActivityForResult(intent, 1);
+                    }
                 }
 
             }
@@ -118,57 +119,24 @@ public class PaymentFragment extends ListFragment implements FragmentOptionsRece
 
     private void onCardsResponse(JSONObject responseJson) {
 
-        ArrayList<PaymentListItem> paymentCards = new ArrayList<PaymentListItem>();
-        ArrayList<PaymentListItem> cashoutCards = new ArrayList<PaymentListItem>();
-
-        try {
-            if (responseJson.get("status").equals("SUCCESS")) {
-
-                JSONArray cardsArr = (JSONArray) responseJson.get("cards");
-                for (int i = 0; i < cardsArr.length(); i++) {
-                    try {
-                        JSONObject card = cardsArr.getJSONObject(i);
-
-                        String tag = card.get("type") + " " + card.get("last_four");
-                        String rightText = "";
-                        if ((Boolean)card.get("is_default")) {
-                            rightText = "default";
-                        }
-                        PaymentListItem newItem = new PaymentListItem(tag, 2, rightText);
-                        if ((Boolean)card.get("is_recipient")) {
-                            cashoutCards.add(newItem);
-                        }else {
-                            paymentCards.add(newItem);
-                        }
-
-                    } catch (JSONException e) {
-                        Log.e(TAG, e.toString());
-                    }
-                }
-
-            }else if (responseJson.get("status").equals("FAILURE")) {
-                String message = responseJson.get("message").toString();
-                Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
-            }
-        } catch (JSONException e) {
-            Log.e(TAG, e.toString());
-            Toast.makeText(getActivity(), "Error loading cards", Toast.LENGTH_LONG).show();
-        }
-
         //Build adapter
         PaymentMenuAdapter adapter = new PaymentMenuAdapter(getActivity());
-        adapter.add(new PaymentListItem("Payment Cards", 1, ""));
-        adapter.add(new PaymentListItem("Add a New Card", 2, ""));
+        adapter.add(new PaymentListItem(null, PaymentListItem.HEADER_TYPE, "Payment Cards"));
+        adapter.add(new PaymentListItem(null, PaymentListItem.ADD_CARD_TYPE, "Add a New Card"));
 
-        for (PaymentListItem item : paymentCards) {
-            adapter.add(item);
+        List<Card> paymentCards = Card.getPaymentCards();
+        for (Card currentCard : paymentCards) {
+            PaymentListItem cardItem = new PaymentListItem(currentCard, PaymentListItem.CARD_TYPE, null);
+            adapter.add(cardItem);
         }
 
-        adapter.add(new PaymentListItem("Cashout Cards (Debit)", 1, ""));
-        adapter.add(new PaymentListItem("Add a New Debit Card", 2, ""));
+        adapter.add(new PaymentListItem(null, PaymentListItem.HEADER_TYPE, "Cashout Cards (Debit)"));
+        adapter.add(new PaymentListItem(null, PaymentListItem.ADD_CARD_TYPE, "Add a New Debit Card"));
 
-        for (PaymentListItem item : cashoutCards) {
-            adapter.add(item);
+        List<Card> cashoutCards = Card.getPaymentCards();
+        for (Card currentCard : paymentCards) {
+            PaymentListItem cardItem = new PaymentListItem(currentCard, PaymentListItem.CARD_TYPE, null);
+            adapter.add(cardItem);
         }
 
         setListAdapter(adapter);
@@ -176,20 +144,24 @@ public class PaymentFragment extends ListFragment implements FragmentOptionsRece
     }
 
     private void onCardsFailure(String message) {
-
         Log.e(TAG, message);
         Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
-
     }
 
     private class PaymentListItem {
-        public String tag;
+
+        public static final int HEADER_TYPE = 0;
+        public static final int ADD_CARD_TYPE = 1;
+        public static final int CARD_TYPE = 2;
+
+        public Card card;
         public int type;
-        public String rightText;
-        public PaymentListItem(String tag, int type, String rightText) {
-            this.tag = tag;
+        public String text;
+
+        public PaymentListItem(Card card, int type, String text) {
+            this.card = card;
             this.type = type;
-            this.rightText = rightText;
+            this.text = text;
         }
     }
 
@@ -197,6 +169,7 @@ public class PaymentFragment extends ListFragment implements FragmentOptionsRece
 
         public TextView mainTextView;
         public TextView secondTextView;
+        public View divider;
 
     }
 
@@ -209,6 +182,7 @@ public class PaymentFragment extends ListFragment implements FragmentOptionsRece
         public View getView(int position, View convertView, ViewGroup parent) {
 
             ViewHolder viewHolder;
+            PaymentListItem item = getItem(position);
 
             if (convertView == null) {
                 convertView = LayoutInflater.from(getContext()).inflate(R.layout.settings_menu_list_row,
@@ -221,28 +195,31 @@ public class PaymentFragment extends ListFragment implements FragmentOptionsRece
                 int resourceID = R.drawable.settings_row_item;
                 Typeface typeFace = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Gotham-Light.otf");
 
-                if (getItem(position).type == 1) {
+                if (item.type == PaymentListItem.HEADER_TYPE) {
                     textID = R.id.settings_header_title;
                     resourceID = R.drawable.settings_header_item;
                     typeFace = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Gotham-Book.otf");
-                } else if (getItem(position).type == 3) {
-                    textID = R.id.settings_explain_title;
-                    resourceID = R.drawable.settings_explain_item;
                 }
 
                 viewHolder.mainTextView = (TextView) convertView.findViewById(textID);
                 viewHolder.mainTextView.setBackgroundResource(resourceID);
                 viewHolder.mainTextView.setTypeface(typeFace);
                 viewHolder.secondTextView = (TextView) convertView.findViewById(rightTextID);
+                viewHolder.divider = (View)convertView.findViewById(R.id.divider);
 
                 convertView.setTag(viewHolder);
 
-            }else {
+            } else {
                 viewHolder = (ViewHolder) convertView.getTag();
             }
 
-            viewHolder.mainTextView.setText(getItem(position).tag);
-            viewHolder.secondTextView.setText(getItem(position).rightText);
+            if (item.card == null) {
+                viewHolder.mainTextView.setText(item.text);
+                viewHolder.secondTextView.setText("");
+            } else {
+                viewHolder.mainTextView.setText(item.card.type + " " + item.card.lastFour);
+                viewHolder.secondTextView.setText(item.card.isDefault ? "default" : "");
+            }
 
             return convertView;
         }
