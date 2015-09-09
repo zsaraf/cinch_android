@@ -50,40 +50,38 @@ public class InSeshActivity extends SeshActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.in_sesh_activity);
 
-        getSupportActionBar().setHomeButtonEnabled(true);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
-        getSupportActionBar().setCustomView(R.layout.sesh_action_bar);
-        getSupportActionBar().setElevation(0);
-
         this.currentSesh = Sesh.getCurrentSesh();
 
         CircleImageView circleImageView = (CircleImageView)findViewById(R.id.profile_image);
         SeshNetworking seshNetworking = new SeshNetworking(getApplicationContext());
-//        seshNetworking.downloadProfilePictureAsync(this.currentSesh.userImageUrl, circleImageView, new Callback() {
-//            @Override
-//            public void onSuccess() {
-//
-//            }
-//
-//            @Override
-//            public void onError() {
-//
-//            }
-//        });
+        seshNetworking.downloadProfilePictureAsync(this.currentSesh.userImageUrl, circleImageView, new Callback() {
+            @Override
+            public void onSuccess() {
 
-        ImageButton backButton = (ImageButton) findViewById(R.id.action_bar_back_button);
-        ViewGroup layout = (ViewGroup) backButton.getParent();
-        layout.removeView(backButton);
+            }
 
-        ImageButton homeButton = (ImageButton) findViewById(R.id.action_bar_menu_button);
-        layout.removeView(homeButton);
+            @Override
+            public void onError() {
 
+            }
+        });
+
+//        ImageButton backButton = (ImageButton) findViewById(R.id.action_bar_back_button);
+//        ViewGroup layout = (ViewGroup) backButton.getParent();
+//        layout.removeView(backButton);
+//
+//        ImageButton homeButton = (ImageButton) findViewById(R.id.action_bar_menu_button);
+//        layout.removeView(homeButton);
+//
         Typeface light = Typeface.createFromAsset(this.getAssets(), "fonts/Gotham-Light.otf");
 
-        TextView title = (TextView) findViewById(R.id.action_bar_title);
-        title.setText("IN SESH");
-        title.setTypeface(light);
+        TextView titleTextView = (TextView) findViewById(R.id.title_text_view);
+        titleTextView.setText(currentSesh.className.replace(" ", "") + " Sesh");
+        titleTextView.setTypeface(light);
+//
+//        TextView title = (TextView) findViewById(R.id.action_bar_title);
+//        title.setText("IN SESH");
+//        title.setTypeface(light);
 
         SeshButton endSeshButton = (SeshButton) findViewById(R.id.end_sesh_button);
         if (currentSesh.isStudent) {
@@ -115,9 +113,6 @@ public class InSeshActivity extends SeshActivity {
                 }
             });
         }
-
-        LayoutUtils layUtils = new LayoutUtils(this);
-        getWindow().getDecorView().findViewById(android.R.id.content).setPadding(0, layUtils.getActionBarHeightPx(), 0, 0);
 
         this.timer = (Chronometer) findViewById(R.id.sesh_timer);
         timer.setTypeface(light);

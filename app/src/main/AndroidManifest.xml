@@ -142,6 +142,12 @@
             android:windowSoftInputMode="adjustResize" >
         </activity>
         <activity
+            android:name=".view.InSeshActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@style/SeshFullScreen"
+            android:windowSoftInputMode="adjustResize"/>
+        <activity
             android:name=".view.TutorReviewActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
@@ -269,11 +275,6 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.seshtutoring.seshapp.view.MainContainerActivity" />
         </activity>
-        <activity
-            android:name=".view.InSeshActivity"
-            android:label="@string/title_activity_in_sesh"
-            android:parentActivityName=".view.MainContainerActivity"
-            android:screenOrientation="portrait" />
 
         <meta-data
             android:name="io.fabric.ApiKey"
