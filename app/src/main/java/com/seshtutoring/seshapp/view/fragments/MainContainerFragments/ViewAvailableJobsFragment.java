@@ -327,6 +327,7 @@ public class ViewAvailableJobsFragment extends ListFragment {
 
                     @Override
                     public void onHandRelease(SwipeLayout layout, float xvel, float yvel) {
+                        layout.close();
                         ViewHolder viewHolder = (ViewHolder) layout.getTag();
                         if (viewHolder.shouldBid) {
                             viewHolder.shouldBid = false;

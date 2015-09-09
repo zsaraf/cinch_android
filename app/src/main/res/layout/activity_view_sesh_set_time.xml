@@ -59,7 +59,8 @@
         android:layout_marginLeft="35dp"
         android:layout_marginTop="20dp"
         custom:informationLabelText="default"
-        custom:informationLabelIcon="@drawable/clock_orange" />
+        custom:informationLabelIcon="@drawable/calendar_unfilled"
+        custom:textColor="@color/white"/>
     <com.seshtutoring.seshapp.view.components.SeshActivityIndicator
         android:id="@+id/set_time_activity_indicator"
         android:layout_width="50dp"

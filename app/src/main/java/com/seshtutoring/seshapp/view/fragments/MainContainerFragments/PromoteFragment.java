@@ -54,7 +54,7 @@ public class PromoteFragment extends Fragment implements FragmentOptionsReceiver
                     shareIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "share subject");
                     shareIntent.putExtra(android.content.Intent.EXTRA_TEXT, "share text");
 
-                    getActivity().startActivity(Intent.createChooser(shareIntent, "jksnkjfnsdkjf"));
+                    getActivity().startActivity(Intent.createChooser(shareIntent, "Share Sesh!"));
             }
         };
 

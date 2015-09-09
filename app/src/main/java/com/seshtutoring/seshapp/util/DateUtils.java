@@ -22,8 +22,25 @@ public class DateUtils {
     }
 
     public static String getSeshFormattedTimeString(DateTime date) {
-        DateFormat hourMinute = new SimpleDateFormat("hh:mm a");
-        return hourMinute.format(date.toDate());
+        DateFormat hourMinute = new SimpleDateFormat("hh:mm");
+        int hour = date.getHourOfDay();
+        int minute = date.getMinuteOfHour();
+        String suffix = null;
+        if (hour >= 12) {
+            hour -= 12;
+            suffix = "p";
+        } else {
+            suffix = "a";
+        }
+        if (hour == 0) {
+            hour = 12;
+        }
+        String timeString = hour + "";
+        if (minute != 0) {
+            timeString += ":" + minute;
+        }
+        timeString += suffix;
+        return timeString;
     }
 
     public static String getSeshFormattedDayString(DateTime date) {

@@ -119,65 +119,22 @@ public class AvailableBlock extends SugarRecord<AvailableBlock> {
         });
 
         int counter = 0;
+
         while (counter < filteredList.size()) {
             DateTime startTime = new DateTime(filteredList.get(counter).startTime);
             int startDay = startTime.getDayOfWeek();
-            String dayString = "<b>" + DateUtils.getSeshFormattedDayString(startTime) + "</b>: ";
+            String dayString = "<b>" + DateUtils.getSeshFormattedDayString(startTime) + "</b> <br />";
 
-            while ((startTime = new DateTime(filteredList.get(counter).startTime)).getDayOfWeek() == startDay) {
+            while (counter < filteredList.size() && (startTime = new DateTime(filteredList.get(counter).startTime)).getDayOfWeek() == startDay) {
                 DateTime endTime = new DateTime(filteredList.get(counter).endTime);
                 dayString = dayString + DateUtils.getSeshFormattedTimeString(startTime) + "-" + DateUtils.getSeshFormattedTimeString(endTime) + ", ";
+                counter++;
             }
             // Remove final comma and space
-            dayString = dayString.substring(0, dayString.length() - 2) + "<br />";
+            dayString = dayString.substring(0, dayString.length() - 2) + "<br /><br />";
             blockString = blockString + dayString;
         }
         return blockString;
 
-
-//        for (AvailableBlock block : filteredList) {
-//            DateTime st = new DateTime(block.startTime);
-//            int day = st.getDayOfWeek() - 1;
-//            String dayStr = days[day];
-//            if (day == today) {
-//                dayStr = "TODAY";
-//            } else if (day == today + 1) {
-//                dayStr = "TMRW";
-//            }
-//            dayStr = "<b>" + dayStr + "</b>";
-//            String ampm = "a";
-//            int hour = st.getHourOfDay();
-//            if (hour > 12) {
-//                hour = hour - 12;
-//                ampm = "p";
-//            }
-//            int min = st.getMinuteOfHour();
-//            String minStr = "";
-//            if (min > 15 && min < 45) {
-//                minStr = ":30";
-//            }
-//            String startStr = dayStr + ": " + hour + minStr + ampm;
-//            DateTime et = new DateTime(block.endTime);
-////            day = et.getDayOfWeek();
-////            dayStr = days[day];
-//            ampm = "a";
-//            hour = et.getHourOfDay() + 1;
-//            if (hour > 12) {
-//                hour = hour - 12;
-//                ampm = "p";
-//            }
-//            min = et.getMinuteOfHour();
-//            minStr = "";
-//            if (min > 15 && min < 45) {
-//                minStr = ":30";
-//            }
-//            String endStr = hour + minStr + ampm;
-//            blockStr += startStr + "-" + endStr + "<br />";
-//        }
-//
-//        if (availableBlocks.size() == 0) {
-//            blockStr = "<b>" + "NOW" + "</b>";
-//        }
-//        return blockStr;
     }
 }
