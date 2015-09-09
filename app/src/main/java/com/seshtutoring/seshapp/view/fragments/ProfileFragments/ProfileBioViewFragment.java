@@ -47,7 +47,7 @@ public class ProfileBioViewFragment extends Fragment implements MainContainerAct
         emailView.setText(user.email);
         emailView.setIconResourceId(R.drawable.email_icon);
         majorView.setText(user.major);
-        majorView.setIconResourceId(R.drawable.book);
+        majorView.setIconResourceId(R.drawable.book_orange);
         bioView.setText(user.bio);
 
         return v;
