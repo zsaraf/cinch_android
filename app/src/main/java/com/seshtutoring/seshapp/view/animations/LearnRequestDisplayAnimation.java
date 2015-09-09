@@ -70,8 +70,8 @@ public class LearnRequestDisplayAnimation extends SideMenuOpenAnimation {
     private class AnimationCompleteAsyncTask extends AsyncTask<Void, Void, Void> {
         @Override
         public Void doInBackground(Void... params) {
-//            learnRequest.requiresAnimatedDisplay = false;
-//            learnRequest.save();
+            learnRequest.requiresAnimatedDisplay = false;
+            learnRequest.save();
             return null;
         }
 
