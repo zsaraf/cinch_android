@@ -14,10 +14,21 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.seshtutoring.seshapp.R;
+import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.util.LayoutUtils;
+import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
 import com.seshtutoring.seshapp.view.MainContainerActivity.FragmentOptionsReceiver;
+import com.seshtutoring.seshapp.view.components.SeshActivityIndicator;
+import com.seshtutoring.seshapp.view.components.SeshButton;
+import com.seshtutoring.seshapp.view.components.SeshDialog;
+import com.seshtutoring.seshapp.view.components.SeshEditText;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.List;
 import java.util.Map;
@@ -29,6 +40,9 @@ public class PromoteFragment extends Fragment implements FragmentOptionsReceiver
     private Map<String, Object> options;
 
     ImageButton fbShareButton, tweetButton, messageButton, emailButton;
+    SeshButton redeemButton;
+    SeshEditText redeemEditText;
+    SeshActivityIndicator seshActivityIndicator;
 
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
         View v = layoutInflater.inflate(R.layout.promote_fragment, null);
@@ -45,6 +59,12 @@ public class PromoteFragment extends Fragment implements FragmentOptionsReceiver
         messageButton = (ImageButton) v.findViewById(R.id.promote_message_button);
 
         emailButton = (ImageButton) v.findViewById(R.id.promote_email_button);
+
+        redeemButton = (SeshButton) v.findViewById(R.id.promote_redeem_button);
+
+        seshActivityIndicator = (SeshActivityIndicator) v.findViewById(R.id.promote_redeem_activity_indicator);
+
+        redeemEditText = (SeshEditText) v.findViewById(R.id.promote_promo_code_edit_text);
 
         View.OnClickListener onButtonClickListener = new View.OnClickListener() {
             @Override
@@ -63,7 +83,53 @@ public class PromoteFragment extends Fragment implements FragmentOptionsReceiver
         messageButton.setOnClickListener(onButtonClickListener);
         emailButton.setOnClickListener(onButtonClickListener);
 
+        redeemButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setNetworking(true);
+                final SeshNetworking seshNetworking = new SeshNetworking(getActivity());
+                seshNetworking.redeemCode(redeemEditText.getText(), new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject jsonObject) {
+                        setNetworking(false);
+                        try {
+                            if (jsonObject.getString("status").equals("SUCCESS")) {
+                                presentDialog("Success", jsonObject.getString("message"));
+                                User.fetchUserInfoFromServer(getActivity());
+                            } else {
+                                presentDialog("Error", jsonObject.getString("message"));
+                            }
+                        } catch (JSONException e) {
+                            presentDialog("Error", "Something went wrong.  Try again later.");
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError volleyError) {
+                        setNetworking(false);
+                        presentDialog("Error", "Something went wrong.  Try again later.");
+                    }
+                });
+            }
+        });
+
         return v;
+    }
+
+    private void setNetworking(Boolean networking) {
+        seshActivityIndicator
+                .animate()
+                .alpha(networking ? 1f : 0f)
+                .setDuration(300)
+                .setStartDelay(0)
+                .start();
+    }
+
+    private void presentDialog(String title, String message) {
+        SeshDialog.showDialog(getActivity().getFragmentManager(), title,
+                message,
+                "OKAY", null, "error");
     }
 
     private void shareFB() {

@@ -137,19 +137,35 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true">
 
-        <TextView
-            android:id="@+id/promote_redeem_text_view"
-            android:layout_width="wrap_content"
+        <RelativeLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Redeem"
-            android:textStyle="bold"
-            android:textSize="20dp"
-            android:textColor="@color/seshorange"
-            android:paddingBottom="10dp" />
+            android:id="@+id/promote_text_view_relative_layout">
+            <TextView
+                android:id="@+id/promote_redeem_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Redeem"
+                android:textStyle="bold"
+                android:textSize="20dp"
+                android:textColor="@color/seshorange"
+                android:layout_centerVertical="true"
+                android:paddingBottom="10dp" />
+            <com.seshtutoring.seshapp.view.components.SeshActivityIndicator
+                android:id="@+id/promote_redeem_activity_indicator"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginLeft="15dp"
+                android:paddingBottom="10dp"
+                android:paddingTop="10dp"
+                android:alpha="0"
+                android:layout_centerVertical="true"
+                android:layout_toRightOf="@id/promote_redeem_text_view"/>
+        </RelativeLayout>
 
         <com.seshtutoring.seshapp.view.components.SeshEditText
             android:id="@+id/promote_promo_code_edit_text"
-            android:layout_below="@id/promote_redeem_text_view"
+            android:layout_below="@+id/promote_text_view_relative_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingBottom="15dp"

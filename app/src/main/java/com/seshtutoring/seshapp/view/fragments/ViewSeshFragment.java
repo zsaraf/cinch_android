@@ -160,17 +160,17 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
 
         final ImageView profileImageView = (ImageView) v.findViewById(R.id.profile_image);
         SeshNetworking seshNetworking = new SeshNetworking(myContext);
-//        seshNetworking.downloadProfilePictureAsync(sesh.userImageUrl, profileImageView, new Callback() {
-//            @Override
-//            public void onSuccess() {
-//
-//            }
-//
-//            @Override
-//            public void onError() {
-//
-//            }
-//        });
+        seshNetworking.downloadProfilePictureAsync(sesh.userImageUrl, profileImageView, new Callback() {
+            @Override
+            public void onSuccess() {
+
+            }
+
+            @Override
+            public void onError() {
+
+            }
+        });
 
         cancelSeshButton = (SeshButton) v.findViewById(R.id.cancel_sesh_button);
         cancelSeshButton.setOnClickListener(new View.OnClickListener() {
