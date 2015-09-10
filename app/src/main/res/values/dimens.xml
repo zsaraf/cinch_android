@@ -29,4 +29,5 @@
     <dimen name="default_circle_indicator_stroke_width">1dp</dimen>
 
     <dimen name="warm_welcome_card_bottom_margin">130dp</dimen>
+    <dimen name="side_menu_scale_pivot_x">40dp</dimen>
 </resources>

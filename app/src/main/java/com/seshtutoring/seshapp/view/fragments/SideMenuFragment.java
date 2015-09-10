@@ -1,5 +1,7 @@
 package com.seshtutoring.seshapp.view.fragments;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
@@ -10,6 +12,7 @@ import android.os.Looper;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -20,6 +23,10 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.facebook.rebound.SimpleSpringListener;
+import com.facebook.rebound.Spring;
+import com.facebook.rebound.SpringConfig;
+import com.facebook.rebound.SpringSystem;
 import com.google.android.gms.maps.model.Circle;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.seshtutoring.seshapp.R;
@@ -35,6 +42,8 @@ import com.seshtutoring.seshapp.view.animations.LearnRequestDisplayAnimation;
 import com.seshtutoring.seshapp.view.animations.SeshDisplayAnimation;
 import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.DummyRequestSeshFragment;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -48,11 +57,6 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenList
         SlidingMenu.OnOpenedListener, SeshTableListener, LearnRequestTableListener {
     private static final String TAG = SideMenuFragment.class.getName();
 
-    public static final String MAIN_WRAPPER_STATE_KEY = "main_wrapper_state";
-    public static final String MENU_OPEN_DISPLAY_NEW_REQUEST = "display_new_request";
-
-    private static final int NUM_STATIC_MENU_OPTIONS = 5;
-
     private MainContainerActivity mainContainerActivity;
     private ListView navigationMenu;
     private ListView openRequestsAndSeshesMenu;
@@ -61,6 +65,7 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenList
     private SideMenuAdapter sideMenuAdapter;
     private SideMenuOpenAnimation sideMenuOpenAnimation;
     private SelectableItem currentSelectedItem;
+    private Spring selectedStateSpring;
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.side_menu_fragment, container, false);
@@ -75,64 +80,19 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenList
 
         sideMenuAdapter = new SideMenuAdapter(getActivity());
 
-        for (ContainerState state : mainContainerActivity.containerStates) {
-            sideMenuAdapter.add(new SideMenuItem(state.title, state.iconRes));
+        for (int i = 0; i < mainContainerActivity.containerStates.length; i++) {
+            ContainerState state = mainContainerActivity.containerStates[i];
+            sideMenuAdapter.add(new SideMenuItem(state.title, state.iconRes, i));
         }
 
         navigationMenu.setAdapter(sideMenuAdapter);
-
-        navigationMenu.setOnItemClickListener(new ListView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapter, View view, int position, long id) {
-                ContainerState selectedMenuOption = mainContainerActivity.HOME;
-                switch (position) {
-                    case 0:
-                        selectedMenuOption = mainContainerActivity.HOME;
-                        break;
-                    case 1:
-                        selectedMenuOption = mainContainerActivity.PROFILE;
-                        break;
-                    case 2:
-                        selectedMenuOption = mainContainerActivity.PAYMENT;
-                        break;
-                    case 3:
-                        selectedMenuOption = mainContainerActivity.SETTINGS;
-                        break;
-                    case 4:
-                        selectedMenuOption = mainContainerActivity.PROMOTE;
-                        break;
-                    default:
-                        selectedMenuOption = mainContainerActivity.HOME;
-                        break;
-                }
-
-                updateSelectedItem(sideMenuAdapter.getItem(position));
-                mainContainerActivity.setCurrentState(selectedMenuOption, null);
-                mainContainerActivity.closeDrawerWithDelay(true, 1000);
-            }
-        });
 
         openRequestsAndSeshesAdapter = new RequestsAndSeshesAdapter(getActivity());
         openRequestsAndSeshesAdapter.setNotifyOnChange(false);
         openRequestsAndSeshesMenu.setAdapter(openRequestsAndSeshesAdapter);
 
-        openRequestsAndSeshesMenu.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                RequestsAndSeshesListItem item = openRequestsAndSeshesAdapter.getItem(position);
-                if (item.isDivider) return;
-                if (item.isSesh) {
-                    mainContainerActivity.setCurrentState(new ContainerState("Sesh!", 0,
-                            ViewSeshFragment.newInstance(item.sesh.seshId, false)));
-                } else {
-                    mainContainerActivity.setCurrentState(new ContainerState("Request!", 0,
-                            ViewRequestFragment.newInstance(item.learnRequest.learnRequestId)));
-                }
-
-                updateSelectedItem(item);
-                mainContainerActivity.closeDrawerWithDelay(true, 1000);
-            }
-        });
+        selectedStateSpring = SpringSystem.create().createSpring();
+        selectedStateSpring.setSpringConfig(SpringConfig.fromBouncinessAndSpeed(9, 6));
 
         Sesh.setTableListener(this);
         LearnRequest.setTableListener(this);
@@ -149,13 +109,10 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenList
 
         currentSelectedItem = selectedItem;
         currentSelectedItem.setSelected(true);
-
-        sideMenuAdapter.notifyDataSetChanged();
-        openRequestsAndSeshesAdapter.notifyDataSetChanged();
     }
 
-    private class SelectableItem {
-        private boolean selected;
+    private abstract class SelectableItem {
+        private boolean selected = false;
 
         public boolean isSelected() {
             return selected;
@@ -164,15 +121,71 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenList
         public void setSelected(boolean selected) {
             this.selected = selected;
         }
+
+        public abstract View getView();
+        public abstract TextView getLabel();
     }
 
     private class SideMenuItem extends SelectableItem {
         public String tag;
         public int icon;
-        public SideMenuItem(String tag, int icon) {
+        public int position;
+        public SideMenuItem(String tag, int icon, int position) {
             this.tag = tag;
             this.icon = icon;
+            this.position = position;
         }
+
+        public View getView() {
+            return navigationMenu.getChildAt(position);
+        }
+
+        public TextView getLabel() {
+            return (TextView) getView().findViewById(R.id.row_title);
+        }
+    }
+
+    public void onSideMenuItemSelected(int position) {
+        ContainerState selectedMenuOption = mainContainerActivity.HOME;
+        switch (position) {
+            case 0:
+                selectedMenuOption = mainContainerActivity.HOME;
+                break;
+            case 1:
+                selectedMenuOption = mainContainerActivity.PROFILE;
+                break;
+            case 2:
+                selectedMenuOption = mainContainerActivity.PAYMENT;
+                break;
+            case 3:
+                selectedMenuOption = mainContainerActivity.SETTINGS;
+                break;
+            case 4:
+                selectedMenuOption = mainContainerActivity.PROMOTE;
+                break;
+            default:
+                selectedMenuOption = mainContainerActivity.HOME;
+                break;
+        }
+
+        updateSelectedItem(sideMenuAdapter.getItem(position));
+        mainContainerActivity.setCurrentState(selectedMenuOption, null);
+        mainContainerActivity.closeDrawerWithDelay(true, 1000);
+    }
+
+    public void onOpenRequestAndSeshesItemSelect(int position) {
+        RequestsAndSeshesListItem item = openRequestsAndSeshesAdapter.getItem(position);
+        if (item.isDivider) return;
+        if (item.isSesh) {
+            mainContainerActivity.setCurrentState(new ContainerState("Sesh!", 0,
+                    ViewSeshFragment.newInstance(item.sesh.seshId, false)));
+        } else {
+            mainContainerActivity.setCurrentState(new ContainerState("Request!", 0,
+                    ViewRequestFragment.newInstance(item.learnRequest.learnRequestId)));
+        }
+
+        updateSelectedItem(item);
+        mainContainerActivity.closeDrawerWithDelay(true, 1000);
     }
 
     public class SideMenuAdapter extends ArrayAdapter<SideMenuItem> {
@@ -181,7 +194,7 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenList
             super(context, 0);
         }
 
-        public View getView(int position, View convertView, ViewGroup parent) {
+        public View getView(final int position, View convertView, ViewGroup parent) {
             if (convertView == null) {
                 convertView = LayoutInflater.from(getContext()).inflate(R.layout.side_menu_list_row,
                         null);
@@ -192,14 +205,80 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenList
             title.setText(getItem(position).tag);
 
             if (getItem(position).isSelected()) {
-                selectItem(title);
+                selectLabel(title);
             } else {
-                deselectItem(title);
+                deselectLabel(title);
             }
+
+            convertView.setOnTouchListener(selectedStateTouchListener(getItem(position), new Runnable() {
+                @Override
+                public void run() {
+                    onSideMenuItemSelected(position);
+                }
+            }));
 
             return convertView;
         }
+    }
 
+    private View.OnTouchListener selectedStateTouchListener(final SelectableItem item, Runnable touchEventUpBlock) {
+        final Runnable completionBlock = touchEventUpBlock;
+
+        return new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                if (motionEvent.getActionMasked() == MotionEvent.ACTION_DOWN) {
+                    selectedStateTouchDown(item);
+                } else if (motionEvent.getActionMasked() == MotionEvent.ACTION_UP) {
+                    selectedStateTouchUp(item, completionBlock);
+                }
+                return true;
+            }
+        };
+    }
+
+    private void selectedStateTouchDown(SelectableItem item) {
+        final View view = item.getView();
+        view.setPivotX(getResources().getDimensionPixelSize(R.dimen.side_menu_scale_pivot_x));
+
+        selectedStateSpring.removeAllListeners();
+        selectedStateSpring.addListener(new SimpleSpringListener() {
+            @Override
+            public void onSpringUpdate(Spring spring) {
+                view.setScaleX((float) spring.getCurrentValue());
+                view.setScaleY((float) spring.getCurrentValue());
+            }
+        });
+
+        selectedStateSpring.setCurrentValue(1);
+        selectedStateSpring.setEndValue(0.9);
+    }
+
+    private void selectedStateTouchUp(SelectableItem selectableItem, final Runnable completionBlock) {
+        final View view = selectableItem.getView();
+
+        selectedStateSpring.removeAllListeners();
+        selectedStateSpring.addListener(new SimpleSpringListener() {
+            @Override
+            public void onSpringUpdate(Spring spring) {
+                view.setScaleX((float) spring.getCurrentValue());
+                view.setScaleY((float) spring.getCurrentValue());
+            }
+
+            @Override
+            public void onSpringAtRest(Spring spring) {
+                completionBlock.run();
+            }
+        });
+
+        selectedStateSpring.setCurrentValue(view.getScaleX());
+        selectedStateSpring.setEndValue(1);
+
+        if (currentSelectedItem != null) {
+            deselectLabel(currentSelectedItem.getLabel());
+        }
+
+        selectLabel(selectableItem.getLabel());
     }
 
     private class RequestsAndSeshesListItem extends SelectableItem {
@@ -208,21 +287,38 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenList
         public LearnRequest learnRequest;
         public Sesh sesh;
         public String dividerText;
+        public int position;
 
         public RequestsAndSeshesListItem(boolean isSesh, boolean isDivider, LearnRequest learnRequest, Sesh sesh,
-                             String dividerText) {
+                             String dividerText, int position) {
             this.isSesh = isSesh;
             this.isDivider = isDivider;
             this.learnRequest = learnRequest;
             this.sesh = sesh;
             this.dividerText = dividerText;
+            this.position = position;
+        }
+
+        public View getView() {
+            return openRequestsAndSeshesMenu.getChildAt(position);
+        }
+
+        public TextView getLabel() {
+            View view = getView();
+            if (isSesh) {
+                return (TextView) view.findViewById(R.id.open_sesh_list_row_class);
+            } else if (isDivider) {
+                return null;
+            } else {
+                return (TextView) view.findViewById(R.id.open_request_list_row_class);
+            }
         }
     }
 
     public class RequestsAndSeshesAdapter extends ArrayAdapter<RequestsAndSeshesListItem> {
         public RequestsAndSeshesAdapter(Context context) { super(context, 0); }
 
-        public View getView(int position, View convertView, ViewGroup parent) {
+        public View getView(final int position, View convertView, ViewGroup parent) {
             Log.d(TAG, "refreshing position " + position);
             RequestsAndSeshesListItem item = getItem(position);
             LayoutUtils utils = new LayoutUtils(getContext());
@@ -278,6 +374,14 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenList
                     }
                 }
 
+                convertView.setOnTouchListener(
+                        selectedStateTouchListener(item, new Runnable() {
+                            @Override
+                            public void run() {
+                                onOpenRequestAndSeshesItemSelect(position);
+                            }
+                        }));
+
                 if (item.sesh.requiresAnimatedDisplay) {
                     sideMenuOpenAnimation = new SeshDisplayAnimation(mainContainerActivity, item.sesh,
                             convertView);
@@ -297,6 +401,14 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenList
                 } else {
                     classAbbrvTextView.setTypeface(utils.getLightGothamTypeface());
                 }
+
+                convertView.setOnTouchListener(
+                        selectedStateTouchListener(item, new Runnable() {
+                            @Override
+                            public void run() {
+                                onOpenRequestAndSeshesItemSelect(position);
+                            }
+                        }));
 
                 if (item.learnRequest.requiresAnimatedDisplay) {
                     sideMenuOpenAnimation = new LearnRequestDisplayAnimation(mainContainerActivity,
@@ -319,14 +431,14 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenList
         return (view.findViewById(R.id.open_sesh_list_row_class) != null);
     }
 
-    public void selectItem(TextView title) {
+    public void selectLabel(TextView label) {
         LayoutUtils utils = new LayoutUtils(getActivity());
-        title.setTypeface(utils.getMediumGothamTypeface());
+        label.setTypeface(utils.getMediumGothamTypeface());
     }
 
-    public void deselectItem(TextView title) {
+    public void deselectLabel(TextView label) {
         LayoutUtils utils = new LayoutUtils(getActivity());
-        title.setTypeface(utils.getLightGothamTypeface());
+        label.setTypeface(utils.getLightGothamTypeface());
     }
 
     @Override
@@ -369,33 +481,35 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenList
         protected void onPostExecute(Void result) {
             openRequestsAndSeshesAdapter.clear();
 
+            int position = 0;
+
             if (tutorSeshes.size() > 0) {
                 RequestsAndSeshesListItem teachDivider
-                        = new RequestsAndSeshesListItem(false, true, null, null, "TEACH");
+                        = new RequestsAndSeshesListItem(false, true, null, null, "TEACH", position++);
                 openRequestsAndSeshesAdapter.add(teachDivider);
             }
 
             for (Sesh sesh : tutorSeshes) {
                 RequestsAndSeshesListItem seshItem =
-                        new RequestsAndSeshesListItem(true, false, null, sesh, null);
+                        new RequestsAndSeshesListItem(true, false, null, sesh, null, position++);
                 openRequestsAndSeshesAdapter.add(seshItem);
             }
 
             if (studentSeshes.size() + learnRequests.size() > 0) {
                 RequestsAndSeshesListItem learnDivider
-                        = new RequestsAndSeshesListItem(false, true, null, null, "LEARN");
+                        = new RequestsAndSeshesListItem(false, true, null, null, "LEARN", position++);
                 openRequestsAndSeshesAdapter.add(learnDivider);
             }
 
             for (Sesh sesh : studentSeshes) {
                 RequestsAndSeshesListItem seshItem =
-                        new RequestsAndSeshesListItem(true, false, null, sesh, null);
+                        new RequestsAndSeshesListItem(true, false, null, sesh, null, position++);
                 openRequestsAndSeshesAdapter.add(seshItem);
             }
 
             for (LearnRequest learnRequest : learnRequests) {
                 RequestsAndSeshesListItem requestItem =
-                        new RequestsAndSeshesListItem(false, false, learnRequest, null, null);
+                        new RequestsAndSeshesListItem(false, false, learnRequest, null, null, position++);
                 openRequestsAndSeshesAdapter.add(requestItem);
             }
             Log.d(TAG, "updateLearnList() end " + new Date().toString());
