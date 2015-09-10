@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/add_card_root"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
     xmlns:custom="http://schemas.android.com/apk/res-auto">
 
     <TextView
@@ -26,8 +30,8 @@
         android:layout_centerHorizontal="true"
         android:padding="15dp"
         android:layout_marginBottom="20dp"
-        android:layout_marginRight="30dp"
-        android:layout_marginLeft="30dp"
+        android:layout_marginRight="25dp"
+        android:layout_marginLeft="25dp"
         android:background="@drawable/sesh_payment_form">
     </me.brendanweinstein.views.FieldHolder>
 

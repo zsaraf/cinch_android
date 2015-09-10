@@ -3,14 +3,19 @@ package com.seshtutoring.seshapp.view;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.app.ActionBar;
+import android.app.Service;
 import android.content.Intent;
 import android.graphics.Typeface;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -19,6 +24,7 @@ import android.widget.Toast;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.seshtutoring.seshapp.model.User;
+import com.seshtutoring.seshapp.util.SoftKeyboard;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.components.SeshActivityIndicator;
 import com.seshtutoring.seshapp.view.components.SeshAnimatedCheckmark;
@@ -76,6 +82,12 @@ public class AddCardActivity extends SeshActivity {
         TextView agreement = (TextView) findViewById(R.id.add_card_agreement);
         agreement.setTypeface(light);
         mFullName = (SeshEditText) findViewById(R.id.full_name_field);
+        mFullName.setKeyDownListener(new Runnable() {
+            @Override
+            public void run() {
+                onBackPressed();
+            }
+        });
 
         LayoutUtils layUtils = new LayoutUtils(this);
         getWindow().getDecorView().findViewById(android.R.id.content).setPadding(0, layUtils.getActionBarHeightPx(), 0, 0);
@@ -102,7 +114,6 @@ public class AddCardActivity extends SeshActivity {
         this.requestFlowOverlay = (RelativeLayout) findViewById(R.id.request_flow_overlay);
         this.activityIndicator = (SeshActivityIndicator) findViewById(R.id.request_activity_indicator);
         this.animatedCheckmark = (SeshAnimatedCheckmark) findViewById(R.id.animated_check_mark);
-
 
         ImageButton backButton = (ImageButton) findViewById(R.id.action_bar_back_button);
         backButton.setOnTouchListener(new View.OnTouchListener() {
@@ -273,6 +284,24 @@ public class AddCardActivity extends SeshActivity {
         SeshDialog.showDialog(getFragmentManager(), title, message,
                 "OKAY", null, "view_request_network_error");
     }
+
+    @Override
+    public void onBackPressed() {
+        if (mFullName.hasFocus()) {
+            mFullName.clearEditTextFocus();
+            mSubmitBtn.requestFocus();
+
+            View view = this.getCurrentFocus();
+            if (view != null) {
+                InputMethodManager imm = (InputMethodManager)getSystemService(getApplicationContext().INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+            }
+
+        } else {
+            finish();
+        }
+    }
+
 
 }
 

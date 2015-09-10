@@ -22,6 +22,7 @@ import com.seshtutoring.seshapp.R;
  * Created by nadavhollander on 7/15/15.
  */
 public class SeshEditText extends RelativeLayout {
+
     private enum SeshEditTextType {
         EMAIL(R.drawable.email_icon, R.drawable.email_icon_filled, true, false),
         PASSWORD(R.drawable.password_icon, R.drawable.password_icon_filled, false, true),
