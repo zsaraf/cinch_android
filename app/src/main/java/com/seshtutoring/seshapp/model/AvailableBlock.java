@@ -130,8 +130,12 @@ public class AvailableBlock extends SugarRecord<AvailableBlock> {
                 counter++;
             }
             // Remove final comma and space
-            dayString = dayString.substring(0, dayString.length() - 2) + "<br /><br />";
+            dayString = dayString.substring(0, dayString.length() - 2);
             blockString = blockString + dayString;
+
+            if (counter < filteredList.size()) {
+                blockString += "<br /><br />";
+            }
         }
         return blockString;
 

@@ -121,7 +121,7 @@ public class ViewRequestFragment extends Fragment implements MainContainerActivi
         Double numHours = (request.estTime/30) / 2.0;
         DecimalFormat df = new DecimalFormat("0.#");
         String suffix = (numHours == 1.0) ? " Hour" : " Hours";
-        classLabel.setText(df.format(numHours) + suffix);
+        timeLabel.setText(df.format(numHours) + suffix);
 
         // Handle display of either set time or location notes
         SeshInformationLabel availableBlocksLabel = (SeshInformationLabel)view.findViewById(R.id.available_blocks_label);
