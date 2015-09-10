@@ -126,7 +126,11 @@ public class ViewRequestFragment extends Fragment implements MainContainerActivi
         // Handle display of either set time or location notes
         SeshInformationLabel availableBlocksLabel = (SeshInformationLabel)view.findViewById(R.id.available_blocks_label);
         List<AvailableBlock> availableBlockList = AvailableBlock.find(AvailableBlock.class, "learn_request = ?", Long.toString(request.getId()));
-        availableBlocksLabel.setText(Html.fromHtml(AvailableBlock.getReadableBlocks(availableBlockList)));
+        if (request.isInstant() == true) {
+            availableBlocksLabel.setText("NOW");
+        } else {
+            availableBlocksLabel.setText(Html.fromHtml(AvailableBlock.getReadableBlocks(availableBlockList)));
+        }
 
         cancelRequestButton = (SeshButton) view.findViewById(R.id.cancel_request_button);
         cancelRequestButton.setOnClickListener(new View.OnClickListener() {

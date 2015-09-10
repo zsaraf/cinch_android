@@ -149,15 +149,19 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
             v = inflater.inflate(R.layout.fragment_view_sesh_tutor, container, false);
             final RelativeLayout middleBar = (RelativeLayout) v.findViewById(R.id.middleBar);
             final TextView textView = (TextView) v.findViewById(R.id.icon_text_view_text);
-            if (sesh.seshSetTime > 0) {
-                textView.setText(DateUtils.getSeshFormattedDate(new DateTime(sesh.seshSetTime)));
-            }
-            middleBar.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    startSetTimeActivityWithBlurTransition();
+            if (sesh.isInstant) {
+                textView.setText("NOW");
+            } else {
+                if (sesh.seshSetTime > 0) {
+                    textView.setText(DateUtils.getSeshFormattedDate(new DateTime(sesh.seshSetTime)));
                 }
-            });
+                middleBar.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        startSetTimeActivityWithBlurTransition();
+                    }
+                });
+            }
         }
 
         final ImageView profileImageView = (ImageView) v.findViewById(R.id.profile_image);

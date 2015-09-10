@@ -98,7 +98,6 @@ public class AvailableBlock extends SugarRecord<AvailableBlock> {
     }
 
     public static String getReadableBlocks(List<AvailableBlock> availableBlocks) {
-
         DateTime now = new DateTime();
         int today = now.getDayOfWeek() - 1;
         String[] days = {"Sun", "Mon", "Tues", "Wed", "Thurs", "Fri", "Sat"};

@@ -385,7 +385,11 @@ public class ViewAvailableJobsFragment extends ListFragment {
                 viewHolder.durationInformationLabel.setVisibility(View.VISIBLE);
                 List<AvailableBlock> availableBlockList = new ArrayList<AvailableBlock>();
                 availableBlockList.addAll(item.availableBlocks);
-                viewHolder.availableBlocksInformationLabel.setText(Html.fromHtml(AvailableBlock.getReadableBlocks(availableBlockList)));
+                if (item.isInstant) {
+                    viewHolder.availableBlocksInformationLabel.setText("NOW");
+                } else {
+                    viewHolder.availableBlocksInformationLabel.setText(Html.fromHtml(AvailableBlock.getReadableBlocks(availableBlockList)));
+                }
             }
 
             return convertView;
