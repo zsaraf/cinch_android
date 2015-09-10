@@ -35,6 +35,8 @@ public class NewMessageNotificationHandler extends BannerNotificationHandler {
         JSONObject messageJSON = (JSONObject) mNotification.getDataObject("message");
         Message message = Message.createOrUpdateMessageWithJSON(messageJSON, sesh, mContext);
         message.save();
+        sesh.numUnreadMessages++;
+        sesh.save();
         mContext.sendBroadcast(refreshMessagesIntent());
     }
 

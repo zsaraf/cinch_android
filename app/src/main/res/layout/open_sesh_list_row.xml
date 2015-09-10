@@ -2,8 +2,6 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingBottom="10dp"
-    android:paddingTop="10dp"
     android:background="@color/seshcharcoal">
     <RelativeLayout
         android:id="@+id/contents"
@@ -14,12 +12,32 @@
         <de.hdodenhof.circleimageview.CircleImageView
             xmlns:app="http://schemas.android.com/apk/res-auto"
             android:id="@+id/profile_image"
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="10dp"
             android:layout_width="35dp"
             android:layout_height="35dp"
             android:layout_centerVertical="true"
             android:src="@drawable/profile"
             app:border_width="1dp"
             app:border_color="@color/seshorange"/>
+        <RelativeLayout
+            android:id="@+id/alert_badge"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginLeft="20dp"
+            android:visibility="gone"
+            android:background="@drawable/alert_badge">
+            <TextView
+                android:id="@+id/alert_badge_number"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:textColor="@color/white"
+                android:text="1"
+                android:textSize="8dp"
+                android:gravity="center"/>
+
+        </RelativeLayout>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

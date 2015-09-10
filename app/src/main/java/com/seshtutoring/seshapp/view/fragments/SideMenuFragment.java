@@ -21,6 +21,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.facebook.rebound.SimpleSpringListener;
@@ -100,6 +101,7 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenList
         updateSelectedItem(sideMenuAdapter.getItem(0));
 
         (new UpdateRequestAndSeshListTask()).execute();
+
     }
 
     public void updateSelectedItem(SelectableItem selectedItem) {
@@ -371,6 +373,24 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenList
                         icon.setImageDrawable(getResources().getDrawable(drawableId));
                     } else  {
                         icon.setImageDrawable(getResources().getDrawable(drawableId, null));
+                    }
+                }
+
+                RelativeLayout alertBadge = (RelativeLayout) convertView.findViewById(R.id.alert_badge);
+
+                if (item.sesh.numUnreadMessages > 0) {
+                    alertBadge.setVisibility(View.VISIBLE);
+
+                    TextView alertBadgeNumber = (TextView) convertView.findViewById(R.id.alert_badge_number);
+                    if (item.sesh.numUnreadMessages < 10) {
+                        alertBadgeNumber.setText(Integer.toString(item.sesh.numUnreadMessages));
+                    } else {
+                        alertBadgeNumber.setText("+");
+                    }
+                    alertBadgeNumber.setTypeface(utils.getBookGothamTypeface());
+                } else {
+                    if (alertBadge.getVisibility() == View.VISIBLE) {
+                        alertBadge.setVisibility(View.GONE);
                     }
                 }
 

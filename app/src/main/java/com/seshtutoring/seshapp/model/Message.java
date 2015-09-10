@@ -88,7 +88,6 @@ public class Message extends SugarRecord<Message> {
 
             if (!currentMessage.hasBeenRead) {
                 count++;
-                if (count >= 10) return count;
             }
         }
 
@@ -96,12 +95,20 @@ public class Message extends SugarRecord<Message> {
     }
 
     public static void listMesssagesAsRead(List<Message> messages) {
+        int count = 0;
 
         for (int i = 0; i < messages.size(); i++) {
             Message message = messages.get(i);
-            message.hasBeenRead = true;
-            message.save();
+            if (!message.hasBeenRead) {
+                message.hasBeenRead = true;
+                message.save();
+                count++;
+            }
         }
+
+        Message message = messages.get(0);
+        message.sesh.numUnreadMessages -= count;
+        message.sesh.save();
     }
 
     private static Message createOrUpdateMessageWithId(int messageId) {
