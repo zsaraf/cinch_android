@@ -22,6 +22,7 @@ import com.seshtutoring.seshapp.SeshStateManager;
 import com.seshtutoring.seshapp.model.Sesh;
 import com.seshtutoring.seshapp.services.SeshGCMListenerService;
 import com.seshtutoring.seshapp.util.ApplicationLifecycleTracker;
+import com.seshtutoring.seshapp.util.networking.SeshAuthManager;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.components.SeshDialog;
 
@@ -40,6 +41,7 @@ public abstract class SeshActivity extends AppCompatActivity implements SeshDial
     private static final String TAG = SeshActivity.class.getName();
 
     public static final String APP_IS_LIVE_ACTION = "app_is_live";
+    public static final String INVALID_SESSION_ID_ACTION = "invalid_session_id";
     private static final String INTENT_HANDLED = "intent_handled";
 
     private static final boolean DEFAULT_IS_SPLASH_SCREEN = false;
@@ -64,6 +66,7 @@ public abstract class SeshActivity extends AppCompatActivity implements SeshDial
 
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(APP_IS_LIVE_ACTION);
+        intentFilter.addAction(INVALID_SESSION_ID_ACTION);
         intentFilter.addAction(MainContainerActivity.UPDATE_CONTAINER_STATE_ACTION);
         intentFilter.addAction(MainContainerActivity.SESH_CANCELLED_ACTION);
         intentFilter.addAction(MainContainerActivity.DISPLAY_SIDE_MENU_UPDATE);
@@ -97,7 +100,28 @@ public abstract class SeshActivity extends AppCompatActivity implements SeshDial
                     getSystemService(NOTIFICATION_SERVICE)).cancel(notificationId);
         }
 
+        if (intent.getAction() != null && intent.getAction().equals(INVALID_SESSION_ID_ACTION)) {
+            showInvalidSessionIdDialog();
+        }
+
         intent.putExtra(INTENT_HANDLED, true);
+    }
+
+    private void showInvalidSessionIdDialog() {
+        SeshDialog seshDialog = new SeshDialog();
+        seshDialog.setDialogType(SeshDialog.SeshDialogType.ONE_BUTTON);
+        seshDialog.setTitle("Error!");
+        seshDialog.setMessage("You were logged in on another device. Please login again to confirm your identity!");
+        seshDialog.setCancelable(false);
+        seshDialog.setFirstChoice("OKAY");
+        seshDialog.setFirstButtonClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), AuthenticationActivity.class);
+                startActivity(intent);
+            }
+        });
+        seshDialog.showWithDelay(getFragmentManager(), null, 1500);
     }
 
     //    Pre-reg app functionality -- to be deleted v1

@@ -1,6 +1,7 @@
 package com.seshtutoring.seshapp.util.networking;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
@@ -19,6 +20,7 @@ import com.seshtutoring.seshapp.model.Course;
 import com.seshtutoring.seshapp.model.LearnRequest;
 import com.seshtutoring.seshapp.model.Notification;
 import com.seshtutoring.seshapp.util.SeshImageCache;
+import com.seshtutoring.seshapp.view.SeshActivity;
 import com.squareup.okhttp.Interceptor;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
@@ -131,23 +133,43 @@ public class SeshNetworking {
     }
 
     public void postWithRelativeUrl(String relativeUrl, Map<String, String> params,
-                                    Response.Listener<JSONObject> successListener,
+                                    final Response.Listener<JSONObject> successListener,
                                     Response.ErrorListener errorListener) {
         postWithRelativeUrl(relativeUrl, new JSONObject(params), successListener, errorListener);
     }
 
     public void postWithRelativeUrl(String relativeUrl, JSONObject jsonParams,
-                                    Response.Listener<JSONObject> successListener,
+                                    final Response.Listener<JSONObject> successListener,
                                     Response.ErrorListener errorListener) {
         String absoluteUrl = baseUrl() + apiUrl() + relativeUrl;
 
         Log.i(TAG, "Issuing POST request to URL:  " + absoluteUrl + " with params: " +
                 jsonParams.toString());
 
+        Response.Listener<JSONObject> successListenerWrapper = new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject jsonObject) {
+                checkForInvalidSessionId(jsonObject);
+                successListener.onResponse(jsonObject);
+            }
+        };
+
         JsonPostRequestWithAuth requestWithAuth = new JsonPostRequestWithAuth(absoluteUrl,
-                jsonParams, successListener, errorListener);
+                jsonParams, successListenerWrapper, errorListener);
 
         VolleyNetworkingWrapper.getInstance(mContext).addToRequestQueue(requestWithAuth);
+    }
+
+    private void checkForInvalidSessionId(JSONObject jsonResponse) {
+        if (jsonResponse.has("status")) {
+            try {
+                if(jsonResponse.getString("status").equals("INVALID_SESSION_ID")) {
+                    SeshAuthManager.sharedManager(mContext).invalidateSession();
+                }
+            } catch (JSONException e) {
+                // do nothing; let specific networking call's error handling deal with malformed JSON
+            }
+        }
     }
 
     public void postWithLongTimeout(String relativeUrl, Map<String, String> params,

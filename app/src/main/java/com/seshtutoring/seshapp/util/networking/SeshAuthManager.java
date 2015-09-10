@@ -1,7 +1,10 @@
 package com.seshtutoring.seshapp.util.networking;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+
+import com.seshtutoring.seshapp.view.SeshActivity;
 
 /**
  * Singleton stub for storing token
@@ -12,6 +15,7 @@ public class SeshAuthManager {
     private static SeshAuthManager mInstance;
     private Context mContext;
     private String sessionId;
+    private boolean invalidated;
 
     private SeshAuthManager(Context context) {
         this.mContext = context;
@@ -42,6 +46,8 @@ public class SeshAuthManager {
         SharedPreferences.Editor editor = keyStore.edit();
         editor.putString(SESSION_ID_KEY, sessionId);
         editor.commit();
+
+        invalidated = false;
     }
 
     public void clearSession() {
@@ -51,5 +57,14 @@ public class SeshAuthManager {
         editor.commit();
 
         this.sessionId = null;
+    }
+
+    public void invalidateSession() {
+        if (!invalidated) {
+            invalidated = true;
+            clearSession();
+            Intent showErrorDialog = new Intent(SeshActivity.INVALID_SESSION_ID_ACTION);
+            mContext.sendBroadcast(showErrorDialog);
+        }
     }
 }
