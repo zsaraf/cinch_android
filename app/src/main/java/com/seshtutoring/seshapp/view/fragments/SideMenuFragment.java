@@ -3,6 +3,7 @@ package com.seshtutoring.seshapp.view.fragments;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
+import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -231,7 +232,8 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenList
             public boolean onTouch(View view, MotionEvent motionEvent) {
                 if (motionEvent.getActionMasked() == MotionEvent.ACTION_DOWN) {
                     selectedStateTouchDown(item);
-                } else if (motionEvent.getActionMasked() == MotionEvent.ACTION_UP) {
+                } else if (motionEvent.getActionMasked() == MotionEvent.ACTION_UP
+                        || motionEvent.getActionMasked() == MotionEvent.ACTION_MOVE) {
                     selectedStateTouchUp(item, completionBlock);
                 }
                 return true;
