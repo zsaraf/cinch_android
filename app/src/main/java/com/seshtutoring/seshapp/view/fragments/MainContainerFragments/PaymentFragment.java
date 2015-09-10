@@ -10,9 +10,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ArrayAdapter;
 import android.widget.AdapterView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.android.volley.Response;
@@ -52,8 +54,12 @@ public class PaymentFragment extends ListFragment implements FragmentOptionsRece
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         menu = (ListView) inflater.inflate(R.layout.settings_menu_list, null);
-        LayoutUtils layUtils = new LayoutUtils(getActivity());
-        menu.setPadding(0, layUtils.getActionBarHeightPx(), 0, 0);
+        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        );
+        params.setMargins(0, Math.round(getResources().getDimension(R.dimen.action_bar_height)), 0, 0);
+        menu.setLayoutParams(params);
         mainContainerActivity = (MainContainerActivity) getActivity();
         user = User.currentUser(mainContainerActivity.getApplicationContext());
 
@@ -63,7 +69,7 @@ public class PaymentFragment extends ListFragment implements FragmentOptionsRece
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        updateCards();
+        refreshCards();
 
         menu.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view,
@@ -75,7 +81,7 @@ public class PaymentFragment extends ListFragment implements FragmentOptionsRece
                         Intent intent = new Intent(mainContainerActivity.getApplicationContext(), AddCardActivity.class);
                         intent.putExtra("is_cashout_card", false);
                         startActivityForResult(intent, 1);
-                    }else if (item.text.equals("Add a New Debit Card")) {
+                    } else if (item.text.equals("Add a New Debit Card")) {
                         Intent intent = new Intent(mainContainerActivity.getApplicationContext(), AddCardActivity.class);
                         intent.putExtra("is_cashout_card", true);
                         startActivityForResult(intent, 1);
@@ -91,33 +97,11 @@ public class PaymentFragment extends ListFragment implements FragmentOptionsRece
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(resultCode==getActivity().RESULT_OK){
-//            Intent refresh = new Intent(getActivity(), MainContainerActivity.class);
-//            startActivity(refresh);
-//            getActivity().finish();
-            updateCards();
+            refreshCards();
         }
     }
 
-
-    private void updateCards() {
-
-        SeshNetworking seshNetworking = new SeshNetworking(getActivity());
-        seshNetworking.getCards(
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject responseJson) {
-                        onCardsResponse(responseJson);
-                    }
-                }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError volleyError) {
-                        onCardsFailure(volleyError.getMessage());
-                    }
-                });
-
-    }
-
-    private void onCardsResponse(JSONObject responseJson) {
+    private void refreshCards() {
 
         //Build adapter
         PaymentMenuAdapter adapter = new PaymentMenuAdapter(getActivity());
@@ -133,8 +117,8 @@ public class PaymentFragment extends ListFragment implements FragmentOptionsRece
         adapter.add(new PaymentListItem(null, PaymentListItem.HEADER_TYPE, "Cashout Cards (Debit)"));
         adapter.add(new PaymentListItem(null, PaymentListItem.ADD_CARD_TYPE, "Add a New Debit Card"));
 
-        List<Card> cashoutCards = Card.getPaymentCards();
-        for (Card currentCard : paymentCards) {
+        List<Card> cashoutCards = Card.getCashoutCards();
+        for (Card currentCard : cashoutCards) {
             PaymentListItem cardItem = new PaymentListItem(currentCard, PaymentListItem.CARD_TYPE, null);
             adapter.add(cardItem);
         }

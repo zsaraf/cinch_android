@@ -6,14 +6,14 @@
 
     <TextView
         android:id="@+id/settings_row_title"
-        android:textColor="@color/sesh_gray_button_text_color"
+        android:textColor="#000000"
         android:textSize="14sp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_weight="1"
         android:layout_gravity="start"
-        android:padding="10dp"/>
+        android:padding="13dp"/>
 
     <TextView
         android:id="@+id/settings_explain_title"
@@ -24,7 +24,7 @@
         android:layout_alignParentLeft="true"
         android:layout_weight="1"
         android:layout_gravity="start"
-        android:padding="10dp"/>
+        android:padding="13dp"/>
 
     <TextView
         android:id="@+id/settings_header_title"
@@ -35,9 +35,9 @@
         android:layout_alignParentLeft="true"
         android:layout_weight="1"
         android:layout_gravity="start"
-        android:paddingBottom="2dp"
-        android:paddingTop="18dp"
-        android:paddingLeft="10dp"/>
+        android:paddingBottom="5dp"
+        android:paddingTop="21dp"
+        android:paddingLeft="13dp"/>
 
     <TextView
         android:id="@+id/settings_right_title"
@@ -46,7 +46,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="right"
-        android:padding="10dp"/>
+        android:padding="13dp"/>
     <View
         android:layout_height="1dp"
         android:layout_width="match_parent"

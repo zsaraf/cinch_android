@@ -1,6 +1,9 @@
 package com.seshtutoring.seshapp.view;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.app.ActionBar;
+import android.content.Intent;
 import android.graphics.Typeface;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -9,12 +12,16 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
+import com.seshtutoring.seshapp.view.components.SeshActivityIndicator;
+import com.seshtutoring.seshapp.view.components.SeshAnimatedCheckmark;
 import com.seshtutoring.seshapp.view.components.SeshButton;
 import com.seshtutoring.seshapp.view.components.SeshDialog;
 import com.seshtutoring.seshapp.view.components.SeshEditText;
@@ -45,6 +52,9 @@ public class AddCardActivity extends SeshActivity {
     private SeshNetworking seshNetworking;
     private Stripe stripe;
     private boolean isRecipient;
+    private RelativeLayout requestFlowOverlay;
+    private SeshActivityIndicator activityIndicator;
+    private SeshAnimatedCheckmark animatedCheckmark;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -88,6 +98,11 @@ public class AddCardActivity extends SeshActivity {
         mFieldHolder = (FieldHolder) findViewById(R.id.field_holder);
         mSubmitBtn = (SeshButton) findViewById(R.id.add_card_button);
         mSubmitBtn.setOnClickListener(mSubmitBtnListener);
+
+        this.requestFlowOverlay = (RelativeLayout) findViewById(R.id.request_flow_overlay);
+        this.activityIndicator = (SeshActivityIndicator) findViewById(R.id.request_activity_indicator);
+        this.animatedCheckmark = (SeshAnimatedCheckmark) findViewById(R.id.animated_check_mark);
+
 
         ImageButton backButton = (ImageButton) findViewById(R.id.action_bar_back_button);
         backButton.setOnTouchListener(new View.OnTouchListener() {
@@ -149,6 +164,8 @@ public class AddCardActivity extends SeshActivity {
                 new TokenCallback() {
                     public void onSuccess(Token recipientToken) {
                         // Have customer token, get Recipient Token
+                        requestFlowOverlay.animate().alpha(1).setListener(null).setDuration(300).start();
+
                         seshNetworking.addCard(customerToken.getId(), recipientToken.getId(), isRecipient,
                                 new Response.Listener<JSONObject>() {
                                     @Override
@@ -173,21 +190,76 @@ public class AddCardActivity extends SeshActivity {
 
     }
 
+    private void hideAnimationWithSuccess(final boolean success, final String message) {
+        if (!success) {
+            requestFlowOverlay
+                    .animate()
+                    .setListener(null)
+                    .alpha(0)
+                    .setDuration(300)
+                    .setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            super.onAnimationEnd(animation);
+                            showErrorDialog("Whoops!", message);
+                        }
+                    });
+        } else {
+            activityIndicator
+                    .animate()
+                    .alpha(0)
+                    .setDuration(300)
+                    .setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            super.onAnimationEnd(animation);
+                            animatedCheckmark.setListener(new SeshAnimatedCheckmark.AnimationCompleteListener() {
+                                @Override
+                                public void onAnimationComplete() {
+                                    setResult(RESULT_OK, null);
+                                    finish();
+                                }
+                            });
+                            animatedCheckmark.startAnimation();
+
+                        }
+                    });
+        }
+    }
+
     private void onAddCardResponse(JSONObject responseJson) {
 
         try {
             if (responseJson.get("status").equals("SUCCESS")) {
-
-                setResult(RESULT_OK, null);
-                finish();
-
-            }else if (responseJson.get("status").equals("FAILURE")) {
+                if (responseJson.has("customer")) {
+                    JSONObject customer = responseJson.getJSONObject("customer");
+                    User currentUser = User.currentUser(getApplicationContext());
+                    if (customer.has("id")) {
+                        String customerId = customer.getString("id");
+                        currentUser.stripeCustomerId = customerId;
+                        currentUser.save();
+                    }
+                    com.seshtutoring.seshapp.model.Card newCard = com.seshtutoring.seshapp.model.Card.createOrUpdateCardWithJSON(customer, currentUser);
+                    if (newCard.isDefault) {
+                        com.seshtutoring.seshapp.model.Card.makeDefaultCard(newCard);
+                    }
+                }
+                if (responseJson.has("recipient")) {
+                    JSONObject recipient = responseJson.getJSONObject("recipient");
+                    User currentUser = User.currentUser(getApplicationContext());
+                    com.seshtutoring.seshapp.model.Card newCard = com.seshtutoring.seshapp.model.Card.createOrUpdateCardWithJSON(recipient, currentUser);
+                    if (newCard.isDefault) {
+                        com.seshtutoring.seshapp.model.Card.makeDefaultCard(newCard);
+                    }
+                }
+                hideAnimationWithSuccess(true, "");
+            } else if (responseJson.get("status").equals("FAILURE")) {
                 String message = responseJson.get("message").toString();
-                showErrorDialog("Whoops!", message);
+                hideAnimationWithSuccess(false, message);
             }
         } catch (JSONException e) {
             Log.e(TAG, e.toString());
-            showErrorDialog("Whoops!", "Error adding card");
+            hideAnimationWithSuccess(false, "Error adding card -- please try again later.");
         }
 
     }

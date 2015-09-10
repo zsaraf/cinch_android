@@ -280,7 +280,6 @@ public class MessagingActivity extends SeshActivity implements View.OnClickListe
                             textField.setHint("Message...");
                             textField.setCursorVisible(true);
 
-
                         } else {
                             SeshDialog.showDialog(getFragmentManager(), "Whoops",
                                     jsonObject.getString("message"),

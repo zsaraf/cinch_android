@@ -5,4 +5,5 @@
     android:layout_weight="1"
     android:id="@+id/settings_list"
     android:divider="@null"
-    android:dividerHeight="0dp" />
+    android:dividerHeight="0dp"
+    android:drawSelectorOnTop="true" />

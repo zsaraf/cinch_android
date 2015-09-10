@@ -62,12 +62,13 @@ public class SettingsFragment extends ListFragment implements FragmentOptionsRec
         CASHOUT("Cashout", 2, "", null),
         LOGOUT("Logout", 2, "", null),
         NOTIFICATIONS("Notifications", 1, "", null),
-        PING("Tutor Offline Ping", 2, "", null),
+        PING("Notifications Enabled", 2, "", null),
         EXPLANATION("Would you like to be notified when students who have favorited you need help, even when you're offline?", 3, "", null),
         ABOUT("About", 1, "", AboutActivity.class),
         TERMS("Terms of Use", 2, "", TermsActivity.class),
         PRIVACY("Privacy Policy", 2, "", PrivacyActivity.class),
         SUPPORT("Support", 2, "", SupportActivity.class);
+
 
         public String title;
         public int type;
@@ -90,8 +91,12 @@ public class SettingsFragment extends ListFragment implements FragmentOptionsRec
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         menu = (ListView) inflater.inflate(R.layout.settings_menu_list, null);
-        LayoutUtils layUtils = new LayoutUtils(getActivity());
-        menu.setPadding(0, layUtils.getActionBarHeightPx(), 0, 0);
+        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        );
+        params.setMargins(0, Math.round(getResources().getDimension(R.dimen.action_bar_height)), 0, 0);
+        menu.setLayoutParams(params);
         mainContainerActivity = (MainContainerActivity) getActivity();
         user = User.currentUser(mainContainerActivity.getApplicationContext());
         return menu;

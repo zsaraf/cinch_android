@@ -41,7 +41,11 @@ public class Card extends SugarRecord<Message> {
             // Assign all the properties of the message
             card.type = jsonObject.getString(TYPE_KEY);
             card.lastFour = jsonObject.getString(LAST_FOUR_KEY);
-            card.isDebit = jsonObject.getBoolean(DEBIT_KEY);
+            if (jsonObject.has(DEBIT_KEY)) {
+                card.isDebit = jsonObject.getBoolean(DEBIT_KEY);
+            } else {
+                card.isDebit = false;
+            }
             card.isDefault = jsonObject.getBoolean(DEFAULT_KEY);
             card.isRecipient = jsonObject.getBoolean(RECIPIENT_KEY);
 
@@ -65,6 +69,27 @@ public class Card extends SugarRecord<Message> {
         }
 
         return card;
+    }
+
+    public static void makeDefaultCard(Card card) {
+
+        boolean isRecipient = card.isRecipient;
+
+        List<Card> allCards = Card.find(Card.class, "is_recipient = ?", Boolean.toString(isRecipient));
+
+        for (int i = 0; i < allCards.size(); i++) {
+
+            Card currentCard = allCards.get(i);
+
+            if (currentCard == card) {
+                card.isDefault = true;
+            } else {
+                card.isDefault = false;
+            }
+
+            card.save();;
+
+        }
     }
 
     public static List<Card> getPaymentCards() {
