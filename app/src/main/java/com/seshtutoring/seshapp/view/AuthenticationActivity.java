@@ -668,11 +668,11 @@ public class AuthenticationActivity extends SeshActivity implements SeshDialog.O
                     loginSignupButton.setText("Log in");
                 } else if (entranceType == EntranceType.SIGNUP) {
                     int alreadyHaveAccountY = content.getHeight() - utils.dpToPixels(ACCOUNT_TEXT_OFFSET_DP);
-                    int loginSignupY = alreadyHaveAccountY - getEditTextBottomMarginPx()
-                            + getSeshEditTextHeightPx();
+                    int loginSignupY = alreadyHaveAccountY - (getEditTextBottomMarginPx()
+                            + getSeshEditTextHeightPx());
                     int passwordEditTextY = loginSignupY -
                             (getEditTextBottomMarginPx() + getSeshEditTextHeightPx()) * 2;
-                    int emailEditTextY = passwordEditTextY - getEditTextBottomMarginPx() + getSeshEditTextHeightPx();
+                    int emailEditTextY = passwordEditTextY - (getEditTextBottomMarginPx() + getSeshEditTextHeightPx());
                     int seshLogoY = (fullnameEditText.getTop() / 2) - (seshLogo.getHeight() / 2);
 
                     loginSignupButton.setY(loginSignupY);
@@ -688,6 +688,26 @@ public class AuthenticationActivity extends SeshActivity implements SeshDialog.O
                     dontHaveAccountText.setAlpha(0);
                     forgotPasswordLink.setAlpha(0);
                     loginSignupButton.setText("Sign up");
+
+//                    int alreadyHaveAccountY = content.getHeight() - utils.dpToPixels(ACCOUNT_TEXT_OFFSET_DP);
+//                    int loginSignupY = alreadyHaveAccountY - utils.dpToPixels(EDITTEXT_BOTTOM_MARGIN_DP + SeshEditText.SESH_EDIT_TEXT_HEIGHT_DP);
+//                    int passwordEditTextY = loginSignupY - (utils.dpToPixels(EDITTEXT_BOTTOM_MARGIN_DP + SeshEditText.SESH_EDIT_TEXT_HEIGHT_DP) * 2);
+//                    int emailEditTextY = passwordEditTextY - utils.dpToPixels(EDITTEXT_BOTTOM_MARGIN_DP + SeshEditText.SESH_EDIT_TEXT_HEIGHT_DP);
+//                    int seshLogoY = (fullnameEditText.getTop() / 2) - (seshLogo.getHeight() / 2);
+//
+//                    loginSignupButton.setY(loginSignupY);
+//                    alreadyHaveAccountText.setY(alreadyHaveAccountY);
+//                    emailEditText.setY(emailEditTextY);
+//                    passwordEditText.setY(passwordEditTextY);
+//                    seshLogo.setY(seshLogoY);
+//                    seshBlurredLogo.setY(seshLogoY);
+//
+//                    fullnameEditText.setEditTextEnabled(true);
+//                    reenterPasswordEditText.setEditTextEnabled(true);
+//
+//                    dontHaveAccountText.setAlpha(0);
+//                    forgotPasswordLink.setAlpha(0);
+//                    loginSignupButton.setText("Sign up");
                 } else {
                     Log.e(TAG, "EntranceType malformed in intent to start AuthenticationActivity");
                 }

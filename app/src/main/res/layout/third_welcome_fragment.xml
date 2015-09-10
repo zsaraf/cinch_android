@@ -19,7 +19,7 @@
             android:layout_width="match_parent"
             android:layout_height="200dp"
             card_view:cardBackgroundColor="#F9FFFFFF"
-            android:layout_marginBottom="45dp"
+            android:layout_marginBottom="@dimen/warm_welcome_card_bottom_margin"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
             android:layout_alignParentBottom="true">

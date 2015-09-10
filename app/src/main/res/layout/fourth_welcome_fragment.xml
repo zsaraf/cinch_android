@@ -26,70 +26,10 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/content_area">
-        <TextView
-            android:id="@+id/title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textColor="@color/white"
-            android:text="Hold Tight!"
-            android:gravity="center_horizontal"
-            android:textSize="28dp"
-            android:layout_marginTop="25dp"
-            />
-        <TextView
-            android:id="@+id/countupText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textColor="@color/white"
-            android:text="0"
-            android:gravity="center_horizontal"
-            android:textSize="120dp"
-            android:layout_marginTop="15dp"
-            android:layout_below="@id/title"
-            />
-        <TextView
-            android:id="@+id/daysUntilLabel"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textColor="@color/white"
-            android:text="Days Until Android Launch"
-            android:gravity="center_horizontal"
-            android:textSize="12dp"
-            android:layout_marginTop="205dp"
-            />
-        <com.seshtutoring.seshapp.view.components.SeshButton
-            android:id="@+id/motivateButton"
-            custom:buttonType="gray"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="35dp"
-            android:layout_marginRight="35dp"
-            android:layout_marginBottom="45dp"
-            android:layout_alignParentBottom="true"
-            android:text="Motivate the Team"/>
-        <com.seshtutoring.seshapp.view.components.SeshButton
-            android:id="@+id/signupTutorButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="35dp"
-            android:layout_marginRight="35dp"
-            android:layout_above="@id/motivateButton"
-            android:layout_marginBottom="7dp"
-            android:text="Sign up as tutor"/>
-        <com.seshtutoring.seshapp.view.components.SeshButton
-            android:id="@+id/signupStudentButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="35dp"
-            android:layout_marginRight="35dp"
-            android:layout_marginBottom="7dp"
-            android:layout_above="@id/signupTutorButton"
-            android:text="Sign up as student"/>
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_above="@id/signupStudentButton"
-            android:layout_below="@id/daysUntilLabel">
+            android:layout_centerInParent="true">
             <TextView
                 android:id="@+id/content_string"
                 android:layout_width="match_parent"
@@ -97,11 +37,18 @@
                 android:textColor="@color/white"
                 android:text="@string/fourth_fragment_content"
                 android:layout_centerInParent="true"
-                android:gravity="center_horizontal"
+                android:gravity="center"
                 android:textSize="16dp"
                 android:layout_marginRight="35dp"
-                android:layout_marginLeft="35dp"
-                />
+                android:layout_marginLeft="35dp" />
+            <ImageView
+                android:layout_width="130dp"
+                android:layout_height="130dp"
+                android:id="@+id/seshLogo"
+                android:background="@drawable/sesh_logo_simple"
+                android:layout_centerHorizontal="true"
+                android:layout_marginBottom="25dp"
+                android:layout_above="@+id/content_string"/>
         </RelativeLayout>
     </RelativeLayout>
 </FrameLayout>

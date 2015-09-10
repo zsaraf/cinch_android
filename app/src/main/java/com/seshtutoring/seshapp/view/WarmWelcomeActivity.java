@@ -21,6 +21,7 @@ import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.SeshApplication;
@@ -28,6 +29,7 @@ import com.seshtutoring.seshapp.services.GCMRegistrationIntentService;
 import com.seshtutoring.seshapp.services.SeshGCMListenerService;
 import com.seshtutoring.seshapp.services.SeshInstanceIDListenerService;
 import com.seshtutoring.seshapp.util.LayoutUtils;
+import com.seshtutoring.seshapp.view.components.SeshButton;
 import com.seshtutoring.seshapp.view.components.SeshDialog;
 import com.seshtutoring.seshapp.view.fragments.WarmWelcomeFragments.FirstWelcomeFragment;
 import com.seshtutoring.seshapp.view.fragments.WarmWelcomeFragments.FourthWelcomeFragment;
@@ -47,10 +49,33 @@ public class WarmWelcomeActivity extends SeshActivity implements SeshDialog.OnSe
     private FragmentPagerAdapter pagerAdapter;
     private ImageView[] viewPagerDots;
     private LinearLayout progressDots;
+    private SeshButton signUpButton;
+    private TextView loginTextView;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.warm_welcome_activity);
+
+
+        signUpButton = (SeshButton) findViewById(R.id.signupButton);
+        signUpButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent authenticationIntent = new Intent(WarmWelcomeActivity.this, AuthenticationActivity.class);
+                authenticationIntent.putExtra(AuthenticationActivity.ENTRANCE_TYPE_KEY, AuthenticationActivity.EntranceType.SIGNUP);
+                startActivity(authenticationIntent);
+            }
+        });
+
+        loginTextView = (TextView) findViewById(R.id.login_link);
+        loginTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent authenticationIntent = new Intent(WarmWelcomeActivity.this, AuthenticationActivity.class);
+                authenticationIntent.putExtra(AuthenticationActivity.ENTRANCE_TYPE_KEY, AuthenticationActivity.EntranceType.LOGIN);
+                startActivity(authenticationIntent);
+            }
+        });
 
         this.viewPagerDots = new ImageView[4];
         viewPagerDots[0] = (ImageView) findViewById(R.id.progress_dot1);

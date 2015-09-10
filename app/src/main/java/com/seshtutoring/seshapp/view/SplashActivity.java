@@ -84,17 +84,10 @@ public class SplashActivity extends SeshActivity {
                 startActivity(intent);
                 overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
             }
-            } else {
-            if (!SeshApplication.IS_LIVE) {
-                Intent warmWelcomeIntent = new Intent(getApplicationContext(), WarmWelcomeActivity.class);
-                startActivity(warmWelcomeIntent);
-                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-            } else {
-                Intent i = new Intent(this, AuthenticationActivity.class);
-                i.putExtra(AuthenticationActivity.ENTRANCE_TYPE_KEY, EntranceType.LOGIN);
-                startActivity(i);
-                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-            }
+        } else {
+            Intent warmWelcomeIntent = new Intent(getApplicationContext(), WarmWelcomeActivity.class);
+            startActivity(warmWelcomeIntent);
+            overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         }
     }
 

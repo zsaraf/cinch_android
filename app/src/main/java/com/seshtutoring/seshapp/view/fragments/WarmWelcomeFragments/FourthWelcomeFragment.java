@@ -73,102 +73,88 @@ public class FourthWelcomeFragment  extends Fragment
 
         this.seshMixpanelAPI = ((SeshApplication)getActivity().getApplication()).getSeshMixpanelAPI();
 
-        DateTime launchDate =
-                ((SeshApplication) getActivity().getApplication()).getAndroidReleaseDate();
-        this.daysUntilLaunch =  Math.max(0,
-                Days.daysBetween(new DateTime().toLocalDate(), launchDate.toLocalDate()).getDays());
-        this.countUpText = (TextView) v.findViewById(R.id.countupText);
-        this.signupStudentButton = (SeshButton)v.findViewById(R.id.signupStudentButton);
-        this.signupTutorButton = (SeshButton)v.findViewById(R.id.signupTutorButton);
-        this.motivateButton = (SeshButton)v.findViewById(R.id.motivateButton);
+//        DateTime launchDate =
+//                ((SeshApplication) getActivity().getApplication()).getAndroidReleaseDate();
+//        this.daysUntilLaunch =  Math.max(0,
+//                Days.daysBetween(new DateTime().toLocalDate(), launchDate.toLocalDate()).getDays());
+//        this.signupStudentButton = (SeshButton)v.findViewById(R.id.signupStudentButton);
+//        this.signupTutorButton = (SeshButton)v.findViewById(R.id.signupTutorButton);
+//        this.motivateButton = (SeshButton)v.findViewById(R.id.motivateButton);
+//        this.countUpText = (TextView) v.findViewById(R.id.countupText);
 
-        signupStudentButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                seshMixpanelAPI.track("Entered Student Signup Flow From Warm Welcome");
+//        signupStudentButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                seshMixpanelAPI.track("Entered Student Signup Flow From Warm Welcome");
+//
+//                Intent authenticationIntent = new Intent(getActivity(), AuthenticationActivity.class);
+//                authenticationIntent.putExtra(AuthenticationActivity.ENTRANCE_TYPE_KEY, EntranceType.SIGNUP);
+//                startActivity(authenticationIntent);
+//            }
+//        });
+//
+//        signupTutorButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                seshMixpanelAPI.track("Entered Tutor Signup Flow From Warm Welcome");
+//
+//                Intent browserIntent = new Intent(Intent.ACTION_VIEW);
+//                browserIntent.setData(Uri.parse("https://seshtutoring.com/index.html?action=tutor"));
+//                startActivity(browserIntent);
+//            }
+//        });
 
-                Intent authenticationIntent = new Intent(getActivity(), AuthenticationActivity.class);
-                authenticationIntent.putExtra(AuthenticationActivity.ENTRANCE_TYPE_KEY, EntranceType.SIGNUP);
-                startActivity(authenticationIntent);
-            }
-        });
+//        final SharedPreferences defaultSharedPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+//
+//        motivateButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                motivateButton.setEnabled(false);
+//                defaultSharedPrefs.edit().putLong(MOTIVATION_BUTTON_LAST_PRESSED, (new DateTime()).getMillis()).apply();
+//
+//                SeshNetworking seshNetworking = new SeshNetworking(getActivity());
+//                seshNetworking.motivateTeam(new Response.Listener<JSONObject>() {
+//                    @Override
+//                    public void onResponse(JSONObject jsonObject) {
+//                        SeshDialog.showDialog(getFragmentManager(),
+//                                "Motivation Sent",
+//                                "The Sesh Team has been pinged!  We're working our hardest, we promise!  " + "Don't get tap-happy, though -- motivation can only be sent once a day.",
+//                                "Gotcha",
+//                                null, "motivate_the_team");
+//
+//                    }
+//                }, new Response.ErrorListener() {
+//                    @Override
+//                    public void onErrorResponse(VolleyError volleyError) {
+//                        SeshDialog.showDialog(getFragmentManager(), "Network Error",
+//                                "We couldn't reach the server.  Try again later.", "Okay", null, "networkError");
+//                        motivateButton.setEnabled(true);
+//                    }
+//                });
+//            }
+//        });
 
-        signupTutorButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                seshMixpanelAPI.track("Entered Tutor Signup Flow From Warm Welcome");
+//        if (defaultSharedPrefs.contains(MOTIVATION_BUTTON_LAST_PRESSED)) {
+//            DateTime lastPressed = new DateTime(defaultSharedPrefs.getLong(MOTIVATION_BUTTON_LAST_PRESSED, 0));
+//            if (lastPressed.isBefore((new DateTime()).minusDays(1))) {
+//                motivateButton.setEnabled(true);
+//            } else {
+//                motivateButton.setEnabled(false);
+//            }
+//        }
 
-                Intent browserIntent = new Intent(Intent.ACTION_VIEW);
-                browserIntent.setData(Uri.parse("https://seshtutoring.com/index.html?action=tutor"));
-                startActivity(browserIntent);
-            }
-        });
-
-        final SharedPreferences defaultSharedPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-
-        motivateButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                motivateButton.setEnabled(false);
-                defaultSharedPrefs.edit().putLong(MOTIVATION_BUTTON_LAST_PRESSED, (new DateTime()).getMillis()).apply();
-
-                SeshNetworking seshNetworking = new SeshNetworking(getActivity());
-                seshNetworking.motivateTeam(new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject jsonObject) {
-                        SeshDialog.showDialog(getFragmentManager(),
-                                "Motivation Sent",
-                                "The Sesh Team has been pinged!  We're working our hardest, we promise!  " + "Don't get tap-happy, though -- motivation can only be sent once a day.",
-                                "Gotcha",
-                                null, "motivate_the_team");
-
-                    }
-                }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError volleyError) {
-                        SeshDialog.showDialog(getFragmentManager(), "Network Error",
-                                "We couldn't reach the server.  Try again later.", "Okay", null, "networkError");
-                        motivateButton.setEnabled(true);
-                    }
-                });
-            }
-        });
-
-        if (defaultSharedPrefs.contains(MOTIVATION_BUTTON_LAST_PRESSED)) {
-            DateTime lastPressed = new DateTime(defaultSharedPrefs.getLong(MOTIVATION_BUTTON_LAST_PRESSED, 0));
-            if (lastPressed.isBefore((new DateTime()).minusDays(1))) {
-                motivateButton.setEnabled(true);
-            } else {
-                motivateButton.setEnabled(false);
-            }
-        }
-
-        if (initAnimationShown) {
-            countUpText.setText(Integer.toString(daysUntilLaunch));
-        }
+//        if (initAnimationShown) {
+//            countUpText.setText(Integer.toString(daysUntilLaunch));
+//        }
 
         return v;
     }
 
     @Override
     public void onAnimationUpdate(ValueAnimator animation) {
-        Integer currentValue = (Integer) animation.getAnimatedValue();
-        countUpText.setText(currentValue.toString());
-
-        if (currentValue.intValue() == daysUntilLaunch) {
-            initAnimationShown = true;
-        }
     }
 
     public void onFragmentVisible() {
-        if (!initAnimationShown) {
-            int startVal = Math.max(0, daysUntilLaunch - 10);
-            ValueAnimator animator = ValueAnimator.ofInt(startVal, daysUntilLaunch);
-            animator.setInterpolator(new DecelerateInterpolator(0.7f));
-            animator.setDuration(100 * (daysUntilLaunch - startVal));
-            animator.addUpdateListener(this);
-            animator.start();
-        }
     }
 
 }

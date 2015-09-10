@@ -27,4 +27,6 @@
 
     <dimen name="default_circle_indicator_radius">4dp</dimen>
     <dimen name="default_circle_indicator_stroke_width">1dp</dimen>
+
+    <dimen name="warm_welcome_card_bottom_margin">130dp</dimen>
 </resources>
