@@ -49,6 +49,10 @@ public class LearnRequest extends SugarRecord<LearnRequest> {
 
     @Ignore
     public Set<AvailableBlock> availableBlocks;
+
+    @Ignore
+    public Discount discount;
+
 //    public Set<Favorite> favorites;
 
     public interface LearnRequestTableListener {

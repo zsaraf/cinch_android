@@ -30,6 +30,9 @@ public class LearnRequestTimeFragment extends Fragment implements RequestActivit
     private RelativeLayout additionalStudentsRow;
     private TextView additionalStudentsLabel;
     private TextView additionalStudentsNumber;
+    private RelativeLayout discountRow;
+    private TextView discountLabel;
+    private TextView discountNumber;
     private TextView estimatedTotalLabel;
     private TextView estimatedTotalNumber;
     private SeshEditText durationTextBox;
@@ -62,6 +65,15 @@ public class LearnRequestTimeFragment extends Fragment implements RequestActivit
         additionalStudentsLabel = (TextView) v.findViewById(R.id.additional_students_label);
         additionalStudentsLabel.setText("Additional Students ($" + additionalStudentsFee + "/hr)");
         additionalStudentsNumber = (TextView) v.findViewById(R.id.additional_students_number);
+
+        discountRow = (RelativeLayout) v.findViewById(R.id.discount_row);
+        discountLabel = (TextView) v.findViewById(R.id.discount_label);
+        discountNumber = (TextView) v.findViewById(R.id.discount_number);
+
+
+        if (currentLearnRequest.discount != null) {
+            discountLabel.setText(currentLearnRequest.discount.learnRequestTitle);
+        }
 
         estimatedTotalLabel = (TextView) v.findViewById(R.id.estimated_total_label);
         estimatedTotalNumber = (TextView) v.findViewById(R.id.estimated_total_number);
@@ -107,12 +119,18 @@ public class LearnRequestTimeFragment extends Fragment implements RequestActivit
 
     private void updateCostValues(int hourValue, int minuteValue) {
         float timeCostFloat = CostUtils.calculateCostForDuration(hourValue, minuteValue, hourlyRate);
-        float creditsAppliedFloat = Math.min(timeCostFloat, currentUser.getCreditSum());
         float additionalStudentsFloat
                 = CostUtils.calculateAdditionalStudentCharge(hourValue, minuteValue, currentLearnRequest.numPeople, additionalStudentsFee);
-        float estimatedTotalFloat = CostUtils.calculateEstimatedTotal(timeCostFloat, additionalStudentsFloat, creditsAppliedFloat);
+        float discountFloat = 0;
+        if (currentLearnRequest.discount != null) {
+            discountFloat = Math.min(currentLearnRequest.discount.creditAmount, timeCostFloat);
+        }
+        float creditsAppliedFloat = Math.min(timeCostFloat - discountFloat, currentUser.getCreditSum());
+        float estimatedTotalFloat = CostUtils.calculateEstimatedTotal(timeCostFloat, additionalStudentsFloat,
+                discountFloat, creditsAppliedFloat);
         creditsAppliedNumber.setText("-$" + CostUtils.floatToString(creditsAppliedFloat, 2));
         timeCostNumber.setText("$" + CostUtils.floatToString(timeCostFloat, 2));
+        discountNumber.setText("-$" + CostUtils.floatToString(discountFloat, 2));
         additionalStudentsNumber.setText("$" + CostUtils.floatToString(additionalStudentsFloat, 2));
         estimatedTotalNumber.setText("$" + CostUtils.floatToString(estimatedTotalFloat, 2));
     }
@@ -146,6 +164,12 @@ public class LearnRequestTimeFragment extends Fragment implements RequestActivit
             additionalStudentsRow.setVisibility(View.VISIBLE);
         } else {
             additionalStudentsRow.setVisibility(View.GONE);
+        }
+
+        if (currentLearnRequest.discount != null) {
+            discountRow.setVisibility(View.VISIBLE);
+        } else {
+            discountRow.setVisibility(View.GONE);
         }
 
         onDurationChanged(seshDurationPicker.getHourValue(), seshDurationPicker.getMinuteValue());

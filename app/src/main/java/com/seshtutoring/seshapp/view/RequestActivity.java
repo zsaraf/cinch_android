@@ -54,6 +54,7 @@ import com.facebook.rebound.SpringSystem;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.AvailableBlock;
 import com.seshtutoring.seshapp.model.Course;
+import com.seshtutoring.seshapp.model.Discount;
 import com.seshtutoring.seshapp.model.LearnRequest;
 import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.util.ApplicationLifecycleTracker;
@@ -77,6 +78,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Date;
+import java.util.List;
 
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
@@ -144,6 +146,11 @@ public class RequestActivity extends SeshActivity implements
         currentLearnRequest.latitude = intent.getDoubleExtra(LearnViewFragment.CHOSEN_LOCATION_LAT, 0);
         currentLearnRequest.longitude = intent.getDoubleExtra(LearnViewFragment.CHOSEN_LOCATION_LONG, 0);
         currentLearnRequest.setIsInstant(true);
+
+        List<Discount> discounts = User.currentUser(this).getDiscounts();
+        if (discounts.size() > 0) {
+            currentLearnRequest.discount = discounts.get(0);
+        }
 
         // set blurred background
         if (intent.hasExtra(LearnViewFragment.BLURRED_MAP_BITMAP_PATH_KEY)) {

@@ -55,29 +55,6 @@ public class User extends SugarRecord<User> {
     // empty constructor necessary for SugarORM to work
     public User() {}
 
-//    public User(int userId, String email, String sessionId, String fullName,
-//                String profilePictureUrl, String bio, String stripeCustomerId, String major,
-//                boolean notificationsEnabled, boolean completedAppTour, boolean isVerified,
-//                String fullLegalName, String shareCode, Student student, Tutor tutor, School school,
-//                Set<>) {
-//        this.userId = userId;
-//        this.email = email;
-//        this.sessionId = sessionId;
-//        this.fullName = fullName;
-//        this.profilePictureUrl = profilePictureUrl;
-//        this.bio = bio;
-//        this.stripeCustomerId = stripeCustomerId;
-//        this.major = major;
-//        this.notificationsEnabled = notificationsEnabled;
-//        this.completedAppTour = completedAppTour;
-//        this.isVerified = isVerified;
-//        this.fullLegalName = fullLegalName;
-//        this.shareCode = shareCode;
-//        this.student = student;
-//        this.tutor = tutor;
-//        this.school = school;
-//    }
-
 
     public static User currentUser(Context context) {
         return User.findAll(User.class).next();
@@ -189,6 +166,14 @@ public class User extends SugarRecord<User> {
                 }
             }
 
+            if (dataJson.has("discounts")) {
+                JSONArray discounts = dataJson.getJSONArray("discounts");
+                for (int i = 0; i < discounts.length(); i++) {
+                    JSONObject discountJson = discounts.getJSONObject(i);
+                    Discount.createOrUpdateDiscountWithObject(context, discountJson);
+                }
+            }
+
 //            Add hinting mechanism, eg:
 //            if (!currentUser.hint_displays) {
 //                currentUser.hint_displays = [HintDisplays createNewHintDisplays];
@@ -225,5 +210,9 @@ public class User extends SugarRecord<User> {
 
     public List<LearnRequest> getOpenRequests() {
         return LearnRequest.listAll(LearnRequest.class);
+    }
+
+    public List<Discount> getDiscounts() {
+        return Discount.find(Discount.class, "user = ?", Long.toString(getId()));
     }
 }

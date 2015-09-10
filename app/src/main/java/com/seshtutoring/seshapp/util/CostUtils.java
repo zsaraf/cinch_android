@@ -17,8 +17,8 @@ public class CostUtils {
         return round(result, 2);
     }
 
-    public static float calculateEstimatedTotal(float totalCost, float additionalStudentsCharge, float creditsApplied) {
-        return Math.max(0f, totalCost + additionalStudentsCharge - creditsApplied);
+    public static float calculateEstimatedTotal(float totalCost, float additionalStudentsCharge, float discount, float creditsApplied) {
+        return Math.max(0f, totalCost + additionalStudentsCharge - discount - creditsApplied);
     }
 
     public static String floatToString(float d, int numDecimals) {
