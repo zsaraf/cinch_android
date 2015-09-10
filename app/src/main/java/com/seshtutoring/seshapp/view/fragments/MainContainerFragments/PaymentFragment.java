@@ -49,6 +49,9 @@ public class PaymentFragment extends ListFragment implements FragmentOptionsRece
     private ListView menu;
     private User user;
     private PaymentMenuAdapter adapter;
+    private RelativeLayout editButton;
+    private boolean editMode = false;
+    private TextView editText;
 
     private Map<String, Object> options;
 
@@ -62,12 +65,16 @@ public class PaymentFragment extends ListFragment implements FragmentOptionsRece
         menu.setLayoutParams(params);
         mainContainerActivity = (MainContainerActivity) getActivity();
         user = User.currentUser(mainContainerActivity.getApplicationContext());
+        editButton = (RelativeLayout)mainContainerActivity.findViewById(R.id.action_bar_edit_button);
+        editText = (TextView)mainContainerActivity.findViewById(R.id.edit_text);
 
         return menu;
     }
 
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+
+        adapter = new PaymentMenuAdapter(mainContainerActivity);
 
         refreshCards();
 
@@ -91,6 +98,23 @@ public class PaymentFragment extends ListFragment implements FragmentOptionsRece
             }
         });
 
+        editButton.setVisibility(View.VISIBLE);
+        editButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if (editMode) {
+                    editMode = false;
+                    editText.setText("Edit");
+                } else {
+                    editMode = true;
+                    editText.setText("Done");
+                }
+
+                adapter.notifyDataSetChanged();
+
+            }
+        });
     }
 
     @Override
@@ -104,7 +128,6 @@ public class PaymentFragment extends ListFragment implements FragmentOptionsRece
     private void refreshCards() {
 
         //Build adapter
-        PaymentMenuAdapter adapter = new PaymentMenuAdapter(getActivity());
         adapter.add(new PaymentListItem(null, PaymentListItem.HEADER_TYPE, "Payment Cards"));
         adapter.add(new PaymentListItem(null, PaymentListItem.ADD_CARD_TYPE, "Add a New Card"));
 
@@ -154,6 +177,7 @@ public class PaymentFragment extends ListFragment implements FragmentOptionsRece
         public TextView mainTextView;
         public TextView secondTextView;
         public View divider;
+        public RelativeLayout deleteButton;
 
     }
 
@@ -190,6 +214,7 @@ public class PaymentFragment extends ListFragment implements FragmentOptionsRece
                 viewHolder.mainTextView.setTypeface(typeFace);
                 viewHolder.secondTextView = (TextView) convertView.findViewById(rightTextID);
                 viewHolder.divider = (View)convertView.findViewById(R.id.divider);
+                viewHolder.deleteButton = (RelativeLayout)convertView.findViewById(R.id.delete_button);
 
                 convertView.setTag(viewHolder);
 
@@ -203,6 +228,14 @@ public class PaymentFragment extends ListFragment implements FragmentOptionsRece
             } else {
                 viewHolder.mainTextView.setText(item.card.type + " " + item.card.lastFour);
                 viewHolder.secondTextView.setText(item.card.isDefault ? "default" : "");
+            }
+
+            if (editMode) {
+                viewHolder.secondTextView.setVisibility(View.GONE);
+                viewHolder.deleteButton.setVisibility(View.VISIBLE);
+            } else {
+                viewHolder.secondTextView.setVisibility(View.VISIBLE);
+                viewHolder.deleteButton.setVisibility(View.GONE);
             }
 
             return convertView;

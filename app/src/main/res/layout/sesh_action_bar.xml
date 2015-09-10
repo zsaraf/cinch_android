@@ -32,4 +32,23 @@
         android:id="@+id/action_bar_title"
         android:textSize="18sp"
         android:layout_centerInParent="true" />
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/action_bar_edit_button"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:padding="10dp"
+        android:layout_marginRight="10dp"
+        android:visibility="gone" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Edit"
+            android:id="@+id/edit_text"
+            android:textSize="18sp"
+            android:textColor="@color/white" />
+    </RelativeLayout>
 </RelativeLayout>
