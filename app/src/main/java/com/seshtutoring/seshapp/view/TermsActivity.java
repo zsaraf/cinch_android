@@ -12,6 +12,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.seshtutoring.seshapp.R;
@@ -27,28 +28,24 @@ public class TermsActivity extends SeshActivity {
         setContentView(R.layout.activity_terms);
 
         LayoutUtils layUtils = new LayoutUtils(this);
-        getWindow().getDecorView().findViewById(android.R.id.content).setPadding(0, layUtils.getActionBarHeightPx(), 0, 0);
+        layUtils.setupCustomActionBar(this, true);
 
-        getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
-        getSupportActionBar().setCustomView(R.layout.sesh_action_bar);
-        getSupportActionBar().setElevation(0);
         TextView title = (TextView) findViewById(R.id.action_bar_title);
         title.setText("Terms And Conditions");
         title.setTypeface(Typeface.createFromAsset(this.getAssets(), "fonts/Gotham-Book.otf"));
 
-        ImageButton menuButton = (ImageButton) findViewById(R.id.action_bar_menu_button);
+        RelativeLayout menuButton = (RelativeLayout) findViewById(R.id.action_bar_menu_button);
         ViewGroup layout = (ViewGroup) menuButton.getParent();
         layout.removeView(menuButton);
 
-        ImageButton backButton = (ImageButton) findViewById(R.id.action_bar_back_button);
+        RelativeLayout backButton = (RelativeLayout) findViewById(R.id.action_bar_back_button);
         backButton.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_UP) {
                     onBackPressed();
-                    return true;
                 }
-                return false;
+                return true;
             }
         });
     }

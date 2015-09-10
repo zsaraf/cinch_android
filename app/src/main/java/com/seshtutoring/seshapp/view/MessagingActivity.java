@@ -69,26 +69,25 @@ public class MessagingActivity extends SeshActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_messaging);
 
-        getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
-        getSupportActionBar().setCustomView(R.layout.sesh_action_bar);
-        getSupportActionBar().setElevation(0);
+        LayoutUtils utils = new LayoutUtils(this);
+        utils.setupCustomActionBar(this, true);
+
         TextView title = (TextView) findViewById(R.id.action_bar_title);
         title.setText("MESSAGES");
         title.setTypeface(Typeface.createFromAsset(this.getAssets(), "fonts/Gotham-Book.otf"));
 
-        ImageButton menuButton = (ImageButton) findViewById(R.id.action_bar_menu_button);
+        RelativeLayout menuButton = (RelativeLayout) findViewById(R.id.action_bar_menu_button);
         ViewGroup layout = (ViewGroup) menuButton.getParent();
         layout.removeView(menuButton);
 
-        ImageButton backButton = (ImageButton) findViewById(R.id.action_bar_back_button);
+        RelativeLayout backButton = (RelativeLayout) findViewById(R.id.action_bar_back_button);
         backButton.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_UP) {
                     onBackPressed();
-                    return true;
                 }
-                return false;
+                return true;
             }
         });
 

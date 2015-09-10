@@ -62,7 +62,6 @@
         android:layout_alignParentTop="true"
         android:background="@color/white"
         android:choiceMode="singleChoice"
-        android:layout_marginTop="@dimen/action_bar_height"
         android:layout_above="@+id/text_field_container"
         android:divider="@null"
         android:dividerHeight="0dp"/>

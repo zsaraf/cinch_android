@@ -19,6 +19,8 @@ import android.os.SystemClock;
 import android.os.Vibrator;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.SimpleOnPageChangeListener;
+import android.support.v7.widget.Toolbar;
+import android.text.Layout;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -127,13 +129,10 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
 
         setContentView(R.layout.main_container_activity);
 
-        getSupportActionBar().setHomeButtonEnabled(true);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
-        getSupportActionBar().setCustomView(R.layout.sesh_action_bar);
-        getSupportActionBar().setElevation(0);
+        LayoutUtils layoutUtils = new LayoutUtils(this);
+        layoutUtils.setupCustomActionBar(this, false);
 
-        ImageButton backButton = (ImageButton) findViewById(R.id.action_bar_back_button);
+        RelativeLayout backButton = (RelativeLayout) findViewById(R.id.action_bar_back_button);
         ViewGroup layout = (ViewGroup) backButton.getParent();
         layout.removeView(backButton);
 
@@ -155,7 +154,7 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
                 .replace(R.id.sliding_menu_frame, sideMenuFragment)
                 .commit();
 
-        ImageButton menuButton = (ImageButton) findViewById(R.id.action_bar_menu_button);
+        RelativeLayout menuButton = (RelativeLayout) findViewById(R.id.action_bar_menu_button);
         menuButton.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -163,7 +162,7 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
                 if (event.getAction() == MotionEvent.ACTION_UP) {
                     slidingMenu.toggle(true);
                 }
-                return false;
+                return true;
             }
         });
 

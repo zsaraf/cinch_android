@@ -1,5 +1,6 @@
 package com.seshtutoring.seshapp.util;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Instrumentation;
 import android.content.Context;
@@ -10,6 +11,7 @@ import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.SystemClock;
+import android.support.v7.widget.Toolbar;
 import android.text.TextPaint;
 import android.text.style.ClickableSpan;
 import android.util.DisplayMetrics;
@@ -22,6 +24,8 @@ import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 
 import com.enrique.stackblur.StackBlurManager;
+import com.seshtutoring.seshapp.R;
+import com.seshtutoring.seshapp.view.SeshActivity;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -114,5 +118,16 @@ public class LayoutUtils {
 
     public Typeface getBookGothamTypeface() {
         return Typeface.createFromAsset(mContext.getAssets(), "fonts/Gotham-Book.otf");
+    }
+
+    public void setupCustomActionBar(SeshActivity activity, boolean setOverlayPadding) {
+        if (setOverlayPadding) {
+            activity.getWindow().getDecorView().findViewById(android.R.id.content).setPadding(0, getActionBarHeightPx(), 0, 0);
+        }
+        activity.getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+        activity.getSupportActionBar().setCustomView(R.layout.sesh_action_bar);
+        activity.getSupportActionBar().setElevation(0);
+        Toolbar parent = (Toolbar) activity.getSupportActionBar().getCustomView().getParent();
+        parent.setContentInsetsAbsolute(0, 0);
     }
 }

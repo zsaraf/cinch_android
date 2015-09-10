@@ -1,18 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
-    android:layout_height="wrap_content">
-    <ImageButton
+    android:layout_height="wrap_content"
+    android:background="@color/seshorange">
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:id="@+id/action_bar_menu_button"
-        android:layout_width="23dp"
-        android:layout_height="23dp"
-        android:padding="10dp"
-        android:background="@drawable/ic_menu_white"/>
-    <ImageButton
+        android:padding="20dp">
+        <ImageView
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:background="@drawable/ic_menu_white"/>
+    </RelativeLayout>
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:id="@+id/action_bar_back_button"
-        android:layout_width="23dp"
-        android:layout_height="23dp"
-        android:padding="10dp"
-        android:background="@drawable/back_white"/>
+        android:padding="20dp">
+        <ImageView
+            android:scaleType="fitCenter"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:background="@drawable/back_white"/>
+    </RelativeLayout>
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
