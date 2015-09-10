@@ -19,6 +19,7 @@ import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.Sesh;
 import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
+import com.seshtutoring.seshapp.view.components.SeshActivityIndicator;
 import com.seshtutoring.seshapp.view.components.SeshButton;
 import com.squareup.picasso.Callback;
 import com.seshtutoring.seshapp.view.components.SeshDialog;
@@ -44,6 +45,8 @@ public class InSeshActivity extends SeshActivity {
 
     private Chronometer timer;
     private Sesh currentSesh;
+    private SeshButton endSeshButton;
+    private SeshActivityIndicator seshActivityIndicator;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -66,48 +69,48 @@ public class InSeshActivity extends SeshActivity {
             }
         });
 
-//        ImageButton backButton = (ImageButton) findViewById(R.id.action_bar_back_button);
-//        ViewGroup layout = (ViewGroup) backButton.getParent();
-//        layout.removeView(backButton);
-//
-//        ImageButton homeButton = (ImageButton) findViewById(R.id.action_bar_menu_button);
-//        layout.removeView(homeButton);
-//
         Typeface light = Typeface.createFromAsset(this.getAssets(), "fonts/Gotham-Light.otf");
 
         TextView titleTextView = (TextView) findViewById(R.id.title_text_view);
         titleTextView.setText(currentSesh.className.replace(" ", "") + " Sesh");
         titleTextView.setTypeface(light);
-//
-//        TextView title = (TextView) findViewById(R.id.action_bar_title);
-//        title.setText("IN SESH");
-//        title.setTypeface(light);
 
-        SeshButton endSeshButton = (SeshButton) findViewById(R.id.end_sesh_button);
+        seshActivityIndicator = (SeshActivityIndicator) findViewById(R.id.in_sesh_activity_indicator);
+
+        endSeshButton = (SeshButton) findViewById(R.id.end_sesh_button);
         if (currentSesh.isStudent) {
             endSeshButton.setVisibility(View.INVISIBLE);
         } else {
             endSeshButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    SeshNetworking seshNetworking = new SeshNetworking(getApplicationContext());
-                    seshNetworking.endSesh(currentSesh.seshId, new Response.Listener<JSONObject>() {
+                    createDialog("End Sesh?", "Are you sure you want to end the Sesh?", "YES", "NO", new View.OnClickListener() {
                         @Override
-                        public void onResponse(JSONObject jsonObject) {
-                            try {
-                                if (jsonObject.getString("status").equals("SUCCESS")) {
-                                    // do nothing
+                        public void onClick(View v) {
+                            setNetworking(true);
+                            SeshNetworking seshNetworking = new SeshNetworking(getApplicationContext());
+                            seshNetworking.endSesh(currentSesh.seshId, new Response.Listener<JSONObject>() {
+                                @Override
+                                public void onResponse(JSONObject jsonObject) {
+                                    try {
+                                        if (jsonObject.getString("status").equals("SUCCESS")) {
+                                        } else {
+                                            setNetworking(false);
+                                            showErrorDialog("Error!", jsonObject.getString("message"));
+                                        }
+                                    } catch (JSONException e) {
+                                        Log.e(TAG, "Failed to end sesh; json response malformed: " + e);
+                                        showErrorDialog("Error!", "Something went wrong.  Try again later.");
+                                    }
                                 }
-                            } catch (JSONException e) {
-                                Log.e(TAG, "Failed to end sesh; json response malformed: " + e);
-                                showErrorDialog("Error!", "Something went wrong.  Try again later.");
-                            }
-                        }
-                    }, new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError volleyError) {
-                            Log.e(TAG, "Failed to end sesh; network error: " + volleyError);
-                            showErrorDialog("Network Error", "Whoops! We couldn't reach the server.  Check your network settings and try again.");
+                            }, new Response.ErrorListener() {
+                                @Override
+                                public void onErrorResponse(VolleyError volleyError) {
+                                    setNetworking(false);
+                                    Log.e(TAG, "Failed to end sesh; network error: " + volleyError);
+                                    showErrorDialog("Network Error", "Whoops! We couldn't reach the server.  Check your network settings and try again.");
+                                }
+                            });
                         }
                     });
                 }
@@ -132,6 +135,24 @@ public class InSeshActivity extends SeshActivity {
         timer.start();
     }
 
+    private void setNetworking(Boolean networking) {
+        endSeshButton.setEnabled(!networking);
+
+        timer
+                .animate()
+                .alpha(networking ? 0f : 1f)
+                .setDuration(300)
+                .setStartDelay(0)
+                .start();
+
+        seshActivityIndicator
+                .animate()
+                .alpha(networking ? 1f : 0f)
+                .setDuration(300)
+                .setStartDelay(0)
+                .start();
+    }
+
     public void showErrorDialog(String title, String content) {
         SeshDialog errorDialog = new SeshDialog();
         errorDialog.setFirstChoice("OKAY");
@@ -150,5 +171,31 @@ public class InSeshActivity extends SeshActivity {
     @Override
     public boolean isInSeshActivity() {
         return true;
+    }
+
+    // End sesh
+    private void createDialog(String title, String message, String firstChoice, String secondChoice, final View.OnClickListener firstClickListener) {
+        final SeshDialog seshDialog = new SeshDialog();
+        seshDialog.setDialogType(SeshDialog.SeshDialogType.TWO_BUTTON);
+        seshDialog.setTitle(title);
+        seshDialog.setMessage(message);
+        seshDialog.setFirstChoice(firstChoice);
+        seshDialog.setFirstButtonClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                firstClickListener.onClick(v);
+                seshDialog.dismiss();
+            }
+        });
+        seshDialog.setSecondChoice(secondChoice);
+        seshDialog.setSecondButtonClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                seshDialog.dismiss();
+            }
+        });
+        seshDialog.setType("SESH_STARTING");
+
+        seshDialog.show(getFragmentManager(), "SESH_STARTING");
     }
 }

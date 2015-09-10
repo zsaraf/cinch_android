@@ -24,4 +24,7 @@
     <dimen name="sesh_animated_checkmark_circle_radius">40dp</dimen>
     <dimen name="sesh_animated_checkmark_check_width">30dp</dimen>
     <dimen name="sesh_animated_checkmark_check_height">30dp</dimen>
+
+    <dimen name="default_circle_indicator_radius">4dp</dimen>
+    <dimen name="default_circle_indicator_stroke_width">1dp</dimen>
 </resources>

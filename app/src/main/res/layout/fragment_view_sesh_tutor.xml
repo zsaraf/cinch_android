@@ -137,6 +137,13 @@
             android:layout_above="@+id/start_sesh_button"
             android:layout_below="@+id/middleBar">
 
+            <com.seshtutoring.seshapp.view.components.SeshPageIndicator
+                android:id="@+id/page_indicator"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_centerHorizontal="true" />
+
             <android.support.v4.view.ViewPager
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"

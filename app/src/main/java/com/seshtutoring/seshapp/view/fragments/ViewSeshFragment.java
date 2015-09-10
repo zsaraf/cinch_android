@@ -50,6 +50,7 @@ import com.seshtutoring.seshapp.view.ViewSeshSetTimeActivity;
 import com.seshtutoring.seshapp.view.components.SeshActivityIndicator;
 import com.seshtutoring.seshapp.view.components.SeshButton;
 import com.seshtutoring.seshapp.view.components.SeshDialog;
+import com.seshtutoring.seshapp.view.components.SeshPageIndicator;
 import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.HomeFragment;
 import com.seshtutoring.seshapp.view.fragments.ViewSeshFragments.ViewSeshSeshDescriptionFragment;
 import com.seshtutoring.seshapp.view.fragments.ViewSeshFragments.ViewSeshUserDescriptionFragment;
@@ -82,6 +83,7 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
     private SeshButton cancelSeshButton;
     private SeshButton messageButton;
     private SeshButton startSeshButton;
+    private SeshPageIndicator pageIndicator;
 
     RelativeLayout topLayout;
 
@@ -188,6 +190,8 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
             }
         });
 
+        pageIndicator = (SeshPageIndicator) v.findViewById(R.id.page_indicator);
+
         refreshMessageButtonText();
 
         if (!sesh.isStudent) {
@@ -237,6 +241,8 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
                 // do nothing
             }
         });
+
+        pageIndicator.setViewPager(viewPager);
 
         setUpMapIfNeeded();
 
