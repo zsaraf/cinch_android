@@ -28,6 +28,7 @@ public class LearnRequestTimeFragment extends Fragment implements RequestActivit
     private TextView timeCostNumber;
     private TextView creditsAppliedNumber;
     private RelativeLayout additionalStudentsRow;
+    private TextView additionalStudentsLabel;
     private TextView additionalStudentsNumber;
     private TextView estimatedTotalLabel;
     private TextView estimatedTotalNumber;
@@ -35,6 +36,7 @@ public class LearnRequestTimeFragment extends Fragment implements RequestActivit
     private SeshDurationPicker seshDurationPicker;
     private RequestActivity parentActivity;
     private float hourlyRate;
+    private int additionalStudentsFee;
     private User currentUser;
     private RequestFlowScrollView requestFlowScrollView;
     private boolean isCompleted;
@@ -55,7 +57,10 @@ public class LearnRequestTimeFragment extends Fragment implements RequestActivit
 
         creditsAppliedNumber = (TextView) v.findViewById(R.id.credits_applied_number);
 
+        additionalStudentsFee = Constants.getAdditionalStudentFee(getActivity());
         additionalStudentsRow = (RelativeLayout) v.findViewById(R.id.additional_students_row);
+        additionalStudentsLabel = (TextView) v.findViewById(R.id.additional_students_label);
+        additionalStudentsLabel.setText("Additional Students ($" + additionalStudentsFee + "/hr)");
         additionalStudentsNumber = (TextView) v.findViewById(R.id.additional_students_number);
 
         estimatedTotalLabel = (TextView) v.findViewById(R.id.estimated_total_label);
@@ -104,7 +109,7 @@ public class LearnRequestTimeFragment extends Fragment implements RequestActivit
         float timeCostFloat = CostUtils.calculateCostForDuration(hourValue, minuteValue, hourlyRate);
         float creditsAppliedFloat = Math.min(timeCostFloat, currentUser.getCreditSum());
         float additionalStudentsFloat
-                = CostUtils.calculateAdditionalStudentCharge(hourValue, minuteValue, currentLearnRequest.numPeople);
+                = CostUtils.calculateAdditionalStudentCharge(hourValue, minuteValue, currentLearnRequest.numPeople, additionalStudentsFee);
         float estimatedTotalFloat = CostUtils.calculateEstimatedTotal(timeCostFloat, additionalStudentsFloat, creditsAppliedFloat);
         creditsAppliedNumber.setText("-$" + CostUtils.floatToString(creditsAppliedFloat, 2));
         timeCostNumber.setText("$" + CostUtils.floatToString(timeCostFloat, 2));

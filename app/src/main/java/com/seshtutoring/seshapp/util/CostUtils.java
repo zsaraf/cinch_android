@@ -11,8 +11,9 @@ public class CostUtils {
         return round(result, 2);
     }
 
-    public static float calculateAdditionalStudentCharge(int hours, int minutes, int numStudents) {
-        float result = (float) (hours + (minutes / 60.0)) * (numStudents - 1) * 5;
+    public static float calculateAdditionalStudentCharge(int hours, int minutes, int numStudents,
+                                                         float additionalStudentCharge) {
+        float result = (float) (hours + (minutes / 60.0)) * (numStudents - 1) * additionalStudentCharge;
         return round(result, 2);
     }
 

@@ -20,6 +20,7 @@ public class Constants {
     private static final String HOURLY_RATE_KEY = "hourly_rate";
     private static final String USER_SHARE_KEY = "user_share";
     private static final String FRIEND_SHARE_KEY = "friend_share";
+    private static final String ADDITIONAL_STUDENT_FEE_KEY = "additional_student_fee";
     private static final String INSTANT_REQUEST_TIMEOUT_KEY = "instant_timeout";
 
 
@@ -34,6 +35,7 @@ public class Constants {
                         float userShareRate = (float) jsonObject.getDouble("user_share_rate");
                         float friendShareRate = (float) jsonObject.getDouble("friend_share_rate");
                         int instantRequestTimeout = jsonObject.getInt("instant_request_timeout");
+                        int additionalStudentFee = jsonObject.getInt(ADDITIONAL_STUDENT_FEE_KEY);
 
                         SharedPreferences sharedPreferences =
                                 context.getSharedPreferences(CONSTANTS_SHARED_PREFS, 0);
@@ -42,6 +44,7 @@ public class Constants {
                         editor.putFloat(USER_SHARE_KEY, userShareRate);
                         editor.putFloat(FRIEND_SHARE_KEY, friendShareRate);
                         editor.putInt(INSTANT_REQUEST_TIMEOUT_KEY, instantRequestTimeout);
+                        editor.putInt(ADDITIONAL_STUDENT_FEE_KEY, additionalStudentFee);
                         editor.apply();
                     } else {
                         Log.e(TAG, "Failed to fetch constants from server: " + jsonObject.getString("message"));
@@ -80,5 +83,11 @@ public class Constants {
         SharedPreferences sharedPreferences =
                 context.getSharedPreferences(CONSTANTS_SHARED_PREFS, 0);
         return sharedPreferences.getInt(INSTANT_REQUEST_TIMEOUT_KEY, -1);
+    }
+
+    public static int getAdditionalStudentFee(Context context) {
+        SharedPreferences sharedPreferences =
+                context.getSharedPreferences(CONSTANTS_SHARED_PREFS, 0);
+        return sharedPreferences.getInt(ADDITIONAL_STUDENT_FEE_KEY, -1);
     }
 }
