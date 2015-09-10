@@ -50,7 +50,7 @@ public class PaymentFragment extends ListFragment implements FragmentOptionsRece
     private User user;
     private PaymentMenuAdapter adapter;
     private RelativeLayout editButton;
-    private boolean editMode = false;
+    private boolean editMode;
     private TextView editText;
 
     private Map<String, Object> options;
@@ -67,6 +67,7 @@ public class PaymentFragment extends ListFragment implements FragmentOptionsRece
         user = User.currentUser(mainContainerActivity.getApplicationContext());
         editButton = (RelativeLayout)mainContainerActivity.findViewById(R.id.action_bar_edit_button);
         editText = (TextView)mainContainerActivity.findViewById(R.id.edit_text);
+        editMode = false;
 
         return menu;
     }
@@ -98,7 +99,7 @@ public class PaymentFragment extends ListFragment implements FragmentOptionsRece
             }
         });
 
-//        editButton.setVisibility(View.VISIBLE);
+        editButton.setVisibility(View.VISIBLE);
         editButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -231,8 +232,13 @@ public class PaymentFragment extends ListFragment implements FragmentOptionsRece
             }
 
             if (editMode) {
-                viewHolder.secondTextView.setVisibility(View.GONE);
-                viewHolder.deleteButton.setVisibility(View.VISIBLE);
+                if (item.type == PaymentListItem.CARD_TYPE && !item.card.isDefault) {
+                    viewHolder.secondTextView.setVisibility(View.GONE);
+                    viewHolder.deleteButton.setVisibility(View.VISIBLE);
+                } else {
+                    viewHolder.secondTextView.setVisibility(View.VISIBLE);
+                    viewHolder.deleteButton.setVisibility(View.GONE);
+                }
             } else {
                 viewHolder.secondTextView.setVisibility(View.VISIBLE);
                 viewHolder.deleteButton.setVisibility(View.GONE);

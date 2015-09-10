@@ -97,12 +97,14 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
     private SideMenuFragment sideMenuFragment;
     private ContainerState currentContainerState;
     private SeshActivityIndicator fragmentLoadIndicator;
+    private RelativeLayout editButton;
 
-    public final ContainerState HOME = new ContainerState("Home", R.drawable.home, new HomeFragment());
-    public final ContainerState PROFILE = new ContainerState("Profile", R.drawable.profile, new ProfileFragment());
-    public final ContainerState PAYMENT = new ContainerState("Payment", R.drawable.payment, new PaymentFragment());
-    public final ContainerState SETTINGS = new ContainerState("Settings", R.drawable.settings, new SettingsFragment());
-    public final ContainerState PROMOTE = new ContainerState("Promote", R.drawable.share, new PromoteFragment());
+
+    public final ContainerState HOME = new ContainerState("Home", R.drawable.home, new HomeFragment(), "home");
+    public final ContainerState PROFILE = new ContainerState("Profile", R.drawable.profile, new ProfileFragment(), "profile");
+    public final ContainerState PAYMENT = new ContainerState("Payment", R.drawable.payment, new PaymentFragment(), "payment");
+    public final ContainerState SETTINGS = new ContainerState("Settings", R.drawable.settings, new SettingsFragment(), "settings");
+    public final ContainerState PROMOTE = new ContainerState("Promote", R.drawable.share, new PromoteFragment(), "promote");
 
     private final Fragment loadingFragment = new LoadingFragment();
 
@@ -135,6 +137,8 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
         RelativeLayout backButton = (RelativeLayout) findViewById(R.id.action_bar_back_button);
         ViewGroup layout = (ViewGroup) backButton.getParent();
         layout.removeView(backButton);
+
+        editButton = (RelativeLayout)findViewById(R.id.action_bar_edit_button);
 
         sideMenuFragment = new SideMenuFragment();
 
@@ -206,12 +210,12 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
                 int seshId = intent.getIntExtra(ViewSeshFragment.SESH_KEY, -1);
                 boolean openMessaging = intent.getBooleanExtra(ViewSeshFragment.OPEN_MESSAGING, false);
 
-                setCurrentState(new ContainerState("Sesh", 0, ViewSeshFragment.newInstance(seshId, openMessaging)));
+                setCurrentState(new ContainerState("Sesh", 0, ViewSeshFragment.newInstance(seshId, openMessaging), "view_sesh_" + Integer.toString(seshId)));
             } else if (intent.getAction().equals(NEW_MESSAGE_ACTION)) {
                 int seshId = intent.getIntExtra(ViewSeshFragment.SESH_KEY, -1);
                 boolean openMessaging = intent.getBooleanExtra(ViewSeshFragment.OPEN_MESSAGING, false);
 
-                setCurrentState(new ContainerState("Sesh", 0, ViewSeshFragment.newInstance(seshId, openMessaging)));
+                setCurrentState(new ContainerState("Sesh", 0, ViewSeshFragment.newInstance(seshId, openMessaging),  "view_sesh_" + Integer.toString(seshId)));
             } else if (intent.getAction() == SESH_CANCELLED_ACTION) {
                 // IF SESH HAS BEEN CANCELLED AND MAIN CONTAINER IS IN FOREGROUND, WE ENSURE VIEWSESHFRAGMENT IS NOT VISIBLE
                 if (currentContainerState.fragment instanceof ViewSeshFragment) {
@@ -364,6 +368,8 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
 
         setActionBarTitle(selectedMenuOption.title);
 
+
+
 //        if (slidingMenu.isMenuShowing()) {
 //            getSupportFragmentManager()
 //                    .beginTransaction()
@@ -390,6 +396,14 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
 //            });
 //        } else {
             currentContainerState = selectedMenuOption;
+
+            Log.d(TAG, "Current container state tag: " + currentContainerState.fragment.getTag());
+
+            if (currentContainerState.tag.equals("payment")) {
+                editButton.setVisibility(View.VISIBLE);
+            } else {
+                editButton.setVisibility(View.GONE);
+            }
 
             getSupportFragmentManager()
                     .beginTransaction()

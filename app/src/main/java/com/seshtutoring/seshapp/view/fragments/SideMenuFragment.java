@@ -181,10 +181,10 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenList
         if (item.isDivider) return;
         if (item.isSesh) {
             mainContainerActivity.setCurrentState(new ContainerState("Sesh!", 0,
-                    ViewSeshFragment.newInstance(item.sesh.seshId, false)));
+                    ViewSeshFragment.newInstance(item.sesh.seshId, false),  "view_sesh_" + Integer.toString(item.sesh.seshId)));
         } else {
             mainContainerActivity.setCurrentState(new ContainerState("Request!", 0,
-                    ViewRequestFragment.newInstance(item.learnRequest.learnRequestId)));
+                    ViewRequestFragment.newInstance(item.learnRequest.learnRequestId),  "view_request_" + Integer.toString(item.learnRequest.learnRequestId)));
         }
 
         updateSelectedItem(item);

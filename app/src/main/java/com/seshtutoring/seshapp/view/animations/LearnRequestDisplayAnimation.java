@@ -78,7 +78,7 @@ public class LearnRequestDisplayAnimation extends SideMenuOpenAnimation {
         @Override
         protected void onPostExecute(Void aVoid) {
             mainContainerActivity.setCurrentState(new ContainerState("Request!", 0,
-                    ViewRequestFragment.newInstance(learnRequest.learnRequestId)));
+                    ViewRequestFragment.newInstance(learnRequest.learnRequestId), "view_request_" + learnRequest.learnRequestId));
             Handler mainThread = new Handler();
             mainThread.postDelayed(new Runnable() {
                 @Override

@@ -86,7 +86,7 @@ public class SeshDisplayAnimation extends SideMenuFragment.SideMenuOpenAnimation
         @Override
         protected void onPostExecute(Void aVoid) {
             mainContainerActivity.setCurrentState(new ContainerState("Sesh!", 0,
-                    ViewSeshFragment.newInstance(sesh.seshId, false)));
+                    ViewSeshFragment.newInstance(sesh.seshId, false), "view_sesh_" + sesh.seshId));
             Handler mainThread = new Handler();
             mainThread.postDelayed(new Runnable() {
                 @Override

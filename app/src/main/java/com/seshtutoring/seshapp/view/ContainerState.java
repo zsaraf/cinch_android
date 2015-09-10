@@ -10,11 +10,13 @@ public class ContainerState {
     public String title;
     public int iconRes;
     public Fragment fragment;
+    public String tag;
 
-    public ContainerState(String title, int iconRes, Fragment fragment) {
+    public ContainerState(String title, int iconRes, Fragment fragment, String tag) {
         this.title = title;
         this.iconRes = iconRes;
         this.fragment = fragment;
+        this.tag = tag;
     }
 
     @Override
@@ -22,7 +24,8 @@ public class ContainerState {
         if (o instanceof ContainerState) {
             return ((ContainerState) o).title == title &&
                     ((ContainerState) o).iconRes == iconRes &&
-                    ((ContainerState) o).fragment.getClass() == fragment.getClass();
+                    ((ContainerState) o).fragment.getClass() == fragment.getClass() &&
+                    ((ContainerState) o).tag == tag;
         } else return false;
     }
 }
