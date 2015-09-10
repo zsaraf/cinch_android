@@ -17,7 +17,7 @@
     <View
         android:id="@+id/divider"
         android:layout_width="match_parent"
-        android:layout_height="2dp"
+        android:layout_height="0.5dp"
         android:background="@color/light_gray"
         android:layout_below="@id/header"/>
 
@@ -83,7 +83,7 @@
     <View
         android:id="@+id/top_border"
         android:layout_width="match_parent"
-        android:layout_height="1dp"
+        android:layout_height="0.5dp"
         android:background="@color/light_gray"
         android:layout_below="@id/labels"></View>
 
@@ -101,7 +101,7 @@
     <View
         android:id="@+id/bottom_border"
         android:layout_width="match_parent"
-        android:layout_height="1dp"
+        android:layout_height="0.5dp"
         android:background="@color/light_gray"
         android:layout_below="@id/tutor_history_tab"></View>
 

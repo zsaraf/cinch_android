@@ -105,8 +105,16 @@ public class ClientHistoryListFragment extends ListFragment{
             String abbrName = item.studentFullName.substring(0,item.studentFullName.lastIndexOf(" ")+2) + ".";
             viewHolder.mainTextView.setText(abbrName);
             viewHolder.subTextView.setText(item.className);
-            NumberFormat formatter = NumberFormat.getCurrencyInstance();
-            viewHolder.rightTextView.setText(formatter.format(item.cost));
+
+            String rightText = "cancelled";
+            if (!item.wasCancelled) {
+                NumberFormat formatter = NumberFormat.getCurrencyInstance();
+                rightText = formatter.format(item.cost);
+                viewHolder.rightTextView.setTextColor(getResources().getColor(R.color.seshgreen));
+            }else {
+                viewHolder.rightTextView.setTextColor(getResources().getColor(R.color.seshlightgray));
+            }
+            viewHolder.rightTextView.setText(rightText);
 
             seshNetworking.downloadProfilePictureAsync(item.studentProfilePicture, viewHolder.profileImageView, new Callback() {
                 @Override

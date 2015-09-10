@@ -106,8 +106,12 @@ public class TutorHistoryListFragment extends ListFragment{
             String abbrName = item.studentFullName.substring(0,item.tutorFullName.lastIndexOf(" ")+2) + ".";
             viewHolder.mainTextView.setText(abbrName);
             viewHolder.subTextView.setText(item.className);
-            NumberFormat formatter = NumberFormat.getCurrencyInstance();
-            viewHolder.rightTextView.setText(formatter.format(item.cost));
+            String rightText = "cancelled";
+            if (!item.wasCancelled) {
+                NumberFormat formatter = NumberFormat.getCurrencyInstance();
+                rightText = formatter.format(item.cost);
+            }
+            viewHolder.rightTextView.setText(rightText);
 
             seshNetworking.downloadProfilePictureAsync(item.tutorProfilePicture, viewHolder.profileImageView, new Callback() {
                 @Override
