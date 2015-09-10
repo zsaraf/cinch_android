@@ -98,7 +98,7 @@ public class PaymentFragment extends ListFragment implements FragmentOptionsRece
             }
         });
 
-        editButton.setVisibility(View.VISIBLE);
+//        editButton.setVisibility(View.VISIBLE);
         editButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
