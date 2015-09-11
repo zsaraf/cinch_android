@@ -19,7 +19,7 @@
             android:textColor="@color/seshorange"
             android:id="@+id/open_request_list_row_class"/>
         <com.seshtutoring.seshapp.view.components.AnimatedEllipsisTextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="requesting"
             android:textSize="14sp"

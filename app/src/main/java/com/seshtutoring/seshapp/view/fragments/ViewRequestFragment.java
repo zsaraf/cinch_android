@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Debug;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.text.Html;
@@ -156,7 +157,6 @@ public class ViewRequestFragment extends Fragment implements MainContainerActivi
         });
 
         setUpMapIfNeeded();
-
         return view;
     }
 
@@ -285,9 +285,9 @@ public class ViewRequestFragment extends Fragment implements MainContainerActivi
         this.options = null;
     }
 
-    public GoogleMap getMap() {
-        return mMap;
-    }
+//    public GoogleMap getMap() {
+//        return mMap;
+//    }
 
     /**
      * Sets up the map if it is possible to do so (i.e., the Google Play services APK is correctly
