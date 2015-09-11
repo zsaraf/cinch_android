@@ -281,7 +281,6 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
         }
 
         messageButton.setText(messageText);
-
     }
 
 

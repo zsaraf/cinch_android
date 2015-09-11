@@ -2,6 +2,7 @@ package com.seshtutoring.seshapp.view;
 
 import android.os.Handler;
 
+import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.LearnRequest;
 import com.seshtutoring.seshapp.model.Sesh;
@@ -54,21 +55,24 @@ public class MainContainerStateManager {
         setContainerState(new ContainerState("Sesh!", 0,
                 ViewSeshFragment.newInstance(sesh.seshId, false),
                 sesh.getContainerStateTag(),
-                false));
+                false,
+                SlidingMenu.TOUCHMODE_MARGIN));
     }
 
     public void setContainerStateForSeshWithId(Sesh sesh) {
         setContainerState(new ContainerState("Sesh!", 0,
                 ViewSeshFragment.newInstance(sesh.seshId, false),
                 sesh.getContainerStateTag(),
-                false));
+                false,
+                SlidingMenu.TOUCHMODE_MARGIN));
     }
 
     public void setContainerStateForLearnRequest(LearnRequest learnRequest) {
         setContainerState(new ContainerState("Request!", 0,
                 ViewRequestFragment.newInstance(learnRequest.learnRequestId),
                 learnRequest.getContainerStateTag(),
-                false));
+                false,
+                SlidingMenu.TOUCHMODE_MARGIN));
     }
 
     public void setContainerStateForNavigation(NavigationItemState navigationItemState, Map<String, Object> options) {
@@ -79,19 +83,19 @@ public class MainContainerStateManager {
         ContainerState containerState = null;
         switch(item) {
             case HOME:
-                containerState = new ContainerState("Home", R.drawable.home, new HomeFragment(), "home", true);
+                containerState = new ContainerState("Home", R.drawable.home, new HomeFragment(), "home", true, SlidingMenu.TOUCHMODE_NONE);
                 break;
             case PROFILE:
-                containerState = new ContainerState("Profile", R.drawable.profile, new ProfileFragment(), "profile", true);
+                containerState = new ContainerState("Profile", R.drawable.profile, new ProfileFragment(), "profile", true, SlidingMenu.TOUCHMODE_MARGIN);
                 break;
             case PAYMENT:
-                containerState = new ContainerState("Payment", R.drawable.payment, new PaymentFragment(), "payment", true);
+                containerState = new ContainerState("Payment", R.drawable.payment, new PaymentFragment(), "payment", true, SlidingMenu.TOUCHMODE_MARGIN);
                 break;
             case SETTINGS:
-                containerState = new ContainerState("Settings", R.drawable.settings, new SettingsFragment(), "settings", true);
+                containerState = new ContainerState("Settings", R.drawable.settings, new SettingsFragment(), "settings", true, SlidingMenu.TOUCHMODE_MARGIN);
                 break;
             case PROMOTE:
-                containerState = new ContainerState("Promote", R.drawable.share, new PromoteFragment(), "promote", true);
+                containerState = new ContainerState("Promote", R.drawable.share, new PromoteFragment(), "promote", true, SlidingMenu.TOUCHMODE_MARGIN);
                 break;
         }
         return containerState;
@@ -99,6 +103,7 @@ public class MainContainerStateManager {
 
     public void setContainerState(ContainerState newState, Map<String, Object> options) {
         // handle side menu
+        mainContainerActivity.slidingMenu.setTouchModeAbove(newState.slidingMenuTouchMode);
         mainContainerActivity.replaceCurrentFragment(currentMainContainerState, newState, options);
         sideMenuFragment.selectItemForContainerState(newState);
         currentMainContainerState = newState;

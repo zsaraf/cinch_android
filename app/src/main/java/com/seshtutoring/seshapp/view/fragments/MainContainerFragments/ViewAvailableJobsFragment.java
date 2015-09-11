@@ -286,7 +286,7 @@ public class ViewAvailableJobsFragment extends ListFragment {
                 viewHolder.distanceInformationLabel.setVisibility(View.GONE);
             }else {
 
-                SwipeLayout swipeView = (SwipeLayout) convertView.findViewById(R.id.swipe_view);
+                final SwipeLayout swipeView = (SwipeLayout) convertView.findViewById(R.id.swipe_view);
                 swipeView.setShowMode(SwipeLayout.ShowMode.LayDown);
                 swipeView.setDragEdge(SwipeLayout.DragEdge.Left);
 
@@ -313,7 +313,7 @@ public class ViewAvailableJobsFragment extends ListFragment {
 
                     @Override
                     public void onStartOpen(SwipeLayout layout) {
-
+                        mSwipeRefreshLayout.setEnabled(false);
                     }
 
                     @Override
@@ -327,6 +327,7 @@ public class ViewAvailableJobsFragment extends ListFragment {
 
                     @Override
                     public void onHandRelease(SwipeLayout layout, float xvel, float yvel) {
+                        mSwipeRefreshLayout.setEnabled(true);
                         layout.close();
                         ViewHolder viewHolder = (ViewHolder) layout.getTag();
                         if (viewHolder.shouldBid) {

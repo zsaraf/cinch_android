@@ -71,7 +71,12 @@ public class TeachViewFragment extends Fragment {
 
         activity = (MainContainerActivity) getActivity();
 
-        classesButtonText.setOnClickListener(toggleViewClasses);
+        classesButtonText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                toggleViewClasses();
+            }
+        });
 
         canSeeClasses = false;
         classesButtonText.setText(R.string.view_classes_off_text);
@@ -80,45 +85,53 @@ public class TeachViewFragment extends Fragment {
         return view;
     }
 
-    private View.OnClickListener toggleViewClasses = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
+    private void toggleViewClasses() {
 
-            canSeeClasses = !canSeeClasses;
+        canSeeClasses = !canSeeClasses;
 
-            if (canSeeClasses) {
-                classesButtonText.setText(R.string.view_classes_on_text);
-            } else {
-                classesButtonText.setText(R.string.view_classes_off_text);
-            }
+        if (canSeeClasses) {
+            classesButtonText.setText(R.string.view_classes_on_text);
+        } else {
+            classesButtonText.setText(R.string.view_classes_off_text);
+        }
 
             /* Animate frame */
-            ValueAnimator frameAnimator = null;
-            if (canSeeClasses) {
-                frameAnimator = ValueAnimator.ofInt(viewClassesView.getMeasuredHeight(), getView().getMeasuredHeight() - viewClassesButton.getMeasuredHeight());
-            } else {
-                frameAnimator = ValueAnimator.ofInt(viewClassesView.getMeasuredHeight(), 0);
+        ValueAnimator frameAnimator = null;
+        if (canSeeClasses) {
+            frameAnimator = ValueAnimator.ofInt(viewClassesView.getMeasuredHeight(), getView().getMeasuredHeight() - viewClassesButton.getMeasuredHeight());
+        } else {
+            frameAnimator = ValueAnimator.ofInt(viewClassesView.getMeasuredHeight(), 0);
+        }
+        frameAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                int val = (Integer) valueAnimator.getAnimatedValue();
+                ViewGroup.LayoutParams layoutParams = viewClassesView.getLayoutParams();
+                layoutParams.height = val;
+                viewClassesView.setLayoutParams(layoutParams);
             }
-            frameAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                @Override
-                public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                    int val = (Integer) valueAnimator.getAnimatedValue();
-                    ViewGroup.LayoutParams layoutParams = viewClassesView.getLayoutParams();
-                    layoutParams.height = val;
-                    viewClassesView.setLayoutParams(layoutParams);
-                }
-            });
-            frameAnimator.setDuration(400);
-            frameAnimator.start();
+        });
+        frameAnimator.setDuration(400);
+        frameAnimator.start();
 
             /* Animate alpha of tint view */
-            tintView
-                    .animate()
-                    .alpha(canSeeClasses ? TINT_VIEW_ALPHA : 0)
-                    .setDuration(400)
-                    .start();
+        tintView
+                .animate()
+                .alpha(canSeeClasses ? TINT_VIEW_ALPHA : 0)
+                .setDuration(400)
+                .start();
+
+        if (canSeeClasses) {
+            tintView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    toggleViewClasses();
+                }
+            });
+        } else {
+            tintView.setOnClickListener(null);
         }
-    };
+    }
 
     private void setCurrentView() {
             getActivity().getFragmentManager()

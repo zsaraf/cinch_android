@@ -91,7 +91,7 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
         void clearFragmentOptions();
     }
 
-    private SlidingMenu slidingMenu;
+    public SlidingMenu slidingMenu;
     private SideMenuFragment sideMenuFragment;
     private RelativeLayout editButton;
     private MainContainerStateManager containerStateManager;
