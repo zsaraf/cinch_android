@@ -344,7 +344,7 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenList
 
                 TextView classAbbrvTextView = (TextView) convertView.findViewById(R.id.open_sesh_list_row_class);
                 classAbbrvTextView.setText(item.sesh.className);
-                
+
                 TextView timeAbbrvTextView = (TextView) convertView.findViewById(R.id.open_sesh_list_row_time);
                 timeAbbrvTextView.setText(item.sesh.getTimeAbbrvString());
                 timeAbbrvTextView.setTypeface(utils.getLightGothamTypeface());
