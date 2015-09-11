@@ -194,6 +194,14 @@
             android:theme="@style/SeshTransparent"
             android:windowSoftInputMode="adjustNothing" >
         </activity>
+        <activity
+            android:name=".view.ViewSeshSetTimeActivity"
+            android:label="Set Time Activity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@style/SeshTransparent"
+            android:windowSoftInputMode="adjustNothing" >
+        </activity>
 
         <meta-data
             android:name="com.google.android.gms.version"
@@ -284,15 +292,6 @@
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="91b92731aa93f894988d2de0430634aad345f888" />
-
-        <activity
-            android:name=".view.ViewSeshSetTimeActivity"
-            android:label="Set Time Activity"
-            android:launchMode="singleTop"
-            android:screenOrientation="portrait"
-            android:theme="@style/SeshTransparent"
-            android:windowSoftInputMode="stateHidden" >
-        </activity>
     </application>
 
 </manifest>

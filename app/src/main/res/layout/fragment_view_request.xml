@@ -34,11 +34,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/view_request_activity_indicator"
-            android:text="Zach S."
+            android:text="searching for tutors..."
             android:textSize="18sp"
             android:layout_marginTop="15dp"
             android:layout_centerHorizontal="true"
-            android:textColor="@color/seshorange"/>
+            android:textColor="@color/seshlightgray"/>
 
         </RelativeLayout>
     </RelativeLayout>
@@ -169,7 +169,7 @@
                 android:layout_marginLeft="35dp"
                 android:layout_marginTop="10dp"
                 custom:informationLabelText="hello"
-                custom:informationLabelIcon="@drawable/pointer"/>
+                custom:informationLabelIcon="@drawable/calendar_unfilled"/>
 
             </LinearLayout>
         </RelativeLayout>

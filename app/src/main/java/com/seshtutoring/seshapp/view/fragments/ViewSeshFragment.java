@@ -86,6 +86,7 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
     private SeshButton messageButton;
     private SeshButton startSeshButton;
     private SeshPageIndicator pageIndicator;
+    private TextView nameTextView;
 
     RelativeLayout topLayout;
 
@@ -179,6 +180,9 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
 
             }
         });
+
+        nameTextView = (TextView) v.findViewById(R.id.name_text_view);
+        nameTextView.setText(sesh.abbreviatedNameForOtherPerson());
 
         cancelSeshButton = (SeshButton) v.findViewById(R.id.cancel_sesh_button);
         cancelSeshButton.setOnClickListener(new View.OnClickListener() {
@@ -396,20 +400,39 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
                     @Override
                     public void onResponse(JSONObject jsonObject) {
                         setNetworking(false);
-                        sesh.delete();
-                        MainContainerActivity mainContainerActivity = (MainContainerActivity) getActivity();
-                        MainContainerStateManager mainContainerStateManager
-                                = mainContainerActivity.getContainerStateManager();
-                        mainContainerStateManager.setContainerStateForNavigation(NavigationItemState.HOME);
+                        try {
+                            if (jsonObject.getString("status").equals("SUCCESS")) {
+                                sesh.delete();
+                                MainContainerActivity mainContainerActivity = (MainContainerActivity) getActivity();
+                                MainContainerStateManager mainContainerStateManager
+                                        = mainContainerActivity.getContainerStateManager();
+                                mainContainerStateManager.setContainerStateForNavigation(NavigationItemState.HOME);
+                            } else {
+                                showNetworkingErrorWithTitle("Error!", jsonObject.getString("message"));
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            showNetworkingErrorWithTitle("Error!", null);
+                        }
                     }
                 }, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError volleyError) {
                         setNetworking(false);
+                        showNetworkingErrorWithTitle("Error!", null);
                     }
                 });
             }
         });
+    }
+
+    private void showNetworkingErrorWithTitle(String title, String message) {
+        if (message == null) {
+            message = "Something went wrong. Please try again later.";
+        }
+        SeshDialog.showDialog(getActivity().getFragmentManager(), title,
+                message,
+                "OKAY", null, "error");
     }
 
     private void startSeshButtonClicked() {
@@ -422,12 +445,23 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
                 seshNetworking.startSeshWithSeshId(sesh.seshId, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject jsonObject) {
-
+                        try {
+                            if (jsonObject.getString("status").equals("SUCCESS")) {
+                            } else {
+                                setNetworking(false);
+                                showNetworkingErrorWithTitle("Error!", jsonObject.getString("message"));
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            setNetworking(false);
+                            showNetworkingErrorWithTitle("Error!", null);
+                        }
                     }
                 }, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError volleyError) {
                         setNetworking(false);
+                        showNetworkingErrorWithTitle("Error!", null);
                     }
                 });
             }

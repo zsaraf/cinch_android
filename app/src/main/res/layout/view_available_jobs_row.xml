@@ -136,7 +136,8 @@
             android:padding="7dp"
             android:paddingTop="10dp"
             custom:informationLabelText="default"
-            custom:informationLabelIcon="@drawable/calendar_unfilled"/>
+            custom:informationLabelIcon="@drawable/calendar_unfilled"
+            custom:dotsVisible="false"/>
 
     </RelativeLayout>
 

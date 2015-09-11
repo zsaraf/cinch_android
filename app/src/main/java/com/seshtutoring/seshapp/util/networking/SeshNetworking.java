@@ -575,8 +575,7 @@ public class SeshNetworking {
         }
 
         if (SeshApplication.USE_PERSONAL) {
-            //apiUrl = "users/" + user + "/";
-            apiUrl = "ios-php/";
+            apiUrl = "users/" + user + "/";
         } else {
             apiUrl = "ios-php/";
         }
