@@ -205,4 +205,8 @@ public class LearnRequest extends SugarRecord<LearnRequest> {
             this.timestamp = new Date().getTime();
 //        }
     }
+
+    public String getContainerStateTag() {
+        return "view_request_" + learnRequestId;
+    }
 }

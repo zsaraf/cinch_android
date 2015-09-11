@@ -41,6 +41,7 @@ import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.SeshApplication;
 import com.seshtutoring.seshapp.SeshStateManager;
+import com.seshtutoring.seshapp.model.Sesh;
 import com.seshtutoring.seshapp.services.PeriodicFetchBroadcastReceiver;
 import com.seshtutoring.seshapp.services.GCMRegistrationIntentService;
 import com.seshtutoring.seshapp.model.User;
@@ -54,10 +55,7 @@ import com.seshtutoring.seshapp.view.components.SeshBanner;
 import com.seshtutoring.seshapp.view.components.SeshDialog;
 import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.HomeFragment;
 import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.LoadingFragment;
-import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.PaymentFragment;
-import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.ProfileFragment;
-import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.PromoteFragment;
-import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.SettingsFragment;
+import com.seshtutoring.seshapp.view.MainContainerStateManager.NavigationItemState;
 import com.seshtutoring.seshapp.view.fragments.SideMenuFragment;
 import com.seshtutoring.seshapp.view.fragments.ViewSeshFragment;
 
@@ -95,16 +93,8 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
 
     private SlidingMenu slidingMenu;
     private SideMenuFragment sideMenuFragment;
-    private ContainerState currentContainerState;
-    private SeshActivityIndicator fragmentLoadIndicator;
     private RelativeLayout editButton;
-
-
-    public final ContainerState HOME = new ContainerState("Home", R.drawable.home, new HomeFragment(), "home");
-    public final ContainerState PROFILE = new ContainerState("Profile", R.drawable.profile, new ProfileFragment(), "profile");
-    public final ContainerState PAYMENT = new ContainerState("Payment", R.drawable.payment, new PaymentFragment(), "payment");
-    public final ContainerState SETTINGS = new ContainerState("Settings", R.drawable.settings, new SettingsFragment(), "settings");
-    public final ContainerState PROMOTE = new ContainerState("Promote", R.drawable.share, new PromoteFragment(), "promote");
+    private MainContainerStateManager containerStateManager;
 
     private final Fragment loadingFragment = new LoadingFragment();
 
@@ -113,10 +103,6 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
         public void onPageSelected(int position) {
             super.onPageSelected(position);
         }
-    };
-
-    public ContainerState[] containerStates = new ContainerState[]{
-            HOME, PROFILE, PAYMENT, SETTINGS, PROMOTE
     };
 
     @Override
@@ -141,6 +127,7 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
         editButton = (RelativeLayout)findViewById(R.id.action_bar_edit_button);
 
         sideMenuFragment = new SideMenuFragment();
+        containerStateManager = new MainContainerStateManager(this, sideMenuFragment);
 
         slidingMenu = new SlidingMenu(this);
         slidingMenu.attachToActivity(this, SlidingMenu.SLIDING_WINDOW);
@@ -169,11 +156,6 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
                 return true;
             }
         });
-
-        this.fragmentLoadIndicator =
-                (SeshActivityIndicator) findViewById(R.id.fragment_loading_indicator);
-
-        setCurrentState(HOME, null);
     }
 
     @Override
@@ -205,21 +187,24 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
                 HashMap<String, Object> options = new HashMap<>();
                 options.put(fragmentFlag, true);
 
-                setCurrentState(containerStates[mainContainerStateIndex], options);
+                containerStateManager
+                        .setContainerStateForNavigationIndex(mainContainerStateIndex, options);
             } else if (intent.getAction().equals(VIEW_SESH_ACTION)) {
-                int seshId = intent.getIntExtra(ViewSeshFragment.SESH_KEY, -1);
+                Sesh sesh = new Sesh(); // hacky, but allows us to pass seshId into containerStateManager in a compatible way
+                sesh.seshId = intent.getIntExtra(ViewSeshFragment.SESH_KEY, -1);
                 boolean openMessaging = intent.getBooleanExtra(ViewSeshFragment.OPEN_MESSAGING, false);
 
-                setCurrentState(new ContainerState("Sesh", 0, ViewSeshFragment.newInstance(seshId, openMessaging), "view_sesh_" + Integer.toString(seshId)));
+                containerStateManager.setContainerStateForSesh(sesh);
             } else if (intent.getAction().equals(NEW_MESSAGE_ACTION)) {
+                Sesh sesh = new Sesh(); // hacky, but allows us to pass seshId into containerStateManager in a compatible way
                 int seshId = intent.getIntExtra(ViewSeshFragment.SESH_KEY, -1);
                 boolean openMessaging = intent.getBooleanExtra(ViewSeshFragment.OPEN_MESSAGING, false);
 
-                setCurrentState(new ContainerState("Sesh", 0, ViewSeshFragment.newInstance(seshId, openMessaging),  "view_sesh_" + Integer.toString(seshId)));
+                containerStateManager.setContainerStateForSesh(sesh);
             } else if (intent.getAction() == SESH_CANCELLED_ACTION) {
                 // IF SESH HAS BEEN CANCELLED AND MAIN CONTAINER IS IN FOREGROUND, WE ENSURE VIEWSESHFRAGMENT IS NOT VISIBLE
-                if (currentContainerState.fragment instanceof ViewSeshFragment) {
-                    setCurrentState(HOME);
+                if (containerStateManager.getMainContainerState().fragment instanceof ViewSeshFragment) {
+                    containerStateManager.setContainerStateForNavigation(NavigationItemState.HOME);
                 }
             } else if (intent.getAction() == DISPLAY_SIDE_MENU_UPDATE) {
                 Handler handler = new Handler();
@@ -238,31 +223,6 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
         }
 
         super.handleActionIntent(intent);
-    }
-
-
-    private void showNotificationDialog(final String title, final String content, final String confirmButtonText, final String type) {
-        Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if (currentContainerState == HOME) {
-                    HomeFragment homeFragment = (HomeFragment) currentContainerState.fragment;
-                    if (homeFragment.getCurrTabItem() == HomeFragment.TabItem.LEARN_TAB) {
-                        SeshDialog.showDialog(getFragmentManager(), title, content, confirmButtonText, null,
-                                type);
-                        Vibrator v = (Vibrator) getApplicationContext().getSystemService(Context.VIBRATOR_SERVICE);
-                        v.vibrate(300);
-                    }
-                } else {
-                    SeshDialog.showDialog(getFragmentManager(), title, content,
-                            confirmButtonText, null,
-                            type);
-                    Vibrator v = (Vibrator) getApplicationContext().getSystemService(Context.VIBRATOR_SERVICE);
-                    v.vibrate(300);
-                }
-            }
-        }, 500);
     }
 
     public void onDialogSelection(int selection, String type) {
@@ -343,31 +303,26 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
         Toast.makeText(this, "We couldn't reach the network, sorrys!", Toast.LENGTH_LONG).show();
     }
 
-    public ContainerState getCurrentState() {
-        return currentContainerState;
-    }
-
     /**
      * Convenience method for setting current state without flags
-     * @param state
+     * @param
      */
-    public void setCurrentState(ContainerState state) {
-        setCurrentState(state, null);
+    public void replaceCurrentFragment(ContainerState oldState, ContainerState newState) {
+        replaceCurrentFragment(oldState, newState, null);
     }
 
-    public void setCurrentState(ContainerState selectedMenuOption, Map<String, Object> options) {
-        if (!(selectedMenuOption.fragment instanceof FragmentOptionsReceiver)) {
+    public void replaceCurrentFragment(ContainerState oldState, ContainerState newState, Map<String, Object> options) {
+        if (!(newState.fragment instanceof FragmentOptionsReceiver)) {
             Log.e(TAG, "Invalid Fragment: All fragments within MainContainerActivity must implement FragmentFlagReceiver");
             return;
         }
 
-        if (currentContainerState != null) {
-            FragmentOptionsReceiver optionsReceiver = (FragmentOptionsReceiver) currentContainerState.fragment;
+        if (oldState != null) {
+            FragmentOptionsReceiver optionsReceiver = (FragmentOptionsReceiver) oldState.fragment;
             optionsReceiver.clearFragmentOptions();
         }
 
-        setActionBarTitle(selectedMenuOption.title);
-
+        setActionBarTitle(newState.title);
 
 
 //        if (slidingMenu.isMenuShowing()) {
@@ -395,11 +350,11 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
 //                }
 //            });
 //        } else {
-            currentContainerState = selectedMenuOption;
 
-            Log.d(TAG, "Current container state tag: " + currentContainerState.fragment.getTag());
 
-            if (currentContainerState.tag.equals("payment")) {
+            Log.d(TAG, "Current container state tag: " + newState.fragment.getTag());
+
+            if (newState.tag.equals("payment")) {
                 editButton.setVisibility(View.VISIBLE);
             } else {
                 editButton.setVisibility(View.GONE);
@@ -407,13 +362,12 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
 
             getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.main_container, currentContainerState.fragment, currentContainerState.fragment.getTag())
-                    .addToBackStack(currentContainerState.fragment.getTag())
+                    .replace(R.id.main_container, newState.fragment, newState.fragment.getTag())
+                    .addToBackStack(newState.fragment.getTag())
                     .commitAllowingStateLoss();
-//        }
 
         if (options != null) {
-            FragmentOptionsReceiver flagReceiver = (FragmentOptionsReceiver) currentContainerState.fragment;
+            FragmentOptionsReceiver flagReceiver = (FragmentOptionsReceiver) newState.fragment;
             flagReceiver.updateFragmentOptions(options);
         }
     }
@@ -437,20 +391,8 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
         }
     }
 
-    /**
-     * Convenience method for closing the drawer after a delay of X seconds (eg. if we want to
-     * account for fragment replacement load times.
-     * @param animated
-     * @param millisDelay
-     */
-    public void closeDrawerWithDelay(final boolean animated, long millisDelay) {
-        Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                closeDrawer(animated);
-            }
-        }, millisDelay);
+    public boolean isDrawerOpen() {
+        return slidingMenu.isMenuShowing();
     }
 
     @Override
@@ -465,6 +407,10 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
 
     public void onNetworkError() {
         Log.e(TAG, "Network Error");
+    }
+
+    public MainContainerStateManager getContainerStateManager() {
+        return containerStateManager;
     }
 }
 

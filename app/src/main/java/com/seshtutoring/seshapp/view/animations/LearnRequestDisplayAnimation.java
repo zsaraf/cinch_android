@@ -19,6 +19,7 @@ import com.seshtutoring.seshapp.model.LearnRequest;
 import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.view.ContainerState;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
+import com.seshtutoring.seshapp.view.MainContainerStateManager;
 import com.seshtutoring.seshapp.view.fragments.SideMenuFragment;
 import com.seshtutoring.seshapp.view.fragments.SideMenuFragment.SideMenuOpenAnimation;
 import com.seshtutoring.seshapp.view.fragments.ViewRequestFragment;
@@ -28,15 +29,15 @@ import com.stripe.android.compat.AsyncTask;
  * Created by nadavhollander on 8/31/15.
  */
 public class LearnRequestDisplayAnimation extends SideMenuOpenAnimation {
-    private MainContainerActivity mainContainerActivity;
+    private MainContainerStateManager containerStateManager;
     private LearnRequest learnRequest;
     private LinearLayout contents;
     private Spring spring;
 
 
-    public LearnRequestDisplayAnimation(MainContainerActivity mainContainerActivity,
+    public LearnRequestDisplayAnimation(MainContainerStateManager containerStateManager,
                                         LearnRequest learnRequest, View learnRequestRowItem) {
-        this.mainContainerActivity = mainContainerActivity;
+        this.containerStateManager = containerStateManager;
         this.learnRequest = learnRequest;
         this.contents = (LinearLayout) learnRequestRowItem.findViewById(R.id.contents);
         this.spring = SpringSystem.create().createSpring();
@@ -77,15 +78,8 @@ public class LearnRequestDisplayAnimation extends SideMenuOpenAnimation {
 
         @Override
         protected void onPostExecute(Void aVoid) {
-            mainContainerActivity.setCurrentState(new ContainerState("Request!", 0,
-                    ViewRequestFragment.newInstance(learnRequest.learnRequestId), "view_request_" + learnRequest.learnRequestId));
-            Handler mainThread = new Handler();
-            mainThread.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    mainContainerActivity.closeDrawer(true);
-                }
-            }, 1000);
+            containerStateManager.setContainerStateForLearnRequest(learnRequest);
+            containerStateManager.closeDrawerWithDelay(1000);
         }
     }
 }

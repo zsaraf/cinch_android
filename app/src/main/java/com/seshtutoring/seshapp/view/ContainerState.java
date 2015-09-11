@@ -2,6 +2,8 @@ package com.seshtutoring.seshapp.view;
 
 import android.support.v4.app.Fragment;
 
+import com.seshtutoring.seshapp.model.Sesh;
+
 /**
  * Created by nadavhollander on 8/4/15.
  */
@@ -12,7 +14,8 @@ public class ContainerState {
     public Fragment fragment;
     public String tag;
 
-    public ContainerState(String title, int iconRes, Fragment fragment, String tag) {
+    public ContainerState(String title, int iconRes, Fragment fragment, String tag,
+                          boolean isNavigationItem) {
         this.title = title;
         this.iconRes = iconRes;
         this.fragment = fragment;

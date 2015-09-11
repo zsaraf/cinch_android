@@ -30,6 +30,8 @@ import com.seshtutoring.seshapp.model.LearnRequest;
 import com.seshtutoring.seshapp.model.Sesh;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
+import com.seshtutoring.seshapp.view.MainContainerStateManager;
+import com.seshtutoring.seshapp.view.MainContainerStateManager.NavigationItemState;
 import com.seshtutoring.seshapp.view.ViewSeshMapActivity;
 import com.seshtutoring.seshapp.view.components.SeshActivityIndicator;
 import com.seshtutoring.seshapp.view.components.SeshButton;
@@ -173,7 +175,9 @@ public class ViewRequestFragment extends Fragment implements MainContainerActivi
                             if (jsonObject.getString("status").equals("SUCCESS")) {
                                 request.delete();
                                 MainContainerActivity mainContainerActivity = (MainContainerActivity) getActivity();
-                                mainContainerActivity.setCurrentState(mainContainerActivity.HOME, null);
+                                MainContainerStateManager containerStateManager
+                                        = mainContainerActivity.getContainerStateManager();
+                                containerStateManager.setContainerStateForNavigation(NavigationItemState.HOME);
                             } else {
                                 SeshDialog.showDialog(getActivity().getFragmentManager(), "Whoops!", jsonObject.getString("message"),
                                         "OKAY", null, "view_request_network_error");

@@ -16,6 +16,7 @@ import com.seshtutoring.seshapp.model.Sesh;
 import com.seshtutoring.seshapp.services.notifications.SeshNotificationManagerService;
 import com.seshtutoring.seshapp.view.ContainerState;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
+import com.seshtutoring.seshapp.view.MainContainerStateManager;
 import com.seshtutoring.seshapp.view.fragments.SideMenuFragment;
 import com.seshtutoring.seshapp.view.fragments.ViewRequestFragment;
 import com.seshtutoring.seshapp.view.fragments.ViewSeshFragment;
@@ -85,13 +86,13 @@ public class SeshDisplayAnimation extends SideMenuFragment.SideMenuOpenAnimation
 
         @Override
         protected void onPostExecute(Void aVoid) {
-            mainContainerActivity.setCurrentState(new ContainerState("Sesh!", 0,
-                    ViewSeshFragment.newInstance(sesh.seshId, false), "view_sesh_" + sesh.seshId));
+            final MainContainerStateManager containerStateManager = mainContainerActivity.getContainerStateManager();
+            containerStateManager.setContainerStateForSesh(sesh);
             Handler mainThread = new Handler();
             mainThread.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    mainContainerActivity.closeDrawer(true);
+                    containerStateManager.closeDrawer();
                     Notification.currentNotificationHandled(mainContainerActivity, true);
                 }
             }, 1000);

@@ -305,4 +305,7 @@ public class Sesh extends SugarRecord<Sesh> {
         this.save();
     }
 
+    public String getContainerStateTag() {
+        return "view_sesh_" + seshId;
+    }
 }

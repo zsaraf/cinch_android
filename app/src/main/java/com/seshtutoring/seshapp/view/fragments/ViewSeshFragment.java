@@ -43,6 +43,8 @@ import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.util.StorageUtils;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
+import com.seshtutoring.seshapp.view.MainContainerStateManager;
+import com.seshtutoring.seshapp.view.MainContainerStateManager.NavigationItemState;
 import com.seshtutoring.seshapp.view.MessagingActivity;
 import com.seshtutoring.seshapp.view.ReportProblemActivity;
 import com.seshtutoring.seshapp.view.ViewSeshMapActivity;
@@ -396,7 +398,9 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
                         setNetworking(false);
                         sesh.delete();
                         MainContainerActivity mainContainerActivity = (MainContainerActivity) getActivity();
-                        mainContainerActivity.setCurrentState(mainContainerActivity.HOME, null);
+                        MainContainerStateManager mainContainerStateManager
+                                = mainContainerActivity.getContainerStateManager();
+                        mainContainerStateManager.setContainerStateForNavigation(NavigationItemState.HOME);
                     }
                 }, new Response.ErrorListener() {
                     @Override
