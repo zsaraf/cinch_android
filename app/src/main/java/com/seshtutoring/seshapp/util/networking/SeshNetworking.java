@@ -106,6 +106,7 @@ public class SeshNetworking {
     private static final String SET_TIME_PARAM = "start_time";
     private static final String HANDLED_NOTIFICATIONS_PARAM = "handled_notifications";
     private static final String MESSAGE_ID_PARAM = "message_id";
+    private static final String DISCOUNT_ID = "discount_id";
 
     private Context mContext;
 
@@ -612,6 +613,10 @@ public class SeshNetworking {
             params.put(FAVORITES_PARAM, new ArrayList<>());  // until Favorites implemented....
             params.put(IS_INSTANT_PARAM, learnRequest.isInstant() ? "1" :    "0");
             params.put(EXPIRATION_TIME_PARAM, formatter.print(new DateTime(expirationTime)));
+
+            if (learnRequest.discount != null) {
+                params.put(DISCOUNT_ID, learnRequest.discount.discountId);
+            }
 
             JSONArray availableBlocksJson = new JSONArray();
             for (AvailableBlock availableBlock : learnRequest.availableBlocks) {

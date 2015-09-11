@@ -136,6 +136,33 @@ public class Notification extends SugarRecord<Notification> {
         return refreshNotification;
     }
 
+    public static Notification createDiscountNotification(String bannerTitle, String bannerMessage) {
+        Notification discountNotification = null;
+
+        int discountNotificationId = -2;
+
+        List<Notification> discountNotificationsFound
+                = Notification.find(Notification.class, "notification_id = ?",
+                Integer.toString(discountNotificationId));
+        if (discountNotificationsFound.size() > 0) {
+            discountNotification = discountNotificationsFound.get(0);
+        } else {
+            discountNotification = new Notification();
+        }
+
+        discountNotification.notificationId = discountNotificationId;
+        discountNotification.identifier = "DISCOUNT_AVAILABLE";
+        discountNotification.priority = 5;
+        discountNotification.title = bannerTitle;
+        discountNotification.message = bannerMessage;
+        discountNotification.pendingDeletion = false;
+        discountNotification.wasDisplayedOutsideApp = false;
+
+        discountNotification.save();
+
+        return discountNotification;
+    }
+
     public synchronized static void refreshNotifications(final Notification refreshNotification, final Context context) {
         final List<Notification> handledNotifications
                 = Notification.find(Notification.class, "pending_deletion = ?", "1");

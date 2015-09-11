@@ -7,6 +7,7 @@ import android.util.Log;
 import com.seshtutoring.seshapp.SeshApplication;
 import com.seshtutoring.seshapp.SeshStateManager;
 import com.seshtutoring.seshapp.SeshStateManager.SeshState;
+import com.seshtutoring.seshapp.model.Discount;
 import com.seshtutoring.seshapp.model.Notification;
 import com.seshtutoring.seshapp.services.SeshGCMListenerService;
 import com.seshtutoring.seshapp.services.notifications.handlers.NotificationHandler;
@@ -30,6 +31,8 @@ public class SeshNotificationManagerService extends IntentService {
             = "com.seshtutoring.seshapp.services.notifications.CURRENT_NOTIFICATION_HAS_BEEN_HANDLED";
     public static final String REFRESH_NOTIFICATIONS_ACTION
             = "com.seshtutoring.seshapp.services.notifications.REFRESH_NOTIFICATIONS";
+    public static final String CREATE_DISCOUNT_NOTIFICATION_ACTION
+            = "com.seshtutoring.seshapp.services.notifications.CREATE_DISCOUNT_NOTIFICATION";
     public static final String SET_NOTIFICATION_PENDING_DELETION_KEY = "pending_deletion";
     private boolean paused;
     private ApplicationLifecycleTracker applicationLifecycleTracker;
@@ -70,6 +73,14 @@ public class SeshNotificationManagerService extends IntentService {
                 break;
             case REFRESH_NOTIFICATIONS_ACTION:
                 Notification.createRefreshNotification();
+                if (!displayQueue.notificationHandlingInProgress()) {
+                    displayQueue.handleNext();
+                }
+                break;
+            case CREATE_DISCOUNT_NOTIFICATION_ACTION:
+                String bannerTitle = intent.getStringExtra(Discount.BANNER_TITLE_KEY);
+                String bannerMessage = intent.getStringExtra(Discount.BANNER_MESSAGE_KEY);
+                Notification.createDiscountNotification(bannerTitle, bannerMessage);
                 if (!displayQueue.notificationHandlingInProgress()) {
                     displayQueue.handleNext();
                 }

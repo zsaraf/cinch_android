@@ -96,6 +96,9 @@
                 <action android:name="com.seshtutoring.seshapp.services.notifications.ENQUEUE_NEW_NOTIFICATION" />
                 <action android:name="com.seshtutoring.seshapp.services.notifications.CURRENT_NOTIFICATION_HAS_BEEN_HANDLED" />
                 <action android:name="com.seshtutoring.seshapp.services.notifications.REFRESH_NOTIFICATIONS" />
+                <action android:name="com.seshtutoring.seshapp.services.notifications.START_QUEUE_HANDLING" />
+                <action android:name="com.seshtutoring.seshapp.services.notifications.PAUSE_QUEUE_HANDLING" />
+                <action android:name="com.seshtutoring.seshapp.services.notifications.CREATE_DISCOUNT_NOTIFICATION" />
             </intent-filter>
         </service>
         <service

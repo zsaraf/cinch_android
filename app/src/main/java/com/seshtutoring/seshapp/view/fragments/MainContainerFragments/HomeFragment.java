@@ -20,6 +20,7 @@ import android.widget.LinearLayout;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.seshtutoring.seshapp.R;
+import com.seshtutoring.seshapp.model.Discount;
 import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
 import com.seshtutoring.seshapp.view.fragments.LearnViewFragment;
@@ -98,9 +99,10 @@ public class HomeFragment extends Fragment implements FragmentOptionsReceiver {
             setCurrentTabItem(TabItem.LEARN_TAB, false);
         }
 
+        Discount.displayDiscountNotificationIfNecessary(getActivity());
+
         return homeView;
     }
-
 
     private void setCurrentTabItem(TabItem tabItem, boolean withAnimation) {
         viewPager.setCurrentItem(tabItem.viewPagerPosition, withAnimation);

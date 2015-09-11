@@ -150,6 +150,7 @@ public class User extends SugarRecord<User> {
                 }
             }
 
+            Sesh.deleteAll(Sesh.class);
             if (dataJson.has("open_seshes")) {
                 JSONArray openSeshes = dataJson.getJSONArray("open_seshes");
                 for (int i = 0; i < openSeshes.length(); i++) {
@@ -158,6 +159,7 @@ public class User extends SugarRecord<User> {
                 }
             }
 
+            LearnRequest.deleteAll(LearnRequest.class);
             if (dataJson.has("open_requests")) {
                 JSONArray openRequests = dataJson.getJSONArray("open_requests");
                 for (int i = 0; i < openRequests.length(); i++) {
@@ -166,6 +168,7 @@ public class User extends SugarRecord<User> {
                 }
             }
 
+            Discount.deleteAll(Discount.class);
             if (dataJson.has("discounts")) {
                 JSONArray discounts = dataJson.getJSONArray("discounts");
                 for (int i = 0; i < discounts.length(); i++) {

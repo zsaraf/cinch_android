@@ -51,6 +51,8 @@ public class LearnRequestTimeFragment extends Fragment implements RequestActivit
 
         parentActivity = (RequestActivity) getActivity();
 
+        currentLearnRequest = parentActivity.getCurrentLearnRequest();
+
         timeCostLabel = (TextView) v.findViewById(R.id.time_cost_label);
         timeCostNumber = (TextView) v.findViewById(R.id.time_cost_number);
 
@@ -159,7 +161,6 @@ public class LearnRequestTimeFragment extends Fragment implements RequestActivit
 
     @Override
     public void beforeFragmentInForeground() {
-        currentLearnRequest = parentActivity.getCurrentLearnRequest();
         if (currentLearnRequest.numPeople > 1) {
             additionalStudentsRow.setVisibility(View.VISIBLE);
         } else {

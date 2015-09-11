@@ -9,6 +9,7 @@ import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.Notification;
 import com.seshtutoring.seshapp.model.Notification.NotificationType;
 import com.seshtutoring.seshapp.model.PastSesh;
+import com.seshtutoring.seshapp.services.UserInfoFetcher;
 import com.seshtutoring.seshapp.util.ApplicationLifecycleTracker;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
 import com.seshtutoring.seshapp.view.RatingActivity;
@@ -27,6 +28,8 @@ public class SeshReviewNotificationHandler extends SeshEndedNotificationHandler 
     @Override
     public void handleDisplayInsideApp() {
         replaceSeshWithPastSesh();
+        UserInfoFetcher userInfoFetcher = new UserInfoFetcher(mContext);
+        userInfoFetcher.fetch();
     }
 
     @Override
