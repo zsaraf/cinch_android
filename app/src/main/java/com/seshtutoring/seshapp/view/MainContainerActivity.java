@@ -324,47 +324,19 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
 
         setActionBarTitle(newState.title);
 
+        Log.d(TAG, "New container state tag: " + newState.tag);
 
-//        if (slidingMenu.isMenuShowing()) {
-//            getSupportFragmentManager()
-//                    .beginTransaction()
-//                    .remove(currentContainerState.fragment)
-//                    .commitAllowingStateLoss();
-//            getSupportFragmentManager()
-//                    .executePendingTransactions();
-//            currentContainerState = selectedMenuOption;
-//            fragmentLoadIndicator.setVisibility(View.VISIBLE);
-//
-//            slidingMenu.toggle(true);
-//            slidingMenu.setOnClosedListener(new SlidingMenu.OnClosedListener() {
-//                @Override
-//                public void onClosed() {
-//                    getSupportFragmentManager()
-//                            .beginTransaction()
-//                            .replace(R.id.main_container, currentContainerState.fragment, currentContainerState.fragment.getClass().getName())
-//                            .addToBackStack(currentContainerState.fragment.getClass().getName())
-//                            .commitAllowingStateLoss();
-//                    fragmentLoadIndicator.setVisibility(View.GONE);
-//
-//                    slidingMenu.setOnClosedListener(null);
-//                }
-//            });
-//        } else {
+        if (newState.tag.equals("payment")) {
+            editButton.setVisibility(View.VISIBLE);
+        } else {
+            editButton.setVisibility(View.GONE);
+        }
 
-
-            Log.d(TAG, "Current container state tag: " + newState.fragment.getTag());
-
-            if (newState.tag.equals("payment")) {
-                editButton.setVisibility(View.VISIBLE);
-            } else {
-                editButton.setVisibility(View.GONE);
-            }
-
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.main_container, newState.fragment, newState.fragment.getTag())
-                    .addToBackStack(newState.fragment.getTag())
-                    .commitAllowingStateLoss();
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.main_container, newState.fragment, newState.fragment.getTag())
+                .addToBackStack(newState.fragment.getTag())
+                .commitAllowingStateLoss();
 
         if (options != null) {
             FragmentOptionsReceiver flagReceiver = (FragmentOptionsReceiver) newState.fragment;
