@@ -397,6 +397,7 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenList
                         }));
 
                 if (item.sesh.requiresAnimatedDisplay) {
+                    currentSelectedItem = null;
                     sideMenuOpenAnimation = new SeshDisplayAnimation(mainContainerActivity, item.sesh,
                             convertView);
                 }
