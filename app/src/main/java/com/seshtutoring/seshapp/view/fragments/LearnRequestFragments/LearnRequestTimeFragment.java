@@ -157,6 +157,7 @@ public class LearnRequestTimeFragment extends Fragment implements SeshViewPager.
     @Override
     public void onFragmentInForeground() {
         parentActivity.showRequestFlowNextButton();
+        parentActivity.hideKeyboard();
     }
 
     @Override

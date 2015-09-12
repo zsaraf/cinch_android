@@ -97,6 +97,7 @@ public class LearnRequestConfirmFragment extends Fragment implements SeshViewPag
     @Override
     public void onFragmentInForeground() {
         parentActivity.hideRequestFlowNextButton();
+        parentActivity.hideKeyboard();
     }
 
     @Override

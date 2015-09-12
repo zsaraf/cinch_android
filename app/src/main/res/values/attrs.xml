@@ -29,6 +29,7 @@
         <attr name="editTextTransparentMode" format="boolean" />
         <attr name="editTextText" format="string" />
         <attr name="editTextEditable" format="boolean" />
+        <attr name="maxCharacters" format="integer" />
     </declare-styleable>
     <declare-styleable name="SeshButton">
         <attr name="buttonType" format="enum">

@@ -9,6 +9,7 @@ import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
@@ -37,7 +38,7 @@ public class SeshViewPager extends RelativeLayout {
 
     private Context mContext;
     private SeshActivity activity;
-    private HorizontalScrollView scrollView;
+    private SeshHorizontalScrollView scrollView;
     private UnderlineProgressBar progressBar;
     private GestureDetectorCompat gestureDetector;
     private LayoutUtils utils;
@@ -76,8 +77,11 @@ public class SeshViewPager extends RelativeLayout {
 
         fragmentsContainer = (LinearLayout) v.findViewById(R.id.fragments_container);
 
-        scrollView = (HorizontalScrollView) v.findViewById(R.id.scroll_view);
+        scrollView = (SeshHorizontalScrollView) v.findViewById(R.id.scroll_view);
         scrollView.requestDisallowInterceptTouchEvent(true);
+        scrollView.setDescendantFocusability(ViewGroup.FOCUS_BEFORE_DESCENDANTS);
+        scrollView.setFocusable(true);
+        scrollView.setFocusableInTouchMode(true);
         scrollView.setOnTouchListener(new OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
@@ -92,7 +96,7 @@ public class SeshViewPager extends RelativeLayout {
         flingSpring.addListener(new SimpleSpringListener() {
             @Override
             public void onSpringUpdate(Spring spring) {
-                scrollView.scrollTo((int) spring.getCurrentValue(), 0);
+                scrollView.scrollToX((int) spring.getCurrentValue());
 
                 /**
                  * In order to notify fragment when it is in foreground, we consider the flinging animation
@@ -194,7 +198,7 @@ public class SeshViewPager extends RelativeLayout {
         fragmentsContainer.addView(rightBuffer);
 
         // set scroll view at currentScrollViewIndex (accounting for buffers)
-        scrollView.scrollTo(fragmentWidth * currentScrollViewIndex, 0);
+        scrollView.scrollToX(fragmentWidth * currentScrollViewIndex);
     }
 
     public void flingToFragmentIndex(int index) {
@@ -242,7 +246,7 @@ public class SeshViewPager extends RelativeLayout {
 
         currentScrollViewIndex = 0;
         currentFragmentIndex = -1;
-        scrollView.scrollTo(currentScrollViewIndex * fragmentWidth, 0);
+        scrollView.scrollToX(currentScrollViewIndex * fragmentWidth);
 
         boolean swipingAllowedUserChoice = swipingAllowed;
         swipingAllowed = true;
@@ -273,7 +277,7 @@ public class SeshViewPager extends RelativeLayout {
                 } else {
                     scrollXValue = initialScrollX + (clampOffsetPx - currentValue);
                 }
-                scrollView.scrollTo(scrollXValue, 0);
+                scrollView.scrollToX(scrollXValue);
             }
         });
         clampSpring.setCurrentValue(0);
@@ -315,7 +319,7 @@ public class SeshViewPager extends RelativeLayout {
                 } else {
                     scrollXValue = initialScrollX - (clampOffsetPx - currentValue);
                 }
-                scrollView.scrollTo(scrollXValue, 0);
+                scrollView.scrollToX(scrollXValue);
             }
         });
         clampSpring.setCurrentValue(0);

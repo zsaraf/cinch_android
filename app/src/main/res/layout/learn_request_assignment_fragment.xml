@@ -12,5 +12,6 @@
         android:layout_centerHorizontal="true"
         custom:editTextHint="Assignment"
         custom:editTextType="assignment"
+        custom:maxCharacters="24"
         custom:imeOptions="next" />
 </RelativeLayout>
