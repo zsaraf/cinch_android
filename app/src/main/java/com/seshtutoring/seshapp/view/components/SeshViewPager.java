@@ -2,16 +2,14 @@ package com.seshtutoring.seshapp.view.components;
 
 import android.app.Activity;
 import android.content.Context;
-import android.os.Build;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.GestureDetectorCompat;
 import android.util.AttributeSet;
-import android.util.Log;
-import android.view.DragEvent;
 import android.view.GestureDetector;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewTreeObserver;
+import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -19,27 +17,27 @@ import android.widget.RelativeLayout;
 import com.facebook.rebound.SimpleSpringListener;
 import com.facebook.rebound.Spring;
 import com.facebook.rebound.SpringConfig;
-import com.facebook.rebound.SpringListener;
 import com.facebook.rebound.SpringSystem;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.util.LayoutUtils;
-import com.seshtutoring.seshapp.view.components.LearnRequestProgressBar.OnProgressIconClickedListener;
+import com.seshtutoring.seshapp.view.SeshActivity;
+import com.seshtutoring.seshapp.view.components.UnderlineProgressBar.OnProgressIconClickedListener;
 import com.seshtutoring.seshapp.view.RequestActivity;
-import com.seshtutoring.seshapp.view.RequestActivity.InputFragment;
+
+import java.util.ArrayList;
 
 /**
  * Created by nadavhollander on 9/2/15.
  */
-public class RequestFlowScrollView extends RelativeLayout {
-    private static final String TAG = RequestFlowScrollView.class.getName();
+public class SeshViewPager extends RelativeLayout {
+    private static final String TAG = SeshViewPager.class.getName();
     private static final int CLAMP_OFFSET_DP = 100;
-    private static final int NUM_FRAGMENTS = 5;
     private static final int EPSILON_DP = 1;
 
     private Context mContext;
+    private SeshActivity activity;
     private HorizontalScrollView scrollView;
-    private View progressUnderline;
-    private LearnRequestProgressBar progressBar;
+    private UnderlineProgressBar progressBar;
     private GestureDetectorCompat gestureDetector;
     private LayoutUtils utils;
     private int fragmentWidth;
@@ -53,13 +51,38 @@ public class RequestFlowScrollView extends RelativeLayout {
     private Fragment[] fragments;
     private boolean overshootInProgress;
     private boolean didReachEndValue;
+    private int numFragments;
+    private LinearLayout fragmentsContainer;
 
-    public RequestFlowScrollView(Context context, AttributeSet attrs) {
+    public interface InputFragment {
+        boolean isCompleted();
+        void saveValues();
+        void attachRequestFlowScrollView(SeshViewPager seshViewPager);
+        void onFragmentInForeground();
+        void beforeFragmentInForeground();
+    }
+
+    public SeshViewPager(Context context, AttributeSet attrs) {
         super(context, attrs);
         mContext = context;
         gestureDetector = new GestureDetectorCompat(context, new RequestFlowGestureDetector());
         utils = new LayoutUtils(context);
         fragmentWidth = utils.getScreenWidthPx(context);
+
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View v = inflater.inflate(R.layout.sesh_view_pager, this, true);
+
+        fragmentsContainer = (LinearLayout) v.findViewById(R.id.fragments_container);
+
+        scrollView = (HorizontalScrollView) v.findViewById(R.id.scroll_view);
+        scrollView.requestDisallowInterceptTouchEvent(true);
+        scrollView.setOnTouchListener(new OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                gestureDetector.onTouchEvent(motionEvent);
+                return true;
+            }
+        });
 
         springSystem = SpringSystem.create();
         flingSpring = springSystem.createSpring();
@@ -99,7 +122,10 @@ public class RequestFlowScrollView extends RelativeLayout {
         flingSpringUnderline.addListener(new SimpleSpringListener() {
             @Override
             public void onSpringUpdate(Spring spring) {
-                progressUnderline.setX((int) spring.getCurrentValue() - getProgressUnderlineCenter());
+                if (progressBar != null) {
+                    progressBar.setUnderlineX((int) spring.getCurrentValue()
+                            - progressBar.getUnderlineCenterOffset());
+                }
             }
         });
 
@@ -108,43 +134,63 @@ public class RequestFlowScrollView extends RelativeLayout {
         clampSpringUnderline = springSystem.createSpring();
         clampSpringUnderline.setSpringConfig(SpringConfig.fromBouncinessAndSpeed(9.0, 6.0));
 
-        currentScrollViewIndex = 0;
-        currentFragmentIndex = -1;
+        currentScrollViewIndex = 1;
+        currentFragmentIndex = 0;
     }
 
-    @Override
-    public void onFinishInflate() {
-        super.onFinishInflate();
-        scrollView = (HorizontalScrollView) findViewById(R.id.scroll_view);
-        scrollView.requestDisallowInterceptTouchEvent(true);
-        scrollView.setOnTouchListener(new OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                gestureDetector.onTouchEvent(motionEvent);
-                return true;
-            }
-        });
+    public void attachToActivity(SeshActivity activity) {
+        this.activity = activity;
+    }
 
-        progressBar = (LearnRequestProgressBar) findViewById(R.id.learn_request_progress_bar);
+    private void setFrameLayoutWidth(FrameLayout frameLayout, int width) {
+        frameLayout.setLayoutParams(
+                new LinearLayout.LayoutParams(width,
+                        FrameLayout.LayoutParams.MATCH_PARENT));
+    }
+
+    public void setProgressBar(UnderlineProgressBar progressBar) {
+        this.progressBar = progressBar;
         progressBar.setIconClickListener(new OnProgressIconClickedListener() {
             @Override
             public void onClick(int index) {
-                flingToIndex(index);
+                flingToFragmentIndex(index);
             }
         });
-
-        progressUnderline = findViewById(R.id.progress_underline);
     }
 
-    public void setRequestFlowFragments(Fragment[] fragments) {
+    public void setViewPagerFragments(Fragment[] fragments) {
         this.fragments = fragments;
+        this.numFragments = fragments.length;
+
+        FrameLayout leftBuffer = new FrameLayout(mContext);
+        setFrameLayoutWidth(leftBuffer, fragmentWidth);
+        fragmentsContainer.addView(leftBuffer);
+
         for (Fragment fragment : fragments) {
-            ((RequestActivity.InputFragment) fragment).attachRequestFlowScrollView(this);
+            try {
+                ((InputFragment) fragment).attachRequestFlowScrollView(this);
+
+                FrameLayout frameLayout = new FrameLayout(mContext);
+                frameLayout.setId(LayoutUtils.generateViewId());
+                fragmentsContainer.addView(frameLayout);
+                setFrameLayoutWidth(frameLayout, fragmentWidth);
+
+                activity.getSupportFragmentManager().beginTransaction().replace(frameLayout.getId(), fragment, null).commit();
+            } catch (ClassCastException e) {
+                throw new ClassCastException("Fragment must implement InputFragment interface.");
+            }
         }
+
+        FrameLayout rightBuffer = new FrameLayout(mContext);
+        setFrameLayoutWidth(rightBuffer, fragmentWidth);
+        fragmentsContainer.addView(rightBuffer);
+
+        // set scroll view at currentScrollViewIndex (accounting for buffers)
+        scrollView.scrollTo(fragmentWidth * currentScrollViewIndex, 0);
     }
 
-    public void flingToIndex(int index) {
-        if (index < 0 || index > NUM_FRAGMENTS - 1) {
+    public void flingToFragmentIndex(int index) {
+        if (index < 0 || index > numFragments - 1) {
             if (index > currentFragmentIndex) {
                 clampNextFragment();
             } else {
@@ -172,29 +218,36 @@ public class RequestFlowScrollView extends RelativeLayout {
         flingSpring.setCurrentValue(scrollView.getScrollX());
         flingSpring.setEndValue((currentScrollViewIndex) * fragmentWidth);
 
-        flingSpringUnderline.setCurrentValue(progressUnderline.getX());
-        flingSpringUnderline.setEndValue(progressBar.getCenterXForIconIndex(currentFragmentIndex));
+        if (progressBar != null) {
+            flingSpringUnderline.setCurrentValue(progressBar.getUnderlineX());
+            flingSpringUnderline.setEndValue(progressBar.getCenterXForIconIndex(currentFragmentIndex));
 
-        progressBar.setSelectedIndex(currentFragmentIndex);
+            progressBar.setSelectedIndex(currentFragmentIndex);
+        }
     }
 
     public void startEntranceAnimation() {
-        progressUnderline.setX(-1 *
-                getResources().getDimensionPixelSize(R.dimen.request_flow_underline_width));
-        flingToIndex(0);
+        if (progressBar != null) {
+            progressBar.setUnderlineX(-1 *
+                    getResources().getDimensionPixelSize(R.dimen.request_flow_underline_width));
+        }
+
+        currentScrollViewIndex = 0;
+        currentFragmentIndex = -1;
+        scrollView.scrollTo(currentScrollViewIndex * fragmentWidth, 0);
+        flingToFragmentIndex(0);
     }
 
     public void flingNextFragment() {
-        flingToIndex(currentFragmentIndex + 1);
+        flingToFragmentIndex(currentFragmentIndex + 1);
     }
 
     public void flingPrevFragment() {
-        flingToIndex(currentFragmentIndex - 1);
+        flingToFragmentIndex(currentFragmentIndex - 1);
     }
 
     public void clampNextFragment() {
         final int initialScrollX = currentScrollViewIndex * fragmentWidth;
-        final int initialUnderlineX = progressBar.getCenterXForIconIndex(currentFragmentIndex) - getProgressUnderlineCenter();
         final int clampOffsetPx = utils.dpToPixels(CLAMP_OFFSET_DP);
         final int clampOffsetUnderlinePx = utils.dpToPixels(20);
 
@@ -211,30 +264,32 @@ public class RequestFlowScrollView extends RelativeLayout {
                 scrollView.scrollTo(scrollXValue, 0);
             }
         });
-
-        clampSpringUnderline.addListener(new SimpleSpringListener() {
-            @Override
-            public void onSpringUpdate(Spring spring) {
-                int currentValue = (int) spring.getCurrentValue();
-                int underlineXValue;
-                if (currentValue < clampOffsetUnderlinePx / 2) {
-                    underlineXValue = initialUnderlineX + currentValue;
-                } else {
-                    underlineXValue = initialUnderlineX + (clampOffsetUnderlinePx - currentValue);
-                }
-                progressUnderline.setX(underlineXValue);
-            }
-        });
-
         clampSpring.setCurrentValue(0);
         clampSpring.setEndValue(clampOffsetPx);
-        clampSpringUnderline.setCurrentValue(0);
-        clampSpringUnderline.setEndValue(clampOffsetUnderlinePx);
+
+        if (progressBar != null) {
+            final int initialUnderlineX = (int) (progressBar.getCenterXForIconIndex(currentFragmentIndex)
+                    - progressBar.getUnderlineCenterOffset());
+            clampSpringUnderline.addListener(new SimpleSpringListener() {
+                @Override
+                public void onSpringUpdate(Spring spring) {
+                    int currentValue = (int) spring.getCurrentValue();
+                    int underlineXValue;
+                    if (currentValue < clampOffsetUnderlinePx / 2) {
+                        underlineXValue = initialUnderlineX + currentValue;
+                    } else {
+                        underlineXValue = initialUnderlineX + (clampOffsetUnderlinePx - currentValue);
+                    }
+                    progressBar.setUnderlineX(underlineXValue);
+                }
+            });
+            clampSpringUnderline.setCurrentValue(0);
+            clampSpringUnderline.setEndValue(clampOffsetUnderlinePx);
+        }
     }
 
     public void clampPrevFragment() {
         final int initialScrollX = currentScrollViewIndex * fragmentWidth;
-        final int initialUnderlineX = progressBar.getCenterXForIconIndex(currentFragmentIndex) - getProgressUnderlineCenter();
         final int clampOffsetPx = utils.dpToPixels(CLAMP_OFFSET_DP);
         final int clampOffsetUnderlinePx = utils.dpToPixels(20);
 
@@ -251,29 +306,28 @@ public class RequestFlowScrollView extends RelativeLayout {
                 scrollView.scrollTo(scrollXValue, 0);
             }
         });
-
-        clampSpringUnderline.addListener(new SimpleSpringListener() {
-            @Override
-            public void onSpringUpdate(Spring spring) {
-                int currentValue = (int) spring.getCurrentValue();
-                int underlineXValue;
-                if (currentValue < clampOffsetUnderlinePx / 2) {
-                    underlineXValue = initialUnderlineX - currentValue;
-                } else {
-                    underlineXValue = initialUnderlineX - (clampOffsetUnderlinePx - currentValue);
-                }
-                progressUnderline.setX(underlineXValue);
-            }
-        });
-
         clampSpring.setCurrentValue(0);
         clampSpring.setEndValue(clampOffsetPx);
-        clampSpringUnderline.setCurrentValue(0);
-        clampSpringUnderline.setEndValue(clampOffsetUnderlinePx);
-    }
 
-    private int getProgressUnderlineCenter() {
-        return getResources().getDimensionPixelSize(R.dimen.request_flow_underline_width) / 2;
+        if (progressBar != null) {
+            final int initialUnderlineX = (int) (progressBar.getCenterXForIconIndex(currentFragmentIndex)
+                    - progressBar.getUnderlineCenterOffset());
+            clampSpringUnderline.addListener(new SimpleSpringListener() {
+                @Override
+                public void onSpringUpdate(Spring spring) {
+                    int currentValue = (int) spring.getCurrentValue();
+                    int underlineXValue;
+                    if (currentValue < clampOffsetUnderlinePx / 2) {
+                        underlineXValue = initialUnderlineX - currentValue;
+                    } else {
+                        underlineXValue = initialUnderlineX - (clampOffsetUnderlinePx - currentValue);
+                    }
+                    progressBar.setUnderlineX(underlineXValue);
+                }
+            });
+            clampSpringUnderline.setCurrentValue(0);
+            clampSpringUnderline.setEndValue(clampOffsetUnderlinePx);
+        }
     }
 
     private class RequestFlowGestureDetector extends GestureDetector.SimpleOnGestureListener {

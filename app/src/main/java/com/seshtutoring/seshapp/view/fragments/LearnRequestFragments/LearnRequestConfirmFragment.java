@@ -10,17 +10,15 @@ import android.widget.LinearLayout;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.LearnRequest;
 import com.seshtutoring.seshapp.view.RequestActivity;
-import com.seshtutoring.seshapp.view.SeshActivity;
-import com.seshtutoring.seshapp.view.components.RequestFlowScrollView;
+import com.seshtutoring.seshapp.view.components.SeshViewPager;
 import com.seshtutoring.seshapp.view.components.SeshActivityIndicator;
 import com.seshtutoring.seshapp.view.components.SeshButton;
-import com.seshtutoring.seshapp.view.components.SeshEditText;
 import com.seshtutoring.seshapp.view.components.SeshInformationLabel;
 
 /**
  * Created by nadavhollander on 7/24/15.
  */
-public class LearnRequestConfirmFragment extends Fragment implements RequestActivity.InputFragment {
+public class LearnRequestConfirmFragment extends Fragment implements SeshViewPager.InputFragment {
     private RequestActivity parentActivity;
     private SeshInformationLabel classLabel;
     private SeshInformationLabel assignmentLabel;
@@ -30,7 +28,7 @@ public class LearnRequestConfirmFragment extends Fragment implements RequestActi
     private SeshButton requestButton;
     private SeshActivityIndicator activityIndicator;
     private LinearLayout confirmationDetailsList;
-    private RequestFlowScrollView requestFlowScrollView;
+    private SeshViewPager seshViewPager;
 
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
         View v = layoutInflater.inflate(R.layout.learn_request_confirm_fragment, container, false);
@@ -92,8 +90,8 @@ public class LearnRequestConfirmFragment extends Fragment implements RequestActi
     }
 
     @Override
-    public void attachRequestFlowScrollView(RequestFlowScrollView requestFlowScrollView) {
-        this.requestFlowScrollView = requestFlowScrollView;
+    public void attachRequestFlowScrollView(SeshViewPager seshViewPager) {
+        this.seshViewPager = seshViewPager;
     }
 
     @Override

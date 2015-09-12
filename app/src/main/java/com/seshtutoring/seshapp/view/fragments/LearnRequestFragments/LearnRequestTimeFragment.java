@@ -15,14 +15,14 @@ import com.seshtutoring.seshapp.model.LearnRequest;
 import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.util.CostUtils;
 import com.seshtutoring.seshapp.view.RequestActivity;
-import com.seshtutoring.seshapp.view.components.RequestFlowScrollView;
+import com.seshtutoring.seshapp.view.components.SeshViewPager;
 import com.seshtutoring.seshapp.view.components.SeshDurationPicker;
 import com.seshtutoring.seshapp.view.components.SeshEditText;
 
 /**
  * Created by nadavhollander on 7/21/15.
  */
-public class LearnRequestTimeFragment extends Fragment implements RequestActivity.InputFragment,
+public class LearnRequestTimeFragment extends Fragment implements SeshViewPager.InputFragment,
         SeshDurationPicker.OnDurationChangeListener {
     private TextView timeCostLabel;
     private TextView timeCostNumber;
@@ -41,7 +41,7 @@ public class LearnRequestTimeFragment extends Fragment implements RequestActivit
     private float hourlyRate;
     private int additionalStudentsFee;
     private User currentUser;
-    private RequestFlowScrollView requestFlowScrollView;
+    private SeshViewPager seshViewPager;
     private boolean isCompleted;
     private LearnRequest currentLearnRequest;
 
@@ -93,7 +93,7 @@ public class LearnRequestTimeFragment extends Fragment implements RequestActivit
             @Override
             public void onClick(View v) {
                 isCompleted = true;
-                requestFlowScrollView.flingNextFragment();
+                seshViewPager.flingNextFragment();
             }
         });
 
@@ -150,8 +150,8 @@ public class LearnRequestTimeFragment extends Fragment implements RequestActivit
     }
 
     @Override
-    public void attachRequestFlowScrollView(RequestFlowScrollView requestFlowScrollView) {
-        this.requestFlowScrollView = requestFlowScrollView;
+    public void attachRequestFlowScrollView(SeshViewPager seshViewPager) {
+        this.seshViewPager = seshViewPager;
     }
 
     @Override

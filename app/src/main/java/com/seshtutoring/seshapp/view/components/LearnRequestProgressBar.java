@@ -17,11 +17,12 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import com.seshtutoring.seshapp.R;
+import com.seshtutoring.seshapp.util.LayoutUtils;
 
 /**
  * Created by nadavhollander on 7/21/15.
  */
-public class LearnRequestProgressBar extends LinearLayout {
+public class LearnRequestProgressBar extends UnderlineProgressBar {
     private ImageButton classIconClickable;
     private ImageButton assignmentIconClickable;
     private ImageButton numberStudentsIconClickable;
@@ -32,17 +33,13 @@ public class LearnRequestProgressBar extends LinearLayout {
     private ImageView numberStudentsIcon;
     private ImageView durationIcon;
     private ImageView confirmIcon;
+    private View underline;
 
     private ImageButton[] clickableIcons;
     private ImageView[] icons;
     private Context mContext;
 
     private View view;
-
-    public static abstract class OnProgressIconClickedListener {
-        public abstract void onClick(int index);
-    }
-
 
     private OnProgressIconClickedListener listener;
 
@@ -64,6 +61,8 @@ public class LearnRequestProgressBar extends LinearLayout {
         this.numberStudentsIcon = (ImageView) view.findViewById(R.id.number_students_icon);
         this.durationIcon = (ImageView) view.findViewById(R.id.duration_icon);
         this.confirmIcon = (ImageView) view.findViewById(R.id.confirm_icon);
+
+        this.underline = view.findViewById(R.id.progress_underline);
 
         this.icons = new ImageView[] { classIcon, assignmentIcon,
                 numberStudentsIcon, durationIcon, confirmIcon };
@@ -104,9 +103,24 @@ public class LearnRequestProgressBar extends LinearLayout {
         }
     }
 
-    public int getCenterXForIconIndex(int index) {
+    public float getCenterXForIconIndex(int index) {
         ImageView icon = icons[index];
         float x = ((ViewGroup)icon.getParent()).getX();
-        return (int) x + icon.getWidth() / 2;
+        return x + icon.getWidth() / 2;
+    }
+
+    @Override
+    public void setUnderlineX(float x) {
+        underline.setX(x);
+    }
+
+    @Override
+    public float getUnderlineX() {
+        return underline.getX();
+    }
+
+    @Override
+    public float getUnderlineCenterOffset() {
+        return  (underline.getWidth() / 2);
     }
 }

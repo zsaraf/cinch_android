@@ -1,7 +1,5 @@
 package com.seshtutoring.seshapp.view.fragments.LearnRequestFragments;
 
-import android.app.DownloadManager;
-import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -9,20 +7,19 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.view.RequestActivity;
-import com.seshtutoring.seshapp.view.components.RequestFlowScrollView;
+import com.seshtutoring.seshapp.view.components.SeshViewPager;
 
 /**
  * Created by nadavhollander on 7/21/15.
  */
-public class LearnRequestNumberOfStudentsFragment extends Fragment implements RequestActivity.InputFragment {
+public class LearnRequestNumberOfStudentsFragment extends Fragment implements SeshViewPager.InputFragment {
     private int numStudents = -1;
     private RequestActivity parentActivity;
-    private RequestFlowScrollView requestFlowScrollView;
+    private SeshViewPager seshViewPager;
     private Button[] numStudentsButtons;
     private Button selectedButton;
 
@@ -61,7 +58,7 @@ public class LearnRequestNumberOfStudentsFragment extends Fragment implements Re
                     handler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
-                            requestFlowScrollView.flingNextFragment();
+                            seshViewPager.flingNextFragment();
                         }
                     }, 300);
                 }
@@ -111,8 +108,8 @@ public class LearnRequestNumberOfStudentsFragment extends Fragment implements Re
     }
 
     @Override
-    public void attachRequestFlowScrollView(RequestFlowScrollView requestFlowScrollView) {
-        this.requestFlowScrollView = requestFlowScrollView;
+    public void attachRequestFlowScrollView(SeshViewPager seshViewPager) {
+        this.seshViewPager = seshViewPager;
     }
 
     @Override

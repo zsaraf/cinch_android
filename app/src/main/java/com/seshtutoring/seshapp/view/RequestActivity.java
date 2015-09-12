@@ -2,68 +2,37 @@ package com.seshtutoring.seshapp.view;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.animation.TimeInterpolator;
-import android.app.ActionBar;
-import android.app.Activity;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Debug;
-import android.os.Handler;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.view.ViewPager;
 import android.util.Log;
-import android.view.KeyEvent;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.view.WindowManager;
-import android.view.animation.AccelerateInterpolator;
-import android.view.animation.DecelerateInterpolator;
-import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
 import android.widget.FrameLayout;
-import android.widget.HorizontalScrollView;
-import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
-import android.widget.Toast;
 
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.RequestFuture;
-import com.android.volley.toolbox.Volley;
 import com.facebook.rebound.SimpleSpringListener;
 import com.facebook.rebound.Spring;
 import com.facebook.rebound.SpringConfig;
 import com.facebook.rebound.SpringSystem;
 import com.seshtutoring.seshapp.R;
-import com.seshtutoring.seshapp.model.AvailableBlock;
-import com.seshtutoring.seshapp.model.Course;
 import com.seshtutoring.seshapp.model.Discount;
 import com.seshtutoring.seshapp.model.LearnRequest;
 import com.seshtutoring.seshapp.model.User;
-import com.seshtutoring.seshapp.util.ApplicationLifecycleTracker;
 import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking.SynchronousRequest;
 import com.seshtutoring.seshapp.view.components.LearnRequestProgressBar;
-import com.seshtutoring.seshapp.view.components.RequestFlowScrollView;
-import com.seshtutoring.seshapp.view.components.RequestFlowViewPager;
+import com.seshtutoring.seshapp.view.components.SeshViewPager;
 import com.seshtutoring.seshapp.view.components.SeshActivityIndicator;
 import com.seshtutoring.seshapp.view.components.SeshAnimatedCheckmark;
 import com.seshtutoring.seshapp.view.components.SeshDialog;
@@ -77,7 +46,6 @@ import com.seshtutoring.seshapp.view.fragments.LearnViewFragment;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Date;
 import java.util.List;
 
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
@@ -92,7 +60,7 @@ public class RequestActivity extends SeshActivity implements
     private RelativeLayout requestFlowClose;
     private LearnRequest currentLearnRequest;
     private Bitmap mapBackgroundInstance;
-    private RequestFlowScrollView requestFlowSlider;
+    private SeshViewPager requestFlowSlider;
     private LearnRequestProgressBar learnRequestProgressBar;
     private RelativeLayout learnRequestTopBar;
     private RelativeLayout requestFlowOverlay;
@@ -110,14 +78,6 @@ public class RequestActivity extends SeshActivity implements
             new LearnRequestConfirmFragment()
     };
     private FrameLayout[] fragmentContainers;
-
-    public interface InputFragment {
-        boolean isCompleted();
-        void saveValues();
-        void attachRequestFlowScrollView(RequestFlowScrollView requestFlowScrollView);
-        void onFragmentInForeground();
-        void beforeFragmentInForeground();
-    }
 
     public static final int ENTER_LEARN_REQUEST_FLOW = 1;
     public static final int LEARN_REQUEST_CREATE_SUCCESS = 2;
@@ -188,38 +148,17 @@ public class RequestActivity extends SeshActivity implements
             }
         });
 
-        this.fragmentContainers = new FrameLayout[]{
-                (FrameLayout) findViewById(R.id.course_fragment),
-                (FrameLayout) findViewById(R.id.assignment_fragment),
-                (FrameLayout) findViewById(R.id.num_students_fragment),
-                (FrameLayout) findViewById(R.id.duration_fragment),
-                (FrameLayout) findViewById(R.id.confirm_fragment)
-        };
-
-        final LayoutUtils utils = new LayoutUtils(this);
-
-        FrameLayout leftBufferZone = (FrameLayout) findViewById(R.id.leftBufferZone);
-        FrameLayout rightBufferZone = (FrameLayout) findViewById(R.id.rightBufferZone);
-
-        int screenWidth = utils.getScreenWidthPx(this);
-        setFrameLayoutWidth(leftBufferZone, screenWidth);
-        setFrameLayoutWidth(rightBufferZone, screenWidth);
-        for (FrameLayout fragmentContainer : fragmentContainers) {
-            setFrameLayoutWidth(fragmentContainer, screenWidth);
-        }
-
-        getSupportFragmentManager().beginTransaction().replace(R.id.course_fragment, requestFlowFragments[0]).commit();
-        getSupportFragmentManager().beginTransaction().replace(R.id.assignment_fragment, requestFlowFragments[1]).commit();
-        getSupportFragmentManager().beginTransaction().replace(R.id.num_students_fragment, requestFlowFragments[2]).commit();
-        getSupportFragmentManager().beginTransaction().replace(R.id.duration_fragment, requestFlowFragments[3]).commit();
-        getSupportFragmentManager().beginTransaction().replace(R.id.confirm_fragment, requestFlowFragments[4]).commit();
-
         selectedFragmentIndex = 0;
 
-        this.requestFlowSlider = (RequestFlowScrollView) findViewById(R.id.request_flow_slider);
+        this.requestFlowSlider = (SeshViewPager) findViewById(R.id.request_flow_slider);
         this.learnRequestTopBar = (RelativeLayout) findViewById(R.id.learn_request_top_bar);
         this.learnRequestProgressBar = (LearnRequestProgressBar) findViewById(R.id.learn_request_progress_bar);
 
+        requestFlowSlider.attachToActivity(this);
+        requestFlowSlider.setViewPagerFragments(requestFlowFragments);
+        requestFlowSlider.setProgressBar(learnRequestProgressBar);
+
+        final LayoutUtils utils = new LayoutUtils(this);
         final View rootView = (findViewById(android.R.id.content));
         rootView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
@@ -244,8 +183,6 @@ public class RequestActivity extends SeshActivity implements
                 }
             }
         });
-
-        requestFlowSlider.setRequestFlowFragments(requestFlowFragments);
 
         this.requestFlowOverlay = (RelativeLayout) findViewById(R.id.request_flow_overlay);
         this.activityIndicator = (SeshActivityIndicator) findViewById(R.id.request_activity_indicator);
@@ -417,11 +354,5 @@ public class RequestActivity extends SeshActivity implements
                         });
             }
         }
-    }
-
-    private void setFrameLayoutWidth(FrameLayout frameLayout, int width) {
-        frameLayout.setLayoutParams(
-                new LinearLayout.LayoutParams(width,
-                        FrameLayout.LayoutParams.MATCH_PARENT));
     }
 }

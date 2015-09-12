@@ -28,12 +28,14 @@ import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.view.SeshActivity;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by nadavhollander on 7/16/15.
  */
 public class LayoutUtils {
     private static final String TAG = LayoutUtils.class.getName();
+    private static final AtomicInteger sNextGeneratedId = new AtomicInteger(1);
     private Context mContext;
 
     public LayoutUtils(Context context) {
@@ -129,5 +131,17 @@ public class LayoutUtils {
         activity.getSupportActionBar().setElevation(0);
         Toolbar parent = (Toolbar) activity.getSupportActionBar().getCustomView().getParent();
         parent.setContentInsetsAbsolute(0, 0);
+    }
+
+    public static int generateViewId() {
+        for (;;) {
+            final int result = sNextGeneratedId.get();
+            // aapt-generated IDs have the high byte nonzero; clamp to the range under that.
+            int newValue = result + 1;
+            if (newValue > 0x00FFFFFF) newValue = 1; // Roll over to 1, not 0.
+            if (sNextGeneratedId.compareAndSet(result, newValue)) {
+                return result;
+            }
+        }
     }
 }
