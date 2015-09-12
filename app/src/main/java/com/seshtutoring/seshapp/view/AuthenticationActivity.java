@@ -533,7 +533,7 @@ public class AuthenticationActivity extends SeshActivity implements SeshDialog.O
                                         public void onPrereqsFulfilled() {
                                             Intent mainContainerIntent = new Intent(getApplicationContext(), MainContainerActivity.class);
                                             startActivity(mainContainerIntent);
-                                            overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+                                            overridePendingTransition(R.anim.slide_up, 0);
                                         }
                                     })).execute();
                         } else {
