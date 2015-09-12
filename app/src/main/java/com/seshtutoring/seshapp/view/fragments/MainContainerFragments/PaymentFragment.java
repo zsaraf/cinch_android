@@ -194,9 +194,8 @@ public class PaymentFragment extends ListFragment implements FragmentOptionsRece
                 }, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError volleyError) {
-                        Log.e(TAG, volleyError.getMessage());
-                        showErrorDialog("Whoops!", volleyError.getMessage());
-
+                        Log.e(TAG, "Error deleting card" + volleyError.getMessage());
+                        confirmDialog.networkOperationFailed("Whoops!", volleyError.getMessage(), "Okay", null);
                     }
                 });
 
@@ -265,7 +264,7 @@ public class PaymentFragment extends ListFragment implements FragmentOptionsRece
             }
 
         } catch (JSONException e) {
-            Log.e(TAG, e.toString());
+            Log.e(TAG, "Error deleting card" + e.toString());
             confirmDialog.networkOperationFailed("Whoops!", e.toString(), "Okay", null);
         }
     }

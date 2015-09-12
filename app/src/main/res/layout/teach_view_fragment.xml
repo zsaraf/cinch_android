@@ -30,7 +30,7 @@
             android:ellipsize="end"
             android:textSize="15sp"
             android:textColor="@color/seshextralightgray"
-            android:inputType="textFilter"
+            android:clickable="false"
             android:paddingBottom="8dp"
             android:paddingTop="8dp"
             android:layout_centerInParent="true" />

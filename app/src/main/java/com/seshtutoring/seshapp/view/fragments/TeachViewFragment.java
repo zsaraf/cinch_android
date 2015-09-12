@@ -71,7 +71,7 @@ public class TeachViewFragment extends Fragment {
 
         activity = (MainContainerActivity) getActivity();
 
-        classesButtonText.setOnClickListener(new View.OnClickListener() {
+        viewClassesButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 toggleViewClasses();
