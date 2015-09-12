@@ -249,6 +249,7 @@ public class AddCardActivity extends SeshActivity {
                         currentUser.save();
                     }
                     com.seshtutoring.seshapp.model.Card newCard = com.seshtutoring.seshapp.model.Card.createOrUpdateCardWithJSON(customer, currentUser);
+                    newCard.save();
                     if (newCard.isDefault) {
                         com.seshtutoring.seshapp.model.Card.makeDefaultCard(newCard);
                     }
@@ -257,6 +258,7 @@ public class AddCardActivity extends SeshActivity {
                     JSONObject recipient = responseJson.getJSONObject("recipient");
                     User currentUser = User.currentUser(getApplicationContext());
                     com.seshtutoring.seshapp.model.Card newCard = com.seshtutoring.seshapp.model.Card.createOrUpdateCardWithJSON(recipient, currentUser);
+                    newCard.save();
                     if (newCard.isDefault) {
                         com.seshtutoring.seshapp.model.Card.makeDefaultCard(newCard);
                     }

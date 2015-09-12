@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ArrayAdapter;
@@ -21,12 +22,16 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.Card;
+import com.seshtutoring.seshapp.model.Message;
 import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.AddCardActivity;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
 import com.seshtutoring.seshapp.view.MainContainerActivity.FragmentOptionsReceiver;
+import com.seshtutoring.seshapp.view.components.PaymentListItem;
+import com.seshtutoring.seshapp.view.components.PaymentMenuAdapter;
+import com.seshtutoring.seshapp.view.components.SeshDialog;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -50,8 +55,9 @@ public class PaymentFragment extends ListFragment implements FragmentOptionsRece
     private User user;
     private PaymentMenuAdapter adapter;
     private RelativeLayout editButton;
-    private boolean editMode;
     private TextView editText;
+    private SeshNetworking seshNetworking;
+    private SeshDialog confirmDialog;
 
     private Map<String, Object> options;
 
@@ -67,7 +73,8 @@ public class PaymentFragment extends ListFragment implements FragmentOptionsRece
         user = User.currentUser(mainContainerActivity.getApplicationContext());
         editButton = (RelativeLayout)mainContainerActivity.findViewById(R.id.action_bar_edit_button);
         editText = (TextView)mainContainerActivity.findViewById(R.id.edit_text);
-        editMode = false;
+        seshNetworking = new SeshNetworking(mainContainerActivity);
+        confirmDialog = SeshDialog.createDialog("Delete Card", "", "Okay", "Cancel", "delete_card_confirm");
 
         return menu;
     }
@@ -75,7 +82,8 @@ public class PaymentFragment extends ListFragment implements FragmentOptionsRece
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        adapter = new PaymentMenuAdapter(mainContainerActivity);
+        adapter = new PaymentMenuAdapter(mainContainerActivity, currentPaymentListItems(), this, false);
+        setListAdapter(adapter);
 
         refreshCards();
 
@@ -94,6 +102,8 @@ public class PaymentFragment extends ListFragment implements FragmentOptionsRece
                         intent.putExtra("is_cashout_card", true);
                         startActivityForResult(intent, 1);
                     }
+                } else if (item.type == PaymentListItem.CARD_TYPE) {
+                    makeDefaultCard(item.card);
                 }
 
             }
@@ -104,11 +114,11 @@ public class PaymentFragment extends ListFragment implements FragmentOptionsRece
             @Override
             public void onClick(View v) {
 
-                if (editMode) {
-                    editMode = false;
+                if (adapter.editMode) {
+                    adapter.editMode = false;
                     editText.setText("Edit");
                 } else {
-                    editMode = true;
+                    adapter.editMode = true;
                     editText.setText("Done");
                 }
 
@@ -116,6 +126,9 @@ public class PaymentFragment extends ListFragment implements FragmentOptionsRece
 
             }
         });
+
+        ((MainContainerActivity)getActivity()).onFragmentReplacedAndRendered();
+
     }
 
     @Override
@@ -126,29 +139,35 @@ public class PaymentFragment extends ListFragment implements FragmentOptionsRece
         }
     }
 
-    private void refreshCards() {
+    private List<PaymentListItem> currentPaymentListItems() {
+        List<PaymentListItem> returnList = new ArrayList<PaymentListItem>();
 
-        //Build adapter
-        adapter.add(new PaymentListItem(null, PaymentListItem.HEADER_TYPE, "Payment Cards"));
-        adapter.add(new PaymentListItem(null, PaymentListItem.ADD_CARD_TYPE, "Add a New Card"));
+        returnList.add(new PaymentListItem(null, PaymentListItem.HEADER_TYPE, "Payment Cards"));
+        returnList.add(new PaymentListItem(null, PaymentListItem.ADD_CARD_TYPE, "Add a New Card"));
 
         List<Card> paymentCards = Card.getPaymentCards();
         for (Card currentCard : paymentCards) {
             PaymentListItem cardItem = new PaymentListItem(currentCard, PaymentListItem.CARD_TYPE, null);
-            adapter.add(cardItem);
+            returnList.add(cardItem);
         }
 
-        adapter.add(new PaymentListItem(null, PaymentListItem.HEADER_TYPE, "Cashout Cards (Debit)"));
-        adapter.add(new PaymentListItem(null, PaymentListItem.ADD_CARD_TYPE, "Add a New Debit Card"));
+        returnList.add(new PaymentListItem(null, PaymentListItem.HEADER_TYPE, "Cashout Cards (Debit)"));
+        returnList.add(new PaymentListItem(null, PaymentListItem.ADD_CARD_TYPE, "Add a New Debit Card"));
 
         List<Card> cashoutCards = Card.getCashoutCards();
         for (Card currentCard : cashoutCards) {
             PaymentListItem cardItem = new PaymentListItem(currentCard, PaymentListItem.CARD_TYPE, null);
-            adapter.add(cardItem);
+            returnList.add(cardItem);
         }
 
-        setListAdapter(adapter);
-        ((MainContainerActivity)getActivity()).onFragmentReplacedAndRendered();
+        return returnList;
+
+    }
+
+
+    private void refreshCards() {
+        adapter.paymentItems = currentPaymentListItems();
+        adapter.notifyDataSetChanged();
     }
 
     private void onCardsFailure(String message) {
@@ -156,97 +175,105 @@ public class PaymentFragment extends ListFragment implements FragmentOptionsRece
         Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
     }
 
-    private class PaymentListItem {
+    public void deleteCard(final Card card) {
+        String message = "Are you sure you want to delete " + card.type + " " + card.lastFour;
+        confirmDialog.setMessage(message);
+        confirmDialog.setFirstButtonClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
 
-        public static final int HEADER_TYPE = 0;
-        public static final int ADD_CARD_TYPE = 1;
-        public static final int CARD_TYPE = 2;
+                // Officially delete the card
+                confirmDialog.setNetworking(true);
+                confirmDialog.setFirstButtonClickListener(null);
+                seshNetworking.deleteCard(card.cardId, card.isRecipient, new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject jsonObject) {
 
-        public Card card;
-        public int type;
-        public String text;
+                        onDeleteCardResponse(jsonObject);
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError volleyError) {
+                        Log.e(TAG, volleyError.getMessage());
+                        showErrorDialog("Whoops!", volleyError.getMessage());
 
-        public PaymentListItem(Card card, int type, String text) {
-            this.card = card;
-            this.type = type;
-            this.text = text;
+                    }
+                });
+
+            }
+        });
+
+        confirmDialog.showWithDelay(getActivity().getFragmentManager(), "delete_card_confirm", 0);
+    }
+
+    private void makeDefaultCard(Card card) {
+        seshNetworking.makeDefaultCard(card.cardId, card.isRecipient, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject jsonObject) {
+
+                onDefaultCardResponse(jsonObject);
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+                //                        Log.e(TAG, volleyError.getMessage());
+                showErrorDialog("Whoops!", volleyError.getMessage());
+
+            }
+        });
+    }
+
+    private void onDefaultCardResponse(JSONObject response) {
+
+        try {
+            if (response.get("status").equals("SUCCESS")) {
+
+                // Delete the card locally and remove the overlay
+                Card newCard = Card.createOrUpdateCardWithJSON(response, user);
+                newCard.save();
+                if (newCard.isDefault) {
+                    Card.makeDefaultCard(newCard);
+                }
+                refreshCards();
+
+            } else {
+                showErrorDialog("Whoops!", response.getString("message"));
+            }
+
+        } catch (JSONException e) {
+            Log.e(TAG, e.toString());
+            showErrorDialog("Whoops!", e.toString());
         }
     }
 
-    private class ViewHolder {
 
-        public TextView mainTextView;
-        public TextView secondTextView;
-        public View divider;
-        public RelativeLayout deleteButton;
+    private void onDeleteCardResponse(JSONObject response) {
+        adapter.editMode = false;
+        editText.setText("Edit");
 
+        try {
+            if (response.get("status").equals("SUCCESS")) {
+
+                // Delete the card locally and remove the overlay
+                Card.deleteCardWithId(response.getString("card_id"));
+                refreshCards();
+
+                confirmDialog.setNetworking(false);
+
+            } else {
+               confirmDialog.networkOperationFailed("Whoops!", response.getString("message"), "Okay", null);
+            }
+
+        } catch (JSONException e) {
+            Log.e(TAG, e.toString());
+            confirmDialog.networkOperationFailed("Whoops!", e.toString(), "Okay", null);
+        }
     }
 
-    public class PaymentMenuAdapter extends ArrayAdapter<PaymentListItem> {
 
-        public PaymentMenuAdapter(Context context) {
-            super(context, 0);
-        }
-
-        public View getView(int position, View convertView, ViewGroup parent) {
-
-            ViewHolder viewHolder;
-            PaymentListItem item = getItem(position);
-
-            if (convertView == null) {
-                convertView = LayoutInflater.from(getContext()).inflate(R.layout.settings_menu_list_row,
-                        null);
-
-                viewHolder = new ViewHolder();
-
-                int textID = R.id.settings_row_title;
-                int rightTextID = R.id.settings_right_title;
-                int resourceID = R.drawable.settings_row_item;
-                Typeface typeFace = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Gotham-Light.otf");
-
-                if (item.type == PaymentListItem.HEADER_TYPE) {
-                    textID = R.id.settings_header_title;
-                    resourceID = R.drawable.settings_header_item;
-                    typeFace = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Gotham-Book.otf");
-                }
-
-                viewHolder.mainTextView = (TextView) convertView.findViewById(textID);
-                viewHolder.mainTextView.setBackgroundResource(resourceID);
-                viewHolder.mainTextView.setTypeface(typeFace);
-                viewHolder.secondTextView = (TextView) convertView.findViewById(rightTextID);
-                viewHolder.divider = (View)convertView.findViewById(R.id.divider);
-                viewHolder.deleteButton = (RelativeLayout)convertView.findViewById(R.id.delete_button);
-
-                convertView.setTag(viewHolder);
-
-            } else {
-                viewHolder = (ViewHolder) convertView.getTag();
-            }
-
-            if (item.card == null) {
-                viewHolder.mainTextView.setText(item.text);
-                viewHolder.secondTextView.setText("");
-            } else {
-                viewHolder.mainTextView.setText(item.card.type + " " + item.card.lastFour);
-                viewHolder.secondTextView.setText(item.card.isDefault ? "default" : "");
-            }
-
-            if (editMode) {
-                if (item.type == PaymentListItem.CARD_TYPE && !item.card.isDefault) {
-                    viewHolder.secondTextView.setVisibility(View.GONE);
-                    viewHolder.deleteButton.setVisibility(View.VISIBLE);
-                } else {
-                    viewHolder.secondTextView.setVisibility(View.VISIBLE);
-                    viewHolder.deleteButton.setVisibility(View.GONE);
-                }
-            } else {
-                viewHolder.secondTextView.setVisibility(View.VISIBLE);
-                viewHolder.deleteButton.setVisibility(View.GONE);
-            }
-
-            return convertView;
-        }
-
+    private void showErrorDialog(String title, String message) {
+        SeshDialog.showDialog(getActivity().getFragmentManager(), title, message,
+                "OKAY", null, "view_request_network_error");
     }
 
     @Override

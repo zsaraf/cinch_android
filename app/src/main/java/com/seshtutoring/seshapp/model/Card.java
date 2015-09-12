@@ -75,22 +75,34 @@ public class Card extends SugarRecord<Message> {
 
         boolean isRecipient = card.isRecipient;
 
-        List<Card> allCards = Card.find(Card.class, "is_recipient = ?", Boolean.toString(isRecipient));
+        List<Card> allCards = Card.find(Card.class, "is_recipient = ?", isRecipient ? "1" : "0");
 
         for (int i = 0; i < allCards.size(); i++) {
 
             Card currentCard = allCards.get(i);
 
-            if (currentCard == card) {
-                card.isDefault = true;
+            if (currentCard.cardId.equals(card.cardId)) {
+                currentCard.isDefault = true;
             } else {
-                card.isDefault = false;
+                currentCard.isDefault = false;
             }
 
-            card.save();;
+            currentCard.save();;
 
         }
     }
+
+    public static void deleteCardWithId(String cardId) {
+        List<Card> getCards = Card.find(Card.class, "card_id = ?", cardId);
+        if (getCards.size() > 0) {
+            Card deleteCard = getCards.get(0);
+            deleteCard.delete();
+        } else {
+            Log.d(TAG, "No CARD EXISTS WITH ID " + cardId);
+        }
+
+    }
+
 
     public static List<Card> getPaymentCards() {
         return Card.find(Card.class, "is_recipient = '0'");
