@@ -149,7 +149,10 @@
         android:layout_below="@+id/stats"
         android:layout_marginTop="20dp"
         android:layout_marginLeft="35dp"
-        android:layout_marginRight="35dp">
+        android:layout_marginRight="35dp"
+        android:layout_above="@+id/report_problem_button"
+        android:layout_marginBottom="20dp"
+        android:gravity="center_vertical">
 
         <com.seshtutoring.seshapp.view.components.SeshActivityIndicator
             android:id="@+id/rating_activity_indicator"

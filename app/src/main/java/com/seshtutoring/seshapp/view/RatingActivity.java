@@ -208,9 +208,10 @@ public class RatingActivity extends SeshActivity {
 
     private void setupLabels() {
 
-        DecimalFormat df = new DecimalFormat("#.##");
-        this.creditsUsed.setText(df.format(this.pastSesh.creditsUsed));
-        this.cost.setText(df.format(this.pastSesh.cost));
+        DecimalFormat creditsDf = new DecimalFormat("#.##");
+        this.creditsUsed.setText(creditsDf.format(this.pastSesh.creditsUsed));
+        DecimalFormat costDf = new DecimalFormat("#.##");
+        this.cost.setText("$" + costDf.format(this.pastSesh.cost));
 
         String[] splited = this.pastSesh.tutorFullName.split("\\s+");
 
@@ -229,7 +230,7 @@ public class RatingActivity extends SeshActivity {
         int minutes = diff.getMinutes();
 
         double totalHours = hours + (minutes / 60.0f);
-        this.hours.setText(df.format(totalHours));
+        this.hours.setText(creditsDf.format(totalHours));
 
 
     }
