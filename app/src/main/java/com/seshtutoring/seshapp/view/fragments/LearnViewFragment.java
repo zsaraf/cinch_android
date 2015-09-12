@@ -83,6 +83,8 @@ public class LearnViewFragment extends Fragment implements OnMapReadyCallback {
     private static GoogleMap mMap;
     private LocationManager locationManager;
     private SeshButton requestButton;
+    private ImageButton currentLocationButton;
+    private boolean currentLocationButtonFilled;
     public static final String BLURRED_MAP_BITMAP_PATH_KEY = "blurred_map_bitmap";
     public static final String CHOSEN_LOCATION_LAT = "chosen_location_lat";
     public static final String CHOSEN_LOCATION_LONG = "chosen_location_long";
@@ -108,14 +110,14 @@ public class LearnViewFragment extends Fragment implements OnMapReadyCallback {
 
         setUpMapIfNeeded();
 
-        final ImageButton currentLocationButton = (ImageButton) view.findViewById(R.id.current_location_button);
-
+        currentLocationButton = (ImageButton) view.findViewById(R.id.current_location_button);
         currentLocationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Location currentLocation = locationManager.getCurrentLocation();
                 if (currentLocation != null) {
                     moveCameraToLocation(currentLocation, true);
+                    setCurrentLocationButtonFilled();
                 }
             }
         });
@@ -140,6 +142,54 @@ public class LearnViewFragment extends Fragment implements OnMapReadyCallback {
         marker.setY(marker.getY() - (utils.getDimensionPx(R.dimen.learn_view_map_marker_height) / 2));
 
         return view;
+    }
+
+    private void setCurrentLocationButtonFilled() {
+        if (currentLocationButtonFilled) return;
+
+        if (Build.VERSION.SDK_INT < 16) {
+            currentLocationButton.setBackgroundDrawable(getResources()
+                    .getDrawable(R.drawable.jump_to_my_location_filled));
+        } else if (Build.VERSION.SDK_INT < 21) {
+            currentLocationButton.setBackground(getResources()
+                    .getDrawable(R.drawable.jump_to_my_location_filled));
+        } else  {
+            currentLocationButton.setBackground(getResources()
+                    .getDrawable(R.drawable.jump_to_my_location_filled));
+        }
+
+        currentLocationButtonFilled = true;
+    }
+
+    private void setCurrentLocationButtonUnfilled() {
+        if (!currentLocationButtonFilled) return;
+
+        if (Build.VERSION.SDK_INT < 16) {
+            currentLocationButton.setBackgroundDrawable(getResources()
+                    .getDrawable(R.drawable.jump_to_my_location));
+        } else if (Build.VERSION.SDK_INT < 21) {
+            currentLocationButton.setBackground(getResources()
+                    .getDrawable(R.drawable.jump_to_my_location));
+        } else  {
+            currentLocationButton.setBackground(getResources()
+                    .getDrawable(R.drawable.jump_to_my_location));
+        }
+
+        currentLocationButtonFilled = false;
+    }
+
+    private void checkIfMarkerOnCurrentLocation() {
+        Location currentLocation = locationManager.getCurrentLocation();
+        LatLng markerTarget = mMap.getCameraPosition().target;
+        Location markerLocation = new Location("");
+        markerLocation.setLatitude(markerTarget.latitude);
+        markerLocation.setLongitude(markerTarget.longitude);
+
+        if (currentLocation.distanceTo(markerLocation) < 5) {
+            setCurrentLocationButtonFilled();
+        } else {
+            setCurrentLocationButtonUnfilled();
+        }
     }
 
     private void handleOutstandingCharges(Iterator<OutstandingCharge> outstandingChargeIterator) {
@@ -261,6 +311,20 @@ public class LearnViewFragment extends Fragment implements OnMapReadyCallback {
         int topMapPadding = getResources().getDimensionPixelOffset(R.dimen.learn_view_map_padding_top);
 
         mMap.setPadding(0, topMapPadding, 0, 0);
+        mMap.setMyLocationEnabled(true);
+        mMap.getUiSettings().setMyLocationButtonEnabled(false);
+        mMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
+            @Override
+            public void onCameraChange(CameraPosition cameraPosition) {
+                checkIfMarkerOnCurrentLocation();
+            }
+        });
+        mMap.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener() {
+            @Override
+            public void onMyLocationChange(Location location) {
+                checkIfMarkerOnCurrentLocation();
+            }
+        });
         moveCameraToLocation(locationManager.getCurrentLocation(), false);
     }
 

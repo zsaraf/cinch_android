@@ -19,7 +19,7 @@
             android:layout_alignParentRight="true"
             android:layout_marginTop="25dp"
             android:layout_marginRight="25dp"
-            android:background="@drawable/jump_to_my_location"/>
+            android:background="@drawable/jump_to_my_location_filled"/>
 
         <ImageView
             android:id="@+id/location_marker"
