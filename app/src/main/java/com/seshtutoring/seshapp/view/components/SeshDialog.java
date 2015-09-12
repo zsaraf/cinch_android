@@ -250,7 +250,9 @@ public class SeshDialog extends DialogFragment {
             @Override
             public void onClick(View v) {
                 dismiss(2);
-                dismissCallback.run();
+                if (dismissCallback != null) {
+                    dismissCallback.run();
+                }
             }
         });
 

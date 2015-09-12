@@ -809,6 +809,13 @@ public class SeshNetworking {
         postWithRelativeUrl("send_message.php", params, successListener, errorListener);
     }
 
+    public void payOutstandingCharges(Response.Listener<JSONObject> successListener, Response.ErrorListener errorListener) {
+        Map<String, String> params = new HashMap<>();
+        params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
+
+        postWithRelativeUrl("pay_outstanding_charge.php", params, successListener, errorListener);
+    }
+
     public void hasReadUpToMessage(int messageId, int seshId, Response.Listener<JSONObject> successListener, Response.ErrorListener errorListener) {
         Map<String, String> params = new HashMap<>();
         params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());

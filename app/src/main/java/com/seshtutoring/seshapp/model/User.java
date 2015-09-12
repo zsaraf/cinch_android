@@ -177,6 +177,15 @@ public class User extends SugarRecord<User> {
                 }
             }
 
+            OutstandingCharge.deleteAll(OutstandingCharge.class);
+            if (dataJson.has("outstanding_charges")) {
+                JSONArray outstandingCharges = dataJson.getJSONArray("outstanding_charges");
+                for (int i = 0; i < outstandingCharges.length(); i++) {
+                    JSONObject outstandingChargesJSONObject = outstandingCharges.getJSONObject(i);
+                    OutstandingCharge.createOrUpdateOutstandingChargeWithObject(context, outstandingChargesJSONObject);
+                }
+            }
+
 //            Add hinting mechanism, eg:
 //            if (!currentUser.hint_displays) {
 //                currentUser.hint_displays = [HintDisplays createNewHintDisplays];

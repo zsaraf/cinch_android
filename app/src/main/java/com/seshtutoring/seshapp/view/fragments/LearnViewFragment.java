@@ -28,6 +28,8 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.enrique.stackblur.StackBlurManager;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.location.LocationRequest;
@@ -47,10 +49,14 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.seshtutoring.seshapp.R;
+import com.seshtutoring.seshapp.model.AvailableBlock;
 import com.seshtutoring.seshapp.model.LearnRequest;
+import com.seshtutoring.seshapp.model.Notification;
+import com.seshtutoring.seshapp.model.OutstandingCharge;
 import com.seshtutoring.seshapp.util.LocationManager;
 import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.util.StorageUtils;
+import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
 import com.seshtutoring.seshapp.view.RequestActivity;
 import com.seshtutoring.seshapp.view.components.SeshButton;
@@ -58,8 +64,14 @@ import com.seshtutoring.seshapp.view.components.SeshDialog;
 import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.HomeFragment;
 import com.stripe.android.compat.AsyncTask;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.text.NumberFormat;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Created by nadavhollander on 7/14/15.
@@ -112,11 +124,74 @@ public class LearnViewFragment extends Fragment implements OnMapReadyCallback {
         requestButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                (new StartRequestActivityAsyncTask()).execute();
+                // Check for outstanding charges
+                Iterator<OutstandingCharge> outstandingChargesList = OutstandingCharge.findAll(OutstandingCharge.class);
+                if (outstandingChargesList.hasNext()) {
+                    handleOutstandingCharges(outstandingChargesList);
+                } else {
+                    (new StartRequestActivityAsyncTask()).execute();
+                }
             }
         });
 
         return view;
+    }
+
+    private void handleOutstandingCharges(Iterator<OutstandingCharge> outstandingChargeIterator) {
+        Double finalAmount = 0.0;
+        while (outstandingChargeIterator.hasNext()) {
+            OutstandingCharge charge = outstandingChargeIterator.next();
+            finalAmount += charge.amount;
+        }
+
+        final SeshDialog seshDialog = new SeshDialog();
+        seshDialog.setDialogType(SeshDialog.SeshDialogType.TWO_BUTTON);
+        seshDialog.setTitle("Outstanding Charge");
+        NumberFormat formatter = NumberFormat.getCurrencyInstance();
+        seshDialog.setMessage("You owe us " + formatter.format(finalAmount) + " from unpaid past Seshes. Pay now?");
+        seshDialog.setFirstChoice("PAY");
+        seshDialog.setFirstButtonClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                seshDialog.setNetworking(true);
+                SeshNetworking seshNetworking = new SeshNetworking(getActivity());
+                seshNetworking.payOutstandingCharges(new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject jsonObject) {
+                        try {
+                            if (jsonObject.getString("status").equals("SUCCESS")) {
+                                OutstandingCharge.deleteAll(OutstandingCharge.class);
+                                seshDialog.setNetworking(false);
+                                (new StartRequestActivityAsyncTask()).execute();
+                            } else {
+                                Log.e(TAG, "Failed to pay outstanding charges: " + jsonObject.getString("message"));
+                                seshDialog.networkOperationFailed("Error!", jsonObject.getString("message"), "OKAY",
+                                        null);
+                            }
+                        } catch (JSONException e) {
+                            Log.e(TAG, "Failed to pay outstanding charges. Json malformed" + e);
+                            seshDialog.networkOperationFailed("Error!", "Something went wrong.  Try again later.", "OKAY", null);
+                        }
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError volleyError) {
+                        Log.e(TAG, "Failed to recreate Learn request; network error: " + volleyError);
+                        seshDialog.networkOperationFailed("Network Error", "We couldn't reach the server.  Try again later.", "OKAY", null);
+                    }
+                });
+            }
+        });
+        seshDialog.setSecondChoice("CANCEL");
+        seshDialog.setSecondButtonClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                seshDialog.dismiss();
+            }
+        });
+        seshDialog.setType("OUTSTANDING_CHARGE");
+
+        seshDialog.show(getActivity().getFragmentManager(), "OUTSTANDING_CHARGE");
     }
 
     private void startRequestActivityWithBlurTransition() {
