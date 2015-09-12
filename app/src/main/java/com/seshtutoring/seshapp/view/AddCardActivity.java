@@ -63,6 +63,7 @@ public class AddCardActivity extends SeshActivity {
     private RelativeLayout requestFlowOverlay;
     private SeshActivityIndicator activityIndicator;
     private SeshAnimatedCheckmark animatedCheckmark;
+    private User user;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -90,6 +91,10 @@ public class AddCardActivity extends SeshActivity {
                 onBackPressed();
             }
         });
+        user = User.currentUser(getApplicationContext());
+        if (!user.fullLegalName.equals("")) {
+            mFullName.setText(user.fullLegalName);
+        }
 
         LayoutUtils layUtils = new LayoutUtils(this);
         layUtils.setupCustomActionBar(this, true);
@@ -127,6 +132,51 @@ public class AddCardActivity extends SeshActivity {
         });
     }
 
+    private void updateFullLegalNameWithCard(final String name, final Card card) {
+        seshNetworking.updateFullLegalName(name, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject jsonObject) {
+                try {
+                    if (jsonObject.getString("status").equals("SUCCESS")) {
+                        user.fullLegalName = name;
+                        user.save();
+                        beginAddCard(card);
+                    } else {
+                        hideAnimationWithSuccess(false, jsonObject.getString("message"));
+                    }
+                } catch (JSONException e) {
+
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+                hideAnimationWithSuccess(false, "Couldn't update full legal name.");
+            }
+        });
+    }
+
+
+    private void beginAddCard(final Card card) {
+
+        stripe.createToken(
+                card,
+                new TokenCallback() {
+                    public void onSuccess(Token token) {
+                        // Have customer token, get Recipient Token
+                        getSecondToken(card, token);
+
+                    }
+
+                    public void onError(Exception error) {
+                        // Show localized error message
+                        hideAnimationWithSuccess(false, error.getLocalizedMessage());
+                    }
+                }
+        );
+    }
+
+
     private View.OnClickListener mSubmitBtnListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -144,21 +194,13 @@ public class AddCardActivity extends SeshActivity {
                     return;
                 }
 
-                stripe.createToken(
-                        card,
-                        new TokenCallback() {
-                            public void onSuccess(Token token) {
-                                // Have customer token, get Recipient Token
-                                getSecondToken(card, token);
+                requestFlowOverlay.animate().alpha(1).setListener(null).setDuration(300).start();
 
-                            }
-
-                            public void onError(Exception error) {
-                                // Show localized error message
-                                showErrorDialog("Whoops!", error.getLocalizedMessage());
-                            }
-                        }
-                );
+                if (!user.fullLegalName.equals(mFullName.getText())) {
+                    updateFullLegalNameWithCard(mFullName.getText(), card);
+                } else {
+                    beginAddCard(card);
+                }
 
             } else {
                 showErrorDialog("Whoops!", getResources().getString(R.string.pk_error_invalid_card_no));
@@ -173,7 +215,6 @@ public class AddCardActivity extends SeshActivity {
                 new TokenCallback() {
                     public void onSuccess(Token recipientToken) {
                         // Have customer token, get Recipient Token
-                        requestFlowOverlay.animate().alpha(1).setListener(null).setDuration(300).start();
 
                         seshNetworking.addCard(customerToken.getId(), recipientToken.getId(), isRecipient,
                                 new Response.Listener<JSONObject>() {
@@ -192,7 +233,7 @@ public class AddCardActivity extends SeshActivity {
 
                     public void onError(Exception error) {
                         // Show localized error message
-                        showErrorDialog("Whoops!", error.getLocalizedMessage());
+                        hideAnimationWithSuccess(false, error.getLocalizedMessage());
                     }
                 }
         );
@@ -276,8 +317,7 @@ public class AddCardActivity extends SeshActivity {
     }
 
     private void onAddCardFailure(String message) {
-        Log.e(TAG, message);
-        showErrorDialog("Whoops!", message);
+        hideAnimationWithSuccess(false, message);
     }
 
     private void showErrorDialog(String title, String message) {
