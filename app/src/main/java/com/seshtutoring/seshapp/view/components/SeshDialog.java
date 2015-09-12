@@ -67,6 +67,7 @@ public class SeshDialog extends DialogFragment {
     private SpringSystem springSystem;
     private SeshActivityIndicator networkingIndicator;
     private LayoutUtils utils;
+    private Spring animationSpring;
 
     private View.OnClickListener firstButtonClickListener;
     private View.OnClickListener secondButtonClickListener;
@@ -195,10 +196,10 @@ public class SeshDialog extends DialogFragment {
     }
 
     private void slideCardUp() {
-        final Spring spring = springSystem.createSpring();
+        animationSpring = springSystem.createSpring();
 
-        spring.setSpringConfig(SpringConfig.fromBouncinessAndSpeed(9.0, 6.0));
-        spring.addListener(new SimpleSpringListener() {
+        animationSpring.setSpringConfig(SpringConfig.fromBouncinessAndSpeed(9.0, 6.0));
+        animationSpring.addListener(new SimpleSpringListener() {
             @Override
             public void onSpringUpdate(Spring spring) {
                 float y = (float) spring.getCurrentValue();
@@ -209,7 +210,6 @@ public class SeshDialog extends DialogFragment {
         dialogView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-
                 LayoutUtils utils = new LayoutUtils(mActivity);
                 screenHeight = utils.getScreenHeightPx(mActivity);
                 double centeredDialogY = dialogCard.getY();
@@ -217,8 +217,8 @@ public class SeshDialog extends DialogFragment {
                 dialogCard.setY((float) screenHeight);
                 dialogCard.setAlpha(1);
 
-                spring.setCurrentValue(screenHeight);
-                spring.setEndValue(centeredDialogY);
+                animationSpring.setCurrentValue(screenHeight);
+                animationSpring.setEndValue(centeredDialogY);
 
                 if (Build.VERSION.SDK_INT < 16) {
                     dialogView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
@@ -264,6 +264,7 @@ public class SeshDialog extends DialogFragment {
         secondButton.setText(buttonTitle);
 
         slideCardUp();
+        dialogView.getViewTreeObserver().dispatchOnGlobalLayout();
     }
 
     public static void showDialog(FragmentManager manager, String title, String message,
@@ -315,6 +316,9 @@ public class SeshDialog extends DialogFragment {
     }
 
     public void setNetworking(boolean networking) {
+        if (animationSpring != null && !animationSpring.isAtRest()) {
+            animationSpring.destroy();
+        }
         if (networking) {
             dialogCard
                     .animate()

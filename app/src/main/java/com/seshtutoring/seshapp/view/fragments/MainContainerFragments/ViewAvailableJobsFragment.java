@@ -289,7 +289,7 @@ public class ViewAvailableJobsFragment extends ListFragment {
                 final SwipeLayout swipeView = (SwipeLayout) convertView.findViewById(R.id.swipe_view);
                 swipeView.setShowMode(SwipeLayout.ShowMode.LayDown);
                 swipeView.setDragEdge(SwipeLayout.DragEdge.Left);
-                swipeView.setSwipeEnabled(false);
+                swipeView.setSwipeEnabled(true);
 
                 swipeView.addSwipeListener(new SwipeLayout.SwipeListener() {
 
