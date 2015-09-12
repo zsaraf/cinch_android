@@ -4,6 +4,7 @@
         <item name="actionBarStyle">@style/SeshActionBar</item>
         <item name="background">@color/seshbackground</item>
         <item name="android:windowActionBarOverlay">true</item>
+        <item name="colorPrimaryDark">@color/seshorange</item>
         <item name="windowActionBarOverlay">true</item>
     </style>
 
@@ -17,7 +18,7 @@
     <style name="SeshFullScreen" parent="@style/Theme.AppCompat.Light">
         <item name="windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
-        <item name="android:windowFullscreen">true</item>
+        <item name="colorPrimaryDark">@color/seshbackground</item>
         <item name="android:windowContentOverlay">@null</item>
     </style>
 
