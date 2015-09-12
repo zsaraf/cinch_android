@@ -71,6 +71,7 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenList
     private Spring selectedStateSpring;
     private SelectableItem currentSelectedItem;
     private MainContainerStateManager containerStateManager;
+    private boolean itemSelectionInProgress;
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.side_menu_fragment, container, false);
@@ -116,11 +117,14 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenList
 
         currentSelectedItem = selectedItem;
         currentSelectedItem.setSelected(true);
+
+        itemSelectionInProgress = false;
     }
 
     public abstract class SelectableItem {
         private boolean selected = false;
         public String tag;
+        public boolean selectionInProgress;
 
         SelectableItem(String tag) {
             this.tag = tag;
@@ -225,18 +229,24 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenList
         return new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                if (motionEvent.getActionMasked() == MotionEvent.ACTION_DOWN) {
-                    selectedStateTouchDown(item);
-                } else if (motionEvent.getActionMasked() == MotionEvent.ACTION_UP
-                        || motionEvent.getActionMasked() == MotionEvent.ACTION_MOVE) {
-                    selectedStateTouchUp(item, completionBlock);
+                synchronized (TAG) {
+                    if (motionEvent.getActionMasked() == MotionEvent.ACTION_DOWN) {
+                        selectedStateTouchDown(item);
+                    } else if (motionEvent.getActionMasked() == MotionEvent.ACTION_UP
+                            || motionEvent.getActionMasked() == MotionEvent.ACTION_MOVE) {
+                        selectedStateTouchUp(item, completionBlock);
+                    }
                 }
                 return true;
             }
         };
     }
 
-    private void selectedStateTouchDown(SelectableItem item) {
+    private synchronized void selectedStateTouchDown(SelectableItem item) {
+        if (itemSelectionInProgress) return;
+        itemSelectionInProgress = true;
+        item.selectionInProgress = true;
+
         final View view = item.getView();
         view.setPivotX(getResources().getDimensionPixelSize(R.dimen.side_menu_scale_pivot_x));
 
@@ -253,7 +263,9 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenList
         selectedStateSpring.setEndValue(0.9);
     }
 
-    private void selectedStateTouchUp(SelectableItem selectableItem, final Runnable completionBlock) {
+    private synchronized void selectedStateTouchUp(SelectableItem selectableItem, final Runnable completionBlock) {
+        if (!itemSelectionInProgress || !selectableItem.selectionInProgress)  return;
+
         final View view = selectableItem.getView();
 
         selectedStateSpring.removeAllListeners();
@@ -270,14 +282,19 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenList
             }
         });
 
-        selectedStateSpring.setCurrentValue(view.getScaleX());
-        selectedStateSpring.setEndValue(1);
+        if (view.getScaleX() == 1) {
+            completionBlock.run();
+        } else {
+            selectedStateSpring.setCurrentValue(view.getScaleX());
+            selectedStateSpring.setEndValue(1);
+        }
 
         if (currentSelectedItem != null) {
             currentSelectedItem.setSelected(false);
         }
 
         selectableItem.setSelected(true);
+        selectableItem.selectionInProgress = false;
     }
 
     private class RequestsAndSeshesListItem extends SelectableItem {
