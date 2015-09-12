@@ -25,6 +25,7 @@
             android:layout_centerInParent="true">
 
         <com.seshtutoring.seshapp.view.components.SeshActivityIndicator
+            android:layout_centerHorizontal="true"
             android:layout_width="@dimen/view_sesh_profile_image_size"
             android:layout_height="@dimen/view_sesh_profile_image_size"
             android:id="@+id/view_request_activity_indicator"/>
