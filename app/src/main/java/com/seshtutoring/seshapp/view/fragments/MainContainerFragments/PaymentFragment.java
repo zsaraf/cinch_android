@@ -140,7 +140,7 @@ public class PaymentFragment extends ListFragment implements FragmentOptionsRece
     }
 
     private List<PaymentListItem> currentPaymentListItems() {
-        List<PaymentListItem> returnList = new ArrayList<PaymentListItem>();
+        List<PaymentListItem> returnList = new ArrayList<>();
 
         returnList.add(new PaymentListItem(null, PaymentListItem.HEADER_TYPE, "Payment Cards"));
         returnList.add(new PaymentListItem(null, PaymentListItem.ADD_CARD_TYPE, "Add a New Card"));

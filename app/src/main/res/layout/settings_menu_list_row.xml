@@ -24,7 +24,10 @@
         android:layout_alignParentLeft="true"
         android:layout_weight="1"
         android:layout_gravity="start"
-        android:padding="13dp"/>
+        android:paddingLeft="13dp"
+        android:paddingRight="13dp"
+        android:paddingTop="13dp"
+        android:paddingBottom="16dp"/>
 
     <TextView
         android:id="@+id/settings_header_title"
