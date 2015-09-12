@@ -41,12 +41,14 @@ import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.SeshApplication;
 import com.seshtutoring.seshapp.SeshStateManager;
+import com.seshtutoring.seshapp.model.Notification;
 import com.seshtutoring.seshapp.model.Sesh;
 import com.seshtutoring.seshapp.services.PeriodicFetchBroadcastReceiver;
 import com.seshtutoring.seshapp.services.GCMRegistrationIntentService;
 import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.services.SeshGCMListenerService;
 import com.seshtutoring.seshapp.services.SeshInstanceIDListenerService;
+import com.seshtutoring.seshapp.services.notifications.handlers.SeshCancelledNotificationHandler;
 import com.seshtutoring.seshapp.util.ApplicationLifecycleTracker;
 import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
@@ -206,6 +208,26 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
                 if (containerStateManager.getMainContainerState().fragment instanceof ViewSeshFragment) {
                     containerStateManager.setContainerStateForNavigation(NavigationItemState.HOME);
                 }
+
+                String title
+                        = intent.getStringExtra(SeshCancelledNotificationHandler.SESH_CANCELLED_DIALOG_TITLE);
+                String message
+                        = intent.getStringExtra(SeshCancelledNotificationHandler.SESH_CANCELLED_DIALOG_MESSAGE);
+
+                final SeshDialog seshDialog = new SeshDialog();
+                seshDialog.setTitle(title);
+                seshDialog.setMessage(message);
+                seshDialog.setDialogType(SeshDialog.SeshDialogType.ONE_BUTTON);
+                seshDialog.setFirstChoice("OKAY");
+                seshDialog.setFirstButtonClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        seshDialog.dismiss();
+                        Notification.currentNotificationHandled(getApplicationContext(), true);
+                    }
+                });
+                seshDialog.setType("sesh_cancelled");
+                seshDialog.showWithDelay(getFragmentManager(), null, 2000);
             } else if (intent.getAction() == DISPLAY_SIDE_MENU_UPDATE) {
                 Handler handler = new Handler();
                 Runnable openSideMenu = new Runnable() {
