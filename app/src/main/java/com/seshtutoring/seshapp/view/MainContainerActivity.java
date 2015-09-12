@@ -250,7 +250,7 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
     public void onDialogSelection(int selection, String type) {
         SeshNetworking seshNetworking = new SeshNetworking(this);
 
-        if (type.equals("CASHOUT") && selection == 1) {
+        if (type.equals("cashout") && selection == 1) {
 
             seshNetworking.cashout(
                     new Response.Listener<JSONObject>() {
@@ -265,7 +265,7 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
                         }
                     });
 
-        }else if (type.equals("LOGOUT") && selection == 1) {
+        }else if (type.equals("logout") && selection == 1) {
 
             seshNetworking.logout(
                     new Response.Listener<JSONObject>() {

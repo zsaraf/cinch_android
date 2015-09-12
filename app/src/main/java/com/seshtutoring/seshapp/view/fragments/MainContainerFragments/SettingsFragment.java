@@ -63,7 +63,6 @@ public class SettingsFragment extends ListFragment implements FragmentOptionsRec
     private MainContainerActivity mainContainerActivity;
     private TextView selectedTextView;
     private ListView menu;
-    private User user;
     private SettingsMenuAdapter adapter;
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -75,13 +74,50 @@ public class SettingsFragment extends ListFragment implements FragmentOptionsRec
         params.setMargins(0, Math.round(getResources().getDimension(R.dimen.action_bar_height)), 0, 0);
         menu.setLayoutParams(params);
         mainContainerActivity = (MainContainerActivity) getActivity();
-        user = User.currentUser(mainContainerActivity.getApplicationContext());
         return menu;
     }
 
     public void onResume() {
         super.onResume();
         mainContainerActivity.onFragmentReplacedAndRendered();
+    }
+
+    private void onNotificationsEnabledResponse(JSONObject response) {
+
+
+        try {
+            if (response.getString("status").equals("SUCCESS")) {
+                User currentUser = User.currentUser(mainContainerActivity.getApplicationContext());
+                currentUser.notificationsEnabled = (response.getInt("notifications_enabled") != 0);
+                currentUser.save();
+                adapter.menuItems = getMenuItemsForUser(currentUser);
+                adapter.notifyDataSetChanged();
+            } else {
+                SeshDialog.showDialog(mainContainerActivity.getFragmentManager(),
+                        "Whoops!",
+                        response.getString("message"),
+                        "OKAY", null, "whoops");
+            }
+        } catch (JSONException e) {
+            Log.e(TAG, e.getMessage());
+        }
+    }
+    private void toggleNotificationsEnabled() {
+        SeshNetworking seshNetworking = new SeshNetworking(mainContainerActivity);
+        seshNetworking.toggleNotificationsEnabled(new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject jsonObject) {
+                onNotificationsEnabledResponse(jsonObject);
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+                SeshDialog.showDialog(mainContainerActivity.getFragmentManager(),
+                        "Whoops!",
+                        "We can't reach the server right now. Please try again later.",
+                        "OKAY", null, "whoops");
+            }
+        });
     }
 
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -91,13 +127,53 @@ public class SettingsFragment extends ListFragment implements FragmentOptionsRec
 //        SeshButton logOut = (SeshButton) view.findViewById(R.id.log_out_button);
 
         //seshNetworking = new SeshNetworking(getActivity());
+        User user = User.currentUser(mainContainerActivity.getApplicationContext());
 
-        adapter = new SettingsMenuAdapter(getActivity(), getMenuItems(), this);
+
+        adapter = new SettingsMenuAdapter(getActivity(), getMenuItemsForUser(user), this);
         menu.setAdapter(adapter);
 
         menu.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
+
+                switch (position) {
+                    case 2:
+                        Intent intent = new Intent(mainContainerActivity.getApplicationContext(), ChangePasswordActivity.class);
+                        startActivityForResult(intent, 1);
+                        break;
+                    case 3:
+                        SeshDialog.showDialog(mainContainerActivity.getFragmentManager(),
+                                    "Cash Out?",
+                                    "Would you like to cash out your tutor credits? The transfer will take 1-2 days to complete.",
+                                    "YES", "NO", "cashout");
+                        break;
+                    case 4:
+                        SeshDialog.showDialog(mainContainerActivity.getFragmentManager(),
+                                    "Wait",
+                                    "Are you sure you want to logout?",
+                                    "YES", "NO", "logout");
+                        break;
+                    case 6:
+                        toggleNotificationsEnabled();
+                        break;
+                    case 9:
+                        Intent termsIntent = new Intent(mainContainerActivity.getApplicationContext(), TermsActivity.class);
+                        startActivityForResult(termsIntent, 1);
+                        break;
+                    case 10:
+                        Intent privacyIntent = new Intent(mainContainerActivity.getApplicationContext(), PrivacyActivity.class);
+                        startActivityForResult(privacyIntent, 1);
+                        break;
+                    case 11:
+                        Intent supportIntent = new Intent(mainContainerActivity.getApplicationContext(), SupportActivity.class);
+                        startActivityForResult(supportIntent, 1);
+                        break;
+                    default:
+                        break;
+
+
+                }
 
 //                RowObject obj = (RowObject) menu.getItemAtPosition(position);
 //
@@ -134,7 +210,7 @@ public class SettingsFragment extends ListFragment implements FragmentOptionsRec
         });
     }
 
-    private List<SettingsMenuItem> getMenuItems() {
+    private List<SettingsMenuItem> getMenuItemsForUser(User user) {
         List<SettingsMenuItem> returnItems = new ArrayList<>();
         returnItems.add(new SettingsMenuItem("Account", SettingsMenuItem.HEADER_TYPE, ""));
         returnItems.add(new SettingsMenuItem("Email", SettingsMenuItem.ROW_TYPE, user.email));
@@ -142,7 +218,7 @@ public class SettingsFragment extends ListFragment implements FragmentOptionsRec
         returnItems.add(new SettingsMenuItem("Cashout", SettingsMenuItem.ROW_TYPE, ""));
         returnItems.add(new SettingsMenuItem("Logout", SettingsMenuItem.ROW_TYPE, ""));
         returnItems.add(new SettingsMenuItem("Notifications", SettingsMenuItem.HEADER_TYPE, ""));
-        returnItems.add(new SettingsMenuItem("Notifications Enabled", SettingsMenuItem.ROW_TYPE, ""));
+        returnItems.add(new SettingsMenuItem("Notifications Enabled", SettingsMenuItem.ROW_TYPE, Boolean.toString(user.notificationsEnabled)));
         returnItems.add(new SettingsMenuItem("This will silence all notifications outside the app.", SettingsMenuItem.EXPLAIN_TYPE, ""));
         returnItems.add(new SettingsMenuItem("About", SettingsMenuItem.HEADER_TYPE, ""));
         returnItems.add(new SettingsMenuItem("Terms of Use", SettingsMenuItem.ROW_TYPE, ""));

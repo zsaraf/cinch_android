@@ -848,7 +848,6 @@ public class SeshNetworking {
         Map<String, String> params = new HashMap<>();
         params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
         postWithRelativeUrl("toggle_notifications_enabled.php", params, successListener, errorListener);
-
     }
 
     public static abstract class SynchronousRequest {
