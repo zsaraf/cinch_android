@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.View;
+import android.view.WindowManager;
 import android.view.animation.AccelerateInterpolator;
 import android.widget.ImageView;
 
@@ -73,6 +75,8 @@ public class SplashActivity extends SeshActivity {
                 (new LaunchPrerequisiteAsyncTask(this, new PrereqsFulfilledListener() {
                     @Override
                     public void onPrereqsFulfilled() {
+                        showStatusBar();
+
                         Intent mainContainerIntent = new Intent(getApplicationContext(), MainContainerActivity.class);
                         mainContainerIntent.putExtra(ViewSeshSetTimeActivity.SET_TIME_SESH_ID_KEY, 99);
                         startActivity(mainContainerIntent);
@@ -89,6 +93,17 @@ public class SplashActivity extends SeshActivity {
             startActivity(warmWelcomeIntent);
             overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         }
+    }
+
+    private void showStatusBar() {
+        try {
+            ((View) findViewById(android.R.id.title).getParent())
+                    .setVisibility(View.VISIBLE);
+        } catch (Exception e) {
+        }
+        getWindow().addFlags(
+                WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
     }
 
     @Override

@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
@@ -20,6 +21,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewPropertyAnimator;
 import android.view.ViewTreeObserver;
+import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.DecelerateInterpolator;
@@ -280,6 +282,13 @@ public class AuthenticationActivity extends SeshActivity implements SeshDialog.O
 
                 if (!keyboardVisible) return;
 
+
+//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+//                    Window window = getWindow();
+//                    window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+//                    window.setStatusBarColor(Color.BLACK);
+//                }
+
                 int resizedScreenCenter = resizedScreenHeight / 2;
 
                 blackOverlay.animate()
@@ -431,6 +440,12 @@ public class AuthenticationActivity extends SeshActivity implements SeshDialog.O
                 .alpha(0f)
                 .start();
 
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+//            Window window = getWindow();
+//            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+//            window.setStatusBarColor(getResources().getColor(R.color.seshbackground));
+//        }
+
         fullnameEditText.setOnTouchListener(onTouchAnimateUpListener(fullnameEditText));
         emailEditText.setOnTouchListener(onTouchAnimateUpListener(emailEditText));
         passwordEditText.setOnTouchListener(onTouchAnimateUpListener(passwordEditText));
@@ -531,9 +546,22 @@ public class AuthenticationActivity extends SeshActivity implements SeshDialog.O
                                     new PrereqsFulfilledListener() {
                                         @Override
                                         public void onPrereqsFulfilled() {
-                                            Intent mainContainerIntent = new Intent(getApplicationContext(), MainContainerActivity.class);
-                                            startActivity(mainContainerIntent);
-                                            overridePendingTransition(R.anim.slide_up, 0);
+                                            seshActivityIndicator
+                                                    .animate()
+                                                    .alpha(0)
+                                                    .setDuration(300)
+                                                    .setListener(new AnimatorListenerAdapter() {
+                                                        @Override
+                                                        public void onAnimationEnd(Animator animation) {
+                                                            super.onAnimationEnd(animation);
+                                                            showStatusBar();
+
+                                                            Intent mainContainerIntent =
+                                                                    new Intent(getApplicationContext(), MainContainerActivity.class);
+                                                            startActivity(mainContainerIntent);
+                                                        }
+                                                    })
+                                                    .start();
                                         }
                                     })).execute();
                         } else {
@@ -585,6 +613,17 @@ public class AuthenticationActivity extends SeshActivity implements SeshDialog.O
             onLoginSignupError("Network Error",
                             "We couldn't reach the network, sorry!");
         }
+    }
+
+    private void showStatusBar() {
+        try {
+            ((View) findViewById(android.R.id.title).getParent())
+                    .setVisibility(View.VISIBLE);
+        } catch (Exception e) {
+        }
+        getWindow().addFlags(
+                WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
     }
 
     private void onSignupResponse(JSONObject responseJson) {
