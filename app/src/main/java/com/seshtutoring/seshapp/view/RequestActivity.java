@@ -157,6 +157,7 @@ public class RequestActivity extends SeshActivity implements
         requestFlowSlider.attachToActivity(this);
         requestFlowSlider.setViewPagerFragments(requestFlowFragments);
         requestFlowSlider.setProgressBar(learnRequestProgressBar);
+        requestFlowSlider.setSwipingAllowed(true);
 
         final LayoutUtils utils = new LayoutUtils(this);
         final View rootView = (findViewById(android.R.id.content));

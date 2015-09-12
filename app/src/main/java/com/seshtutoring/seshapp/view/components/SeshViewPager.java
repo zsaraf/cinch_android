@@ -33,6 +33,7 @@ public class SeshViewPager extends RelativeLayout {
     private static final String TAG = SeshViewPager.class.getName();
     private static final int CLAMP_OFFSET_DP = 100;
     private static final int EPSILON_DP = 1;
+    private static final boolean DEFAULT_SWIPING_ALLOWED = true;
 
     private Context mContext;
     private SeshActivity activity;
@@ -53,6 +54,7 @@ public class SeshViewPager extends RelativeLayout {
     private boolean didReachEndValue;
     private int numFragments;
     private LinearLayout fragmentsContainer;
+    private boolean swipingAllowed;
 
     public interface InputFragment {
         boolean isCompleted();
@@ -134,12 +136,18 @@ public class SeshViewPager extends RelativeLayout {
         clampSpringUnderline = springSystem.createSpring();
         clampSpringUnderline.setSpringConfig(SpringConfig.fromBouncinessAndSpeed(9.0, 6.0));
 
+        swipingAllowed = DEFAULT_SWIPING_ALLOWED;
+
         currentScrollViewIndex = 1;
         currentFragmentIndex = 0;
     }
 
     public void attachToActivity(SeshActivity activity) {
         this.activity = activity;
+    }
+
+    public void setSwipingAllowed(boolean swipingAllowed) {
+        this.swipingAllowed = swipingAllowed;
     }
 
     private void setFrameLayoutWidth(FrameLayout frameLayout, int width) {
@@ -190,7 +198,7 @@ public class SeshViewPager extends RelativeLayout {
     }
 
     public void flingToFragmentIndex(int index) {
-        if (index < 0 || index > numFragments - 1) {
+        if (index < 0 || index > numFragments - 1 || !swipingAllowed) {
             if (index > currentFragmentIndex) {
                 clampNextFragment();
             } else {
@@ -235,7 +243,11 @@ public class SeshViewPager extends RelativeLayout {
         currentScrollViewIndex = 0;
         currentFragmentIndex = -1;
         scrollView.scrollTo(currentScrollViewIndex * fragmentWidth, 0);
+
+        boolean swipingAllowedUserChoice = swipingAllowed;
+        swipingAllowed = true;
         flingToFragmentIndex(0);
+        swipingAllowed = swipingAllowedUserChoice;
     }
 
     public void flingNextFragment() {
