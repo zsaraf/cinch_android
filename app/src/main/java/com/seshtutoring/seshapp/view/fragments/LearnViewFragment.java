@@ -134,6 +134,11 @@ public class LearnViewFragment extends Fragment implements OnMapReadyCallback {
             }
         });
 
+        LayoutUtils utils = new LayoutUtils(getActivity());
+
+        ImageView marker = (ImageView) view.findViewById(R.id.location_marker);
+        marker.setY(marker.getY() - (utils.getDimensionPx(R.dimen.learn_view_map_marker_height) / 2));
+
         return view;
     }
 
@@ -219,20 +224,6 @@ public class LearnViewFragment extends Fragment implements OnMapReadyCallback {
 
     public GoogleMap getMap() {
         return mMap;
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode,
-                                    Intent data) {
-        if (requestCode == RequestActivity.ENTER_LEARN_REQUEST_FLOW) {
-            if (resultCode == RequestActivity.LEARN_REQUEST_CREATE_SUCCESS) {
-
-            } else if (resultCode == RequestActivity.LEARN_REQUEST_CREATE_FAILURE) {
-                Toast.makeText(getActivity(), "Sick, didn't work.  :(", Toast.LENGTH_LONG).show();
-            } else if (resultCode == RequestActivity.LEARN_REQUEST_CREATE_EXITED){
-                // log to mixpanel -- user exited request flow
-            }
-        }
     }
 
     /**

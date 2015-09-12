@@ -22,8 +22,9 @@
             android:background="@drawable/jump_to_my_location"/>
 
         <ImageView
-            android:layout_width="60dp"
-            android:layout_height="60dp"
+            android:id="@+id/location_marker"
+            android:layout_width="@dimen/learn_view_map_marker_width"
+            android:layout_height="@dimen/learn_view_map_marker_height"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
             android:background="@drawable/location"/>
