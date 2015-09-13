@@ -53,6 +53,10 @@
         <item name="android:maxHeight">48dip</item>
     </style>
 
+    <style name="GothamBook">
+        <item name="fontPath">fonts/Gotham-Book.otf</item>
+    </style>
+
     <style name="SeshFullScreenDialog" parent="android:Theme" >
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowFullscreen">true</item>

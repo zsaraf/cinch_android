@@ -22,6 +22,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
+import android.widget.TextView;
 
 import com.enrique.stackblur.StackBlurManager;
 import com.seshtutoring.seshapp.R;
@@ -131,6 +132,7 @@ public class LayoutUtils {
         activity.getSupportActionBar().setElevation(0);
         Toolbar parent = (Toolbar) activity.getSupportActionBar().getCustomView().getParent();
         parent.setContentInsetsAbsolute(0, 0);
+
     }
 
     public static int generateViewId() {

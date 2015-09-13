@@ -2,6 +2,8 @@ package com.seshtutoring.seshapp.view;
 
 import android.app.ActionBar;
 import android.app.AlarmManager;
+import android.graphics.Paint;
+import android.graphics.Typeface;
 import android.os.Looper;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -21,7 +23,12 @@ import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.SimpleOnPageChangeListener;
 import android.support.v7.widget.Toolbar;
 import android.text.Layout;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.TextPaint;
+import android.text.style.MetricAffectingSpan;
 import android.util.Log;
+import android.util.LruCache;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -367,7 +374,10 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
     public void setActionBarTitle(String title) {
         TextView titleTextView = (TextView) findViewById(R.id.action_bar_title);
         titleTextView.setText(title);
+        LayoutUtils layUtils = new LayoutUtils(this);
+        titleTextView.setTypeface(layUtils.getBookGothamTypeface());
     }
+
 
     public void onFragmentReplacedAndRendered() {
 //        if (slidingMenu.isMenuShowing()) {

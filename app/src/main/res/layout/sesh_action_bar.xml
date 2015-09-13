@@ -31,6 +31,7 @@
         android:textColor="#ffffff"
         android:id="@+id/action_bar_title"
         android:textSize="18sp"
+        style="@style/GothamBook"
         android:layout_centerInParent="true" />
 
     <RelativeLayout
