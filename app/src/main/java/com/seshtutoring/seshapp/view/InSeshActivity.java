@@ -70,10 +70,15 @@ public class InSeshActivity extends SeshActivity {
         });
 
         Typeface light = Typeface.createFromAsset(this.getAssets(), "fonts/Gotham-Light.otf");
-
+        LayoutUtils layUtils = new LayoutUtils(this);
         TextView titleTextView = (TextView) findViewById(R.id.title_text_view);
         titleTextView.setText(currentSesh.className.replace(" ", "") + " Sesh");
-        titleTextView.setTypeface(light);
+        titleTextView.setTypeface(layUtils.getBookGothamTypeface());
+
+        TextView nameText = (TextView)findViewById(R.id.name_text);
+
+        nameText.setText(layUtils.abbreviatedNameForFullName(currentSesh.userName));
+        nameText.setTypeface(layUtils.getLightGothamTypeface());
 
         seshActivityIndicator = (SeshActivityIndicator) findViewById(R.id.in_sesh_activity_indicator);
 

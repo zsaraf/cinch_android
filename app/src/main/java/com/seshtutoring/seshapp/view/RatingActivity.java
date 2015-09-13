@@ -213,13 +213,10 @@ public class RatingActivity extends SeshActivity {
         DecimalFormat costDf = new DecimalFormat("#.##");
         this.cost.setText("$" + costDf.format(this.pastSesh.cost));
 
-        String[] splited = this.pastSesh.tutorFullName.split("\\s+");
 
-        if (splited.length >= 2) {
-            this.tutorName.setText("Rate " + splited[0] + " " + splited[1].substring(0, 1).toUpperCase() + ".");
-        } else {
-            this.tutorName.setText("Rate " + this.pastSesh.tutorFullName);
-        }
+        LayoutUtils layUtils = new LayoutUtils(this);
+
+        this.tutorName.setText("Rate " + layUtils.abbreviatedNameForFullName(this.pastSesh.tutorFullName));
 
         // setup the hours
         DateTime startTime = new DateTime(this.pastSesh.startTime);
