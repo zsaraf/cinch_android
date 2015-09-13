@@ -49,6 +49,7 @@
             android:layout_height="wrap_content"
             android:text="Edit"
             android:id="@+id/edit_text"
+            style="@style/GothamBook"
             android:textSize="18sp"
             android:textColor="@color/white" />
     </RelativeLayout>
