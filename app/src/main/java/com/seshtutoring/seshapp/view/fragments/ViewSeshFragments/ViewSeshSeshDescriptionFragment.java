@@ -121,23 +121,28 @@ public class ViewSeshSeshDescriptionFragment extends Fragment {
     }
 
     public void refresh() {
-        // Set class text
-        classLabel.setText(sesh.className);
+        if (sesh != null) {
+            List<Sesh> seshesFound = Sesh.find(Sesh.class, "sesh_id = ?", Integer.toString(new Integer(seshId)));
+            sesh = seshesFound.get(0);
 
-        // Set subject text
-        subjectLabel.setText(sesh.seshDescription);
+            // Set class text
+            classLabel.setText(sesh.className);
 
-        // Set time text
+            // Set subject text
+            subjectLabel.setText(sesh.seshDescription);
+
+            // Set time text
         /* Round to nearest half hour */
-        Double numHours = (sesh.seshEstTime/30) / 2.0;
-        DecimalFormat df = new DecimalFormat("0.#");
-        String suffix = (numHours == 1.0) ? " Hour" : " Hours";
-        timeLabel.setText(df.format(numHours) + suffix);
+            Double numHours = (sesh.seshEstTime / 30) / 2.0;
+            DecimalFormat df = new DecimalFormat("0.#");
+            String suffix = (numHours == 1.0) ? " Hour" : " Hours";
+            timeLabel.setText(df.format(numHours) + suffix);
 
-        if (sesh.isStudent) {
-            updateLabelForStudent(miscLabel);
-        } else {
-            updateLabelForTutor(miscLabel);
+            if (sesh.isStudent) {
+                updateLabelForStudent(miscLabel);
+            } else {
+                updateLabelForTutor(miscLabel);
+            }
         }
     }
 

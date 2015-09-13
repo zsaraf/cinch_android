@@ -333,6 +333,9 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
 
     public void refresh() {
         if (sesh != null) {
+            List<Sesh> seshesFound = Sesh.find(Sesh.class, "sesh_id = ?", Integer.toString(new Integer(seshId)));
+            sesh = seshesFound.get(0);
+
             updateNavBarTitle();
             ((ViewSeshPagerAdapter)viewPager.getAdapter()).refresh();
         }
@@ -351,11 +354,11 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
             this.sesh = sesh;
             viewSeshFragments = new Fragment[2];
             if (sesh.isStudent) {
-                viewSeshFragments[0] = ViewSeshUserDescriptionFragment.newInstance(sesh.seshId);
-                viewSeshFragments[1] = ViewSeshSeshDescriptionFragment.newInstance(sesh.seshId);
+                viewSeshFragments[0] = viewSeshUserDescriptionFragment = ViewSeshUserDescriptionFragment.newInstance(sesh.seshId);
+                viewSeshFragments[1] = viewSeshSeshDescriptionFragment = ViewSeshSeshDescriptionFragment.newInstance(sesh.seshId);
             } else {
-                viewSeshFragments[0] = ViewSeshSeshDescriptionFragment.newInstance(sesh.seshId);
-                viewSeshFragments[1] = ViewSeshUserDescriptionFragment.newInstance(sesh.seshId);
+                viewSeshFragments[0] = viewSeshSeshDescriptionFragment = ViewSeshSeshDescriptionFragment.newInstance(sesh.seshId);
+                viewSeshFragments[1] = viewSeshUserDescriptionFragment = ViewSeshUserDescriptionFragment.newInstance(sesh.seshId);
             }
         }
 
