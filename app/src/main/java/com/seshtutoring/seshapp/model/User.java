@@ -11,6 +11,7 @@ import com.orm.SugarRecord;
 import com.orm.dsl.Ignore;
 import com.seshtutoring.seshapp.services.GCMRegistrationIntentService;
 import com.seshtutoring.seshapp.services.PeriodicFetchBroadcastReceiver;
+import com.seshtutoring.seshapp.util.StorageUtils;
 import com.seshtutoring.seshapp.util.networking.SeshAuthManager;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.stripe.android.compat.AsyncTask;
@@ -84,7 +85,7 @@ public class User extends SugarRecord<User> {
     }
 
     public static void logoutUserLocally(Context context) {
-        User.deleteAll(User.class);
+        StorageUtils.clearAllSugarRecords();
         SeshAuthManager.sharedManager(context).clearSession();
         GCMRegistrationIntentService.clearGCMRegistrationToken(context);
         Log.i(TAG, "User logged out locally.");
