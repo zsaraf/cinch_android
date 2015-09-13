@@ -59,10 +59,6 @@ public class LayoutUtils {
         }
     }
 
-    public static String abbreviatedNameForFullName(String fullName) {
-        return fullName.substring(0, fullName.lastIndexOf(" ")+2) + ".";
-    }
-
     public static Bitmap getBlurredView(View rootView) {
         rootView.setDrawingCacheEnabled(true);
         rootView.buildDrawingCache();

@@ -40,6 +40,7 @@ import com.seshtutoring.seshapp.model.Message;
 import com.seshtutoring.seshapp.model.Sesh;
 import com.seshtutoring.seshapp.util.DateUtils;
 import com.seshtutoring.seshapp.util.LayoutUtils;
+import com.seshtutoring.seshapp.util.SeshUtils;
 import com.seshtutoring.seshapp.util.StorageUtils;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
@@ -182,7 +183,7 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
         });
 
         nameTextView = (TextView) v.findViewById(R.id.name_text_view);
-        nameTextView.setText(sesh.abbreviatedNameForOtherPerson());
+        nameTextView.setText(SeshUtils.abbreviatedNameForName(sesh.userName));
 
         cancelSeshButton = (SeshButton) v.findViewById(R.id.cancel_sesh_button);
         cancelSeshButton.setOnClickListener(new View.OnClickListener() {
@@ -324,7 +325,7 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
             DateTime dateTime = new DateTime(sesh.seshSetTime);
             navigationItemTitle = classString + " " + DateUtils.getSeshFormattedDate(dateTime);
         } else {
-            String firstName = sesh.firstName();
+            String firstName = SeshUtils.firstName(sesh.userName);
             navigationItemTitle = classString + " with " + firstName;
         }
 

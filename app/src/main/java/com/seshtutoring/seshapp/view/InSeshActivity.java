@@ -18,6 +18,7 @@ import com.android.volley.VolleyError;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.Sesh;
 import com.seshtutoring.seshapp.util.LayoutUtils;
+import com.seshtutoring.seshapp.util.SeshUtils;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.components.SeshActivityIndicator;
 import com.seshtutoring.seshapp.view.components.SeshButton;
@@ -77,7 +78,7 @@ public class InSeshActivity extends SeshActivity {
 
         TextView nameText = (TextView)findViewById(R.id.name_text);
 
-        nameText.setText(layUtils.abbreviatedNameForFullName(currentSesh.userName));
+        nameText.setText(SeshUtils.abbreviatedNameForName(currentSesh.userName));
         nameText.setTypeface(layUtils.getLightGothamTypeface());
 
         seshActivityIndicator = (SeshActivityIndicator) findViewById(R.id.in_sesh_activity_indicator);

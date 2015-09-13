@@ -24,6 +24,7 @@ import com.seshtutoring.seshapp.model.PastSesh;
 import com.seshtutoring.seshapp.services.notifications.InAppNotificationDisplayQueue;
 import com.seshtutoring.seshapp.services.notifications.SeshNotificationManagerService;
 import com.seshtutoring.seshapp.util.LayoutUtils;
+import com.seshtutoring.seshapp.util.SeshUtils;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.components.SeshActivityIndicator;
 import com.seshtutoring.seshapp.view.components.SeshButton;
@@ -216,7 +217,7 @@ public class RatingActivity extends SeshActivity {
 
         LayoutUtils layUtils = new LayoutUtils(this);
 
-        this.tutorName.setText("Rate " + layUtils.abbreviatedNameForFullName(this.pastSesh.tutorFullName));
+        this.tutorName.setText("Rate " + SeshUtils.abbreviatedNameForName(this.pastSesh.tutorFullName));
 
         // setup the hours
         DateTime startTime = new DateTime(this.pastSesh.startTime);
