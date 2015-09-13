@@ -1,8 +1,14 @@
 package com.seshtutoring.seshapp.view.fragments.MainContainerFragments;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.database.Cursor;
 import android.media.Image;
+import android.net.Uri;
 import android.os.Parcelable;
+import android.provider.DocumentsContract;
+import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
@@ -17,12 +23,18 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.SeshApplication;
 import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.util.LayoutUtils;
+import com.seshtutoring.seshapp.util.networking.JsonMultipartRequest;
+import com.seshtutoring.seshapp.util.networking.SeshAuthManager;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
+import com.seshtutoring.seshapp.util.networking.VolleyNetworkingWrapper;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
 import com.seshtutoring.seshapp.view.MainContainerActivity.FragmentOptionsReceiver;
 import com.seshtutoring.seshapp.view.components.SeshIconTextView;
@@ -33,8 +45,11 @@ import com.seshtutoring.seshapp.view.fragments.ProfileFragments.ProfileTutorView
 import com.seshtutoring.seshapp.view.fragments.TeachViewFragment;
 import com.squareup.picasso.Callback;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.w3c.dom.Text;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -42,6 +57,9 @@ import java.util.Map;
  */
 
 public class ProfileFragment extends Fragment implements FragmentOptionsReceiver {
+
+    private static final int SELECT_PICTURE = 1;
+
     private Map<String, Object> options;
     private User user;
     private MainContainerActivity mainContainerActivity;
@@ -51,6 +69,9 @@ public class ProfileFragment extends Fragment implements FragmentOptionsReceiver
     private ProfileBioViewFragment profileBioViewFragment;
     private ProfileStudentViewFragment profileStudentViewFragment;
     private ProfileTutorViewFragment profileTutorViewFragment;
+
+    private String selectedImagePath;
+
 
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
 
@@ -108,8 +129,80 @@ public class ProfileFragment extends Fragment implements FragmentOptionsReceiver
             }
         });
 
+        profileImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Intent intent = new Intent();
+                intent.setType("image/*");
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+                startActivityForResult(Intent.createChooser(intent, "Select Picture"), 1);
+
+            }
+        });
+
         return this.homeView;
 
+    }
+
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == Activity.RESULT_OK) {
+            if (requestCode == SELECT_PICTURE) {
+                Uri selectedImageUri = data.getData();
+                Response.Listener<JSONObject> responseListener = new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject responseJson) {
+                        onUploadResponse(responseJson);
+                    }
+                };
+                Response.ErrorListener errorListener = new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError volleyError) {
+                        int i = 0;
+                    }
+                };
+
+                Map<String, String> params = new HashMap<>();
+                params.put("session_id", SeshAuthManager.sharedManager(mainContainerActivity).getAccessToken());
+                JsonMultipartRequest request = new JsonMultipartRequest("https://www.cinchtutoring.com/users/lilli/upload_profile_picture.php", SeshAuthManager.sharedManager(mainContainerActivity).getAccessToken(), responseListener, errorListener, getRealPathFromURI(selectedImageUri));
+                VolleyNetworkingWrapper.getInstance(mainContainerActivity).addToRequestQueue(request);
+            }
+        }
+    }
+
+    public String getRealPathFromURI(Uri contentUri) {
+        String filePath = "";
+        String wholeID = DocumentsContract.getDocumentId(contentUri);
+
+        // Split at colon, use second item in the array
+        String id = wholeID.split(":")[1];
+
+        String[] column = { MediaStore.Images.Media.DATA };
+
+        // where id is equal to
+        String sel = MediaStore.Images.Media._ID + "=?";
+
+        Cursor cursor = mainContainerActivity.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                column, sel, new String[]{ id }, null);
+
+        int columnIndex = cursor.getColumnIndex(column[0]);
+
+        if (cursor.moveToFirst()) {
+            filePath = cursor.getString(columnIndex);
+        }
+        cursor.close();
+        return filePath;
+    }
+
+    private void onUploadResponse(JSONObject responseJson) {
+        try {
+            if (responseJson.get("status").equals("SUCCESS")) {
+                int i = 0;
+            } else if (responseJson.get("status").equals("FAILURE")) {
+                String message = responseJson.get("message").toString();
+            }
+        } catch (JSONException e) {
+        }
     }
 
     private class ProfileViewPagerAdapter extends FragmentStatePagerAdapter {

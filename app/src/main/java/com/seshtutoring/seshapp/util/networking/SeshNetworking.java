@@ -842,6 +842,13 @@ public class SeshNetworking {
         public abstract void onErrorException(Exception e);
     }
 
+    public void uploadProfilePicture(Response.Listener<JSONObject> successListener, Response.ErrorListener errorListener) {
+        Map<String, String> params = new HashMap<>();
+        params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
+
+        postWithRelativeUrl("upload_profile_picture.php", params, successListener, errorListener);
+    }
+
 //    @TODO: implement once Stripe functionality in place
 //    public void addCardWithCustomerToken(...)
 //    public void getCardsForCurrentUserWithSuccess(...)

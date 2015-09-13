@@ -103,7 +103,7 @@ public class TutorHistoryListFragment extends ListFragment{
                 viewHolder = (ViewHolder) convertView.getTag();
             }
 
-            String abbrName = item.studentFullName.substring(0,item.tutorFullName.lastIndexOf(" ")+2) + ".";
+            String abbrName = item.tutorFullName.substring(0,item.tutorFullName.lastIndexOf(" ")+2) + ".";
             viewHolder.mainTextView.setText(abbrName);
             viewHolder.subTextView.setText(item.className);
             String rightText = "cancelled";
