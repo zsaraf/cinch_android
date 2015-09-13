@@ -52,23 +52,32 @@ public class MainContainerStateManager {
     }
 
     public void setContainerStateForSesh(Sesh sesh) {
-        setContainerState(new ContainerState("Sesh!", 0,
+        setContainerState(new ContainerState("Sesh", 0,
                 ViewSeshFragment.newInstance(sesh.seshId, false),
                 sesh.getContainerStateTag(),
                 false,
                 SlidingMenu.TOUCHMODE_MARGIN));
     }
 
-    public void setContainerStateForSeshWithId(Sesh sesh) {
-        setContainerState(new ContainerState("Sesh!", 0,
-                ViewSeshFragment.newInstance(sesh.seshId, false),
+    public void setContainerStateForSeshWithMessaging(Sesh sesh) {
+        setContainerState(new ContainerState("Sesh", 0,
+                ViewSeshFragment.newInstance(sesh.seshId, true),
                 sesh.getContainerStateTag(),
                 false,
                 SlidingMenu.TOUCHMODE_MARGIN));
     }
+//
+//
+//    public void setContainerStateForSeshWithId(Sesh sesh) {
+//        setContainerState(new ContainerState("Sesh", 0,
+//                ViewSeshFragment.newInstance(sesh.seshId, false),
+//                sesh.getContainerStateTag(),
+//                false,
+//                SlidingMenu.TOUCHMODE_MARGIN));
+//    }
 
     public void setContainerStateForLearnRequest(LearnRequest learnRequest) {
-        setContainerState(new ContainerState("Request!", 0,
+        setContainerState(new ContainerState("Request", 0,
                 ViewRequestFragment.newInstance(learnRequest.learnRequestId),
                 learnRequest.getContainerStateTag(),
                 false,

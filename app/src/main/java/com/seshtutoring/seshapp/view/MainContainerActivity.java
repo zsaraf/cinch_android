@@ -194,15 +194,13 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
             } else if (intent.getAction().equals(VIEW_SESH_ACTION)) {
                 Sesh sesh = new Sesh(); // hacky, but allows us to pass seshId into containerStateManager in a compatible way
                 sesh.seshId = intent.getIntExtra(ViewSeshFragment.SESH_KEY, -1);
-                boolean openMessaging = intent.getBooleanExtra(ViewSeshFragment.OPEN_MESSAGING, false);
 
                 containerStateManager.setContainerStateForSesh(sesh);
             } else if (intent.getAction().equals(NEW_MESSAGE_ACTION)) {
                 Sesh sesh = new Sesh(); // hacky, but allows us to pass seshId into containerStateManager in a compatible way
-                int seshId = intent.getIntExtra(ViewSeshFragment.SESH_KEY, -1);
-                boolean openMessaging = intent.getBooleanExtra(ViewSeshFragment.OPEN_MESSAGING, false);
+                sesh.seshId = intent.getIntExtra(ViewSeshFragment.SESH_KEY, -1);
 
-                containerStateManager.setContainerStateForSesh(sesh);
+                containerStateManager.setContainerStateForSeshWithMessaging(sesh);
             } else if (intent.getAction() == SESH_CANCELLED_ACTION) {
                 // IF SESH HAS BEEN CANCELLED AND MAIN CONTAINER IS IN FOREGROUND, WE ENSURE VIEWSESHFRAGMENT IS NOT VISIBLE
                 if (containerStateManager.getMainContainerState().fragment instanceof ViewSeshFragment) {
