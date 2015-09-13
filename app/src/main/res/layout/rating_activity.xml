@@ -151,8 +151,7 @@
         android:layout_marginLeft="35dp"
         android:layout_marginRight="35dp"
         android:layout_above="@+id/report_problem_button"
-        android:layout_marginBottom="20dp"
-        android:gravity="center_vertical">
+        android:layout_marginBottom="20dp">
 
         <com.seshtutoring.seshapp.view.components.SeshActivityIndicator
             android:id="@+id/rating_activity_indicator"
@@ -164,87 +163,95 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/rate_item_friendly"
-            android:layout_below="@+id/rate_item_knowledge"
-            android:layout_marginTop="10dp">
+            android:id="@+id/rating_items"
+            android:layout_centerVertical="true"
+            android:paddingBottom="10dp">
 
-            <RatingBar
-                android:layout_width="wrap_content"
-                android:layout_height="32dp"
-                android:id="@+id/rating_bar_friendly"
-                android:layout_marginTop="0dp"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
-                android:progressTint="@color/seshorange"
-                android:stepSize="1"
-                style="@style/SeshRatingBar" />
-
-            <TextView
-                android:layout_width="wrap_content"
+            <RelativeLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Friendly"
-                android:id="@+id/friendly_text"
-                android:textSize="18dp"
-                android:layout_centerVertical="true"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true" />
-        </RelativeLayout>
+                android:id="@+id/rate_item_friendly"
+                android:layout_below="@+id/rate_item_knowledge"
+                android:layout_marginTop="10dp">
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/rate_item_helpful"
-            android:layout_marginTop="10dp">
+                <RatingBar
+                    android:layout_width="wrap_content"
+                    android:layout_height="32dp"
+                    android:id="@+id/rating_bar_friendly"
+                    android:layout_marginTop="0dp"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:progressTint="@color/seshorange"
+                    android:stepSize="1"
+                    style="@style/SeshRatingBar" />
 
-            <RatingBar
-                android:layout_width="wrap_content"
-                android:layout_height="32dp"
-                android:id="@+id/rating_bar_helpful"
-                android:layout_marginTop="0dp"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
-                android:progressTint="@color/seshorange"
-                android:stepSize="1"
-                style="@style/SeshRatingBar"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Friendly"
+                    android:id="@+id/friendly_text"
+                    android:textSize="18dp"
+                    android:layout_centerVertical="true"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true" />
+            </RelativeLayout>
 
-            <TextView
-                android:layout_width="wrap_content"
+            <RelativeLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Helpful"
-                android:id="@+id/helpful_text"
-                android:textSize="18dp"
-                android:layout_centerVertical="true"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true" />
-        </RelativeLayout>
+                android:id="@+id/rate_item_helpful"
+                android:layout_marginTop="10dp">
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/rate_item_knowledge"
-            android:layout_below="@+id/rate_item_helpful"
-            android:layout_marginTop="10dp">
+                <RatingBar
+                    android:layout_width="wrap_content"
+                    android:layout_height="32dp"
+                    android:id="@+id/rating_bar_helpful"
+                    android:layout_marginTop="0dp"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:progressTint="@color/seshorange"
+                    android:stepSize="1"
+                    style="@style/SeshRatingBar"/>
 
-            <RatingBar
-                android:layout_width="wrap_content"
-                android:layout_height="32dp"
-                android:id="@+id/rating_bar_knowledge"
-                android:layout_marginTop="0dp"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
-                android:progressTint="@color/seshorange"
-                android:stepSize="1"
-                style="@style/SeshRatingBar"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Helpful"
+                    android:id="@+id/helpful_text"
+                    android:textSize="18dp"
+                    android:layout_centerVertical="true"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true" />
+            </RelativeLayout>
 
-            <TextView
-                android:layout_width="wrap_content"
+            <RelativeLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Knowledge"
-                android:id="@+id/knowledge_text"
-                android:textSize="18dp"
-                android:layout_centerVertical="true"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true" />
+                android:id="@+id/rate_item_knowledge"
+                android:layout_below="@+id/rate_item_helpful"
+                android:layout_marginTop="10dp">
+
+                <RatingBar
+                    android:layout_width="wrap_content"
+                    android:layout_height="32dp"
+                    android:id="@+id/rating_bar_knowledge"
+                    android:layout_marginTop="0dp"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:progressTint="@color/seshorange"
+                    android:stepSize="1"
+                    style="@style/SeshRatingBar"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Knowledge"
+                    android:id="@+id/knowledge_text"
+                    android:textSize="18dp"
+                    android:layout_centerVertical="true"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true" />
+            </RelativeLayout>
         </RelativeLayout>
     </RelativeLayout>
 
