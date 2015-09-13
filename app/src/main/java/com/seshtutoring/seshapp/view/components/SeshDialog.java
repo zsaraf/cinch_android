@@ -116,6 +116,9 @@ public class SeshDialog extends DialogFragment {
         this.inflater = inflater;
         this.utils = new LayoutUtils(getActivity());
 
+        firstChoice = firstChoice.toUpperCase();
+        secondChoice = secondChoice.toUpperCase();
+
         Typeface medium = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Gotham-Medium.otf");
         Typeface book = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Gotham-Book.otf");
         Typeface light = utils.getLightGothamTypeface();

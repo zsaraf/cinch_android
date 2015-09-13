@@ -191,6 +191,7 @@
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
             android:theme="@style/SeshTransparent"
+            android:parentActivityName=".view.MainContainerActivity"
             android:windowSoftInputMode="adjustNothing" >
         </activity>
         <activity
