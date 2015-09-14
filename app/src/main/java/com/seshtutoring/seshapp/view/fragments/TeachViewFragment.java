@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
 import android.app.Activity;
+import android.opengl.Visibility;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.InflateException;
@@ -119,6 +120,31 @@ public class TeachViewFragment extends Fragment {
                 .animate()
                 .alpha(canSeeClasses ? TINT_VIEW_ALPHA : 0)
                 .setDuration(400)
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+                        if (canSeeClasses) {
+                            tintView.setVisibility(View.VISIBLE);
+                        }
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        if (!canSeeClasses) {
+                            tintView.setVisibility(View.INVISIBLE);
+                        }
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                })
                 .start();
 
         if (canSeeClasses) {

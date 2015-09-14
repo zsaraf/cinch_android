@@ -409,7 +409,7 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenList
                             @Override
                             public void run() {
                                 containerStateManager.setContainerStateForSesh(item.sesh);
-                                containerStateManager.closeDrawer();
+                                containerStateManager.closeDrawerWithDelay(1000);
                             }
                         }));
 

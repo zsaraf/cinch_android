@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.media.Image;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.view.ViewCompat;
@@ -17,6 +18,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -29,10 +31,15 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.daimajia.swipe.SwipeLayout;
 import com.daimajia.swipe.adapters.ArraySwipeAdapter;
+import com.facebook.rebound.SimpleSpringListener;
+import com.facebook.rebound.Spring;
+import com.facebook.rebound.SpringConfig;
+import com.facebook.rebound.SpringSystem;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.AvailableBlock;
 import com.seshtutoring.seshapp.model.AvailableJob;
 import com.seshtutoring.seshapp.model.Course;
+import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
 import com.seshtutoring.seshapp.view.components.SeshIconTextView;
@@ -189,6 +196,9 @@ public class ViewAvailableJobsFragment extends ListFragment {
         public SeshInformationLabel durationInformationLabel;
         public SeshInformationLabel availableBlocksInformationLabel;
 
+        private SpringSystem springSystem;
+        public Spring animationSpring;
+
         public ViewGroup topGroup;
 
         public Boolean shouldBid;
@@ -223,6 +233,7 @@ public class ViewAvailableJobsFragment extends ListFragment {
 
                 viewHolder = new ViewHolder();
 
+                viewHolder.springSystem = SpringSystem.create();
                 viewHolder.shouldBid = false;
                 viewHolder.backingCheckImageView = (ImageView) convertView.findViewById(R.id.swipe_view_check_icon);
                 viewHolder.backingCheckImageView.setColorFilter(Color.argb(255, 255, 255, 255));
@@ -327,15 +338,43 @@ public class ViewAvailableJobsFragment extends ListFragment {
                     }
 
                     @Override
-                    public void onHandRelease(SwipeLayout layout, float xvel, float yvel) {
+                    public void onHandRelease(final SwipeLayout layout, float xvel, float yvel) {
                         mSwipeRefreshLayout.setEnabled(true);
-                        layout.close();
-                        ViewHolder viewHolder = (ViewHolder) layout.getTag();
+                        layout.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                layout.close();
+                            }
+                        }, 50);
+                        final ViewHolder viewHolder = (ViewHolder) layout.getTag();
                         if (viewHolder.shouldBid) {
                             viewHolder.shouldBid = false;
                             layout.setSwipeEnabled(false);
                             ((JobHolder)viewHolder.nameTextView.getTag()).select();
                             viewHolder.nameTextView.setTextColor(getResources().getColor(R.color.seshgreen));
+
+                            handler.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    viewHolder.rateTextView.setVisibility(View.GONE);
+                                    viewHolder.checkImageView.setVisibility(View.VISIBLE);
+                                    viewHolder.checkImageView.setScaleX(0.1f);
+                                    viewHolder.checkImageView.setScaleY(0.1f);
+
+                                    viewHolder.animationSpring = viewHolder.springSystem.createSpring();
+                                    viewHolder.animationSpring.setCurrentValue(.1f);
+                                    viewHolder.animationSpring.setEndValue(1.0f);
+                                    viewHolder.animationSpring.setSpringConfig(SpringConfig.fromBouncinessAndSpeed(9.0, 6.0));
+                                    viewHolder.animationSpring.addListener(new SimpleSpringListener() {
+                                        @Override
+                                        public void onSpringUpdate(Spring spring) {
+                                            viewHolder.checkImageView.setScaleX((float) (spring.getCurrentValue()));
+                                            viewHolder.checkImageView.setScaleY((float) (spring.getCurrentValue()));
+                                        }
+                                    });
+                                }
+                            }, 200);
+
                             seshNetworking.createBid(((JobHolder)viewHolder.nameTextView.getTag()).job.requestId, 2, 2,
                                     new Response.Listener<JSONObject>() {
                                         @Override

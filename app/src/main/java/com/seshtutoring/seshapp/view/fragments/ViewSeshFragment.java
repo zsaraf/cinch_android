@@ -89,6 +89,13 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
     private SeshPageIndicator pageIndicator;
     private TextView nameTextView;
 
+    // For students only
+    private EditText locationNotesEditText;
+
+    // For tutors only
+    private TextView setTimeTextView;
+
+
     RelativeLayout topLayout;
 
     private GoogleMap mMap;
@@ -137,28 +144,22 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
         View v;
         if (sesh.isStudent) {
             v = inflater.inflate(R.layout.fragment_view_sesh_student, container, false);
-            final EditText editText = (EditText) v.findViewById(R.id.icon_text_view_text);
-            editText.setText(sesh.locationNotes);
-            editText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            locationNotesEditText = (EditText) v.findViewById(R.id.icon_text_view_text);
+            locationNotesEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
                 @Override
                 public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                     v.clearFocus();
                     InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(getActivity().INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-                    updateSeshWithLocationNotes(editText.getText().toString());
+                    updateSeshWithLocationNotes(locationNotesEditText.getText().toString());
                     return true;
                 }
             });
         } else {
             v = inflater.inflate(R.layout.fragment_view_sesh_tutor, container, false);
             final RelativeLayout middleBar = (RelativeLayout) v.findViewById(R.id.middleBar);
-            final TextView textView = (TextView) v.findViewById(R.id.icon_text_view_text);
-            if (sesh.isInstant) {
-                textView.setText("NOW");
-            } else {
-                if (sesh.seshSetTime > 0) {
-                    textView.setText(DateUtils.getSeshFormattedDate(new DateTime(sesh.seshSetTime)));
-                }
+            setTimeTextView = (TextView) v.findViewById(R.id.icon_text_view_text);
+            if (!sesh.isInstant) {
                 middleBar.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -214,8 +215,6 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
                 }
             });
         }
-
-        broadcastReceiver = actionBroadcastReceiver;
 
         seshActivityIndicator = (SeshActivityIndicator) v.findViewById(R.id.view_sesh_activity_indicator);
         seshActivityIndicator.setAlpha(0);
@@ -284,16 +283,15 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
         messageButton.setText(messageText);
     }
 
-
     @Override
-    public void onStart() {
-        super.onStart();
+    public void onResume() {
+        super.onResume();
 
+        broadcastReceiver = actionBroadcastReceiver;
         // Listen for new messages
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(MessagingActivity.REFRESH_MESSAGES);
         this.getActivity().registerReceiver(broadcastReceiver, intentFilter);
-
     }
 
     @Override
@@ -338,7 +336,23 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
             sesh = seshesFound.get(0);
 
             updateNavBarTitle();
+            updateMiddleBarView();
             ((ViewSeshPagerAdapter)viewPager.getAdapter()).refresh();
+        }
+    }
+
+    private void updateMiddleBarView()
+    {
+        if (sesh.isStudent) {
+            locationNotesEditText.setText(sesh.locationNotes);
+        } else {
+            if (sesh.isInstant) {
+                setTimeTextView.setText("NOW");
+            } else {
+                if (sesh.seshSetTime > 0) {
+                    setTimeTextView.setText(DateUtils.getSeshFormattedDate(new DateTime(sesh.seshSetTime)));
+                }
+            }
         }
     }
 

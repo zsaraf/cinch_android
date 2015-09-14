@@ -124,6 +124,7 @@ public class ViewSeshSetTimeActivity extends SeshActivity {
             @Override
             public void onResponse(JSONObject jsonObject) {
                 sesh.seshSetTime = dateTime.getMillis();
+                sesh.save();
                 onBackPressed();
             }
         }, new Response.ErrorListener() {
