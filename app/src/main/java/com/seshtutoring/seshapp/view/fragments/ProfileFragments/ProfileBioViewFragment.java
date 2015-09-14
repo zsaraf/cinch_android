@@ -1,5 +1,7 @@
 package com.seshtutoring.seshapp.view.fragments.ProfileFragments;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -40,7 +42,16 @@ public class ProfileBioViewFragment extends Fragment implements MainContainerAct
         SeshIconTextView majorView = (SeshIconTextView) v.findViewById(R.id.major);
         TextView bioView = (TextView) v.findViewById(R.id.bio);
         TextView editButton = (TextView) v.findViewById(R.id.edit_button);
-
+        editButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //show web view
+                Intent viewIntent =
+                        new Intent("android.intent.action.VIEW",
+                                Uri.parse("https://www.seshtutoring.com/registration"));
+                mainContainerActivity.startActivity(viewIntent);
+            }
+        });
 
         schoolView.setText(user.school.schoolName);
         schoolView.setIconResourceId(R.drawable.university_big);
