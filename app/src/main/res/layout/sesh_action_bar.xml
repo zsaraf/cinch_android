@@ -32,7 +32,9 @@
         android:id="@+id/action_bar_title"
         android:textSize="18sp"
         style="@style/GothamBook"
-        android:layout_centerInParent="true" />
+        android:layout_centerVertical="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="60dp" />
 
     <RelativeLayout
         android:layout_width="wrap_content"
