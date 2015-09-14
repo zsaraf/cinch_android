@@ -45,7 +45,6 @@ public class SeshApproachingNotificationHandler  extends BannerNotificationHandl
             @Override
             public void run() {
                 mContext.sendBroadcast(viewSeshActionIntent(true));
-                Notification.currentNotificationHandled(mContext, true);
             }
         };
     }

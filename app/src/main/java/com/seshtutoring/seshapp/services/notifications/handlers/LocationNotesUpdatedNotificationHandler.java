@@ -26,10 +26,6 @@ public class LocationNotesUpdatedNotificationHandler extends BannerNotificationH
 
     @Override
     public void handleDisplayInsideApp() {
-        if (mNotification.wasDisplayedOutsideApp) {
-            Notification.currentNotificationHandled(mContext, true);
-        }
-
         saveNewLocationNotes();
         loadImage(profilePicture, new Callback() {
             @Override
@@ -55,7 +51,6 @@ public class LocationNotesUpdatedNotificationHandler extends BannerNotificationH
             @Override
             public void run() {
                 mContext.sendBroadcast(viewSeshActionIntent(true, mNotification.correspondingSesh()));
-                Notification.currentNotificationHandled(mContext, true);
             }
         };
     }
