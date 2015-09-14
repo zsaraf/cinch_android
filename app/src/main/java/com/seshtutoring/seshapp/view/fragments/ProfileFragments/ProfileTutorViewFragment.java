@@ -13,6 +13,7 @@ import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
+import com.seshtutoring.seshapp.view.components.SeshDialog;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -43,6 +44,16 @@ public class ProfileTutorViewFragment extends Fragment implements MainContainerA
 
         TextView hoursTutoredView = (TextView) this.homeView.findViewById(R.id.hours_taught_number);
         TextView creditsView = (TextView) this.homeView.findViewById(R.id.tutor_credits_number);
+
+        creditsView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SeshDialog.showDialog(mainContainerActivity.getFragmentManager(),
+                        "Cash Out?",
+                        "Would you like to cash out your tutor credits? The transfer will take 1-2 days to complete.",
+                        "YES", "NO", "cashout");
+            }
+        });
 
         DecimalFormat df = new DecimalFormat("0.00");
         hoursTutoredView.setText(df.format(this.user.tutor.hoursTutored));
