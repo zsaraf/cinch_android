@@ -86,7 +86,7 @@ public class Message extends SugarRecord<Message> {
         for (int i = 0; i < messages.size(); i++) {
             Message currentMessage = messages.get(i);
 
-            if (!currentMessage.hasBeenRead) {
+            if (!currentMessage.hasBeenRead && !currentMessage.fromYou) {
                 count++;
             }
         }

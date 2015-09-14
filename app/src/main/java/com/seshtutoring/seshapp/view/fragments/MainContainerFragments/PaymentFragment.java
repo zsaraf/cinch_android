@@ -176,7 +176,7 @@ public class PaymentFragment extends ListFragment implements FragmentOptionsRece
     }
 
     public void deleteCard(final Card card) {
-        String message = "Are you sure you want to delete " + card.type + " " + card.lastFour;
+        String message = "Are you sure you want to delete your " + card.type + " ending in " + card.lastFour;
         confirmDialog.setMessage(message);
         confirmDialog.setFirstButtonClickListener(new View.OnClickListener() {
             @Override
