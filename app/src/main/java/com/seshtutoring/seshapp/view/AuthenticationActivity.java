@@ -707,17 +707,23 @@ public class AuthenticationActivity extends SeshActivity implements SeshDialog.O
                     loginSignupButton.setText("Log in");
                 } else if (entranceType == EntranceType.SIGNUP) {
                     int alreadyHaveAccountY = content.getHeight() - utils.dpToPixels(ACCOUNT_TEXT_OFFSET_DP);
-                    int loginSignupY = alreadyHaveAccountY - (getEditTextBottomMarginPx()
-                            + getSeshEditTextHeightPx());
-                    int passwordEditTextY = loginSignupY -
-                            (getEditTextBottomMarginPx() + getSeshEditTextHeightPx()) * 2;
-                    int emailEditTextY = passwordEditTextY - (getEditTextBottomMarginPx() + getSeshEditTextHeightPx());
+                    final int yDeltaEmailAndPassword =
+                            getEditTextBottomMarginPx() +
+                                    getSeshEditTextHeightPx();
+                    int loginSignupY = alreadyHaveAccountY - (getEditTextBottomMarginPx() + getSeshEditTextHeightPx());
+                    int reenterPasswordEditTextY = loginSignupY - yDeltaEmailAndPassword;
+                    int passwordEditTextY = reenterPasswordEditTextY -
+                            (yDeltaEmailAndPassword);
+                    int emailEditTextY = passwordEditTextY - (yDeltaEmailAndPassword);
+                    int fullNameEditTextY = emailEditTextY - yDeltaEmailAndPassword;
                     int seshLogoY = (fullnameEditText.getTop() / 2) - (seshLogo.getHeight() / 2);
 
                     loginSignupButton.setY(loginSignupY);
                     alreadyHaveAccountText.setY(alreadyHaveAccountY);
                     emailEditText.setY(emailEditTextY);
                     passwordEditText.setY(passwordEditTextY);
+                    fullnameEditText.setY(fullNameEditTextY);
+                    reenterPasswordEditText.setY(reenterPasswordEditTextY);
                     seshLogo.setY(seshLogoY);
                     seshBlurredLogo.setY(seshLogoY);
 

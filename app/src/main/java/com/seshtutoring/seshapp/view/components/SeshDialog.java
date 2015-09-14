@@ -216,8 +216,9 @@ public class SeshDialog extends DialogFragment {
             @Override
             public void onGlobalLayout() {
                 LayoutUtils utils = new LayoutUtils(mActivity);
-                screenHeight = utils.getScreenHeightPx();
-                double centeredDialogY = (screenHeight - dialogCard.getMeasuredHeight())/2.0;
+                screenHeight = utils.getScreenHeightPx(mActivity);
+                /* Layout a tiny bit above center */
+                double centeredDialogY = (screenHeight - dialogCard.getMeasuredHeight())/2.0 - utils.dpToPixels(30);
 
                 dialogCard.setY((float) screenHeight);
                 dialogCard.setAlpha(1);

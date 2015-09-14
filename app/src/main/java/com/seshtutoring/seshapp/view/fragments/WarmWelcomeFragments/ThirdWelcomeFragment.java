@@ -46,7 +46,7 @@ public class ThirdWelcomeFragment extends Fragment {
 
             contentParams.leftMargin = utils.dpToPixels(20);
             contentParams.rightMargin = utils.dpToPixels(20);
-            contentParams.topMargin = utils.dpToPixels(65);
+//            contentParams.topMargin = utils.dpToPixels(65);
 
             cardView.setPreventCornerOverlap(false);
         } else {
@@ -54,7 +54,7 @@ public class ThirdWelcomeFragment extends Fragment {
 
             contentParams.leftMargin = utils.dpToPixels(30);
             contentParams.rightMargin = utils.dpToPixels(30);
-            contentParams.topMargin = utils.dpToPixels(85);
+//            contentParams.topMargin = utils.dpToPixels(85);
         }
 
         title.setLayoutParams(titleParams);
