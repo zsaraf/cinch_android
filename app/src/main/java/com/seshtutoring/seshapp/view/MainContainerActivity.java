@@ -87,6 +87,7 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
     public static final String VIEW_SESH_ACTION = "view_sesh";
     public static final String SESH_CANCELLED_ACTION = "sesh_cancelled";
     public static final String NEW_MESSAGE_ACTION = "new_message";
+    public static final String REFRESH_JOBS = "refresh_jobs";
     public static final String FOUND_TUTOR_ACTION = "com.seshtutoring.seshapp.FOUND_TUTOR";
 
     /**

@@ -287,7 +287,7 @@ public class Notification extends SugarRecord<Notification> {
             case UPDATE_STATE:
                 return new UpdateStateNotificationHandler(this, context); // tested
             case NEW_MESSAGE:
-                return new NewMessageNotificationHandler(this, context); // implement further when relevant
+                return new NewMessageNotificationHandler(this, context); // tested
             case REFRESH_NOTIFICATIONS:
                 return new RefreshNotificationsNotificationHandler(this, context); // tested
             case REQUEST_TIMEOUT:
