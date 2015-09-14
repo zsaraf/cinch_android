@@ -1,22 +1,16 @@
 package com.seshtutoring.seshapp.view.fragments.LearnRequestFragments;
 
-import android.app.DownloadManager;
 import android.content.Context;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -26,7 +20,7 @@ import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.Course;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.RequestActivity;
-import com.seshtutoring.seshapp.view.components.RequestFlowScrollView;
+import com.seshtutoring.seshapp.view.components.SeshViewPager;
 import com.seshtutoring.seshapp.view.components.SeshEditText;
 
 import org.json.JSONArray;
@@ -38,7 +32,7 @@ import java.util.ArrayList;
 /**
  * Created by nadavhollander on 7/21/15.
  */
-public class LearnRequestCourseFragment extends Fragment implements RequestActivity.InputFragment {
+public class LearnRequestCourseFragment extends SeshViewPager.InputFragment {
     private static final String TAG = LearnRequestCourseFragment.class.getName();
 
     private RequestActivity parentActivity;
@@ -47,7 +41,7 @@ public class LearnRequestCourseFragment extends Fragment implements RequestActiv
     private ListView courseResultsListView;
     private CourseResultsAdapter courseResultsAdapter;
     private ArrayList<Course> courseResults;
-    private RequestFlowScrollView requestFlowScrollView;
+    private SeshViewPager seshViewPager;
 
     private Course selectedCourse = null;
 
@@ -70,7 +64,7 @@ public class LearnRequestCourseFragment extends Fragment implements RequestActiv
                 courseEditText.setText(selectedCourse.formatForTextView());
                 courseResults.clear();
 
-                requestFlowScrollView.flingNextFragment();
+                seshViewPager.flingNextFragment();
             }
         });
         this.seshNetworking = new SeshNetworking(getActivity());
@@ -168,8 +162,8 @@ public class LearnRequestCourseFragment extends Fragment implements RequestActiv
     }
 
     @Override
-    public void attachRequestFlowScrollView(RequestFlowScrollView requestFlowScrollView) {
-        this.requestFlowScrollView = requestFlowScrollView;
+    public void attachSeshViewPager(SeshViewPager seshViewPager) {
+        this.seshViewPager = seshViewPager;
     }
 
     @Override

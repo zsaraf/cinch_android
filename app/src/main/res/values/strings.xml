@@ -33,7 +33,7 @@
     <string name="view_classes_on_text">close to view available jobs</string>
     <string name="view_classes_off_text">tap to view eligible courses</string>
 
-    <string name="support_url">https://www.seshtutoring.com/support.html</string>
+    <string name="support_url">https://seshtutoring.com/faq</string>
 
     <string name="payment_agreement">By inserting your card information you are agreeing to the Sesh Terms and Conditions and understand that Sesh is a marketplace and not a courier company. We will not charge your credit card until you successfully complete a tutoring session.</string>
 
@@ -166,4 +166,5 @@ If You have any questions about this privacy statement, the practices of Sesh, o
     <string name="title_activity_view_sesh_map">ViewSeshMapActivity</string>
 
     <string name="learn_request_time_early_end_label">*Remember, you can end the Sesh early if you want. (Min. 30 minutes)</string>
+    <string name="title_activity_tutor_terms">TutorTermsActivity</string>
 </resources>

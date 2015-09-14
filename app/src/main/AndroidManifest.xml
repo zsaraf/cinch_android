@@ -155,7 +155,7 @@
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
             android:theme="@style/SeshFullScreen"
-            android:windowSoftInputMode="adjustResize"/>
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".view.TutorReviewActivity"
             android:launchMode="singleTop"
@@ -175,8 +175,7 @@
             android:label="@string/title_activity_login"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
-            android:theme="@style/SeshFullScreen"
-            android:windowSoftInputMode="adjustResize" >
+            android:theme="@style/SeshFullScreen" >
         </activity>
         <activity
             android:name=".view.MainContainerActivity"
@@ -196,10 +195,29 @@
             android:name=".view.RequestActivity"
             android:label="request activity"
             android:launchMode="singleTop"
+            android:parentActivityName=".view.MainContainerActivity"
             android:screenOrientation="portrait"
             android:theme="@style/SeshTransparent"
             android:windowSoftInputMode="adjustNothing" >
         </activity>
+        <activity
+            android:name=".view.OnboardingActivity"
+            android:label="tutor onboarding"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@style/SeshTransparent"
+            android:windowSoftInputMode="adjustNothing" >
+        </activity>
+        <activity
+            android:name=".view.ViewSeshSetTimeActivity"
+            android:label="Set Time Activity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@style/SeshTransparent"
+            android:windowSoftInputMode="adjustNothing" >
+        </activity>
+        <activity android:name="com.soundcloud.android.crop.CropImageActivity"
+            android:theme="@style/CustomTheme"/>
 
         <meta-data
             android:name="com.google.android.gms.version"
@@ -233,8 +251,9 @@
         <activity
             android:name=".view.ChangePasswordActivity"
             android:label="@string/title_activity_change_password"
-            android:parentActivityName=".view.MainContainerActivity"
-            android:launchMode="singleTop" >
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:parentActivityName=".view.MainContainerActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.seshtutoring.seshapp.view.MainContainerActivity" />
@@ -242,8 +261,9 @@
         <activity
             android:name=".view.AboutActivity"
             android:label="@string/title_activity_about"
-            android:parentActivityName=".view.MainContainerActivity"
-            android:launchMode="singleTop" >
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:parentActivityName=".view.MainContainerActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.seshtutoring.seshapp.view.MainContainerActivity" />
@@ -251,8 +271,9 @@
         <activity
             android:name=".view.TermsActivity"
             android:label="@string/title_activity_terms"
-            android:parentActivityName=".view.MainContainerActivity"
-            android:launchMode="singleTop">
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:parentActivityName=".view.MainContainerActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.seshtutoring.seshapp.view.MainContainerActivity" />
@@ -260,8 +281,9 @@
         <activity
             android:name=".view.PrivacyActivity"
             android:label="@string/title_activity_privacy"
-            android:parentActivityName=".view.MainContainerActivity"
-            android:launchMode="singleTop" >
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:parentActivityName=".view.MainContainerActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.seshtutoring.seshapp.view.MainContainerActivity" />
@@ -269,8 +291,9 @@
         <activity
             android:name=".view.SupportActivity"
             android:label="@string/title_activity_support"
-            android:parentActivityName=".view.MainContainerActivity"
-            android:launchMode="singleTop" >
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:parentActivityName=".view.MainContainerActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.seshtutoring.seshapp.view.MainContainerActivity" />
@@ -278,10 +301,10 @@
         <activity
             android:name=".view.AddCardActivity"
             android:label="@string/title_activity_add_card"
-            android:parentActivityName=".view.MainContainerActivity"
             android:launchMode="singleTop"
+            android:parentActivityName=".view.MainContainerActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/SeshActionBarTheme">
+            android:theme="@style/SeshActionBarTheme" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.seshtutoring.seshapp.view.MainContainerActivity" />
@@ -292,12 +315,11 @@
             android:value="91b92731aa93f894988d2de0430634aad345f888" />
 
         <activity
-            android:name=".view.ViewSeshSetTimeActivity"
-            android:label="Set Time Activity"
-            android:launchMode="singleTop"
+            android:name=".view.TutorTermsActivity"
+            android:label="@string/title_activity_tutor_terms"
             android:screenOrientation="portrait"
-            android:theme="@style/SeshTransparent"
-            android:windowSoftInputMode="stateHidden" >
+            android:theme="@style/SeshActionBarTheme"
+            android:launchMode="singleTop">
         </activity>
     </application>
 

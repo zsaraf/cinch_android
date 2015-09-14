@@ -24,6 +24,7 @@ import com.seshtutoring.seshapp.model.Notification;
 import com.seshtutoring.seshapp.model.Sesh;
 import com.seshtutoring.seshapp.util.ApplicationLifecycleTracker;
 import com.seshtutoring.seshapp.util.LayoutUtils;
+import com.seshtutoring.seshapp.util.SeshUtils;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking.SynchronousRequest;
 import com.seshtutoring.seshapp.view.InSeshActivity;
@@ -115,7 +116,7 @@ public class SeshCreatedNotificationHandler extends NotificationHandler {
         View contentLayout = layoutInflater.inflate(R.layout.sesh_dialog_content_sesh_created, null);
 
         TextView studentTutorName = (TextView) contentLayout.findViewById(R.id.student_tutor_name);
-        studentTutorName.setText(createdSesh.abbreviatedNameForOtherPerson());
+        studentTutorName.setText(SeshUtils.abbreviatedNameForName(createdSesh.userName));
         studentTutorName.setTypeface(utils.getLightGothamTypeface());
 
         CircleImageView circleImageView = (CircleImageView) contentLayout.findViewById(R.id.profile_image);
@@ -127,10 +128,10 @@ public class SeshCreatedNotificationHandler extends NotificationHandler {
         String messageString;
         if (createdSesh.isStudent) {
             titleString = mContext.getResources().getString(R.string.sesh_created_student_dialog_title);
-            messageString = String.format(mContext.getResources().getString(R.string.sesh_created_student_dialog_text), createdSesh.firstName());
+            messageString = String.format(mContext.getResources().getString(R.string.sesh_created_student_dialog_text), SeshUtils.firstName(createdSesh.userName));
         } else {
             titleString = mContext.getResources().getString(R.string.sesh_created_tutor_dialog_title);
-            messageString = String.format(mContext.getResources().getString(R.string.sesh_created_tutor_dialog_text), createdSesh.firstName());
+            messageString = String.format(mContext.getResources().getString(R.string.sesh_created_tutor_dialog_text), SeshUtils.firstName(createdSesh.userName));
         }
 
         seshDialog.setTitle(titleString);

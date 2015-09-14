@@ -25,6 +25,7 @@
             android:layout_centerInParent="true">
 
         <com.seshtutoring.seshapp.view.components.SeshActivityIndicator
+            android:layout_centerHorizontal="true"
             android:layout_width="@dimen/view_sesh_profile_image_size"
             android:layout_height="@dimen/view_sesh_profile_image_size"
             android:id="@+id/view_request_activity_indicator"/>
@@ -34,11 +35,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/view_request_activity_indicator"
-            android:text="Zach S."
+            android:text="searching for tutors..."
             android:textSize="18sp"
             android:layout_marginTop="15dp"
             android:layout_centerHorizontal="true"
-            android:textColor="@color/seshorange"/>
+            android:textColor="@color/seshlightgray"/>
 
         </RelativeLayout>
     </RelativeLayout>
@@ -169,7 +170,7 @@
                 android:layout_marginLeft="35dp"
                 android:layout_marginTop="10dp"
                 custom:informationLabelText="hello"
-                custom:informationLabelIcon="@drawable/pointer"/>
+                custom:informationLabelIcon="@drawable/calendar_unfilled"/>
 
             </LinearLayout>
         </RelativeLayout>

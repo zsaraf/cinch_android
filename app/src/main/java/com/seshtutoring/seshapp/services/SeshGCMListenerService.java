@@ -37,6 +37,7 @@ public class SeshGCMListenerService extends GcmListenerService {
     private static final String TAG = SeshGCMListenerService.class.getName();
     public static final String NOTIFICATION_ID_EXTRA = "opened_by_notification";
     public static final String NOTIFICATION_OBJ_KEY = "notification";
+    public static final String NOTIFICATIONS_ENABLED_KEY = "notifications_enabled";
     private static final String IDENTIFIER_KEY = "identifier";
     private static final String TITLE_KEY = "title";
     private static final String MESSAGE_KEY = "message";
@@ -59,6 +60,8 @@ public class SeshGCMListenerService extends GcmListenerService {
         Intent intent = new Intent(SeshNotificationManagerService.ENQUEUE_NEW_NOTIFICATION,
                 null, getApplicationContext(), SeshNotificationManagerService.class);
         intent.putExtra(NOTIFICATION_OBJ_KEY, data.getString(NOTIFICATION_OBJ_KEY));
+        int notificationsEnabled = Integer.parseInt(data.getString(NOTIFICATIONS_ENABLED_KEY));
+        intent.putExtra(NOTIFICATIONS_ENABLED_KEY, (notificationsEnabled != 0));
         startService(intent);
 //            identifier = notificationObj.getString(IDENTIFIER_KEY);
 //

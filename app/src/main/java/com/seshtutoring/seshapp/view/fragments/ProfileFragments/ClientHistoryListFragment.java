@@ -14,6 +14,8 @@ import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.PastRequest;
 import com.seshtutoring.seshapp.model.PastSesh;
 import com.seshtutoring.seshapp.model.User;
+import com.seshtutoring.seshapp.util.LayoutUtils;
+import com.seshtutoring.seshapp.util.SeshUtils;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
 import com.squareup.picasso.Callback;
@@ -102,8 +104,9 @@ public class ClientHistoryListFragment extends ListFragment{
             }else {
                 viewHolder = (ViewHolder) convertView.getTag();
             }
-            String abbrName = item.studentFullName.substring(0,item.studentFullName.lastIndexOf(" ")+2) + ".";
-            viewHolder.mainTextView.setText(abbrName);
+
+            LayoutUtils layUtils = new LayoutUtils(getActivity().getApplicationContext());
+            viewHolder.mainTextView.setText(SeshUtils.abbreviatedNameForName(item.studentFullName));
             viewHolder.subTextView.setText(item.className);
 
             String rightText = "cancelled";

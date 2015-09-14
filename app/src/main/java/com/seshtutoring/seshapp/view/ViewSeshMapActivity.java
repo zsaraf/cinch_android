@@ -119,5 +119,6 @@ public class ViewSeshMapActivity extends SeshActivity implements OnMapReadyCallb
                 latLng, 15));
 
         mMap.addMarker(new MarkerOptions().position(latLng).icon(BitmapDescriptorFactory.fromResource(R.drawable.location)));
+        mMap.setMyLocationEnabled(true);
     }
 }

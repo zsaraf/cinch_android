@@ -50,7 +50,8 @@ public class PromoteFragment extends Fragment implements FragmentOptionsReceiver
         // Add padding to account for action bar
         LayoutUtils utils = new LayoutUtils(getActivity());
         RelativeLayout promoteLayout = (RelativeLayout) v.findViewById(R.id.promote_layout);
-        promoteLayout.setPadding(15, utils.getActionBarHeightPx(), 15, 15);
+        int padding = utils.dpToPixels(20);
+        promoteLayout.setPadding(padding, utils.getActionBarHeightPx(), padding, padding);
 
         fbShareButton = (ImageButton) v.findViewById(R.id.promote_share_button);
 

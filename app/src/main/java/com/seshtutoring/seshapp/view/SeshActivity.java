@@ -10,6 +10,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -22,6 +23,7 @@ import com.seshtutoring.seshapp.SeshStateManager;
 import com.seshtutoring.seshapp.model.Sesh;
 import com.seshtutoring.seshapp.services.SeshGCMListenerService;
 import com.seshtutoring.seshapp.util.ApplicationLifecycleTracker;
+import com.seshtutoring.seshapp.util.StorageUtils;
 import com.seshtutoring.seshapp.util.networking.SeshAuthManager;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.components.SeshDialog;
@@ -117,6 +119,7 @@ public abstract class SeshActivity extends AppCompatActivity implements SeshDial
         seshDialog.setFirstButtonClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                StorageUtils.clearAllSugarRecords();
                 Intent intent = new Intent(getApplicationContext(), AuthenticationActivity.class);
                 startActivity(intent);
             }

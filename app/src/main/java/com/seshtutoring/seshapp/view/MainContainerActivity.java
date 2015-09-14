@@ -2,6 +2,8 @@ package com.seshtutoring.seshapp.view;
 
 import android.app.ActionBar;
 import android.app.AlarmManager;
+import android.graphics.Paint;
+import android.graphics.Typeface;
 import android.os.Looper;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -21,7 +23,12 @@ import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.SimpleOnPageChangeListener;
 import android.support.v7.widget.Toolbar;
 import android.text.Layout;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.TextPaint;
+import android.text.style.MetricAffectingSpan;
 import android.util.Log;
+import android.util.LruCache;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,12 +54,14 @@ import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.SeshApplication;
 import com.seshtutoring.seshapp.SeshStateManager;
+import com.seshtutoring.seshapp.model.Notification;
 import com.seshtutoring.seshapp.model.Sesh;
 import com.seshtutoring.seshapp.services.PeriodicFetchBroadcastReceiver;
 import com.seshtutoring.seshapp.services.GCMRegistrationIntentService;
 import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.services.SeshGCMListenerService;
 import com.seshtutoring.seshapp.services.SeshInstanceIDListenerService;
+import com.seshtutoring.seshapp.services.notifications.handlers.SeshCancelledNotificationHandler;
 import com.seshtutoring.seshapp.util.ApplicationLifecycleTracker;
 import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
@@ -86,6 +95,7 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
     public static final String VIEW_SESH_ACTION = "view_sesh";
     public static final String SESH_CANCELLED_ACTION = "sesh_cancelled";
     public static final String NEW_MESSAGE_ACTION = "new_message";
+    public static final String REFRESH_JOBS = "refresh_jobs";
     public static final String FOUND_TUTOR_ACTION = "com.seshtutoring.seshapp.FOUND_TUTOR";
 
     /**
@@ -99,7 +109,7 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
         void clearFragmentOptions();
     }
 
-    private SlidingMenu slidingMenu;
+    public SlidingMenu slidingMenu;
     private SideMenuFragment sideMenuFragment;
     private RelativeLayout editButton;
     private MainContainerStateManager containerStateManager;
@@ -245,20 +255,38 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
             } else if (intent.getAction().equals(VIEW_SESH_ACTION)) {
                 Sesh sesh = new Sesh(); // hacky, but allows us to pass seshId into containerStateManager in a compatible way
                 sesh.seshId = intent.getIntExtra(ViewSeshFragment.SESH_KEY, -1);
-                boolean openMessaging = intent.getBooleanExtra(ViewSeshFragment.OPEN_MESSAGING, false);
 
                 containerStateManager.setContainerStateForSesh(sesh);
             } else if (intent.getAction().equals(NEW_MESSAGE_ACTION)) {
                 Sesh sesh = new Sesh(); // hacky, but allows us to pass seshId into containerStateManager in a compatible way
-                int seshId = intent.getIntExtra(ViewSeshFragment.SESH_KEY, -1);
-                boolean openMessaging = intent.getBooleanExtra(ViewSeshFragment.OPEN_MESSAGING, false);
+                sesh.seshId = intent.getIntExtra(ViewSeshFragment.SESH_KEY, -1);
 
-                containerStateManager.setContainerStateForSesh(sesh);
+                containerStateManager.setContainerStateForSeshWithMessaging(sesh);
             } else if (intent.getAction() == SESH_CANCELLED_ACTION) {
                 // IF SESH HAS BEEN CANCELLED AND MAIN CONTAINER IS IN FOREGROUND, WE ENSURE VIEWSESHFRAGMENT IS NOT VISIBLE
                 if (containerStateManager.getMainContainerState().fragment instanceof ViewSeshFragment) {
                     containerStateManager.setContainerStateForNavigation(NavigationItemState.HOME);
                 }
+
+                String title
+                        = intent.getStringExtra(SeshCancelledNotificationHandler.SESH_CANCELLED_DIALOG_TITLE);
+                String message
+                        = intent.getStringExtra(SeshCancelledNotificationHandler.SESH_CANCELLED_DIALOG_MESSAGE);
+
+                final SeshDialog seshDialog = new SeshDialog();
+                seshDialog.setTitle(title);
+                seshDialog.setMessage(message);
+                seshDialog.setDialogType(SeshDialog.SeshDialogType.ONE_BUTTON);
+                seshDialog.setFirstChoice("OKAY");
+                seshDialog.setFirstButtonClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        seshDialog.dismiss();
+                        Notification.currentNotificationHandled(getApplicationContext(), true);
+                    }
+                });
+                seshDialog.setType("sesh_cancelled");
+                seshDialog.showWithDelay(getFragmentManager(), null, 2000);
             } else if (intent.getAction() == DISPLAY_SIDE_MENU_UPDATE) {
                 Handler handler = new Handler();
                 Runnable openSideMenu = new Runnable() {
@@ -281,7 +309,7 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
     public void onDialogSelection(int selection, String type) {
         SeshNetworking seshNetworking = new SeshNetworking(this);
 
-        if (type.equals("CASHOUT") && selection == 1) {
+        if (type.equals("cashout") && selection == 1) {
 
             seshNetworking.cashout(
                     new Response.Listener<JSONObject>() {
@@ -296,7 +324,7 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
                         }
                     });
 
-        }else if (type.equals("LOGOUT") && selection == 1) {
+        }else if (type.equals("logout") && selection == 1) {
 
             seshNetworking.logout(
                     new Response.Listener<JSONObject>() {
@@ -377,47 +405,19 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
 
         setActionBarTitle(newState.title);
 
+        Log.d(TAG, "New container state tag: " + newState.tag);
 
-//        if (slidingMenu.isMenuShowing()) {
-//            getSupportFragmentManager()
-//                    .beginTransaction()
-//                    .remove(currentContainerState.fragment)
-//                    .commitAllowingStateLoss();
-//            getSupportFragmentManager()
-//                    .executePendingTransactions();
-//            currentContainerState = selectedMenuOption;
-//            fragmentLoadIndicator.setVisibility(View.VISIBLE);
-//
-//            slidingMenu.toggle(true);
-//            slidingMenu.setOnClosedListener(new SlidingMenu.OnClosedListener() {
-//                @Override
-//                public void onClosed() {
-//                    getSupportFragmentManager()
-//                            .beginTransaction()
-//                            .replace(R.id.main_container, currentContainerState.fragment, currentContainerState.fragment.getClass().getName())
-//                            .addToBackStack(currentContainerState.fragment.getClass().getName())
-//                            .commitAllowingStateLoss();
-//                    fragmentLoadIndicator.setVisibility(View.GONE);
-//
-//                    slidingMenu.setOnClosedListener(null);
-//                }
-//            });
-//        } else {
+        if (newState.tag.equals("payment")) {
+            editButton.setVisibility(View.VISIBLE);
+        } else {
+            editButton.setVisibility(View.GONE);
+        }
 
-
-            Log.d(TAG, "Current container state tag: " + newState.fragment.getTag());
-
-            if (newState.tag.equals("payment")) {
-                editButton.setVisibility(View.VISIBLE);
-            } else {
-                editButton.setVisibility(View.GONE);
-            }
-
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.main_container, newState.fragment, newState.fragment.getTag())
-                    .addToBackStack(newState.fragment.getTag())
-                    .commitAllowingStateLoss();
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.main_container, newState.fragment, newState.fragment.getTag())
+                .addToBackStack(newState.fragment.getTag())
+                .commitAllowingStateLoss();
 
         if (options != null) {
             FragmentOptionsReceiver flagReceiver = (FragmentOptionsReceiver) newState.fragment;
@@ -428,7 +428,10 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
     public void setActionBarTitle(String title) {
         TextView titleTextView = (TextView) findViewById(R.id.action_bar_title);
         titleTextView.setText(title);
+        LayoutUtils layUtils = new LayoutUtils(this);
+        titleTextView.setTypeface(layUtils.getBookGothamTypeface());
     }
+
 
     public void onFragmentReplacedAndRendered() {
 //        if (slidingMenu.isMenuShowing()) {

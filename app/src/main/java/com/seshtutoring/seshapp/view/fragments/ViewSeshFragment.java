@@ -40,6 +40,7 @@ import com.seshtutoring.seshapp.model.Message;
 import com.seshtutoring.seshapp.model.Sesh;
 import com.seshtutoring.seshapp.util.DateUtils;
 import com.seshtutoring.seshapp.util.LayoutUtils;
+import com.seshtutoring.seshapp.util.SeshUtils;
 import com.seshtutoring.seshapp.util.StorageUtils;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
@@ -86,6 +87,14 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
     private SeshButton messageButton;
     private SeshButton startSeshButton;
     private SeshPageIndicator pageIndicator;
+    private TextView nameTextView;
+
+    // For students only
+    private EditText locationNotesEditText;
+
+    // For tutors only
+    private TextView setTimeTextView;
+
 
     RelativeLayout topLayout;
 
@@ -135,28 +144,22 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
         View v;
         if (sesh.isStudent) {
             v = inflater.inflate(R.layout.fragment_view_sesh_student, container, false);
-            final EditText editText = (EditText) v.findViewById(R.id.icon_text_view_text);
-            editText.setText(sesh.locationNotes);
-            editText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            locationNotesEditText = (EditText) v.findViewById(R.id.icon_text_view_text);
+            locationNotesEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
                 @Override
                 public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                     v.clearFocus();
                     InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(getActivity().INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-                    updateSeshWithLocationNotes(editText.getText().toString());
+                    updateSeshWithLocationNotes(locationNotesEditText.getText().toString());
                     return true;
                 }
             });
         } else {
             v = inflater.inflate(R.layout.fragment_view_sesh_tutor, container, false);
             final RelativeLayout middleBar = (RelativeLayout) v.findViewById(R.id.middleBar);
-            final TextView textView = (TextView) v.findViewById(R.id.icon_text_view_text);
-            if (sesh.isInstant) {
-                textView.setText("NOW");
-            } else {
-                if (sesh.seshSetTime > 0) {
-                    textView.setText(DateUtils.getSeshFormattedDate(new DateTime(sesh.seshSetTime)));
-                }
+            setTimeTextView = (TextView) v.findViewById(R.id.icon_text_view_text);
+            if (!sesh.isInstant) {
                 middleBar.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -179,6 +182,9 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
 
             }
         });
+
+        nameTextView = (TextView) v.findViewById(R.id.name_text_view);
+        nameTextView.setText(SeshUtils.abbreviatedNameForName(sesh.userName));
 
         cancelSeshButton = (SeshButton) v.findViewById(R.id.cancel_sesh_button);
         cancelSeshButton.setOnClickListener(new View.OnClickListener() {
@@ -209,8 +215,6 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
                 }
             });
         }
-
-        broadcastReceiver = actionBroadcastReceiver;
 
         seshActivityIndicator = (SeshActivityIndicator) v.findViewById(R.id.view_sesh_activity_indicator);
         seshActivityIndicator.setAlpha(0);
@@ -277,19 +281,17 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
         }
 
         messageButton.setText(messageText);
-
     }
 
-
     @Override
-    public void onStart() {
-        super.onStart();
+    public void onResume() {
+        super.onResume();
 
+        broadcastReceiver = actionBroadcastReceiver;
         // Listen for new messages
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(MessagingActivity.REFRESH_MESSAGES);
         this.getActivity().registerReceiver(broadcastReceiver, intentFilter);
-
     }
 
     @Override
@@ -321,7 +323,7 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
             DateTime dateTime = new DateTime(sesh.seshSetTime);
             navigationItemTitle = classString + " " + DateUtils.getSeshFormattedDate(dateTime);
         } else {
-            String firstName = sesh.firstName();
+            String firstName = SeshUtils.firstName(sesh.userName);
             navigationItemTitle = classString + " with " + firstName;
         }
 
@@ -330,8 +332,27 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
 
     public void refresh() {
         if (sesh != null) {
+            List<Sesh> seshesFound = Sesh.find(Sesh.class, "sesh_id = ?", Integer.toString(new Integer(seshId)));
+            sesh = seshesFound.get(0);
+
             updateNavBarTitle();
+            updateMiddleBarView();
             ((ViewSeshPagerAdapter)viewPager.getAdapter()).refresh();
+        }
+    }
+
+    private void updateMiddleBarView()
+    {
+        if (sesh.isStudent) {
+            locationNotesEditText.setText(sesh.locationNotes);
+        } else {
+            if (sesh.isInstant) {
+                setTimeTextView.setText("NOW");
+            } else {
+                if (sesh.seshSetTime > 0) {
+                    setTimeTextView.setText(DateUtils.getSeshFormattedDate(new DateTime(sesh.seshSetTime)));
+                }
+            }
         }
     }
 
@@ -348,11 +369,11 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
             this.sesh = sesh;
             viewSeshFragments = new Fragment[2];
             if (sesh.isStudent) {
-                viewSeshFragments[0] = ViewSeshUserDescriptionFragment.newInstance(sesh.seshId);
-                viewSeshFragments[1] = ViewSeshSeshDescriptionFragment.newInstance(sesh.seshId);
+                viewSeshFragments[0] = viewSeshUserDescriptionFragment = ViewSeshUserDescriptionFragment.newInstance(sesh.seshId);
+                viewSeshFragments[1] = viewSeshSeshDescriptionFragment = ViewSeshSeshDescriptionFragment.newInstance(sesh.seshId);
             } else {
-                viewSeshFragments[0] = ViewSeshSeshDescriptionFragment.newInstance(sesh.seshId);
-                viewSeshFragments[1] = ViewSeshUserDescriptionFragment.newInstance(sesh.seshId);
+                viewSeshFragments[0] = viewSeshSeshDescriptionFragment = ViewSeshSeshDescriptionFragment.newInstance(sesh.seshId);
+                viewSeshFragments[1] = viewSeshUserDescriptionFragment = ViewSeshUserDescriptionFragment.newInstance(sesh.seshId);
             }
         }
 
@@ -396,20 +417,39 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
                     @Override
                     public void onResponse(JSONObject jsonObject) {
                         setNetworking(false);
-                        sesh.delete();
-                        MainContainerActivity mainContainerActivity = (MainContainerActivity) getActivity();
-                        MainContainerStateManager mainContainerStateManager
-                                = mainContainerActivity.getContainerStateManager();
-                        mainContainerStateManager.setContainerStateForNavigation(NavigationItemState.HOME);
+                        try {
+                            if (jsonObject.getString("status").equals("SUCCESS")) {
+                                sesh.delete();
+                                MainContainerActivity mainContainerActivity = (MainContainerActivity) getActivity();
+                                MainContainerStateManager mainContainerStateManager
+                                        = mainContainerActivity.getContainerStateManager();
+                                mainContainerStateManager.setContainerStateForNavigation(NavigationItemState.HOME);
+                            } else {
+                                showNetworkingErrorWithTitle("Error!", jsonObject.getString("message"));
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            showNetworkingErrorWithTitle("Error!", null);
+                        }
                     }
                 }, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError volleyError) {
                         setNetworking(false);
+                        showNetworkingErrorWithTitle("Error!", null);
                     }
                 });
             }
         });
+    }
+
+    private void showNetworkingErrorWithTitle(String title, String message) {
+        if (message == null) {
+            message = "Something went wrong. Please try again later.";
+        }
+        SeshDialog.showDialog(getActivity().getFragmentManager(), title,
+                message,
+                "OKAY", null, "error");
     }
 
     private void startSeshButtonClicked() {
@@ -422,12 +462,23 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
                 seshNetworking.startSeshWithSeshId(sesh.seshId, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject jsonObject) {
-
+                        try {
+                            if (jsonObject.getString("status").equals("SUCCESS")) {
+                            } else {
+                                setNetworking(false);
+                                showNetworkingErrorWithTitle("Error!", jsonObject.getString("message"));
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            setNetworking(false);
+                            showNetworkingErrorWithTitle("Error!", null);
+                        }
                     }
                 }, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError volleyError) {
                         setNetworking(false);
+                        showNetworkingErrorWithTitle("Error!", null);
                     }
                 });
             }

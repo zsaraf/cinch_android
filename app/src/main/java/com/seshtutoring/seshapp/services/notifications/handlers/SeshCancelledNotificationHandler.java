@@ -10,6 +10,8 @@ import com.seshtutoring.seshapp.model.Notification;
 import com.seshtutoring.seshapp.util.ApplicationLifecycleTracker;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
+import com.seshtutoring.seshapp.view.MainContainerStateManager;
+import com.seshtutoring.seshapp.view.SeshActivity;
 import com.seshtutoring.seshapp.view.components.SeshDialog;
 
 import org.json.JSONObject;
@@ -19,7 +21,8 @@ import org.json.JSONObject;
  */
 public class SeshCancelledNotificationHandler extends SeshEndedNotificationHandler{
     private ApplicationLifecycleTracker applicationLifecycleTracker;
-    public final static String DIALOG_TYPE_SESH_CANCELLED = "sesh_cancelled";
+    public final static String SESH_CANCELLED_DIALOG_TITLE = "sesh_cancelled_dialog_title";
+    public final static String SESH_CANCELLED_DIALOG_MESSAGE = "sesh_cancelled_dialog_message";
 
     public SeshCancelledNotificationHandler(Notification notification, Context context) {
         super(notification, context);
@@ -29,35 +32,24 @@ public class SeshCancelledNotificationHandler extends SeshEndedNotificationHandl
     @Override
     public void handleDisplayInsideApp() {
         replaceSeshWithPastSesh();
-        Intent intent = new Intent(MainContainerActivity.SESH_CANCELLED_ACTION);
-        mContext.sendBroadcast(intent);
-        showDialog(false);
-    }
+        SeshActivity foregroundActivity
+                = (SeshActivity) applicationLifecycleTracker.getActivityInForeground();
 
-    private void showDialog(boolean withOpenDelay) {
-        final SeshDialog seshDialog = new SeshDialog();
-        seshDialog.setTitle(mNotification.title);
-        seshDialog.setMessage(mNotification.message);
-        seshDialog.setDialogType(SeshDialog.SeshDialogType.ONE_BUTTON);
-        seshDialog.setFirstChoice("OKAY");
-        seshDialog.setFirstButtonClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                seshDialog.dismiss();
-                Notification.currentNotificationHandled(mContext, true);
-            }
-        });
-        seshDialog.setType(DIALOG_TYPE_SESH_CANCELLED);
-
-        if (withOpenDelay) {
-            seshDialog.showWithDelay(
-                    applicationLifecycleTracker.getActivityInForeground().getFragmentManager(),
-                    DIALOG_TYPE_SESH_CANCELLED, 2000
-            );
+        Intent intent;
+        if (foregroundActivity.isMainContainerActivity()) {
+             intent = new Intent(MainContainerActivity.SESH_CANCELLED_ACTION);
         } else {
-            seshDialog.show(
-                    applicationLifecycleTracker.getActivityInForeground().getFragmentManager(), DIALOG_TYPE_SESH_CANCELLED
-            );
+            intent = new Intent(MainContainerActivity.SESH_CANCELLED_ACTION, null,
+                    mContext, MainContainerActivity.class);
+        }
+
+        intent.putExtra(SESH_CANCELLED_DIALOG_TITLE, mNotification.title);
+        intent.putExtra(SESH_CANCELLED_DIALOG_MESSAGE, mNotification.message);
+
+        if (foregroundActivity.isMainContainerActivity()) {
+            mContext.sendBroadcast(intent);
+        } else {
+            foregroundActivity.startActivity(intent);
         }
     }
 }

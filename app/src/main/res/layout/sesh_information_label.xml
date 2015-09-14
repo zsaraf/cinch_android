@@ -37,14 +37,14 @@
 
     </RelativeLayout>
 
-    <ImageView
+    <View
+        android:layerType="software"
         android:id="@+id/dotted_line"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="3dp"
         android:layout_marginTop="1dp"
         android:layout_below="@+id/text_view"
-        android:src="@drawable/dotted"
-        android:layerType="software"/>
+        android:background="@drawable/dotted" />
 
     <TextView
         android:background="#00000000"

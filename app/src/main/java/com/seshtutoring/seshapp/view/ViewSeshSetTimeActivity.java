@@ -2,6 +2,7 @@ package com.seshtutoring.seshapp.view;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.Html;
 import android.view.Menu;
@@ -9,6 +10,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageButton;
+import android.widget.RelativeLayout;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -50,6 +52,13 @@ public class ViewSeshSetTimeActivity extends SeshActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_sesh_set_time);
+
+        // configure transparent status bar
+        if (Build.VERSION.SDK_INT >= 19) {
+            LayoutUtils utils = new LayoutUtils(this);
+            RelativeLayout container = (RelativeLayout) findViewById(R.id.set_time_relative_layout_container);
+            container.setPadding(0, utils.getStatusBarHeight(), 0, 0);
+        }
 
         this.closeSetTimeButton = (ImageButton) findViewById(R.id.close_set_time);
         this.availableBlocksLabel = (SeshInformationLabel) findViewById(R.id.available_blocks_label);
@@ -115,6 +124,7 @@ public class ViewSeshSetTimeActivity extends SeshActivity {
             @Override
             public void onResponse(JSONObject jsonObject) {
                 sesh.seshSetTime = dateTime.getMillis();
+                sesh.save();
                 onBackPressed();
             }
         }, new Response.ErrorListener() {

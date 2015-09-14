@@ -7,6 +7,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.seshtutoring.seshapp.BuildConfig;
 import com.seshtutoring.seshapp.R;
@@ -28,6 +29,7 @@ public class ViewSeshSeshDescriptionFragment extends Fragment {
     private int seshId;
     private Sesh sesh;
 
+    private TextView nameTextView;
     private SeshInformationLabel classLabel;
     private SeshInformationLabel subjectLabel;
     private SeshInformationLabel timeLabel;
@@ -67,6 +69,8 @@ public class ViewSeshSeshDescriptionFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_view_sesh_sesh_description, container, false);
 
+        nameTextView = (TextView) view.findViewById(R.id.name_text_view);
+
         classLabel = (SeshInformationLabel)view.findViewById(R.id.class_label);
 
         subjectLabel = (SeshInformationLabel)view.findViewById(R.id.subject_label);
@@ -103,9 +107,9 @@ public class ViewSeshSeshDescriptionFragment extends Fragment {
         // Set location notes text
         Drawable drawable = null;
         if (Build.VERSION.SDK_INT < 21) {
-            drawable = getActivity().getResources().getDrawable(R.drawable.location);
+            drawable = getActivity().getResources().getDrawable(R.drawable.pointer);
         } else {
-            drawable = getActivity().getResources().getDrawable(R.drawable.location, null);
+            drawable = getActivity().getResources().getDrawable(R.drawable.pointer, null);
         }
         locationNotesLabel.setIcon(drawable);
 
@@ -117,23 +121,28 @@ public class ViewSeshSeshDescriptionFragment extends Fragment {
     }
 
     public void refresh() {
-        // Set class text
-        classLabel.setText(sesh.className);
+        if (sesh != null) {
+            List<Sesh> seshesFound = Sesh.find(Sesh.class, "sesh_id = ?", Integer.toString(new Integer(seshId)));
+            sesh = seshesFound.get(0);
 
-        // Set subject text
-        subjectLabel.setText(sesh.seshDescription);
+            // Set class text
+            classLabel.setText(sesh.className);
 
-        // Set time text
+            // Set subject text
+            subjectLabel.setText(sesh.seshDescription);
+
+            // Set time text
         /* Round to nearest half hour */
-        Double numHours = (sesh.seshEstTime/30) / 2.0;
-        DecimalFormat df = new DecimalFormat("0.#");
-        String suffix = (numHours == 1.0) ? " Hour" : " Hours";
-        timeLabel.setText(df.format(numHours) + suffix);
+            Double numHours = (sesh.seshEstTime / 30) / 2.0;
+            DecimalFormat df = new DecimalFormat("0.#");
+            String suffix = (numHours == 1.0) ? " Hour" : " Hours";
+            timeLabel.setText(df.format(numHours) + suffix);
 
-        if (sesh.isStudent) {
-            updateLabelForStudent(miscLabel);
-        } else {
-            updateLabelForTutor(miscLabel);
+            if (sesh.isStudent) {
+                updateLabelForStudent(miscLabel);
+            } else {
+                updateLabelForTutor(miscLabel);
+            }
         }
     }
 

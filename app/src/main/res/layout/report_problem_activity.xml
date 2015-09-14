@@ -5,10 +5,10 @@
     android:layout_height="match_parent"
     xmlns:custom="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.seshtutoring.seshapp.view.TutorReviewActivity"
+    tools:context="com.seshtutoring.seshapp.view.RatingActivity"
     android:focusable="true"
     android:focusableInTouchMode="true"
-    android:id="@+id/activityRoot"
+    android:id="@+id/report_problem_root"
     >
 
     <TextView
@@ -75,11 +75,11 @@
             android:layout_marginTop="0dp"
             android:layout_marginBottom="0dp"
             android:gravity="top"
-            android:background="@android:color/transparent"
+            android:background="@color/tableview_background"
             android:layout_marginLeft="0dp"
             android:layout_marginRight="0dp"
-            android:hint="Comment..."
-            />
+            android:padding="10dp"
+            android:hint="Comment..." />
 
         <com.seshtutoring.seshapp.view.components.SeshActivityIndicator
             android:id="@+id/report_activity_indicator"

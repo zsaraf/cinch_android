@@ -31,7 +31,10 @@
         android:textColor="#ffffff"
         android:id="@+id/action_bar_title"
         android:textSize="18sp"
-        android:layout_centerInParent="true" />
+        style="@style/GothamBook"
+        android:layout_centerVertical="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="60dp" />
 
     <RelativeLayout
         android:layout_width="wrap_content"
@@ -48,6 +51,7 @@
             android:layout_height="wrap_content"
             android:text="Edit"
             android:id="@+id/edit_text"
+            style="@style/GothamBook"
             android:textSize="18sp"
             android:textColor="@color/white" />
     </RelativeLayout>

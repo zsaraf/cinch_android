@@ -13,6 +13,7 @@ import com.seshtutoring.seshapp.model.Notification;
 import com.seshtutoring.seshapp.util.ApplicationLifecycleTracker;
 import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
+import com.seshtutoring.seshapp.view.MessagingActivity;
 import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.HomeFragment;
 
 /**
@@ -26,6 +27,7 @@ public class NewRequestNotificationHandler extends BannerNotificationHandler {
     @Override
     public void handleDisplayInsideApp() {
         displayBanner();
+        mContext.sendBroadcast(refreshJobsIntent());
     }
 
     @Override
@@ -54,6 +56,10 @@ public class NewRequestNotificationHandler extends BannerNotificationHandler {
         intent.putExtra(MainContainerActivity.MAIN_CONTAINER_STATE_INDEX, 0);
         intent.putExtra(MainContainerActivity.FRAGMENT_FLAG_KEY, HomeFragment.SHOW_AVAILABLE_JOBS_FLAG);
         return intent;
+    }
+
+    private Intent refreshJobsIntent() {
+        return new Intent(MainContainerActivity.REFRESH_JOBS);
     }
 
     @Override

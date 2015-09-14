@@ -110,6 +110,7 @@ public class SeshNetworking {
     private static final String HANDLED_NOTIFICATIONS_PARAM = "handled_notifications";
     private static final String MESSAGE_ID_PARAM = "message_id";
     private static final String DISCOUNT_ID = "discount_id";
+    private static final String CARD_ID_PARAM = "card_id";
 
     private Context mContext;
 
@@ -586,8 +587,7 @@ public class SeshNetworking {
         }
 
         if (SeshApplication.USE_PERSONAL) {
-            //apiUrl = "users/" + user + "/";
-            apiUrl = "ios-php/";
+            apiUrl = "users/" + user + "/";
         } else {
             apiUrl = "ios-php/";
         }
@@ -821,6 +821,13 @@ public class SeshNetworking {
         postWithRelativeUrl("send_message.php", params, successListener, errorListener);
     }
 
+    public void payOutstandingCharges(Response.Listener<JSONObject> successListener, Response.ErrorListener errorListener) {
+        Map<String, String> params = new HashMap<>();
+        params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
+
+        postWithRelativeUrl("pay_outstanding_charge.php", params, successListener, errorListener);
+    }
+
     public void hasReadUpToMessage(int messageId, int seshId, Response.Listener<JSONObject> successListener, Response.ErrorListener errorListener) {
         Map<String, String> params = new HashMap<>();
         params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
@@ -828,6 +835,30 @@ public class SeshNetworking {
         params.put(MESSAGE_ID_PARAM, Integer.toString(messageId));
 
         postWithRelativeUrl("has_read_up_to_message.php", params, successListener, errorListener);
+    }
+
+    public void deleteCard(String cardId, boolean isRecipient, Response.Listener<JSONObject> successListener, Response.ErrorListener errorListener) {
+        Map<String, String> params = new HashMap<>();
+        params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
+        params.put(IS_RECIPIENT_PARAM, isRecipient ? "1" : "0");
+        params.put(CARD_ID_PARAM, cardId);
+
+        postWithRelativeUrl("delete_card.php", params, successListener, errorListener);
+    }
+
+    public void makeDefaultCard(String cardId, boolean isRecipient, Response.Listener<JSONObject> successListener, Response.ErrorListener errorListener) {
+        Map<String, String> params = new HashMap<>();
+        params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
+        params.put(IS_RECIPIENT_PARAM, isRecipient ? "1" : "0");
+        params.put(CARD_ID_PARAM, cardId);
+
+        postWithRelativeUrl("make_default_card.php", params, successListener, errorListener);
+    }
+
+    public void toggleNotificationsEnabled(Response.Listener<JSONObject> successListener, Response.ErrorListener errorListener) {
+        Map<String, String> params = new HashMap<>();
+        params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
+        postWithRelativeUrl("toggle_notifications_enabled.php", params, successListener, errorListener);
     }
 
     public static abstract class SynchronousRequest {
@@ -884,18 +915,4 @@ public class SeshNetworking {
         return filePath;
     }
 
-
-//    @TODO: implement once Stripe functionality in place
-//    public void addCardWithCustomerToken(...)
-//    public void getCardsForCurrentUserWithSuccess(...)
-//    public void deleteCardWithId(...)
-//    public void makeDefaultCard(...)
-
-//    @TODO: Implement when relevant.
-//    public void createBidForRequest(...)
-//    public void getPossibleJobsForCourses(...)
-//    public void uploadProfilePicture(...)
-//    public void hasReadCurrentMessage(...)
-
-//    public void payOutstandingCharges(...)
 }

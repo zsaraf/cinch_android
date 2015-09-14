@@ -1,6 +1,7 @@
 package com.seshtutoring.seshapp.view;
 
 import android.app.ActionBar;
+import android.app.ProgressDialog;
 import android.graphics.Typeface;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -11,6 +12,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.AbsoluteLayout;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
@@ -22,6 +24,8 @@ import com.seshtutoring.seshapp.util.LayoutUtils;
 
 public class SupportActivity extends SeshActivity {
 
+    private ProgressDialog progDailog;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,6 +35,32 @@ public class SupportActivity extends SeshActivity {
         layUtils.setupCustomActionBar(this, true);
 
         WebView webView = (WebView) findViewById(R.id.support_webview);
+
+        progDailog = ProgressDialog.show(this, "Loading","Please wait...", true);
+        progDailog.setCancelable(false);
+
+
+        webView.getSettings().setJavaScriptEnabled(true);
+        webView.getSettings().setLoadWithOverviewMode(true);
+        webView.getSettings().setUseWideViewPort(true);
+        webView.getSettings().setDomStorageEnabled(true);
+
+        webView.setWebViewClient(new WebViewClient() {
+
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                progDailog.show();
+                view.loadUrl(url);
+
+                return true;
+            }
+
+            @Override
+            public void onPageFinished(WebView view, final String url) {
+                progDailog.dismiss();
+            }
+        });
+
         webView.loadUrl(getString(R.string.support_url));
 
 

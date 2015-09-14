@@ -277,21 +277,6 @@ public class Sesh extends SugarRecord<Sesh> {
         }
     }
 
-    public String abbreviatedNameForOtherPerson() {
-        String[] components = userName.split("\\s+");
-        String capitalizedFirstName = components[0].substring(0,1).toUpperCase() + components[0].substring(1).toLowerCase();
-        if (components.length > 1) {
-            return capitalizedFirstName + " " + components[components.length-1].substring(0,1).toUpperCase() + ".";
-        } else {
-            return capitalizedFirstName;
-        }
-    }
-
-    public String firstName() {
-        String[] components = userName.split("\\s+");
-        return components[0].substring(0,1).toUpperCase() + components[0].substring(1).toLowerCase();
-    }
-
     public static Sesh findSeshWithId(int seshId) {
         List<Sesh> seshesFound = Sesh.find(Sesh.class, "sesh_id = ?", Integer.toString(seshId));
         if (seshesFound.size() > 0) {

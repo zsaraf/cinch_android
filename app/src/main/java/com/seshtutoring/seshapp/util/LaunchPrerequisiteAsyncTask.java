@@ -9,6 +9,7 @@ import android.util.Log;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.RequestFuture;
+import com.seshtutoring.seshapp.SeshStateManager;
 import com.seshtutoring.seshapp.model.Constants;
 import com.seshtutoring.seshapp.model.Sesh;
 import com.seshtutoring.seshapp.model.User;
@@ -19,6 +20,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -31,15 +33,19 @@ public class LaunchPrerequisiteAsyncTask extends AsyncTask<Void, Void, Void>
 
     private Context mContext;
     private PrereqsFulfilledListener listener;
+    private SeshStateManager seshStateManager;
     private Object lock = new Object();
 
     public enum LaunchPrerequisiteFlag {
-        LOCATION_MANAGER_LOADED, CONSTANTS_FETCHED, USER_INFORMATION_FETCHED
+        LOCATION_MANAGER_LOADED, CONSTANTS_FETCHED, USER_INFORMATION_FETCHED, SESH_STATE_VERIFIED
     }
 
     private boolean locationManagerLoaded;
     private boolean constantsFetched;
     private boolean userInformationFetched;
+    private boolean seshStateVerified;
+
+    private boolean launchIntoSesh;
 
     public static abstract class PrereqsFulfilledListener {
         public abstract void onPrereqsFulfilled();
@@ -51,6 +57,8 @@ public class LaunchPrerequisiteAsyncTask extends AsyncTask<Void, Void, Void>
         locationManagerLoaded = false;
         constantsFetched = false;
         userInformationFetched = false;
+        seshStateVerified = false;
+        seshStateManager = SeshStateManager.sharedInstance(mContext);
     }
 
     public LaunchPrerequisiteAsyncTask(Context context, Set<LaunchPrerequisiteFlag> launchPrerequisitesFulfilled,
@@ -60,6 +68,8 @@ public class LaunchPrerequisiteAsyncTask extends AsyncTask<Void, Void, Void>
         locationManagerLoaded = false;
         constantsFetched = false;
         userInformationFetched = false;
+        seshStateVerified = false;
+        seshStateManager = SeshStateManager.sharedInstance(mContext);
 
         if (launchPrerequisitesFulfilled.contains(LaunchPrerequisiteFlag.CONSTANTS_FETCHED)) {
             constantsFetched = true;
@@ -77,6 +87,12 @@ public class LaunchPrerequisiteAsyncTask extends AsyncTask<Void, Void, Void>
             userInformationFetched = true;
         } else {
             userInformationFetched = false;
+        }
+
+        if (launchPrerequisitesFulfilled.contains(LaunchPrerequisiteFlag.SESH_STATE_VERIFIED)) {
+            seshStateVerified = true;
+        } else {
+            seshStateVerified = false;
         }
     }
 
@@ -131,12 +147,32 @@ public class LaunchPrerequisiteAsyncTask extends AsyncTask<Void, Void, Void>
             }
         }
 
+        if (!seshStateVerified) {
+            launchIntoSesh = false;
+
+            User user = User.currentUser(mContext);
+
+            List<Sesh> openSeshes = user.getOpenSeshes();
+            for (Sesh sesh : openSeshes) {
+                if (sesh.hasStarted) {
+                    launchIntoSesh = true;
+                    if (SeshStateManager.getCurrentSeshState(mContext) != SeshStateManager.SeshState.IN_SESH) {
+                        seshStateManager.updateSeshState(SeshStateManager.SeshState.IN_SESH);
+                    }
+                }
+            }
+        }
+
         return null;
     }
 
     @Override
     public void onPostExecute(Void result) {
-        listener.onPrereqsFulfilled();
+        if (!launchIntoSesh) {
+            listener.onPrereqsFulfilled();
+        } else {
+            seshStateManager.displayActivityForSeshStateUpdate();
+        }
     }
 
     @Override

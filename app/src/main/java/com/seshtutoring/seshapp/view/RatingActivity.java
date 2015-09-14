@@ -24,6 +24,7 @@ import com.seshtutoring.seshapp.model.PastSesh;
 import com.seshtutoring.seshapp.services.notifications.InAppNotificationDisplayQueue;
 import com.seshtutoring.seshapp.services.notifications.SeshNotificationManagerService;
 import com.seshtutoring.seshapp.util.LayoutUtils;
+import com.seshtutoring.seshapp.util.SeshUtils;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.components.SeshActivityIndicator;
 import com.seshtutoring.seshapp.view.components.SeshButton;
@@ -208,17 +209,15 @@ public class RatingActivity extends SeshActivity {
 
     private void setupLabels() {
 
-        DecimalFormat df = new DecimalFormat("#.##");
-        this.creditsUsed.setText(df.format(this.pastSesh.creditsUsed));
-        this.cost.setText(df.format(this.pastSesh.cost));
+        DecimalFormat creditsDf = new DecimalFormat("#.##");
+        this.creditsUsed.setText(creditsDf.format(this.pastSesh.creditsUsed));
+        DecimalFormat costDf = new DecimalFormat("#.##");
+        this.cost.setText("$" + costDf.format(this.pastSesh.cost));
 
-        String[] splited = this.pastSesh.tutorFullName.split("\\s+");
 
-        if (splited.length >= 2) {
-            this.tutorName.setText("Rate " + splited[0] + " " + splited[1].substring(0, 1).toUpperCase() + ".");
-        } else {
-            this.tutorName.setText("Rate " + this.pastSesh.tutorFullName);
-        }
+        LayoutUtils layUtils = new LayoutUtils(this);
+
+        this.tutorName.setText("Rate " + SeshUtils.abbreviatedNameForName(this.pastSesh.tutorFullName));
 
         // setup the hours
         DateTime startTime = new DateTime(this.pastSesh.startTime);
@@ -229,7 +228,7 @@ public class RatingActivity extends SeshActivity {
         int minutes = diff.getMinutes();
 
         double totalHours = hours + (minutes / 60.0f);
-        this.hours.setText(df.format(totalHours));
+        this.hours.setText(creditsDf.format(totalHours));
 
 
     }

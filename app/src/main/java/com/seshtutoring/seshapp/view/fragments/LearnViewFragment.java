@@ -28,6 +28,8 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.enrique.stackblur.StackBlurManager;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.location.LocationRequest;
@@ -47,10 +49,14 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.seshtutoring.seshapp.R;
+import com.seshtutoring.seshapp.model.AvailableBlock;
 import com.seshtutoring.seshapp.model.LearnRequest;
+import com.seshtutoring.seshapp.model.Notification;
+import com.seshtutoring.seshapp.model.OutstandingCharge;
 import com.seshtutoring.seshapp.util.LocationManager;
 import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.util.StorageUtils;
+import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
 import com.seshtutoring.seshapp.view.RequestActivity;
 import com.seshtutoring.seshapp.view.components.SeshButton;
@@ -58,8 +64,14 @@ import com.seshtutoring.seshapp.view.components.SeshDialog;
 import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.HomeFragment;
 import com.stripe.android.compat.AsyncTask;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.text.NumberFormat;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Created by nadavhollander on 7/14/15.
@@ -71,6 +83,8 @@ public class LearnViewFragment extends Fragment implements OnMapReadyCallback {
     private static GoogleMap mMap;
     private LocationManager locationManager;
     private SeshButton requestButton;
+    private ImageButton currentLocationButton;
+    private boolean currentLocationButtonFilled;
     public static final String BLURRED_MAP_BITMAP_PATH_KEY = "blurred_map_bitmap";
     public static final String CHOSEN_LOCATION_LAT = "chosen_location_lat";
     public static final String CHOSEN_LOCATION_LONG = "chosen_location_long";
@@ -96,14 +110,14 @@ public class LearnViewFragment extends Fragment implements OnMapReadyCallback {
 
         setUpMapIfNeeded();
 
-        final ImageButton currentLocationButton = (ImageButton) view.findViewById(R.id.current_location_button);
-
+        currentLocationButton = (ImageButton) view.findViewById(R.id.current_location_button);
         currentLocationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Location currentLocation = locationManager.getCurrentLocation();
                 if (currentLocation != null) {
                     moveCameraToLocation(currentLocation, true);
+                    setCurrentLocationButtonFilled();
                 }
             }
         });
@@ -112,11 +126,127 @@ public class LearnViewFragment extends Fragment implements OnMapReadyCallback {
         requestButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                (new StartRequestActivityAsyncTask()).execute();
+                // Check for outstanding charges
+                Iterator<OutstandingCharge> outstandingChargesList = OutstandingCharge.findAll(OutstandingCharge.class);
+                if (outstandingChargesList.hasNext()) {
+                    handleOutstandingCharges(outstandingChargesList);
+                } else {
+                    (new StartRequestActivityAsyncTask()).execute();
+                }
             }
         });
 
+        LayoutUtils utils = new LayoutUtils(getActivity());
+
+        ImageView marker = (ImageView) view.findViewById(R.id.location_marker);
+        marker.setY(marker.getY() - (utils.getDimensionPx(R.dimen.learn_view_map_marker_height) / 2));
+
         return view;
+    }
+
+    private void setCurrentLocationButtonFilled() {
+        if (currentLocationButtonFilled) return;
+
+        if (Build.VERSION.SDK_INT < 16) {
+            currentLocationButton.setBackgroundDrawable(getResources()
+                    .getDrawable(R.drawable.jump_to_my_location_filled));
+        } else if (Build.VERSION.SDK_INT < 21) {
+            currentLocationButton.setBackground(getResources()
+                    .getDrawable(R.drawable.jump_to_my_location_filled));
+        } else  {
+            currentLocationButton.setBackground(getResources()
+                    .getDrawable(R.drawable.jump_to_my_location_filled));
+        }
+
+        currentLocationButtonFilled = true;
+    }
+
+    private void setCurrentLocationButtonUnfilled() {
+        if (!currentLocationButtonFilled) return;
+
+        if (Build.VERSION.SDK_INT < 16) {
+            currentLocationButton.setBackgroundDrawable(getResources()
+                    .getDrawable(R.drawable.jump_to_my_location));
+        } else if (Build.VERSION.SDK_INT < 21) {
+            currentLocationButton.setBackground(getResources()
+                    .getDrawable(R.drawable.jump_to_my_location));
+        } else  {
+            currentLocationButton.setBackground(getResources()
+                    .getDrawable(R.drawable.jump_to_my_location));
+        }
+
+        currentLocationButtonFilled = false;
+    }
+
+    private void checkIfMarkerOnCurrentLocation() {
+        Location currentLocation = locationManager.getCurrentLocation();
+        LatLng markerTarget = mMap.getCameraPosition().target;
+        Location markerLocation = new Location("");
+        markerLocation.setLatitude(markerTarget.latitude);
+        markerLocation.setLongitude(markerTarget.longitude);
+
+        if (currentLocation.distanceTo(markerLocation) < 5) {
+            setCurrentLocationButtonFilled();
+        } else {
+            setCurrentLocationButtonUnfilled();
+        }
+    }
+
+    private void handleOutstandingCharges(Iterator<OutstandingCharge> outstandingChargeIterator) {
+        Double finalAmount = 0.0;
+        while (outstandingChargeIterator.hasNext()) {
+            OutstandingCharge charge = outstandingChargeIterator.next();
+            finalAmount += charge.amount;
+        }
+
+        final SeshDialog seshDialog = new SeshDialog();
+        seshDialog.setDialogType(SeshDialog.SeshDialogType.TWO_BUTTON);
+        seshDialog.setTitle("Outstanding Charge");
+        NumberFormat formatter = NumberFormat.getCurrencyInstance();
+        seshDialog.setMessage("You owe us " + formatter.format(finalAmount) + " from unpaid past Seshes. Pay now?");
+        seshDialog.setFirstChoice("PAY");
+        seshDialog.setFirstButtonClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                seshDialog.setNetworking(true);
+                SeshNetworking seshNetworking = new SeshNetworking(getActivity());
+                seshNetworking.payOutstandingCharges(new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject jsonObject) {
+                        try {
+                            if (jsonObject.getString("status").equals("SUCCESS")) {
+                                OutstandingCharge.deleteAll(OutstandingCharge.class);
+                                seshDialog.setNetworking(false);
+                                (new StartRequestActivityAsyncTask()).execute();
+                            } else {
+                                Log.e(TAG, "Failed to pay outstanding charges: " + jsonObject.getString("message"));
+                                seshDialog.networkOperationFailed("Error!", jsonObject.getString("message"), "OKAY",
+                                        null);
+                            }
+                        } catch (JSONException e) {
+                            Log.e(TAG, "Failed to pay outstanding charges. Json malformed" + e);
+                            seshDialog.networkOperationFailed("Error!", "Something went wrong.  Try again later.", "OKAY", null);
+                        }
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError volleyError) {
+                        Log.e(TAG, "Failed to recreate Learn request; network error: " + volleyError);
+                        seshDialog.networkOperationFailed("Network Error", "We couldn't reach the server.  Try again later.", "OKAY", null);
+                    }
+                });
+            }
+        });
+        seshDialog.setSecondChoice("CANCEL");
+        seshDialog.setSecondButtonClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                seshDialog.dismiss();
+            }
+        });
+        seshDialog.setType("OUTSTANDING_CHARGE");
+
+        seshDialog.show(getActivity().getFragmentManager(), "OUTSTANDING_CHARGE");
     }
 
     private void startRequestActivityWithBlurTransition() {
@@ -144,20 +274,6 @@ public class LearnViewFragment extends Fragment implements OnMapReadyCallback {
 
     public GoogleMap getMap() {
         return mMap;
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode,
-                                    Intent data) {
-        if (requestCode == RequestActivity.ENTER_LEARN_REQUEST_FLOW) {
-            if (resultCode == RequestActivity.LEARN_REQUEST_CREATE_SUCCESS) {
-
-            } else if (resultCode == RequestActivity.LEARN_REQUEST_CREATE_FAILURE) {
-                Toast.makeText(getActivity(), "Sick, didn't work.  :(", Toast.LENGTH_LONG).show();
-            } else if (resultCode == RequestActivity.LEARN_REQUEST_CREATE_EXITED){
-                // log to mixpanel -- user exited request flow
-            }
-        }
     }
 
     /**
@@ -195,6 +311,20 @@ public class LearnViewFragment extends Fragment implements OnMapReadyCallback {
         int topMapPadding = getResources().getDimensionPixelOffset(R.dimen.learn_view_map_padding_top);
 
         mMap.setPadding(0, topMapPadding, 0, 0);
+        mMap.setMyLocationEnabled(true);
+        mMap.getUiSettings().setMyLocationButtonEnabled(false);
+        mMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
+            @Override
+            public void onCameraChange(CameraPosition cameraPosition) {
+                checkIfMarkerOnCurrentLocation();
+            }
+        });
+        mMap.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener() {
+            @Override
+            public void onMyLocationChange(Location location) {
+                checkIfMarkerOnCurrentLocation();
+            }
+        });
         moveCameraToLocation(locationManager.getCurrentLocation(), false);
     }
 

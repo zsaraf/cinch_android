@@ -18,10 +18,23 @@
         android:layout_height="150dp"
         android:layout_marginTop="30dp"
         android:layout_centerHorizontal="true"
-        android:src="@drawable/profile"
+        android:src="@drawable/default_profile_picture"
         android:layout_below="@+id/title_text_view"
         app:border_width="2dp"
         app:border_color="@color/seshorange" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Student/Tutor Name"
+        android:id="@+id/name_text"
+        android:textSize="17dp"
+        android:layout_below="@+id/profile_image"
+        android:gravity="center_vertical|center_horizontal"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:textColor="@color/seshorange" />
+
     <com.seshtutoring.seshapp.view.components.SeshButton
         android:id="@+id/end_sesh_button"
         android:layout_width="match_parent"
@@ -32,8 +45,8 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/end_sesh_button"
-        android:layout_below="@id/profile_image">
+        android:layout_below="@+id/name_text"
+        android:layout_above="@+id/end_sesh_button">
         <Chronometer
             android:id="@+id/sesh_timer"
             android:layout_width="match_parent"

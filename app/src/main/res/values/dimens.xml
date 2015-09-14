@@ -30,4 +30,7 @@
 
     <dimen name="warm_welcome_card_bottom_margin">130dp</dimen>
     <dimen name="side_menu_scale_pivot_x">40dp</dimen>
+
+    <dimen name="learn_view_map_marker_height">50dp</dimen>
+    <dimen name="learn_view_map_marker_width">50dp</dimen>
 </resources>

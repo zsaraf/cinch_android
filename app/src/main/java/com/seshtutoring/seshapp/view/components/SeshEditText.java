@@ -5,6 +5,7 @@ import android.content.res.TypedArray;
 import android.graphics.Typeface;
 import android.support.v7.widget.AppCompatEditText;
 import android.text.Editable;
+import android.text.InputFilter;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
@@ -74,6 +75,7 @@ public class SeshEditText extends RelativeLayout {
         final boolean transparentMode;
         String text;
         boolean editable;
+        int maxChars;
 
         try {
             editTextTypeIndex = a.getInt(R.styleable.SeshEditText_editTextType, 0);
@@ -82,6 +84,7 @@ public class SeshEditText extends RelativeLayout {
             transparentMode = a.getBoolean(R.styleable.SeshEditText_editTextTransparentMode, false);
             text = a.getString(R.styleable.SeshEditText_editTextText);
             editable = a.getBoolean(R.styleable.SeshEditText_editTextEditable, true);
+            maxChars = a.getInteger(R.styleable.SeshEditText_maxCharacters, 100);
         } finally {
             a.recycle();
         }
@@ -164,6 +167,8 @@ public class SeshEditText extends RelativeLayout {
 
         Typeface light = Typeface.createFromAsset(context.getAssets(), "fonts/Gotham-Light.otf");
         editText.setTypeface(light);
+
+        editText.setFilters(new InputFilter[] { new InputFilter.LengthFilter(maxChars) });
 
         editText.addTextChangedListener(new TextWatcher() {
             @Override

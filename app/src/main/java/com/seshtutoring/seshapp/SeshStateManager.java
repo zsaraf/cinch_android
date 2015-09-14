@@ -129,34 +129,4 @@ public class SeshStateManager {
         }
         return mInstance;
     }
-
-    public static class VerifySeshStateAsyncTask extends AsyncTask<Object, Void, Void> {
-        private Context mContext;
-        private boolean inSesh;
-
-        @Override
-        public Void doInBackground(Object... params) {
-            inSesh = false;
-
-            this.mContext = (Context) params[0];
-            User user = (User) params[1];
-
-            List<Sesh> openSeshes = user.getOpenSeshes();
-            for (Sesh sesh : openSeshes) {
-                if (sesh.hasStarted) {
-                    inSesh = true;
-                }
-            }
-            return null;
-        }
-
-        @Override
-        public void onPostExecute(Void result) {
-            super.onPostExecute(result);
-            SeshStateManager seshStateManager = SeshStateManager.sharedInstance(mContext);
-            if (inSesh && seshStateManager.currentSeshState != SeshState.IN_SESH) {
-                seshStateManager.updateSeshState(SeshState.IN_SESH);
-            }
-        }
-    }
  }

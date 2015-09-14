@@ -58,12 +58,15 @@ public class SeshNotificationManagerService extends IntentService {
                 try {
                     JSONObject notificationObj =
                             new JSONObject(intent.getStringExtra(SeshGCMListenerService.NOTIFICATION_OBJ_KEY));
+                    boolean notificationsEnabled = intent.getBooleanExtra(SeshGCMListenerService.NOTIFICATIONS_ENABLED_KEY, true);
                     Notification notification
                             = Notification.createOrUpdateNotification(notificationObj, getApplicationContext());
                     NotificationHandler notificationHandler = notification.getNotificationHandler(this);
 
                     if (!applicationLifecycleTracker.applicationInForeground()) {
-                        notificationHandler.handleDisplayOutsideApp();
+                        if (notificationsEnabled) {
+                            notificationHandler.handleDisplayOutsideApp();
+                        }
                     } else if (!displayQueue.notificationHandlingInProgress()) {
                         displayQueue.handleNext();
                     }

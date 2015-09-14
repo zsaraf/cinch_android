@@ -1,9 +1,10 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <style name="SeshActionBarTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="@android:actionBarStyle">@style/SeshActionBar</item>
         <item name="actionBarStyle">@style/SeshActionBar</item>
         <item name="background">@color/seshbackground</item>
         <item name="android:windowActionBarOverlay">true</item>
+        <item name="colorPrimaryDark">@android:color/black</item>
         <item name="windowActionBarOverlay">true</item>
     </style>
 
@@ -18,6 +19,14 @@
         <item name="windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
         <item name="android:windowFullscreen">true</item>
+        <item name="colorPrimaryDark">@color/seshbackground</item>
+        <item name="android:windowContentOverlay">@null</item>
+    </style>
+
+    <style name="SeshAuthentication" parent="@style/Theme.AppCompat.Light">
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
+        <item name="colorPrimaryDark">@color/seshbackground</item>
         <item name="android:windowContentOverlay">@null</item>
     </style>
 
@@ -44,6 +53,13 @@
         <item name="android:maxHeight">48dip</item>
     </style>
 
+    <style name="GothamBook">
+        <item name="fontPath">fonts/Gotham-Book.otf</item>
+    </style>
+    <style name="GothamLight">
+        <item name="fontPath">fonts/Gotham-Light.otf</item>
+    </style>
+
     <style name="SeshFullScreenDialog" parent="android:Theme" >
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowFullscreen">true</item>
@@ -61,5 +77,16 @@
     <style name="SeshBannerWindowAnimations" parent="@android:style/Animation.Activity">
         <item name="android:windowEnterAnimation">@anim/banner_slide_down</item>
         <item name="android:windowExitAnimation">@anim/banner_slide_up</item>
+    </style>
+
+    <style tools:ignore="NewApi" name="CustomTheme" parent="android:Theme.DeviceDefault">
+        <item name="cropImageStyle">@style/Widget.CropImageView</item>
+    </style>
+
+    <style name="Widget.CropImageView" parent="android:Widget">
+        <item name="showThirds">false</item>
+        <item name="showCircle">true</item>
+        <item name="showHandles">always</item>
+        <item name="highlightColor">@color/seshorange</item>
     </style>
 </resources>

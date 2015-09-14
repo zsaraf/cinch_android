@@ -11,6 +11,7 @@ import com.orm.SugarRecord;
 import com.orm.dsl.Ignore;
 import com.seshtutoring.seshapp.services.GCMRegistrationIntentService;
 import com.seshtutoring.seshapp.services.PeriodicFetchBroadcastReceiver;
+import com.seshtutoring.seshapp.util.StorageUtils;
 import com.seshtutoring.seshapp.util.networking.SeshAuthManager;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.stripe.android.compat.AsyncTask;
@@ -84,7 +85,7 @@ public class User extends SugarRecord<User> {
     }
 
     public static void logoutUserLocally(Context context) {
-        User.deleteAll(User.class);
+        StorageUtils.clearAllSugarRecords();
         SeshAuthManager.sharedManager(context).clearSession();
         GCMRegistrationIntentService.clearGCMRegistrationToken(context);
         Log.i(TAG, "User logged out locally.");
@@ -141,6 +142,7 @@ public class User extends SugarRecord<User> {
             }
 
             // Load the cards
+            Card.deleteAll(Card.class);
             if (dataJson.has("cards")) {
                 JSONArray cards = dataJson.getJSONArray("cards");
                 for (int i = 0; i < cards.length(); i++) {
@@ -174,6 +176,15 @@ public class User extends SugarRecord<User> {
                 for (int i = 0; i < discounts.length(); i++) {
                     JSONObject discountJson = discounts.getJSONObject(i);
                     Discount.createOrUpdateDiscountWithObject(context, discountJson);
+                }
+            }
+
+            OutstandingCharge.deleteAll(OutstandingCharge.class);
+            if (dataJson.has("outstanding_charges")) {
+                JSONArray outstandingCharges = dataJson.getJSONArray("outstanding_charges");
+                for (int i = 0; i < outstandingCharges.length(); i++) {
+                    JSONObject outstandingChargesJSONObject = outstandingCharges.getJSONObject(i);
+                    OutstandingCharge.createOrUpdateOutstandingChargeWithObject(context, outstandingChargesJSONObject);
                 }
             }
 

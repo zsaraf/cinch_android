@@ -86,9 +86,14 @@ public class ViewSeshUserDescriptionFragment extends Fragment {
     }
 
     public void refresh() {
-        bioTextView.setText(sesh.userDescription);
-        schoolLabel.setText(User.currentUser(getActivity()).school.schoolName);
-        majorLabel.setText(sesh.userMajor);
+        if (sesh != null) {
+            List<Sesh> seshesFound = Sesh.find(Sesh.class, "sesh_id = ?", Integer.toString(new Integer(seshId)));
+            sesh = seshesFound.get(0);
+
+            bioTextView.setText(sesh.userDescription);
+            schoolLabel.setText(User.currentUser(getActivity()).school.schoolName);
+            majorLabel.setText(sesh.userMajor);
+        }
     }
 
 }
