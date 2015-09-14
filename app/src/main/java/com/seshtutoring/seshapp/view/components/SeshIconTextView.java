@@ -2,6 +2,7 @@ package com.seshtutoring.seshapp.view.components;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.media.Image;
 import android.text.Editable;
@@ -53,6 +54,10 @@ public class SeshIconTextView extends RelativeLayout {
 
     public void setText(Spanned html) {
         textView.setText(html);
+    }
+
+    public void setTextColor(int colorId) {
+        textView.setTextColor(colorId);
     }
 
 }
