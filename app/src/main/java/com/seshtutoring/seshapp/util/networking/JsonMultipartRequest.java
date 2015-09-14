@@ -90,8 +90,8 @@ public class JsonMultipartRequest<T> extends Request<T> {
         try {
             String json = new String(response.data,
                     HttpHeaderParser.parseCharset(response.headers));
-            //JSONObject jsonObj = new JSONObject(json);
-            return Response.success((T)json, HttpHeaderParser.parseCacheHeaders(response));
+            JSONObject jsonObj = new JSONObject(json);
+            return Response.success((T)jsonObj, HttpHeaderParser.parseCacheHeaders(response));
         }catch (Exception e) {
             //do something
             return Response.success(null, HttpHeaderParser.parseCacheHeaders(response));

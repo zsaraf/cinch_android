@@ -61,8 +61,9 @@ public class HomeFragment extends Fragment implements FragmentOptionsReceiver {
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
         homeView = layoutInflater.inflate(R.layout.home_fragment, container, false);
 
-        this.learnViewFragment = new LearnViewFragment();
-        this.teachViewFragment = new TeachViewFragment();
+        //initialized in viewPager bc may be contributing to issues with detached fragments
+//        this.learnViewFragment = new LearnViewFragment();
+//        this.teachViewFragment = new TeachViewFragment();
 
         this.viewPager = (ViewPager) homeView.findViewById(R.id.view_pager);
         this.viewPager.setAdapter(new HomeViewPagerAdapter(getChildFragmentManager()));
@@ -157,7 +158,7 @@ public class HomeFragment extends Fragment implements FragmentOptionsReceiver {
 
         @Override
         public Fragment getItem(int position) {
-            return (position == 0) ? learnViewFragment : teachViewFragment;
+            return (position == 0) ? new LearnViewFragment() : new TeachViewFragment();
         }
 
         @Override
@@ -169,6 +170,7 @@ public class HomeFragment extends Fragment implements FragmentOptionsReceiver {
         public void restoreState(Parcelable state, ClassLoader loader) {
             // Do nothing here!!  A bit hacky, but this is a fix for something weird in Android's
             // way of handling ViewPagers within fragments
+            int i = 0;
         }
     }
 

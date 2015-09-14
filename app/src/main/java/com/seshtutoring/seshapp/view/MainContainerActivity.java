@@ -33,6 +33,12 @@ import android.widget.Toast;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.FacebookSdk;
+import com.facebook.login.LoginManager;
+import com.facebook.login.LoginResult;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.maps.GoogleMap;
@@ -62,7 +68,9 @@ import com.seshtutoring.seshapp.view.fragments.ViewSeshFragment;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
@@ -95,6 +103,7 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
     private SideMenuFragment sideMenuFragment;
     private RelativeLayout editButton;
     private MainContainerStateManager containerStateManager;
+    private CallbackManager fbCallbackManager;
 
     private final Fragment loadingFragment = new LoadingFragment();
 
@@ -108,6 +117,30 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        FacebookSdk.sdkInitialize(this);
+
+        fbCallbackManager = CallbackManager.Factory.create();
+
+        LoginManager.getInstance().registerCallback(fbCallbackManager, new FacebookCallback<LoginResult>() {
+            @Override
+            public void onSuccess(LoginResult loginResult) {
+
+                handleFacebookResponse();
+            }
+
+            @Override
+            public void onCancel() {
+                handleFacebookResponse();
+
+            }
+
+            @Override
+            public void onError(FacebookException e) {
+                handleFacebookResponse();
+
+            }
+        });
 
         if (!SeshApplication.IS_LIVE) {
             Intent intent = new Intent(this, SplashActivity.class);
@@ -156,6 +189,26 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
                 return true;
             }
         });
+    }
+
+    private void handleFacebookResponse() {
+        //handle facebook login response here
+    }
+
+    public void facebookLogin() {
+        //login to FB before trying to grab photos
+        List<String> permissions = new ArrayList<String>();
+        permissions.add("public_profile");
+        LoginManager.getInstance().logInWithReadPermissions(this, permissions);
+
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        //should be checks here to make sure it's from FB in case other things actions trigger onActivityResult in the future
+        super.onActivityResult(requestCode, resultCode, data);
+        //add last line back in with checks when ready to use FB
+        //fbCallbackManager.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override

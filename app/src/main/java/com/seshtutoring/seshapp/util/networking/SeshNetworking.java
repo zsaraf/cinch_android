@@ -2,9 +2,12 @@ package com.seshtutoring.seshapp.util.networking;
 
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
+import android.provider.DocumentsContract;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.ImageView;
 
@@ -130,6 +133,14 @@ public class SeshNetworking {
 
         profilePictureUrl = baseUrl() + "resources/images/profile_pictures/" + profilePictureUrl;
         PicassoWrapper.getInstance(mContext).picasso.load(profilePictureUrl).placeholder(R.drawable.default_profile_picture).into(imageView, callback);
+
+    }
+
+    public void downloadProfilePictureAsyncNoPlaceholder(String profilePictureUrl, ImageView imageView, Callback callback) {
+
+        profilePictureUrl = baseUrl() + "resources/images/profile_pictures/" + profilePictureUrl;
+        PicassoWrapper.getInstance(mContext).picasso.load(profilePictureUrl).into(imageView, callback);
+
 
     }
 
@@ -842,12 +853,37 @@ public class SeshNetworking {
         public abstract void onErrorException(Exception e);
     }
 
-    public void uploadProfilePicture(Response.Listener<JSONObject> successListener, Response.ErrorListener errorListener) {
+    public void uploadProfilePicture(Response.Listener<JSONObject> successListener, Response.ErrorListener errorListener, Uri selectedImageUri) {
         Map<String, String> params = new HashMap<>();
-        params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
-
-        postWithRelativeUrl("upload_profile_picture.php", params, successListener, errorListener);
+        params.put("session_id", SeshAuthManager.sharedManager(mContext).getAccessToken());
+        JsonMultipartRequest request = new JsonMultipartRequest("https://www.cinchtutoring.com/users/lilli/upload_profile_picture.php", SeshAuthManager.sharedManager(mContext).getAccessToken(), successListener, errorListener, getRealPathFromURI(selectedImageUri));
+        VolleyNetworkingWrapper.getInstance(mContext).addToRequestQueue(request);
     }
+
+    public String getRealPathFromURI(Uri contentUri) {
+        String filePath = "";
+        String wholeID = DocumentsContract.getDocumentId(contentUri);
+
+        // Split at colon, use second item in the array
+        String id = wholeID.split(":")[1];
+
+        String[] column = { MediaStore.Images.Media.DATA };
+
+        // where id is equal to
+        String sel = MediaStore.Images.Media._ID + "=?";
+
+        Cursor cursor = mContext.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                column, sel, new String[]{ id }, null);
+
+        int columnIndex = cursor.getColumnIndex(column[0]);
+
+        if (cursor.moveToFirst()) {
+            filePath = cursor.getString(columnIndex);
+        }
+        cursor.close();
+        return filePath;
+    }
+
 
 //    @TODO: implement once Stripe functionality in place
 //    public void addCardWithCustomerToken(...)
