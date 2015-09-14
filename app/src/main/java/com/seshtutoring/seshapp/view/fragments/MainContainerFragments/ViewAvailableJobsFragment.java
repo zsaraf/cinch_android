@@ -10,6 +10,7 @@ import android.content.IntentFilter;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
+import android.location.Location;
 import android.media.Image;
 import android.os.Build;
 import android.os.Bundle;
@@ -43,6 +44,8 @@ import com.seshtutoring.seshapp.model.AvailableBlock;
 import com.seshtutoring.seshapp.model.AvailableJob;
 import com.seshtutoring.seshapp.model.Course;
 import com.seshtutoring.seshapp.model.User;
+import com.seshtutoring.seshapp.util.LayoutUtils;
+import com.seshtutoring.seshapp.util.LocationManager;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
 import com.seshtutoring.seshapp.view.OnboardingActivity;
@@ -73,7 +76,7 @@ public class ViewAvailableJobsFragment extends ListFragment {
     private static final int REFRESH_INTERVAL_MILI = 15000;
 
     private MainContainerActivity mainContainerActivity;
-//    private SwipeRefreshLayout refreshLayout;
+    //    private SwipeRefreshLayout refreshLayout;
     private Typeface boldTypeFace;
     private ArrayList<JobHolder> availableJobs;
     private ArrayList<Course> tutorCourses;
@@ -84,6 +87,7 @@ public class ViewAvailableJobsFragment extends ListFragment {
     private ListFragmentSwipeRefreshLayout mSwipeRefreshLayout;
     private TextView brokenPencilTextView;
     private BroadcastReceiver broadcastReceiver;
+    private LocationManager locationManager;
 
     private class JobHolder {
         public AvailableJob job;
@@ -110,11 +114,25 @@ public class ViewAvailableJobsFragment extends ListFragment {
         }
     };
 
+    public static String fmtDistance(double d)
+    {
+        if(d == (long) d)
+            return String.format("%d",(long)d);
+        else
+            return String.format("%s",d);
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        this.locationManager = LocationManager.sharedInstance(getActivity());
+    }
+
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
         RelativeLayout v = (RelativeLayout) layoutInflater.inflate(R.layout.view_available_jobs_fragment, null);
 
         // Now create a SwipeRefreshLayout to wrap the fragment's content view
-        mSwipeRefreshLayout = new ListFragmentSwipeRefreshLayout(container.getContext());
+        mSwipeRefreshLayout = new ListFragmentSwipeRefreshLayout(getActivity());
 
         // Add the list fragment's content view to the SwipeRefreshLayout, making sure that it fills
         // the SwipeRefreshLayout
@@ -156,38 +174,8 @@ public class ViewAvailableJobsFragment extends ListFragment {
         this.availableJobsAdapter = new ViewAvailableJobsAdapter(getActivity(), availableJobs);
         getListView().setAdapter(availableJobsAdapter);
 
-
         //get available jobs from server
         getAvailableJobs();
-
-        //get courses from server
-//        seshNetworking.getTutorCourses(new Response.Listener<JSONObject>() {
-//            public void onResponse(JSONObject jsonResponse) {
-//                try {
-//                    if (jsonResponse.get("status").equals("SUCCESS")) {
-//                        tutorCourses.clear();
-//                        JSONArray tutorCoursesArrayJson = jsonResponse.getJSONArray("classes");
-//                        for (int i = 0; i < tutorCoursesArrayJson.length(); i++) {
-//                            JSONObject obj = tutorCoursesArrayJson.getJSONObject(i);
-//                            Course c = Course.fromJson(obj);
-//                            tutorCourses.add(Course.fromJson((tutorCoursesArrayJson.getJSONObject(i))));
-//                        }
-//
-//
-//
-//                    } else {
-//                        Log.e(TAG, jsonResponse.getString("message"));
-//                    }
-//                } catch (JSONException e) {
-//                    Log.e(TAG, e.getMessage());
-//                }
-//            }
-//        }, new Response.ErrorListener() {
-//            public void onErrorResponse(VolleyError volleyError) {
-//                Log.e(TAG, volleyError.getMessage());
-//            }
-//        });
-
     }
 
     @Override
@@ -219,8 +207,6 @@ public class ViewAvailableJobsFragment extends ListFragment {
         public RelativeLayout bottomWrapper;
         public TextView nameTextView;
         public TextView rateTextView;
-        public TextView overlayTextView;
-        //public TextView loadingTextView;
         public ImageView checkImageView;
         public ImageView backingCheckImageView;
         public SeshInformationLabel courseInformationLabel;
@@ -235,12 +221,9 @@ public class ViewAvailableJobsFragment extends ListFragment {
         public ViewGroup topGroup;
 
         public Boolean shouldBid;
-
-        //public MultiStateAnimation animation;
-
     }
 
-    public class ViewAvailableJobsAdapter extends ArraySwipeAdapter<JobHolder> {
+    public class ViewAvailableJobsAdapter extends ArrayAdapter<JobHolder> {
 
         private Context mContext;
         private LayoutInflater layoutInflater;
@@ -275,8 +258,6 @@ public class ViewAvailableJobsFragment extends ListFragment {
 
                 viewHolder.topGroup = (ViewGroup) convertView.findViewById(R.id.top_wrapper);
 
-                viewHolder.overlayTextView = (TextView) convertView.findViewById(R.id.overlay_text);
-
                 viewHolder.nameTextView = (TextView) convertView.findViewById(R.id.student_name);
                 viewHolder.nameTextView.setTypeface(boldTypeFace);
 
@@ -288,15 +269,11 @@ public class ViewAvailableJobsFragment extends ListFragment {
 
                 viewHolder.distanceInformationLabel = (SeshInformationLabel) convertView.findViewById(R.id.distance);
 
-
                 viewHolder.durationInformationLabel = (SeshInformationLabel) convertView.findViewById(R.id.duration);
 
                 viewHolder.availableBlocksInformationLabel = (SeshInformationLabel) convertView.findViewById(R.id.available_blocks);
 
-                //viewHolder.loadingTextView = (TextView) convertView.findViewById(R.id.loading_text);
-
                 viewHolder.checkImageView = (ImageView) convertView.findViewById(R.id.check_mark);
-                //viewHolder.animation = MultiStateAnimation.fromJsonResource(getActivity(), viewHolder.animationView, R.raw.sample_animation);
 
                 convertView.setTag(viewHolder);
 
@@ -304,177 +281,159 @@ public class ViewAvailableJobsFragment extends ListFragment {
                 viewHolder = (ViewHolder) convertView.getTag();
             }
 
-//            if (viewHolder.status == 1) {
-//                //viewHolder.nameTextView.setTextColor(getResources().getColor(R.color.seshgreen));
-//                viewHolder.topGroup.setBackgroundColor(getResources().getColor(R.color.seshgreen));
-//                viewHolder.nameTextView.setVisibility(View.INVISIBLE);
-//                viewHolder.assignmentTextView.setVisibility(View.INVISIBLE);
-//                viewHolder.durationTextView.setVisibility(View.INVISIBLE);
-//                viewHolder.rateTextView.setVisibility(View.INVISIBLE);
-//                viewHolder.courseTextView.setVisibility(View.INVISIBLE);
-//                viewHolder.animation.transitionNow("loading");
-//                viewHolder.loadingTextView.setVisibility(View.VISIBLE);
-//                viewHolder.loadingTextView.setText("requesting job...");
-//            }else if (viewHolder.status == 2) {
-//                viewHolder.animation.transitionNow("finished");
-//                viewHolder.loadingTextView.setText("submitted! you'll receive a notification if you get the job.");
+            convertView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
 
-            if (holder.type == 2) {
-                viewHolder.overlayTextView.setText("no available jobs");
-                viewHolder.nameTextView.setVisibility(View.GONE);
-                viewHolder.assignmentInformationLabel.setVisibility(View.GONE);
-                viewHolder.durationInformationLabel.setVisibility(View.GONE);
-                viewHolder.rateTextView.setVisibility(View.GONE);
-                viewHolder.courseInformationLabel.setVisibility(View.GONE);
-                viewHolder.availableBlocksInformationLabel.setVisibility(View.GONE);
-                viewHolder.distanceInformationLabel.setVisibility(View.GONE);
-            }else {
+                }
+            });
 
-                final SwipeLayout swipeView = (SwipeLayout) convertView.findViewById(R.id.swipe_view);
-                swipeView.setShowMode(SwipeLayout.ShowMode.LayDown);
-                swipeView.setDragEdge(SwipeLayout.DragEdge.Left);
-                swipeView.setSwipeEnabled(true);
+            final SwipeLayout swipeView = (SwipeLayout) convertView.findViewById(R.id.swipe_view);
+            swipeView.setShowMode(SwipeLayout.ShowMode.LayDown);
+            swipeView.setDragEdge(SwipeLayout.DragEdge.Left);
+            swipeView.setSwipeEnabled(false);
 
-                swipeView.addSwipeListener(new SwipeLayout.SwipeListener() {
+            swipeView.addSwipeListener(new SwipeLayout.SwipeListener() {
 
-                    @Override
-                    public void onClose(SwipeLayout layout) {
-                        //when the SurfaceView totally cover the BottomView.
+                @Override
+                public void onClose(SwipeLayout layout) {
+                    //when the SurfaceView totally cover the BottomView.
+                }
+
+                @Override
+                public void onUpdate(SwipeLayout layout, int leftOffset, int topOffset) {
+                    //you are swiping.
+                    if (leftOffset > viewHolder.backingCheckImageView.getMeasuredWidth() + viewHolder.backingCheckImageView.getPaddingLeft()) {
+                        viewHolder.bottomWrapper.setBackgroundColor(mContext.getResources().getColor(R.color.seshgreen));
+                        viewHolder.backingCheckImageView.setX(leftOffset - viewHolder.backingCheckImageView.getMeasuredWidth() - viewHolder.backingCheckImageView.getPaddingLeft());
+                        viewHolder.shouldBid = true;
+                    } else {
+                        viewHolder.bottomWrapper.setBackgroundColor(mContext.getResources().getColor(R.color.terms_text_light_gray));
+                        viewHolder.backingCheckImageView.setX(0);
+                        viewHolder.shouldBid = false;
                     }
+                }
 
-                    @Override
-                    public void onUpdate(SwipeLayout layout, int leftOffset, int topOffset) {
-                        //you are swiping.
-                        if (leftOffset > viewHolder.backingCheckImageView.getMeasuredWidth() + viewHolder.backingCheckImageView.getPaddingLeft()) {
-                            viewHolder.bottomWrapper.setBackgroundColor(mContext.getResources().getColor(R.color.seshgreen));
-                            viewHolder.backingCheckImageView.setX(leftOffset - viewHolder.backingCheckImageView.getMeasuredWidth() - viewHolder.backingCheckImageView.getPaddingLeft());
-                            viewHolder.shouldBid = true;
-                        } else {
-                            viewHolder.bottomWrapper.setBackgroundColor(mContext.getResources().getColor(R.color.terms_text_light_gray));
-                            viewHolder.backingCheckImageView.setX(0);
-                            viewHolder.shouldBid = false;
+                @Override
+                public void onStartOpen(SwipeLayout layout) {
+                    mSwipeRefreshLayout.setEnabled(false);
+                }
+
+                @Override
+                public void onOpen(SwipeLayout layout) {
+
+                }
+
+                @Override
+                public void onStartClose(SwipeLayout layout) {
+                }
+
+                @Override
+                public void onHandRelease(final SwipeLayout layout, float xvel, float yvel) {
+                    mSwipeRefreshLayout.setEnabled(true);
+                    layout.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            layout.close();
                         }
-                    }
-
-                    @Override
-                    public void onStartOpen(SwipeLayout layout) {
-                        mSwipeRefreshLayout.setEnabled(false);
-                    }
-
-                    @Override
-                    public void onOpen(SwipeLayout layout) {
-
-                    }
-
-                    @Override
-                    public void onStartClose(SwipeLayout layout) {
-                    }
-
-                    @Override
-                    public void onHandRelease(final SwipeLayout layout, float xvel, float yvel) {
-                        mSwipeRefreshLayout.setEnabled(true);
-                        layout.postDelayed(new Runnable() {
+                    }, 50);
+                    final ViewHolder viewHolder = (ViewHolder) layout.getTag();
+                    if (viewHolder.shouldBid) {
+                        (new VerifyTutorOnboardingAsyncTask() {
                             @Override
-                            public void run() {
-                                layout.close();
-                            }
-                        }, 50);
-                        final ViewHolder viewHolder = (ViewHolder) layout.getTag();
-                        if (viewHolder.shouldBid) {
-                            (new VerifyTutorOnboardingAsyncTask() {
-                                @Override
-                                public void onPostExecute(ArrayList<OnboardingRequirement> onboardingRequirements) {
-                                    if (onboardingRequirements.size() > 0) {
-                                        showOnboardingDialog(onboardingRequirements);
-                                    } else {
-                                        viewHolder.shouldBid = false;
-                                        layout.setSwipeEnabled(false);
-                                        ((JobHolder)viewHolder.nameTextView.getTag()).select();
-                                        viewHolder.nameTextView.setTextColor(getResources().getColor(R.color.seshgreen));
+                            public void onPostExecute(ArrayList<OnboardingRequirement> onboardingRequirements) {
+                                if (onboardingRequirements.size() > 0) {
+                                    showOnboardingDialog(onboardingRequirements);
+                                } else {
+                                    viewHolder.shouldBid = false;
+                                    layout.setSwipeEnabled(false);
+                                    ((JobHolder)viewHolder.nameTextView.getTag()).select();
+                                    viewHolder.nameTextView.setTextColor(getResources().getColor(R.color.seshgreen));
 
-                                        handler.postDelayed(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                viewHolder.rateTextView.setVisibility(View.GONE);
-                                                viewHolder.checkImageView.setVisibility(View.VISIBLE);
-                                                viewHolder.checkImageView.setScaleX(0.1f);
-                                                viewHolder.checkImageView.setScaleY(0.1f);
+                                    handler.postDelayed(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            viewHolder.rateTextView.setVisibility(View.GONE);
+                                            viewHolder.checkImageView.setVisibility(View.VISIBLE);
+                                            viewHolder.checkImageView.setScaleX(0.1f);
+                                            viewHolder.checkImageView.setScaleY(0.1f);
 
-                                                viewHolder.animationSpring = viewHolder.springSystem.createSpring();
-                                                viewHolder.animationSpring.setCurrentValue(.1f);
-                                                viewHolder.animationSpring.setEndValue(1.0f);
-                                                viewHolder.animationSpring.setSpringConfig(SpringConfig.fromBouncinessAndSpeed(9.0, 6.0));
-                                                viewHolder.animationSpring.addListener(new SimpleSpringListener() {
-                                                    @Override
-                                                    public void onSpringUpdate(Spring spring) {
-                                                        viewHolder.checkImageView.setScaleX((float) (spring.getCurrentValue()));
-                                                        viewHolder.checkImageView.setScaleY((float) (spring.getCurrentValue()));
-                                                    }
-                                                });
-                                            }
-                                        }, 200);
+                                            viewHolder.animationSpring = viewHolder.springSystem.createSpring();
+                                            viewHolder.animationSpring.setCurrentValue(.1f);
+                                            viewHolder.animationSpring.setEndValue(1.0f);
+                                            viewHolder.animationSpring.setSpringConfig(SpringConfig.fromBouncinessAndSpeed(9.0, 6.0));
+                                            viewHolder.animationSpring.addListener(new SimpleSpringListener() {
+                                                @Override
+                                                public void onSpringUpdate(Spring spring) {
+                                                    viewHolder.checkImageView.setScaleX((float) (spring.getCurrentValue()));
+                                                    viewHolder.checkImageView.setScaleY((float) (spring.getCurrentValue()));
+                                                }
+                                            });
+                                        }
+                                    }, 200);
 
-                                        seshNetworking.createBid(((JobHolder)viewHolder.nameTextView.getTag()).job.requestId, 2, 2,
-                                                new Response.Listener<JSONObject>() {
-                                                    @Override
-                                                    public void onResponse(JSONObject responseJson) {
-                                                        onJobResponse(responseJson);
-                                                    }
-                                                }, new Response.ErrorListener() {
-                                                    @Override
-                                                    public void onErrorResponse(VolleyError volleyError) {
-                                                        onJobFailure(volleyError.getMessage());
-                                                    }
-                                                });
-                                    }
+                                    seshNetworking.createBid(((JobHolder)viewHolder.nameTextView.getTag()).job.requestId, 2, 2,
+                                            new Response.Listener<JSONObject>() {
+                                                @Override
+                                                public void onResponse(JSONObject responseJson) {
+                                                    onJobResponse(responseJson);
+                                                }
+                                            }, new Response.ErrorListener() {
+                                                @Override
+                                                public void onErrorResponse(VolleyError volleyError) {
+                                                    onJobFailure(volleyError.getMessage());
+                                                }
+                                            });
                                 }
-                            }).execute();
-                        }
+                            }
+                        }).execute();
                     }
-                });
-
-                if (holder.selected) {
-                    viewHolder.nameTextView.setTextColor(getResources().getColor(R.color.seshgreen));
-                    viewHolder.checkImageView.setVisibility(View.VISIBLE);
-                    viewHolder.rateTextView.setVisibility(View.GONE);
-                    viewHolder.checkImageView.setImageResource(R.drawable.check_green);
-                }else {
-                    viewHolder.nameTextView.setTextColor(getResources().getColor(R.color.seshorange));
-                    viewHolder.checkImageView.setVisibility(View.GONE);
-                    viewHolder.rateTextView.setVisibility(View.VISIBLE);
-                    NumberFormat money = NumberFormat.getCurrencyInstance(Locale.US);
-                    viewHolder.rateTextView.setText(money.format(item.rate * item.maxTime));
                 }
+            });
 
-                viewHolder.nameTextView.setTag(holder);
-
-                viewHolder.overlayTextView.setVisibility(View.GONE);
-
-                viewHolder.nameTextView.setText(item.studentName);
-                viewHolder.nameTextView.setVisibility(View.VISIBLE);
-
-                viewHolder.courseInformationLabel.setText(item.course.shortFormatForTextView());
-                viewHolder.courseInformationLabel.setVisibility(View.VISIBLE);
-
-                viewHolder.assignmentInformationLabel.setText(item.description);
-                viewHolder.assignmentInformationLabel.setVisibility(View.VISIBLE);
-
-                viewHolder.distanceInformationLabel.setText(".1 miles");
-                //calculate distance?
-                //viewHolder.distanceTextView.setText(item + " miles");
-                //viewHolder.distanceTextView.setIconResourceId(R.drawable.current_location);
-
-                viewHolder.durationInformationLabel.setText(item.maxTime + " hours");
-                viewHolder.durationInformationLabel.setVisibility(View.VISIBLE);
-                List<AvailableBlock> availableBlockList = new ArrayList<AvailableBlock>();
-                availableBlockList.addAll(item.availableBlocks);
-                if (item.isInstant) {
-                    viewHolder.availableBlocksInformationLabel.setText("NOW");
-                } else {
-                    viewHolder.availableBlocksInformationLabel.setText(Html.fromHtml(AvailableBlock.getReadableBlocks(availableBlockList)));
-                }
+            if (holder.selected) {
+                viewHolder.nameTextView.setTextColor(getResources().getColor(R.color.seshgreen));
+                viewHolder.checkImageView.setVisibility(View.VISIBLE);
+                viewHolder.rateTextView.setVisibility(View.GONE);
+                viewHolder.checkImageView.setImageResource(R.drawable.check_green);
+            }else {
+                viewHolder.nameTextView.setTextColor(getResources().getColor(R.color.seshorange));
+                viewHolder.checkImageView.setVisibility(View.GONE);
+                viewHolder.rateTextView.setVisibility(View.VISIBLE);
+                NumberFormat money = NumberFormat.getCurrencyInstance(Locale.US);
+                viewHolder.rateTextView.setText(money.format(item.rate * item.maxTime));
             }
 
+            viewHolder.nameTextView.setTag(holder);
+
+            viewHolder.nameTextView.setText(item.studentName);
+            viewHolder.nameTextView.setVisibility(View.VISIBLE);
+
+            viewHolder.courseInformationLabel.setText(item.course.shortFormatForTextView());
+            viewHolder.courseInformationLabel.setVisibility(View.VISIBLE);
+
+            viewHolder.assignmentInformationLabel.setText(item.description);
+            viewHolder.assignmentInformationLabel.setVisibility(View.VISIBLE);
+
+            float[] results = new float[3];
+            Location currentLocation = locationManager.getCurrentLocation();
+            Location.distanceBetween(
+                    currentLocation.getLatitude(),
+                    item.latitude,
+                    currentLocation.getLongitude(),
+                    item.longitude,
+                    results);
+            viewHolder.distanceInformationLabel.setText(fmtDistance(results[0])+ " miles");
+
+            viewHolder.durationInformationLabel.setText(item.maxTime + " hours");
+            viewHolder.durationInformationLabel.setVisibility(View.VISIBLE);
+            List<AvailableBlock> availableBlockList = new ArrayList<AvailableBlock>();
+            availableBlockList.addAll(item.availableBlocks);
+            if (item.isInstant) {
+                viewHolder.availableBlocksInformationLabel.setText("NOW");
+            } else {
+                viewHolder.availableBlocksInformationLabel.setText(Html.fromHtml(AvailableBlock.getReadableBlocks(availableBlockList)));
+            }
             return convertView;
         }
 
