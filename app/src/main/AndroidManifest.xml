@@ -237,7 +237,6 @@
             android:label="@string/title_activity_change_password"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
-
             android:parentActivityName=".view.MainContainerActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -247,6 +246,7 @@
             android:name=".view.AboutActivity"
             android:label="@string/title_activity_about"
             android:launchMode="singleTop"
+            android:screenOrientation="portrait"
             android:parentActivityName=".view.MainContainerActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -256,6 +256,7 @@
             android:name=".view.TermsActivity"
             android:label="@string/title_activity_terms"
             android:launchMode="singleTop"
+            android:screenOrientation="portrait"
             android:parentActivityName=".view.MainContainerActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -265,6 +266,7 @@
             android:name=".view.PrivacyActivity"
             android:label="@string/title_activity_privacy"
             android:launchMode="singleTop"
+            android:screenOrientation="portrait"
             android:parentActivityName=".view.MainContainerActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -274,6 +276,7 @@
             android:name=".view.SupportActivity"
             android:label="@string/title_activity_support"
             android:launchMode="singleTop"
+            android:screenOrientation="portrait"
             android:parentActivityName=".view.MainContainerActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
