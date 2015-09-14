@@ -19,6 +19,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.facebook.rebound.SimpleSpringListener;
 import com.facebook.rebound.Spring;
 import com.facebook.rebound.SpringConfig;
@@ -26,12 +28,16 @@ import com.facebook.rebound.SpringSystem;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.util.LayoutUtils;
+import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.OnboardingActivity;
 import com.seshtutoring.seshapp.view.OnboardingActivity.OnboardingRequirement;
 import com.seshtutoring.seshapp.view.components.SeshButton;
 import com.seshtutoring.seshapp.view.components.SeshViewPager;
 
 import com.soundcloud.android.crop.Crop;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -48,6 +54,8 @@ public class OnboardingPhotoFragment extends SeshViewPager.InputFragment {
     private static final String TAG = OnboardingPhotoFragment.class.getName();
     private static final int REQUEST_TAKE_PHOTO = 1337;
     private SeshViewPager seshViewPager;
+    private SeshNetworking seshNetworking;
+    private User user;
     private CircleImageView profilePicture;
     private boolean isCompleted;
     private Bitmap photo;
@@ -61,6 +69,9 @@ public class OnboardingPhotoFragment extends SeshViewPager.InputFragment {
 
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
         View view = layoutInflater.inflate(R.layout.onboarding_photo_fragment, container, false);
+
+        this.seshNetworking = new SeshNetworking(getActivity());
+        this.user = User.currentUser(getActivity());
 
         this.profilePicture = (CircleImageView) view.findViewById(R.id.photo);
         this.profilePicture.setOnClickListener(new View.OnClickListener() {
@@ -246,10 +257,31 @@ public class OnboardingPhotoFragment extends SeshViewPager.InputFragment {
 
                 profilePicture.setImageBitmap(resizedBitmap);
 
+                //upload photo
+                seshNetworking.uploadProfilePicture(new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject jsonObject) {
+                        try {
+                            if (jsonObject.getString("status").equals("SUCCESS")) {
+                                //success handler
+                                updateUserProfile((JSONObject)jsonObject.get("user"));
+                            } else {
+                                //server error hadler
+                            }
+                        } catch (JSONException e) {
+                            //json exception handler
+                        }
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError volleyError) {
+                        //error response handler
+                    }
+                }, resizedPhotoFile);
+
                 isCompleted = true;
-                User currentUser = User.currentUser(getActivity());
-                currentUser.profilePictureUrl = "local_saved_image.png";
-                currentUser.save();
+                user.profilePictureUrl = "local_saved_image.png";
+                user.save();
                 Handler handler = new Handler();
                 handler.postDelayed(new Runnable() {
                     @Override
@@ -262,5 +294,17 @@ public class OnboardingPhotoFragment extends SeshViewPager.InputFragment {
                 Log.e(TAG, "Failed to take picture, couldn't retrieve saved image" + e);
             }
         }
+    }
+
+    private void updateUserProfile(JSONObject userObj) {
+
+        try {
+            String updatedUrl = userObj.getString("profile_picture");
+            user.profilePictureUrl = updatedUrl;
+            user.save();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
     }
 }

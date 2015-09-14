@@ -40,6 +40,8 @@ import org.joda.time.format.DateTimeFormatter;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -884,10 +886,19 @@ public class SeshNetworking {
         public abstract void onErrorException(Exception e);
     }
 
+    public void uploadProfilePicture(Response.Listener<JSONObject> successListener, Response.ErrorListener errorListener, File image) {
+        Map<String, String> params = new HashMap<>();
+        params.put("session_id", SeshAuthManager.sharedManager(mContext).getAccessToken());
+        String url = baseUrl() + apiUrl() + "upload_profile_picture.php";
+        JsonMultipartRequest request = new JsonMultipartRequest(url, SeshAuthManager.sharedManager(mContext).getAccessToken(), successListener, errorListener, image);
+        VolleyNetworkingWrapper.getInstance(mContext).addToRequestQueue(request);
+    }
+
     public void uploadProfilePicture(Response.Listener<JSONObject> successListener, Response.ErrorListener errorListener, Uri selectedImageUri) {
         Map<String, String> params = new HashMap<>();
         params.put("session_id", SeshAuthManager.sharedManager(mContext).getAccessToken());
-        JsonMultipartRequest request = new JsonMultipartRequest("https://www.cinchtutoring.com/users/lilli/upload_profile_picture.php", SeshAuthManager.sharedManager(mContext).getAccessToken(), successListener, errorListener, getRealPathFromURI(selectedImageUri));
+        String url = baseUrl() + apiUrl() + "upload_profile_picture.php";
+        JsonMultipartRequest request = new JsonMultipartRequest(url, SeshAuthManager.sharedManager(mContext).getAccessToken(), successListener, errorListener, getRealPathFromURI(selectedImageUri));
         VolleyNetworkingWrapper.getInstance(mContext).addToRequestQueue(request);
     }
 

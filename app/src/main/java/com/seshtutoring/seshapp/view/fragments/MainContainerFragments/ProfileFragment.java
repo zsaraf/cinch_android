@@ -1,11 +1,16 @@
 package com.seshtutoring.seshapp.view.fragments.MainContainerFragments;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.media.Image;
 import android.net.Uri;
+import android.os.Environment;
+import android.os.Handler;
 import android.os.Parcelable;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
@@ -14,6 +19,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,6 +45,10 @@ import com.facebook.GraphResponse;
 import com.facebook.HttpMethod;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
+import com.facebook.rebound.SimpleSpringListener;
+import com.facebook.rebound.Spring;
+import com.facebook.rebound.SpringConfig;
+import com.facebook.rebound.SpringSystem;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.SeshApplication;
 import com.seshtutoring.seshapp.model.User;
@@ -49,23 +59,34 @@ import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.util.networking.VolleyNetworkingWrapper;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
 import com.seshtutoring.seshapp.view.MainContainerActivity.FragmentOptionsReceiver;
+import com.seshtutoring.seshapp.view.OnboardingActivity;
+import com.seshtutoring.seshapp.view.components.SeshButton;
 import com.seshtutoring.seshapp.view.components.SeshIconTextView;
+import com.seshtutoring.seshapp.view.components.SeshViewPager;
 import com.seshtutoring.seshapp.view.fragments.LearnViewFragment;
 import com.seshtutoring.seshapp.view.fragments.ProfileFragments.ProfileBioViewFragment;
 import com.seshtutoring.seshapp.view.fragments.ProfileFragments.ProfileStudentViewFragment;
 import com.seshtutoring.seshapp.view.fragments.ProfileFragments.ProfileTutorViewFragment;
 import com.seshtutoring.seshapp.view.fragments.TeachViewFragment;
+import com.soundcloud.android.crop.Crop;
 import com.squareup.picasso.Callback;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.w3c.dom.Text;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
  * Created by nadavhollander on 7/14/15.
@@ -73,7 +94,7 @@ import java.util.Map;
 
 public class ProfileFragment extends Fragment implements FragmentOptionsReceiver {
 
-    private static final int SELECT_PICTURE = 1;
+    private static final int REQUEST_TAKE_PHOTO = 1337;
 
     private Map<String, Object> options;
     private User user;
@@ -82,13 +103,22 @@ public class ProfileFragment extends Fragment implements FragmentOptionsReceiver
     private ViewPager viewPager;
     private ImageView viewPagerDots;
     private SeshNetworking seshNetworking;
-    private ImageView profileImageView;
     private ProfileBioViewFragment profileBioViewFragment;
     private ProfileStudentViewFragment profileStudentViewFragment;
     private ProfileTutorViewFragment profileTutorViewFragment;
 
-    private CallbackManager callbackManager;
+    private CircleImageView profilePicture;
+    private boolean isCompleted;
+    private Bitmap photo;
+    private File rawPhotoFile;
+    private File croppedPhotoFile;
+    private File resizedPhotoFile;
+    private CardView addPhotosOptionsCardView;
+    private View blackOverlay;
+    private Spring spring;
+    private boolean cardIsUp;
 
+    private CallbackManager callbackManager;
     private String selectedImagePath;
 
 
@@ -137,9 +167,9 @@ public class ProfileFragment extends Fragment implements FragmentOptionsReceiver
             }
         });
 
-        this.profileImageView = (ImageView)this.homeView.findViewById(R.id.profile_picture);
+        this.profilePicture = (CircleImageView)this.homeView.findViewById(R.id.profile_picture);
         SeshNetworking seshNetworking = new SeshNetworking(mainContainerActivity);
-        seshNetworking.downloadProfilePictureAsync(user.profilePictureUrl, this.profileImageView, new Callback() {
+        seshNetworking.downloadProfilePictureAsync(user.profilePictureUrl, this.profilePicture, new Callback() {
             @Override
             public void onSuccess() {
 
@@ -151,49 +181,214 @@ public class ProfileFragment extends Fragment implements FragmentOptionsReceiver
             }
         });
 
-        this.profileImageView.setOnClickListener(new View.OnClickListener() {
+        this.profilePicture = (CircleImageView) this.homeView.findViewById(R.id.profile_picture);
+        this.profilePicture.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-
-                //TODO: Add code here for selecting new photo to upload
-
+            public void onClick(View view) {
+                animateOptionsCardUp();
+                //old fb code
 //                Intent intent = new Intent();
 //                intent.setType("image/*");
 //                intent.setAction(Intent.ACTION_GET_CONTENT);
 //                startActivityForResult(Intent.createChooser(intent, "Select Picture"), 1);
 //                mainContainerActivity.facebookLogin();
-
             }
         });
+
+        this.addPhotosOptionsCardView = (CardView) this.homeView.findViewById(R.id.add_photo_options_card_view);
+        addPhotosOptionsCardView.setY(layUtils.getScreenHeightPx());
+
+        this.blackOverlay = this.homeView.findViewById(R.id.black_overlay);
+        blackOverlay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (cardIsUp) {
+                    animateOptionsCardDown(null);
+                }
+            }
+        });
+
+        this.spring = SpringSystem.create().createSpring();
+        spring.setSpringConfig(SpringConfig.fromBouncinessAndSpeed(9, 6));
+        spring.addListener(new SimpleSpringListener() {
+            @Override
+            public void onSpringUpdate(Spring spring) {
+                addPhotosOptionsCardView.setY((int) spring.getCurrentValue());
+            }
+        });
+
+        SeshButton takePhotoButton = (SeshButton) this.homeView.findViewById(R.id.take_photo_button);
+        SeshButton chooseFromGalleryButton = (SeshButton) this.homeView.findViewById(R.id.choose_from_gallery_button);
+        takePhotoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                animateOptionsCardDown(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        super.onAnimationEnd(animation);
+                        dispatchTakePictureIntent();
+                    }
+                });
+            }
+        });
+        chooseFromGalleryButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                animateOptionsCardDown(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        super.onAnimationEnd(animation);
+                        dispatchPickImageIntent();
+                    }
+                });
+            }
+        });
+
+        isCompleted = false;
+        cardIsUp = false;
 
         return this.homeView;
 
     }
 
-    private void onUploadResponse(JSONObject responseJson) {
+    private void animateOptionsCardUp() {
+        LayoutUtils utils = new LayoutUtils(getActivity());
+        blackOverlay.setVisibility(View.VISIBLE);
+        blackOverlay.animate().setListener(null).alpha(0.8f).setDuration(300).start();
+        spring.setCurrentValue(addPhotosOptionsCardView.getY());
+        spring.setEndValue(utils.getScreenHeightPx() - utils.dpToPixels(35) - addPhotosOptionsCardView.getHeight());
+        cardIsUp = true;
+    }
+
+    private void animateOptionsCardDown(final AnimatorListenerAdapter listener) {
+        LayoutUtils utils = new LayoutUtils(getActivity());
+        blackOverlay.animate().alpha(0.0f).setDuration(300)
+                .setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        super.onAnimationEnd(animation);
+                        blackOverlay.setVisibility(View.GONE);
+                        if (listener != null) {
+                            listener.onAnimationEnd(animation);
+                        }
+                    }
+                }).start();
+        spring.setCurrentValue(addPhotosOptionsCardView.getY());
+        spring.setEndValue(utils.getScreenHeightPx());
+        cardIsUp = false;
+    }
+
+    public boolean isCompleted() {
+        return isCompleted;
+    }
+
+    private void createTmpPictureFiles() {
+        rawPhotoFile = null;
+        croppedPhotoFile = null;
+        resizedPhotoFile = null;
         try {
-            if (responseJson.get("status").equals("SUCCESS")) {
-                //success, update profile picture locally
-                JSONObject userObj = (JSONObject) responseJson.get("user");
-                String newProfilePicture = userObj.getString("profile_picture");
-                user.profilePictureUrl = newProfilePicture;
-                seshNetworking.downloadProfilePictureAsyncNoPlaceholder(user.profilePictureUrl, profileImageView, new Callback() {
-                    @Override
-                    public void onSuccess() {
-                        String str = "Success";
-                    }
-
-                    @Override
-                    public void onError() {
-                        String str = "Fail";
-                    }
-                });
-
-            } else if (responseJson.get("status").equals("FAILURE")) {
-                String message = responseJson.get("message").toString();
-            }
-        } catch (JSONException e) {
+            rawPhotoFile = createImageFile();
+            croppedPhotoFile = createImageFile();
+            resizedPhotoFile = createImageFile();
+        } catch (IOException ex) {
+            // Error occurred while creating the File
         }
+    }
+
+    private void dispatchTakePictureIntent() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
+            createTmpPictureFiles();
+
+            // Continue only if the File was successfully created
+            if (rawPhotoFile != null  && croppedPhotoFile != null) {
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT,
+                        Uri.fromFile(rawPhotoFile));
+                startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
+            }
+        }
+    }
+
+    private void dispatchPickImageIntent() {
+        createTmpPictureFiles();
+        Crop.pickImage(getActivity(), this);
+    }
+
+    private File createImageFile() throws IOException {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "SESH_PROFILE_PIC_" + timeStamp + "_";
+        File storageDir = Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(
+                imageFileName,  /* prefix */
+                ".jpg",         /* suffix */
+                storageDir      /* directory */
+        );
+
+        return image;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        Uri photoUri = Uri.fromFile(rawPhotoFile);
+        Uri croppedPhotoUri = Uri.fromFile(croppedPhotoFile);
+        if (requestCode == REQUEST_TAKE_PHOTO) {
+            if (resultCode == Activity.RESULT_OK) {
+                Crop.of(photoUri, croppedPhotoUri).asSquare().start(getActivity(), this);
+            } else {
+            }
+        } else if (requestCode == Crop.REQUEST_PICK) {
+            Crop.of(intent.getData(), croppedPhotoUri).asSquare().start(getActivity(), this);
+        } else if (requestCode == Crop.REQUEST_CROP && resultCode == Activity.RESULT_OK) {
+            try {
+                photo = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), croppedPhotoUri);
+                Bitmap resizedBitmap = Bitmap.createScaledBitmap(photo, 600, 600, false);
+                FileOutputStream out = new FileOutputStream(resizedPhotoFile);
+                resizedBitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+
+                profilePicture.setImageBitmap(resizedBitmap);
+
+                //upload photo
+                seshNetworking.uploadProfilePicture(new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject jsonObject) {
+                        try {
+                            if (jsonObject.getString("status").equals("SUCCESS")) {
+                                //success handler
+                                updateUserProfile((JSONObject)jsonObject.get("user"));
+                            } else {
+                                //server error hadler
+                            }
+                        } catch (JSONException e) {
+                            //json exception handler
+                        }
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError volleyError) {
+                        //error response handler
+                    }
+                }, resizedPhotoFile);
+
+                isCompleted = true;
+                user.profilePictureUrl = "local_saved_image.png";
+                user.save();
+            } catch (IOException e) {
+            }
+        }
+    }
+
+    private void updateUserProfile(JSONObject userObj) {
+
+        try {
+            String updatedUrl = userObj.getString("profile_picture");
+            user.profilePictureUrl = updatedUrl;
+            user.save();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
     }
 
     private class ProfileViewPagerAdapter extends FragmentStatePagerAdapter {

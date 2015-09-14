@@ -47,6 +47,14 @@ public class JsonMultipartRequest<T> extends Request<T> {
         addImageEntity();
     }
 
+    public JsonMultipartRequest(String url, String sessionId, Response.Listener<JSONObject> listener, Response.ErrorListener errorListener, File image) {
+        super(Method.POST, url, errorListener);
+        mListener = listener;
+        yourImageFile = image;
+        mBuilder.addTextBody("session_id", sessionId, ContentType.TEXT_PLAIN);
+        addImageEntity();
+    }
+
     @Override
     public Map<String, String> getHeaders() throws AuthFailureError {
         Map<String, String> headers = super.getHeaders();
