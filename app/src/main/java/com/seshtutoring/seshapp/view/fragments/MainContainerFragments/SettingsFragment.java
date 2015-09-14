@@ -211,7 +211,7 @@ public class SettingsFragment extends ListFragment implements FragmentOptionsRec
     }
 
     private List<SettingsMenuItem> getMenuItemsForUser(User user) {
-        String notificationText = user.notificationsEnabled ? "on" : "off";
+        String notificationText = user.notificationsEnabled ? "off" : "on";
         List<SettingsMenuItem> returnItems = new ArrayList<>();
         returnItems.add(new SettingsMenuItem("Account", SettingsMenuItem.HEADER_TYPE, ""));
         returnItems.add(new SettingsMenuItem("Email", SettingsMenuItem.ROW_TYPE, user.email));
@@ -219,7 +219,7 @@ public class SettingsFragment extends ListFragment implements FragmentOptionsRec
         returnItems.add(new SettingsMenuItem("Cashout", SettingsMenuItem.ROW_TYPE, ""));
         returnItems.add(new SettingsMenuItem("Logout", SettingsMenuItem.ROW_TYPE, ""));
         returnItems.add(new SettingsMenuItem("Notifications", SettingsMenuItem.HEADER_TYPE, ""));
-        returnItems.add(new SettingsMenuItem("Notifications Enabled", SettingsMenuItem.ROW_TYPE, notificationText));
+        returnItems.add(new SettingsMenuItem("Silent Mode", SettingsMenuItem.ROW_TYPE, notificationText));
         returnItems.add(new SettingsMenuItem("This will silence all notifications outside the app.", SettingsMenuItem.EXPLAIN_TYPE, ""));
         returnItems.add(new SettingsMenuItem("About", SettingsMenuItem.HEADER_TYPE, ""));
         returnItems.add(new SettingsMenuItem("Terms of Use", SettingsMenuItem.ROW_TYPE, ""));

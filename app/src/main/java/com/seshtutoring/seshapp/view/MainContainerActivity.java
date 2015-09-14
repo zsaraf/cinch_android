@@ -124,6 +124,15 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
         }
     };
 
+    public void setEditButtonHidden(boolean hidden) {
+        if (hidden) {
+            editButton.setVisibility(View.GONE);
+        } else {
+            editButton.setVisibility(View.VISIBLE);
+        }
+    }
+
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -407,10 +416,8 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
 
         Log.d(TAG, "New container state tag: " + newState.tag);
 
-        if (newState.tag.equals("payment")) {
-            editButton.setVisibility(View.VISIBLE);
-        } else {
-            editButton.setVisibility(View.GONE);
+        if (!newState.tag.equals("payment")) {
+            setEditButtonHidden(true);
         }
 
         getSupportFragmentManager()

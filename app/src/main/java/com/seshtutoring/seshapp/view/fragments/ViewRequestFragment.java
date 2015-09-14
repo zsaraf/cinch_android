@@ -29,6 +29,8 @@ import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.AvailableBlock;
 import com.seshtutoring.seshapp.model.LearnRequest;
 import com.seshtutoring.seshapp.model.Sesh;
+import com.seshtutoring.seshapp.util.DateUtils;
+import com.seshtutoring.seshapp.util.SeshUtils;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
 import com.seshtutoring.seshapp.view.MainContainerStateManager;
@@ -39,6 +41,7 @@ import com.seshtutoring.seshapp.view.components.SeshButton;
 import com.seshtutoring.seshapp.view.components.SeshDialog;
 import com.seshtutoring.seshapp.view.components.SeshInformationLabel;
 
+import org.joda.time.DateTime;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -91,6 +94,8 @@ public class ViewRequestFragment extends Fragment implements MainContainerActivi
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_view_request, container, false);
+
+        ((MainContainerActivity)getActivity()).setActionBarTitle(request.classString + " Request");
 
         middleContentView = (LinearLayout) view.findViewById(R.id.middle_content_view);
 

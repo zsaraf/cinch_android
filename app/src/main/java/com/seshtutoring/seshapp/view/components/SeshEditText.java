@@ -31,7 +31,7 @@ public class SeshEditText extends RelativeLayout {
                 R.drawable.re_enter_password_icon_filled, false, true),
         FULLNAME(R.drawable.fullname_icon, R.drawable.fullname_icon_filled, false, false),
         CLASS(R.drawable.book_orange, R.drawable.book_orange, false, false),
-        ASSIGNMENT(R.drawable.subject, R.drawable.subject_filled, false, false),
+        ASSIGNMENT(R.drawable.subject, R.drawable.subject, false, false),
         CLOCK(R.drawable.clock_orange, R.drawable.clock_orange, false, false),
         NUMBER(R.drawable.hashtag_orange, R.drawable.hashtag_orange, false, false);
 

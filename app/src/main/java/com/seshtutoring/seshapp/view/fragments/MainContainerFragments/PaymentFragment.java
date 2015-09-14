@@ -108,7 +108,6 @@ public class PaymentFragment extends ListFragment implements FragmentOptionsRece
             }
         });
 
-        editButton.setVisibility(View.VISIBLE);
         editButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -140,6 +139,7 @@ public class PaymentFragment extends ListFragment implements FragmentOptionsRece
     }
 
     private List<PaymentListItem> currentPaymentListItems() {
+        boolean shouldShowEditButton = false;
         List<PaymentListItem> returnList = new ArrayList<>();
 
         returnList.add(new PaymentListItem(null, PaymentListItem.HEADER_TYPE, "Payment Cards"));
@@ -149,6 +149,7 @@ public class PaymentFragment extends ListFragment implements FragmentOptionsRece
         for (Card currentCard : paymentCards) {
             PaymentListItem cardItem = new PaymentListItem(currentCard, PaymentListItem.CARD_TYPE, null);
             returnList.add(cardItem);
+            if (!currentCard.isDefault) shouldShowEditButton = true;
         }
 
         returnList.add(new PaymentListItem(null, PaymentListItem.HEADER_TYPE, "Cashout Cards (Debit)"));
@@ -158,10 +159,13 @@ public class PaymentFragment extends ListFragment implements FragmentOptionsRece
         for (Card currentCard : cashoutCards) {
             PaymentListItem cardItem = new PaymentListItem(currentCard, PaymentListItem.CARD_TYPE, null);
             returnList.add(cardItem);
+            if (!currentCard.isDefault) shouldShowEditButton = true;
         }
 
-        return returnList;
+        // Show or hide the edit button
+        mainContainerActivity.setEditButtonHidden(!shouldShowEditButton);
 
+        return returnList;
     }
 
 
