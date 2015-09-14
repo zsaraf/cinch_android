@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <style name="SeshActionBarTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="@android:actionBarStyle">@style/SeshActionBar</item>
         <item name="actionBarStyle">@style/SeshActionBar</item>
@@ -77,5 +77,16 @@
     <style name="SeshBannerWindowAnimations" parent="@android:style/Animation.Activity">
         <item name="android:windowEnterAnimation">@anim/banner_slide_down</item>
         <item name="android:windowExitAnimation">@anim/banner_slide_up</item>
+    </style>
+
+    <style tools:ignore="NewApi" name="CustomTheme" parent="android:Theme.DeviceDefault">
+        <item name="cropImageStyle">@style/Widget.CropImageView</item>
+    </style>
+
+    <style name="Widget.CropImageView" parent="android:Widget">
+        <item name="showThirds">false</item>
+        <item name="showCircle">true</item>
+        <item name="showHandles">always</item>
+        <item name="highlightColor">@color/seshorange</item>
     </style>
 </resources>

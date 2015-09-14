@@ -16,7 +16,7 @@ import com.seshtutoring.seshapp.view.components.SeshViewPager;
 /**
  * Created by nadavhollander on 7/21/15.
  */
-public class LearnRequestNumberOfStudentsFragment extends Fragment implements SeshViewPager.InputFragment {
+public class LearnRequestNumberOfStudentsFragment extends SeshViewPager.InputFragment {
     private int numStudents = -1;
     private RequestActivity parentActivity;
     private SeshViewPager seshViewPager;
@@ -108,7 +108,7 @@ public class LearnRequestNumberOfStudentsFragment extends Fragment implements Se
     }
 
     @Override
-    public void attachRequestFlowScrollView(SeshViewPager seshViewPager) {
+    public void attachSeshViewPager(SeshViewPager seshViewPager) {
         this.seshViewPager = seshViewPager;
     }
 

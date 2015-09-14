@@ -142,6 +142,7 @@ public class User extends SugarRecord<User> {
             }
 
             // Load the cards
+            Card.deleteAll(Card.class);
             if (dataJson.has("cards")) {
                 JSONArray cards = dataJson.getJSONArray("cards");
                 for (int i = 0; i < cards.length(); i++) {

@@ -32,7 +32,7 @@ import java.util.ArrayList;
 /**
  * Created by nadavhollander on 7/21/15.
  */
-public class LearnRequestCourseFragment extends Fragment implements SeshViewPager.InputFragment {
+public class LearnRequestCourseFragment extends SeshViewPager.InputFragment {
     private static final String TAG = LearnRequestCourseFragment.class.getName();
 
     private RequestActivity parentActivity;
@@ -162,7 +162,7 @@ public class LearnRequestCourseFragment extends Fragment implements SeshViewPage
     }
 
     @Override
-    public void attachRequestFlowScrollView(SeshViewPager seshViewPager) {
+    public void attachSeshViewPager(SeshViewPager seshViewPager) {
         this.seshViewPager = seshViewPager;
     }
 

@@ -16,7 +16,6 @@ import com.seshtutoring.seshapp.services.SeshGCMListenerService;
 import com.seshtutoring.seshapp.util.LaunchPrerequisiteAsyncTask;
 import com.seshtutoring.seshapp.util.LaunchPrerequisiteAsyncTask.PrereqsFulfilledListener;
 import com.seshtutoring.seshapp.util.networking.SeshAuthManager;
-import com.seshtutoring.seshapp.view.AuthenticationActivity.EntranceType;
 
 
 /**

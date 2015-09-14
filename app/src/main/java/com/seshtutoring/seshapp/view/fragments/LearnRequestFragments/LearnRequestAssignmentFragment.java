@@ -18,7 +18,7 @@ import com.seshtutoring.seshapp.view.components.SeshEditText;
 /**
  * Created by nadavhollander on 7/21/15.
  */
-public class LearnRequestAssignmentFragment extends Fragment implements SeshViewPager.InputFragment, EditText.OnEditorActionListener {
+public class LearnRequestAssignmentFragment extends SeshViewPager.InputFragment implements EditText.OnEditorActionListener {
     private SeshEditText assignmentInput;
     private RequestActivity parentActivity;
     private SeshViewPager seshViewPager;
@@ -55,7 +55,7 @@ public class LearnRequestAssignmentFragment extends Fragment implements SeshView
     }
 
     @Override
-    public void attachRequestFlowScrollView(SeshViewPager seshViewPager) {
+    public void attachSeshViewPager(SeshViewPager seshViewPager) {
         this.seshViewPager = seshViewPager;
     }
 

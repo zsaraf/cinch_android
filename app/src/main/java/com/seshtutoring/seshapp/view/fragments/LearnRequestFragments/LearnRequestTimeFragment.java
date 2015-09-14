@@ -22,8 +22,7 @@ import com.seshtutoring.seshapp.view.components.SeshEditText;
 /**
  * Created by nadavhollander on 7/21/15.
  */
-public class LearnRequestTimeFragment extends Fragment implements SeshViewPager.InputFragment,
-        SeshDurationPicker.OnDurationChangeListener {
+public class LearnRequestTimeFragment extends SeshViewPager.InputFragment implements SeshDurationPicker.OnDurationChangeListener {
     private TextView timeCostLabel;
     private TextView timeCostNumber;
     private TextView creditsAppliedNumber;
@@ -150,7 +149,7 @@ public class LearnRequestTimeFragment extends Fragment implements SeshViewPager.
     }
 
     @Override
-    public void attachRequestFlowScrollView(SeshViewPager seshViewPager) {
+    public void attachSeshViewPager(SeshViewPager seshViewPager) {
         this.seshViewPager = seshViewPager;
     }
 

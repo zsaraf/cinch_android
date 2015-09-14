@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <TextView
+        android:text="Write a Short Bio"
+        android:gravity="center_horizontal"
+        android:textColor="@color/seshorange"
+        android:textSize="18dp"
+        android:layout_marginTop="35dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <com.seshtutoring.seshapp.view.components.ActionMultilineEditText
+        android:id="@+id/bio_edit_text"
+        android:background="@color/seshorangeopaque"
+        android:inputType="textMultiLine"
+        android:lines="5"
+        android:imeOptions="actionDone"
+        android:gravity="top|left"
+        android:layout_marginTop="100dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:padding="10dp"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:textColor="@color/seshorange"
+        android:textCursorDrawable="@null"
+        android:scrollbars="vertical"
+        />
+</RelativeLayout>

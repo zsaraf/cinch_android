@@ -4,6 +4,7 @@ import android.animation.LayoutTransition;
 import android.app.ActionBar;
 import android.app.ListFragment;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
@@ -39,11 +40,15 @@ import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.AvailableBlock;
 import com.seshtutoring.seshapp.model.AvailableJob;
 import com.seshtutoring.seshapp.model.Course;
-import com.seshtutoring.seshapp.util.LayoutUtils;
+import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
+import com.seshtutoring.seshapp.view.OnboardingActivity;
+import com.seshtutoring.seshapp.view.OnboardingActivity.OnboardingRequirement;
+import com.seshtutoring.seshapp.view.components.SeshDialog;
 import com.seshtutoring.seshapp.view.components.SeshIconTextView;
 import com.seshtutoring.seshapp.view.components.SeshInformationLabel;
+import com.stripe.android.compat.AsyncTask;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -348,45 +353,54 @@ public class ViewAvailableJobsFragment extends ListFragment {
                         }, 50);
                         final ViewHolder viewHolder = (ViewHolder) layout.getTag();
                         if (viewHolder.shouldBid) {
-                            viewHolder.shouldBid = false;
-                            layout.setSwipeEnabled(false);
-                            ((JobHolder)viewHolder.nameTextView.getTag()).select();
-                            viewHolder.nameTextView.setTextColor(getResources().getColor(R.color.seshgreen));
-
-                            handler.postDelayed(new Runnable() {
+                            (new VerifyTutorOnboardingAsyncTask() {
                                 @Override
-                                public void run() {
-                                    viewHolder.rateTextView.setVisibility(View.GONE);
-                                    viewHolder.checkImageView.setVisibility(View.VISIBLE);
-                                    viewHolder.checkImageView.setScaleX(0.1f);
-                                    viewHolder.checkImageView.setScaleY(0.1f);
+                                public void onPostExecute(ArrayList<OnboardingRequirement> onboardingRequirements) {
+                                    if (onboardingRequirements.size() > 0) {
+                                        showOnboardingDialog(onboardingRequirements);
+                                    } else {
+                                        viewHolder.shouldBid = false;
+                                        layout.setSwipeEnabled(false);
+                                        ((JobHolder)viewHolder.nameTextView.getTag()).select();
+                                        viewHolder.nameTextView.setTextColor(getResources().getColor(R.color.seshgreen));
 
-                                    viewHolder.animationSpring = viewHolder.springSystem.createSpring();
-                                    viewHolder.animationSpring.setCurrentValue(.1f);
-                                    viewHolder.animationSpring.setEndValue(1.0f);
-                                    viewHolder.animationSpring.setSpringConfig(SpringConfig.fromBouncinessAndSpeed(9.0, 6.0));
-                                    viewHolder.animationSpring.addListener(new SimpleSpringListener() {
-                                        @Override
-                                        public void onSpringUpdate(Spring spring) {
-                                            viewHolder.checkImageView.setScaleX((float) (spring.getCurrentValue()));
-                                            viewHolder.checkImageView.setScaleY((float) (spring.getCurrentValue()));
-                                        }
-                                    });
+                                        handler.postDelayed(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                viewHolder.rateTextView.setVisibility(View.GONE);
+                                                viewHolder.checkImageView.setVisibility(View.VISIBLE);
+                                                viewHolder.checkImageView.setScaleX(0.1f);
+                                                viewHolder.checkImageView.setScaleY(0.1f);
+
+                                                viewHolder.animationSpring = viewHolder.springSystem.createSpring();
+                                                viewHolder.animationSpring.setCurrentValue(.1f);
+                                                viewHolder.animationSpring.setEndValue(1.0f);
+                                                viewHolder.animationSpring.setSpringConfig(SpringConfig.fromBouncinessAndSpeed(9.0, 6.0));
+                                                viewHolder.animationSpring.addListener(new SimpleSpringListener() {
+                                                    @Override
+                                                    public void onSpringUpdate(Spring spring) {
+                                                        viewHolder.checkImageView.setScaleX((float) (spring.getCurrentValue()));
+                                                        viewHolder.checkImageView.setScaleY((float) (spring.getCurrentValue()));
+                                                    }
+                                                });
+                                            }
+                                        }, 200);
+
+                                        seshNetworking.createBid(((JobHolder)viewHolder.nameTextView.getTag()).job.requestId, 2, 2,
+                                                new Response.Listener<JSONObject>() {
+                                                    @Override
+                                                    public void onResponse(JSONObject responseJson) {
+                                                        onJobResponse(responseJson);
+                                                    }
+                                                }, new Response.ErrorListener() {
+                                                    @Override
+                                                    public void onErrorResponse(VolleyError volleyError) {
+                                                        onJobFailure(volleyError.getMessage());
+                                                    }
+                                                });
+                                    }
                                 }
-                            }, 200);
-
-                            seshNetworking.createBid(((JobHolder)viewHolder.nameTextView.getTag()).job.requestId, 2, 2,
-                                    new Response.Listener<JSONObject>() {
-                                        @Override
-                                        public void onResponse(JSONObject responseJson) {
-                                            onJobResponse(responseJson);
-                                        }
-                                    }, new Response.ErrorListener() {
-                                        @Override
-                                        public void onErrorResponse(VolleyError volleyError) {
-                                            onJobFailure(volleyError.getMessage());
-                                        }
-                                    });
+                            }).execute();
                         }
                     }
                 });
@@ -452,6 +466,49 @@ public class ViewAvailableJobsFragment extends ListFragment {
 
     private void onJobFailure(String errorMessage) {
 
+    }
+
+    private void showOnboardingDialog(final ArrayList<OnboardingRequirement> onboardingRequirements) {
+        final SeshDialog seshDialog = new SeshDialog();
+        seshDialog.setDialogType(SeshDialog.SeshDialogType.TWO_BUTTON);
+        seshDialog.setTitle("Onboarding");
+        seshDialog.setMessage("Hey, we need to know a few things about you first!");
+        seshDialog.setFirstChoice("OKAY");
+        seshDialog.setSecondChoice("CANCEL");
+        seshDialog.setType("onboarding");
+        seshDialog.setFirstButtonClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                seshDialog.dismiss(1);
+                Intent intent = new Intent(getActivity(), OnboardingActivity.class);
+                intent.putExtra(OnboardingActivity.ONBOARDING_REQS_KEY, onboardingRequirements);
+                intent.putExtra(OnboardingActivity.IS_STUDENT_ONBOARDING_KEY, false);
+                startActivityForResult(intent, OnboardingActivity.ONBOARDING_REQUEST_CODE);
+                getActivity().overridePendingTransition(R.anim.fade_in, R.anim.hold);
+            }
+        });
+        seshDialog.setSecondButtonClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                seshDialog.dismiss(2);
+            }
+        });
+        seshDialog.show(getFragmentManager(), null);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int responseCode, Intent intent) {
+        if (requestCode == OnboardingActivity.ONBOARDING_REQUEST_CODE) {
+            if (responseCode == OnboardingActivity.ONBOARDING_SUCCESSFUL_RESPONSE_CODE) {
+                SeshDialog seshDialog = new SeshDialog();
+                seshDialog.setDialogType(SeshDialog.SeshDialogType.ONE_BUTTON);
+                seshDialog.setTitle("Onboarding Complete");
+                seshDialog.setMessage("You're good to go!  Swipe again to accept the Sesh request!");
+                seshDialog.setFirstChoice("OKAY");
+                seshDialog.setType("onboarding_complete");
+                seshDialog.showWithDelay(getFragmentManager(), null, 1000);
+            }
+        }
     }
 
     private void getAvailableJobs() {
@@ -533,4 +590,26 @@ public class ViewAvailableJobsFragment extends ListFragment {
         }
     }
 
+    private abstract class VerifyTutorOnboardingAsyncTask
+            extends AsyncTask<Void, Void, ArrayList<OnboardingRequirement>> {
+        @Override
+        protected ArrayList<OnboardingRequirement> doInBackground(Void... params) {
+            User currentUser = User.currentUser(getActivity());
+            ArrayList<OnboardingRequirement> onboardingRequirements = new ArrayList<>();
+
+            if (currentUser.profilePictureUrl == null || currentUser.profilePictureUrl.equals("")) {
+                onboardingRequirements.add(OnboardingRequirement.PROFILE_PICTURE);
+            }
+
+            if (currentUser.major == null || currentUser.major.equals("")) {
+                onboardingRequirements.add(OnboardingRequirement.MAJOR);
+            }
+
+            if (currentUser.bio == null || currentUser.bio.equals("")) {
+                onboardingRequirements.add(OnboardingRequirement.BIO);
+            }
+
+            return onboardingRequirements;
+        }
+    }
 }

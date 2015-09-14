@@ -51,8 +51,10 @@ import me.brendanweinstein.util.ViewUtils;
 import me.brendanweinstein.views.FieldHolder;
 
 public class AddCardActivity extends SeshActivity {
-
     private static final String TAG = SettingsFragment.class.getName();
+    public static final String IS_RECIPIENT_INTENT_KEY = "is_cashout_card";
+    public static final int CARD_ADDED_SUCCESSFULLY_RESPONSE_CODE = 19;
+    public static final int ADD_CARD_REQUEST_CODE = 12;
 
     private SeshButton mSubmitBtn;
     private FieldHolder mFieldHolder;
@@ -76,7 +78,7 @@ public class AddCardActivity extends SeshActivity {
             e.printStackTrace();
         }
 
-        isRecipient = (boolean) getIntent().getExtras().get("is_cashout_card");
+        isRecipient = (boolean) getIntent().getExtras().get(IS_RECIPIENT_INTENT_KEY);
         Typeface book = Typeface.createFromAsset(this.getAssets(), "fonts/Gotham-Book.otf");
         Typeface light = Typeface.createFromAsset(this.getAssets(), "fonts/Gotham-Light.otf");
 
@@ -124,7 +126,6 @@ public class AddCardActivity extends SeshActivity {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_UP) {
-                    setResult(RESULT_OK, null);
                     finish();
                 }
                 return true;
@@ -266,7 +267,7 @@ public class AddCardActivity extends SeshActivity {
                             animatedCheckmark.setListener(new SeshAnimatedCheckmark.AnimationCompleteListener() {
                                 @Override
                                 public void onAnimationComplete() {
-                                    setResult(RESULT_OK, null);
+                                    setResult(CARD_ADDED_SUCCESSFULLY_RESPONSE_CODE, null);
                                     finish();
                                 }
                             });

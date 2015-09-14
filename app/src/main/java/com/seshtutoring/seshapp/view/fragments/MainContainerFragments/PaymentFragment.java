@@ -47,7 +47,6 @@ import java.util.Map;
 
 public class PaymentFragment extends ListFragment implements FragmentOptionsReceiver {
     private static final String TAG = SettingsFragment.class.getName();
-
     public static final String MAIN_WRAPPER_STATE_KEY = "main_wrapper_state";
     private MainContainerActivity mainContainerActivity;
     private TextView selectedTextView;
@@ -95,12 +94,12 @@ public class PaymentFragment extends ListFragment implements FragmentOptionsRece
                 if (item.type == PaymentListItem.ADD_CARD_TYPE) {
                     if (item.text.equals("Add a New Card")) {
                         Intent intent = new Intent(mainContainerActivity.getApplicationContext(), AddCardActivity.class);
-                        intent.putExtra("is_cashout_card", false);
-                        startActivityForResult(intent, 1);
+                        intent.putExtra(AddCardActivity.IS_RECIPIENT_INTENT_KEY, false);
+                        startActivityForResult(intent, AddCardActivity.ADD_CARD_REQUEST_CODE);
                     } else if (item.text.equals("Add a New Debit Card")) {
                         Intent intent = new Intent(mainContainerActivity.getApplicationContext(), AddCardActivity.class);
-                        intent.putExtra("is_cashout_card", true);
-                        startActivityForResult(intent, 1);
+                        intent.putExtra(AddCardActivity.IS_RECIPIENT_INTENT_KEY, true);
+                                startActivityForResult(intent, AddCardActivity.ADD_CARD_REQUEST_CODE);
                     }
                 } else if (item.type == PaymentListItem.CARD_TYPE) {
                     makeDefaultCard(item.card);
@@ -134,7 +133,8 @@ public class PaymentFragment extends ListFragment implements FragmentOptionsRece
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(resultCode==getActivity().RESULT_OK){
+        if(requestCode == AddCardActivity.ADD_CARD_REQUEST_CODE
+                && resultCode == AddCardActivity.CARD_ADDED_SUCCESSFULLY_RESPONSE_CODE){
             refreshCards();
         }
     }

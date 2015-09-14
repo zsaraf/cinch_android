@@ -92,13 +92,13 @@ public class LayoutUtils {
         return mContext.getResources().getDimensionPixelSize(id);
     }
 
-    public int getScreenWidthPx(Context context) {
-        DisplayMetrics metrics = context.getResources().getDisplayMetrics();
+    public int getScreenWidthPx() {
+        DisplayMetrics metrics = mContext.getResources().getDisplayMetrics();
         return metrics.widthPixels;
     }
 
-    public int getScreenHeightPx(Context context) {
-        DisplayMetrics metrics = context.getResources().getDisplayMetrics();
+    public int getScreenHeightPx() {
+        DisplayMetrics metrics = mContext.getResources().getDisplayMetrics();
         return metrics.heightPixels;
     }
 

@@ -10,6 +10,7 @@ import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.View;
@@ -25,6 +26,7 @@ import com.facebook.rebound.Spring;
 import com.facebook.rebound.SpringConfig;
 import com.facebook.rebound.SpringSystem;
 import com.seshtutoring.seshapp.R;
+import com.seshtutoring.seshapp.model.Card;
 import com.seshtutoring.seshapp.model.Discount;
 import com.seshtutoring.seshapp.model.LearnRequest;
 import com.seshtutoring.seshapp.model.User;
@@ -42,10 +44,13 @@ import com.seshtutoring.seshapp.view.fragments.LearnRequestFragments.LearnReques
 import com.seshtutoring.seshapp.view.fragments.LearnRequestFragments.LearnRequestNumberOfStudentsFragment;
 import com.seshtutoring.seshapp.view.fragments.LearnRequestFragments.LearnRequestTimeFragment;
 import com.seshtutoring.seshapp.view.fragments.LearnViewFragment;
+import com.seshtutoring.seshapp.view.OnboardingActivity;
+import com.seshtutoring.seshapp.view.OnboardingActivity.OnboardingRequirement;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
@@ -70,18 +75,9 @@ public class RequestActivity extends SeshActivity implements
 
     public static final String DIALOG_TYPE_LEARN_REQUEST_SUCCESS = "learn_request_success";
     public static final String DIALOG_TYPE_LEARN_REQUEST_FAILURE = "learn_request_failure";
-    private Fragment[] requestFlowFragments = {
-            new LearnRequestCourseFragment(),
-            new LearnRequestAssignmentFragment(),
-            new LearnRequestNumberOfStudentsFragment(),
-            new LearnRequestTimeFragment(),
-            new LearnRequestConfirmFragment()
-    };
-    private FrameLayout[] fragmentContainers;
+    private List<Fragment> requestFlowFragments;
 
     public static final int ENTER_LEARN_REQUEST_FLOW = 1;
-    public static final int LEARN_REQUEST_CREATE_SUCCESS = 2;
-    public static final int LEARN_REQUEST_CREATE_FAILURE = 3;
     public static final int LEARN_REQUEST_CREATE_EXITED = 4;
 
     private int selectedFragmentIndex;
@@ -148,6 +144,13 @@ public class RequestActivity extends SeshActivity implements
             }
         });
 
+        this.requestFlowFragments = new ArrayList<>();
+        requestFlowFragments.add(new LearnRequestCourseFragment());
+        requestFlowFragments.add(new LearnRequestAssignmentFragment());
+        requestFlowFragments.add(new LearnRequestNumberOfStudentsFragment());
+        requestFlowFragments.add(new LearnRequestTimeFragment());
+        requestFlowFragments.add(new LearnRequestConfirmFragment());
+
         selectedFragmentIndex = 0;
 
         this.requestFlowSlider = (SeshViewPager) findViewById(R.id.request_flow_slider);
@@ -195,9 +198,28 @@ public class RequestActivity extends SeshActivity implements
     }
 
     public void createLearnRequest() {
-        requestFlowOverlay.animate().alpha(1).setDuration(300).start();
+        (new VerifyStudentOnboardingCompleteAsyncTask() {
+            @Override
+            protected void onPostExecute(ArrayList<OnboardingRequirement> onboardingRequirements) {
+                if (onboardingRequirements.size() > 0) {
+                    showOnboardingDialog(onboardingRequirements);
+                } else {
+                    requestFlowOverlay.animate().alpha(1).setDuration(300).start();
+                    (new CreateLearnRequestAsyncTask()).execute(getApplicationContext(), currentLearnRequest);
+                }
+            }
+        }).execute();
+    }
 
-        (new CreateLearnRequestAsyncTask()).execute(this, currentLearnRequest);
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        if (requestCode == OnboardingActivity.ONBOARDING_REQUEST_CODE) {
+            if (resultCode == OnboardingActivity.ONBOARDING_SUCCESSFUL_RESPONSE_CODE) {
+                createLearnRequest();
+            } else {
+                onBackPressed();
+            }
+        }
     }
 
     @Override
@@ -251,8 +273,64 @@ public class RequestActivity extends SeshActivity implements
     }
 
     private void reenableConfirmFragmentUsage() {
-        LearnRequestConfirmFragment fragment = (LearnRequestConfirmFragment) requestFlowFragments[4];
+        LearnRequestConfirmFragment fragment = (LearnRequestConfirmFragment) requestFlowFragments.get(4);
         fragment.enableRequestButton();
+    }
+
+    private void showOnboardingDialog(final ArrayList<OnboardingRequirement> onboardingRequirements) {
+        final RequestActivity requestActivity = this;
+
+        final SeshDialog seshDialog = new SeshDialog();
+        seshDialog.setDialogType(SeshDialog.SeshDialogType.TWO_BUTTON);
+        seshDialog.setTitle("Onboarding");
+        seshDialog.setMessage("Hey, we need to know a few things about you first!");
+        seshDialog.setFirstChoice("OKAY");
+        seshDialog.setSecondChoice("CANCEL");
+        seshDialog.setType("onboarding");
+        seshDialog.setFirstButtonClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                seshDialog.dismiss(1);
+                Intent intent = new Intent(getApplicationContext(), OnboardingActivity.class);
+                intent.putExtra(OnboardingActivity.ONBOARDING_REQS_KEY, onboardingRequirements);
+                intent.putExtra(OnboardingActivity.IS_STUDENT_ONBOARDING_KEY, true);
+                startActivityForResult(intent, OnboardingActivity.ONBOARDING_REQUEST_CODE);
+                overridePendingTransition(R.anim.fade_in, R.anim.hold);
+            }
+        });
+        seshDialog.setSecondButtonClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                seshDialog.dismiss(2);
+                Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        requestActivity.onBackPressed();
+                    }
+                }, 1000);
+            }
+        });
+        seshDialog.show(getFragmentManager(), null);
+    }
+
+    private abstract class VerifyStudentOnboardingCompleteAsyncTask extends AsyncTask<Void, Void, ArrayList<OnboardingRequirement>> {
+        @Override
+        protected ArrayList<OnboardingRequirement> doInBackground(Void... params) {
+            User currentUser = User.currentUser(getApplicationContext());
+
+            ArrayList<OnboardingRequirement> onboardingRequirements = new ArrayList<>();
+            if (currentUser.profilePictureUrl == null || currentUser.profilePictureUrl.equals("")) {
+                onboardingRequirements.add(OnboardingRequirement.PROFILE_PICTURE);
+            }
+
+            List<Card> cards = currentUser.getCards();
+            if (cards == null || cards.size() == 0) {
+                onboardingRequirements.add(OnboardingRequirement.CREDIT_CARD);
+            }
+
+            return onboardingRequirements;
+        }
     }
 
     private class CreateLearnRequestAsyncTask extends AsyncTask<Object, Void, Void> {

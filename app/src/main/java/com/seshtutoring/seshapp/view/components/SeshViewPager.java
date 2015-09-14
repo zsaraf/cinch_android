@@ -26,6 +26,7 @@ import com.seshtutoring.seshapp.view.components.UnderlineProgressBar.OnProgressI
 import com.seshtutoring.seshapp.view.RequestActivity;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by nadavhollander on 9/2/15.
@@ -50,19 +51,28 @@ public class SeshViewPager extends RelativeLayout {
     private Spring clampSpringUnderline;
     private int currentScrollViewIndex;
     private int currentFragmentIndex;
-    private Fragment[] fragments;
+    private List<Fragment> fragments;
     private boolean overshootInProgress;
     private boolean didReachEndValue;
     private int numFragments;
     private LinearLayout fragmentsContainer;
     private boolean swipingAllowed;
 
-    public interface InputFragment {
-        boolean isCompleted();
-        void saveValues();
-        void attachRequestFlowScrollView(SeshViewPager seshViewPager);
-        void onFragmentInForeground();
-        void beforeFragmentInForeground();
+    public static abstract class InputFragment extends Fragment {
+        public abstract boolean isCompleted();
+        public abstract void attachSeshViewPager(SeshViewPager seshViewPager);
+
+        public void saveValues() {
+            // optional implementation
+        }
+
+        public void onFragmentInForeground() {
+            // optional implementation
+        }
+
+        public void beforeFragmentInForeground() {
+            // optional implementation
+        }
     }
 
     public SeshViewPager(Context context, AttributeSet attrs) {
@@ -70,7 +80,7 @@ public class SeshViewPager extends RelativeLayout {
         mContext = context;
         gestureDetector = new GestureDetectorCompat(context, new RequestFlowGestureDetector());
         utils = new LayoutUtils(context);
-        fragmentWidth = utils.getScreenWidthPx(context);
+        fragmentWidth = utils.getScreenWidthPx();
 
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View v = inflater.inflate(R.layout.sesh_view_pager, this, true);
@@ -107,7 +117,7 @@ public class SeshViewPager extends RelativeLayout {
                 if (Math.abs(spring.getEndValue() - spring.getCurrentValue()) < utils.dpToPixels(EPSILON_DP)
                         && !didReachEndValue) {
                     if (overshootInProgress) {
-                        InputFragment inputFragment = (InputFragment) fragments[currentFragmentIndex];
+                        InputFragment inputFragment = (InputFragment) fragments.get(currentFragmentIndex);
                         inputFragment.onFragmentInForeground();
                         didReachEndValue = true;
                     } else {
@@ -170,9 +180,9 @@ public class SeshViewPager extends RelativeLayout {
         });
     }
 
-    public void setViewPagerFragments(Fragment[] fragments) {
+    public void setViewPagerFragments(List<Fragment> fragments) {
         this.fragments = fragments;
-        this.numFragments = fragments.length;
+        this.numFragments = fragments.size();
 
         FrameLayout leftBuffer = new FrameLayout(mContext);
         setFrameLayoutWidth(leftBuffer, fragmentWidth);
@@ -180,7 +190,7 @@ public class SeshViewPager extends RelativeLayout {
 
         for (Fragment fragment : fragments) {
             try {
-                ((InputFragment) fragment).attachRequestFlowScrollView(this);
+                ((InputFragment) fragment).attachSeshViewPager(this);
 
                 FrameLayout frameLayout = new FrameLayout(mContext);
                 frameLayout.setId(LayoutUtils.generateViewId());
@@ -202,7 +212,7 @@ public class SeshViewPager extends RelativeLayout {
     }
 
     public void flingToFragmentIndex(int index) {
-        if (index < 0 || index > numFragments - 1 || !swipingAllowed) {
+        if (index < 0 || index > numFragments - 1) {
             if (index > currentFragmentIndex) {
                 clampNextFragment();
             } else {
@@ -212,7 +222,7 @@ public class SeshViewPager extends RelativeLayout {
         }
 
         if (index > currentFragmentIndex && index != 0) {
-            InputFragment inputFragment = (InputFragment) fragments[currentFragmentIndex];
+            InputFragment inputFragment = (InputFragment) fragments.get(currentFragmentIndex);
             if (!inputFragment.isCompleted()) {
                 clampNextFragment();
                 return;
@@ -224,7 +234,7 @@ public class SeshViewPager extends RelativeLayout {
         currentScrollViewIndex = index + 1;
         currentFragmentIndex = index;
 
-        InputFragment targetFragment = (InputFragment) fragments[currentFragmentIndex];
+        InputFragment targetFragment = (InputFragment) fragments.get(currentFragmentIndex);
         targetFragment.beforeFragmentInForeground();
 
         flingSpring.setCurrentValue(scrollView.getScrollX());
@@ -349,10 +359,12 @@ public class SeshViewPager extends RelativeLayout {
     private class RequestFlowGestureDetector extends GestureDetector.SimpleOnGestureListener {
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-            if (velocityX < 0) {
-                flingNextFragment();
-            } else {
-                flingPrevFragment();
+            if (swipingAllowed) {
+                if (velocityX < 0) {
+                    flingNextFragment();
+                } else {
+                    flingPrevFragment();
+                }
             }
             return true;
         }

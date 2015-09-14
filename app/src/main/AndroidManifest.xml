@@ -195,6 +195,14 @@
             android:windowSoftInputMode="adjustNothing" >
         </activity>
         <activity
+            android:name=".view.OnboardingActivity"
+            android:label="tutor onboarding"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@style/SeshTransparent"
+            android:windowSoftInputMode="adjustNothing" >
+        </activity>
+        <activity
             android:name=".view.ViewSeshSetTimeActivity"
             android:label="Set Time Activity"
             android:launchMode="singleTop"
@@ -202,6 +210,8 @@
             android:theme="@style/SeshTransparent"
             android:windowSoftInputMode="adjustNothing" >
         </activity>
+        <activity android:name="com.soundcloud.android.crop.CropImageActivity"
+            android:theme="@style/CustomTheme"/>
 
         <meta-data
             android:name="com.google.android.gms.version"

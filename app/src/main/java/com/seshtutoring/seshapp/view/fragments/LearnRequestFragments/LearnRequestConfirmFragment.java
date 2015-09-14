@@ -18,7 +18,7 @@ import com.seshtutoring.seshapp.view.components.SeshInformationLabel;
 /**
  * Created by nadavhollander on 7/24/15.
  */
-public class LearnRequestConfirmFragment extends Fragment implements SeshViewPager.InputFragment {
+public class LearnRequestConfirmFragment extends SeshViewPager.InputFragment {
     private RequestActivity parentActivity;
     private SeshInformationLabel classLabel;
     private SeshInformationLabel assignmentLabel;
@@ -78,19 +78,13 @@ public class LearnRequestConfirmFragment extends Fragment implements SeshViewPag
         this.requestButton.setEnabled(true);
     }
 
-
-    @Override
-    public void saveValues() {
-        // do nothing
-    }
-
     @Override
     public boolean isCompleted() {
         return true;
     }
 
     @Override
-    public void attachRequestFlowScrollView(SeshViewPager seshViewPager) {
+    public void attachSeshViewPager(SeshViewPager seshViewPager) {
         this.seshViewPager = seshViewPager;
     }
 
