@@ -236,6 +236,8 @@
             android:name=".view.ChangePasswordActivity"
             android:label="@string/title_activity_change_password"
             android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+
             android:parentActivityName=".view.MainContainerActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
