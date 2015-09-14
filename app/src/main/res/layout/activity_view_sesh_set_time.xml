@@ -58,6 +58,7 @@
         android:layout_height="wrap_content"
         android:layout_marginRight="35dp"
         android:layout_marginLeft="35dp"
+        custom:dotsVisible="false"
         android:layout_marginTop="20dp"
         custom:informationLabelText="default"
         custom:informationLabelIcon="@drawable/calendar_unfilled"
