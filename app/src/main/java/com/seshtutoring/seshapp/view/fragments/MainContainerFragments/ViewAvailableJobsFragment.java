@@ -45,13 +45,9 @@ import com.seshtutoring.seshapp.model.Course;
 import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
-<<<<<<< HEAD
 import com.seshtutoring.seshapp.view.OnboardingActivity;
 import com.seshtutoring.seshapp.view.OnboardingActivity.OnboardingRequirement;
 import com.seshtutoring.seshapp.view.components.SeshDialog;
-=======
-import com.seshtutoring.seshapp.view.MessagingActivity;
->>>>>>> ViewAvailableJobsFragment refreshes upon new job request
 import com.seshtutoring.seshapp.view.components.SeshIconTextView;
 import com.seshtutoring.seshapp.view.components.SeshInformationLabel;
 import com.stripe.android.compat.AsyncTask;
