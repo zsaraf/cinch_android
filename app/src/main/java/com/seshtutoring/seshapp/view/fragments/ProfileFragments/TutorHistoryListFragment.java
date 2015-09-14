@@ -106,7 +106,6 @@ public class TutorHistoryListFragment extends ListFragment{
             }
 
 
-            LayoutUtils layUtils = new LayoutUtils(getActivity().getApplicationContext());
             viewHolder.mainTextView.setText(SeshUtils.abbreviatedNameForName(item.tutorFullName));
             viewHolder.subTextView.setText(item.className);
             String rightText = "cancelled";

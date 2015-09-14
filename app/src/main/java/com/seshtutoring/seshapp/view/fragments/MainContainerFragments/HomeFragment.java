@@ -21,8 +21,13 @@ import android.widget.LinearLayout;
 import com.google.android.gms.maps.GoogleMap;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.Discount;
+import com.seshtutoring.seshapp.model.Notification;
+import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
+import com.seshtutoring.seshapp.view.RequestActivity;
+import com.seshtutoring.seshapp.view.TutorTermsActivity;
+import com.seshtutoring.seshapp.view.components.SeshDialog;
 import com.seshtutoring.seshapp.view.fragments.LearnViewFragment;
 import com.seshtutoring.seshapp.view.fragments.TeachViewFragment;
 import com.seshtutoring.seshapp.view.MainContainerActivity.FragmentOptionsReceiver;
@@ -140,6 +145,28 @@ public class HomeFragment extends Fragment implements FragmentOptionsReceiver {
     @Override
     public void onResume() {
         super.onResume();
+        /* Handle tutor terms */
+        if (User.currentUser(getActivity()).tutor.enabled == true &&
+                User.currentUser(getActivity()).tutor.didAcceptTerms == false) {
+            final SeshDialog seshDialog = new SeshDialog();
+            seshDialog.setTitle("New Tutor!");
+            seshDialog.setMessage("Congratulations on becoming a Sesh tutor! Before you can begin tutoring, you need to accept the Sesh Tutor Agreement. Your one step away from learning and earning!");
+            seshDialog.setDialogType(SeshDialog.SeshDialogType.ONE_BUTTON);
+            seshDialog.setFirstChoice("OKAY");
+            seshDialog.setFirstButtonClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    seshDialog.dismiss();
+                    Intent intent = new Intent(getActivity(), TutorTermsActivity.class);
+                    getActivity().startActivity(intent);
+                    getActivity().overridePendingTransition(R.anim.fade_in, 0);
+                }
+            });
+            seshDialog.setType("new_tutor");
+            seshDialog.show(getActivity().getFragmentManager(), "new_tutor");
+        }
+
+        /* Handle open with SHOW_AVAILABLE_JOBS_FLAG set to true */
         if (options != null && options.containsKey(SHOW_AVAILABLE_JOBS_FLAG) &&
                 (boolean) options.get(SHOW_AVAILABLE_JOBS_FLAG)) {
             setCurrentTabItem(TabItem.TEACH_TAB, false);

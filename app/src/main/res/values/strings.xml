@@ -164,4 +164,5 @@ If You have any questions about this privacy statement, the practices of Sesh, o
     <string name="title_activity_view_sesh_map">ViewSeshMapActivity</string>
 
     <string name="learn_request_time_early_end_label">*Remember, you can end the Sesh early if you want. (Min. 30 minutes)</string>
+    <string name="title_activity_tutor_terms">TutorTermsActivity</string>
 </resources>
