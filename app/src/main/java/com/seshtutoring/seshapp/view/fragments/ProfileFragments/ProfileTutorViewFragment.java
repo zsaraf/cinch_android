@@ -57,9 +57,7 @@ public class ProfileTutorViewFragment extends Fragment implements MainContainerA
 
         DecimalFormat df = new DecimalFormat("0.00");
         hoursTutoredView.setText(df.format(this.user.tutor.hoursTutored));
-
-        NumberFormat formatter = NumberFormat.getCurrencyInstance();
-        creditsView.setText(formatter.format(this.user.tutor.cashAvailable));
+        creditsView.setText("$" + df.format(this.user.tutor.cashAvailable));
 
         this.listViewFrame = this.homeView.findViewById(R.id.profile_tutor_view_frame);
         this.selectedTab = 0;

@@ -41,9 +41,7 @@ public class ProfileStudentViewFragment extends Fragment implements MainContaine
 
         DecimalFormat df = new DecimalFormat("0.00");
         hoursLearnedView.setText(df.format(this.user.student.hoursLearned));
-
-        NumberFormat formatter = NumberFormat.getCurrencyInstance();
-        creditsView.setText(formatter.format(this.user.student.credits));
+        creditsView.setText("$" + df.format(this.user.student.credits));
 
         getActivity().getFragmentManager()
                 .beginTransaction()
