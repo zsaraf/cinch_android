@@ -21,10 +21,12 @@ import android.widget.TextView;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.RequestFuture;
 import com.facebook.rebound.SimpleSpringListener;
 import com.facebook.rebound.Spring;
 import com.facebook.rebound.SpringConfig;
 import com.facebook.rebound.SpringSystem;
+import com.google.gson.JsonObject;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.util.LayoutUtils;
@@ -32,9 +34,11 @@ import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.OnboardingActivity;
 import com.seshtutoring.seshapp.view.OnboardingActivity.OnboardingRequirement;
 import com.seshtutoring.seshapp.view.components.SeshButton;
+import com.seshtutoring.seshapp.view.components.SeshDialog;
 import com.seshtutoring.seshapp.view.components.SeshViewPager;
 
 import com.soundcloud.android.crop.Crop;
+import com.stripe.android.compat.AsyncTask;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -55,7 +59,6 @@ public class OnboardingPhotoFragment extends SeshViewPager.InputFragment {
     private static final int REQUEST_TAKE_PHOTO = 1337;
     private SeshViewPager seshViewPager;
     private SeshNetworking seshNetworking;
-    private User user;
     private CircleImageView profilePicture;
     private boolean isCompleted;
     private Bitmap photo;
@@ -71,7 +74,6 @@ public class OnboardingPhotoFragment extends SeshViewPager.InputFragment {
         View view = layoutInflater.inflate(R.layout.onboarding_photo_fragment, container, false);
 
         this.seshNetworking = new SeshNetworking(getActivity());
-        this.user = User.currentUser(getActivity());
 
         this.profilePicture = (CircleImageView) view.findViewById(R.id.photo);
         this.profilePicture.setOnClickListener(new View.OnClickListener() {
@@ -258,53 +260,105 @@ public class OnboardingPhotoFragment extends SeshViewPager.InputFragment {
                 profilePicture.setImageBitmap(resizedBitmap);
 
                 //upload photo
-                seshNetworking.uploadProfilePicture(new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject jsonObject) {
-                        try {
-                            if (jsonObject.getString("status").equals("SUCCESS")) {
-                                //success handler
-                                updateUserProfile((JSONObject)jsonObject.get("user"));
-                            } else {
-                                //server error hadler
-                            }
-                        } catch (JSONException e) {
-                            //json exception handler
-                        }
-                    }
-                }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError volleyError) {
-                        //error response handler
-                    }
-                }, resizedPhotoFile);
-
-                isCompleted = true;
-                user.profilePictureUrl = "local_saved_image.png";
-                user.save();
-                Handler handler = new Handler();
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        ((OnboardingActivity) getActivity())
-                                .setRequirementFulfilled(OnboardingRequirement.PROFILE_PICTURE);
-                    }
-                }, 1000);
+                uploadProfilePicture();
             } catch (IOException e) {
                 Log.e(TAG, "Failed to take picture, couldn't retrieve saved image" + e);
             }
         }
     }
 
-    private void updateUserProfile(JSONObject userObj) {
+    private void uploadProfilePicture() {
+        (new UploadProfilePictureAsyncTask()).execute();
+    }
 
-        try {
-            String updatedUrl = userObj.getString("profile_picture");
-            user.profilePictureUrl = updatedUrl;
-            user.save();
-        } catch (JSONException e) {
-            e.printStackTrace();
+    private SeshDialog getErrorDialog(String title, String message) {
+        ((OnboardingActivity) getActivity()).hideKeyboard();
+        final SeshDialog seshDialog = new SeshDialog();
+        seshDialog.setDialogType(SeshDialog.SeshDialogType.TWO_BUTTON);
+        seshDialog.setTitle(title);
+        seshDialog.setMessage(message);
+        seshDialog.setType("onboarding_error");
+        seshDialog.setFirstChoice("TRY AGAIN");
+        seshDialog.setSecondChoice("CANCEL");
+        seshDialog.setFirstButtonClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                seshDialog.dismiss(1);
+                Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        uploadProfilePicture();
+                    }
+                }, 500);
+            }
+        });
+        seshDialog.setSecondButtonClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                seshDialog.dismiss(2);
+                Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        ((OnboardingActivity) getActivity()).cancelOnboarding();
+                    }
+                }, 500);
+            }
+        });
+
+        return seshDialog;
+    }
+
+    private class UploadProfilePictureAsyncTask extends AsyncTask<Void, Void, Void> {
+        private SeshDialog errorDialog;
+
+        @Override
+        public Void doInBackground(Void... params) {
+            final User user = User.currentUser(getActivity());
+
+            SeshNetworking.SynchronousRequest request = new SeshNetworking.SynchronousRequest() {
+                @Override
+                public void request(RequestFuture<JSONObject> blocker) {
+                    seshNetworking.uploadProfilePicture(blocker, blocker, resizedPhotoFile);
+                }
+
+                @Override
+                public void onErrorException(Exception e) {
+                    Log.e(TAG, "Failed to upload profile picture, network error: " + e);
+                    errorDialog = getErrorDialog("Network Error", "Check your network connection and try again!");
+                }
+            };
+
+            JSONObject jsonObject = request.execute();
+
+            if (jsonObject != null) {
+                try {
+                    if (jsonObject.getString("status").equals("SUCCESS")) {
+                        String updatedUrl = jsonObject.getJSONObject("user").getString("profile_picture");
+                        user.profilePictureUrl = updatedUrl;
+                        user.save();
+                        isCompleted = true;
+                    } else {
+                        Log.e(TAG, "Failed to upload profile picture; " + jsonObject.getString("message"));
+                        errorDialog = getErrorDialog("Error!", jsonObject.getString("message"));
+                    }
+                } catch (JSONException e) {
+                    Log.e(TAG, "Failed to upload profile picture; json malformed " + e);
+                    errorDialog = getErrorDialog("Network Error", "Check your network connection and try again!");
+                }
+            }
+
+            return null;
         }
 
+        @Override
+        public void onPostExecute(Void result) {
+            if (errorDialog == null) {
+                ((OnboardingActivity) getActivity()).setRequirementFulfilled(OnboardingRequirement.PROFILE_PICTURE);
+            } else {
+                errorDialog.show(getActivity().getFragmentManager(), null);
+            }
+        }
     }
 }
