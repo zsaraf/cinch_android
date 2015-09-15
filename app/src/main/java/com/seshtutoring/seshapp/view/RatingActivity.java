@@ -211,7 +211,11 @@ public class RatingActivity extends SeshActivity {
 
         DecimalFormat creditsDf = new DecimalFormat("#.##");
         this.creditsUsed.setText(creditsDf.format(this.pastSesh.creditsUsed));
+        if (this.pastSesh.creditsUsed > 0) {
+            this.creditsUsed.setTextColor(this.getResources().getColor(R.color.seshgreen));
+        }
         DecimalFormat costDf = new DecimalFormat("#.##");
+        costDf.setMinimumFractionDigits(2);
         this.cost.setText("$" + costDf.format(this.pastSesh.cost));
 
 
@@ -229,7 +233,6 @@ public class RatingActivity extends SeshActivity {
 
         double totalHours = hours + (minutes / 60.0f);
         this.hours.setText(creditsDf.format(totalHours));
-
 
     }
 
