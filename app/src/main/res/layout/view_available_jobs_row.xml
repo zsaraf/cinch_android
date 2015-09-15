@@ -8,7 +8,8 @@
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
     xmlns:custom="http://schemas.android.com/apk/res-auto"
     android:background="@color/tableview_background"
-    android:animateLayoutChanges="true">
+    android:animateLayoutChanges="true"
+    android:descendantFocusability="blocksDescendants">
 
     <android.support.v7.widget.CardView
         android:id="@+id/card"

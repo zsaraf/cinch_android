@@ -29,6 +29,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewPropertyAnimator;
 import android.view.ViewTreeObserver;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -159,13 +160,6 @@ public class ViewAvailableJobsFragment extends ListFragment {
             }
         });
 
-        v.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                return false;
-            }
-        });
-
         // Now return the SwipeRefreshLayout as this fragment's content view
         return mSwipeRefreshLayout;
     }
@@ -187,6 +181,28 @@ public class ViewAvailableJobsFragment extends ListFragment {
         this.tutorCourses = new ArrayList<Course>();
         this.availableJobsAdapter = new ViewAvailableJobsAdapter(getActivity(), availableJobs);
         getListView().setAdapter(availableJobsAdapter);
+
+        getListView().setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                ListView listView = ViewAvailableJobsFragment.this.getListView();
+                int first = listView.getFirstVisiblePosition();
+                int count = listView.getChildCount();
+                for (int i = first; i < count; i++) {
+                    View t = (View) listView.getChildAt(i);
+                    ViewHolder viewHolder = (ViewHolder) t.getTag();
+                    if (viewHolder != null) {
+                        viewHolder.setConfirmMode(false);
+                    }
+                }
+            }
+        });
+//        getListView().setOnItemClickListener(new View.OnItemClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//
+//            }
+//        });
 
         //get available jobs from server
         getAvailableJobs();
@@ -234,6 +250,45 @@ public class ViewAvailableJobsFragment extends ListFragment {
         public ViewGroup topGroup;
 
         public boolean confirmMode;
+
+        private void setConfirmMode(Boolean confirmMode) {
+            if (confirmMode == true) {
+                this.confirmMode = true;
+                this.acceptButton.setText("Confirm");
+                int sdk = android.os.Build.VERSION.SDK_INT;
+                Drawable drawable = null;
+                if (sdk < Build.VERSION_CODES.LOLLIPOP) {
+                    drawable = getActivity().getResources().getDrawable(R.drawable.sesh_green_border_button);
+                } else {
+                    drawable = getActivity().getResources().getDrawable(R.drawable.sesh_green_border_button, null);
+                }
+                if(sdk < Build.VERSION_CODES.JELLY_BEAN) {
+                    this.acceptButton.setBackgroundDrawable(drawable);
+                    this.acceptButton.setTextColor(getActivity().getResources().getColorStateList(R.color.sesh_green_border_button_text_color));
+                } else {
+                    this.acceptButton.setBackground(drawable);
+                    this.acceptButton.setTextColor(getActivity().getResources().getColorStateList(R.color.sesh_green_border_button_text_color));
+                }
+            } else {
+                this.confirmMode = false;
+                this.acceptButton.setText("Accept");
+                int sdk = android.os.Build.VERSION.SDK_INT;
+                Drawable drawable = null;
+                if (sdk < Build.VERSION_CODES.LOLLIPOP) {
+                    drawable = getActivity().getResources().getDrawable(R.drawable.sesh_gray_border_button);
+                } else {
+                    drawable = getActivity().getResources().getDrawable(R.drawable.sesh_gray_border_button, null);
+                }
+                if(sdk < Build.VERSION_CODES.JELLY_BEAN) {
+                    this.acceptButton.setBackgroundDrawable(drawable);
+                    this.acceptButton.setTextColor(getActivity().getResources().getColorStateList(R.color.sesh_gray_border_button_text_color));
+                } else {
+                    this.acceptButton.setBackground(drawable);
+                    this.acceptButton.setTextColor(getActivity().getResources().getColorStateList(R.color.sesh_gray_border_button_text_color));
+                }
+            }
+
+        }
     }
 
     public class ViewAvailableJobsAdapter extends ArrayAdapter<JobHolder> {
@@ -300,22 +355,7 @@ public class ViewAvailableJobsFragment extends ListFragment {
                         (new Handler()).postDelayed(new Runnable() {
                             @Override
                             public void run() {
-                                viewHolder.confirmMode = true;
-                                viewHolder.acceptButton.setText("Confirm");
-                                int sdk = android.os.Build.VERSION.SDK_INT;
-                                Drawable drawable = null;
-                                if (sdk < Build.VERSION_CODES.LOLLIPOP) {
-                                    drawable = getActivity().getResources().getDrawable(R.drawable.sesh_green_border_button);
-                                } else {
-                                    drawable = getActivity().getResources().getDrawable(R.drawable.sesh_green_border_button, null);
-                                }
-                                if(sdk < Build.VERSION_CODES.JELLY_BEAN) {
-                                    viewHolder.acceptButton.setBackgroundDrawable(drawable);
-                                    viewHolder.acceptButton.setTextColor(getActivity().getResources().getColorStateList(R.color.sesh_green_border_button_text_color));
-                                } else {
-                                    viewHolder.acceptButton.setBackground(drawable);
-                                    viewHolder.acceptButton.setTextColor(getActivity().getResources().getColorStateList(R.color.sesh_green_border_button_text_color));
-                                }
+                                viewHolder.setConfirmMode(true);
                             }
                         }, 100);
                     } else {
@@ -376,18 +416,18 @@ public class ViewAvailableJobsFragment extends ListFragment {
                                             })
                                             .start();
 
-//                                    seshNetworking.createBid(((JobHolder)viewHolder.nameTextView.getTag()).job.requestId, 2, 2,
-//                                            new Response.Listener<JSONObject>() {
-//                                                @Override
-//                                                public void onResponse(JSONObject responseJson) {
-//                                                    onJobResponse(responseJson);
-//                                                }
-//                                            }, new Response.ErrorListener() {
-//                                                @Override
-//                                                public void onErrorResponse(VolleyError volleyError) {
-//                                                    onJobFailure(volleyError.getMessage());
-//                                                }
-//                                            });
+                                    seshNetworking.createBid(((JobHolder)viewHolder.nameTextView.getTag()).job.requestId, 2, 2,
+                                            new Response.Listener<JSONObject>() {
+                                                @Override
+                                                public void onResponse(JSONObject responseJson) {
+                                                    onJobResponse(responseJson);
+                                                }
+                                            }, new Response.ErrorListener() {
+                                                @Override
+                                                public void onErrorResponse(VolleyError volleyError) {
+                                                    onJobFailure(volleyError.getMessage());
+                                                }
+                                            });
                                 }
                             }
                         }).execute();
@@ -395,113 +435,11 @@ public class ViewAvailableJobsFragment extends ListFragment {
                 }
             });
 
-//            final SwipeLayout swipeView = (SwipeLayout) convertView.findViewById(R.id.swipe_view);
-//            swipeView.setShowMode(SwipeLayout.ShowMode.LayDown);
-//            swipeView.setDragEdge(SwipeLayout.DragEdge.Left);
-//            swipeView.setSwipeEnabled(false);
-//
-//            swipeView.addSwipeListener(new SwipeLayout.SwipeListener() {
-//
-//                @Override
-//                public void onClose(SwipeLayout layout) {
-//                    //when the SurfaceView totally cover the BottomView.
-//                }
-//
-//                @Override
-//                public void onUpdate(SwipeLayout layout, int leftOffset, int topOffset) {
-//                    //you are swiping.
-//                    if (leftOffset > viewHolder.backingCheckImageView.getMeasuredWidth() + viewHolder.backingCheckImageView.getPaddingLeft()) {
-//                        viewHolder.bottomWrapper.setBackgroundColor(mContext.getResources().getColor(R.color.seshgreen));
-//                        viewHolder.backingCheckImageView.setX(leftOffset - viewHolder.backingCheckImageView.getMeasuredWidth() - viewHolder.backingCheckImageView.getPaddingLeft());
-//                        viewHolder.shouldBid = true;
-//                    } else {
-//                        viewHolder.bottomWrapper.setBackgroundColor(mContext.getResources().getColor(R.color.terms_text_light_gray));
-//                        viewHolder.backingCheckImageView.setX(0);
-//                        viewHolder.shouldBid = false;
-//                    }
-//                }
-//
-//                @Override
-//                public void onStartOpen(SwipeLayout layout) {
-//                    mSwipeRefreshLayout.setEnabled(false);
-//                }
-//
-//                @Override
-//                public void onOpen(SwipeLayout layout) {
-//
-//                }
-//
-//                @Override
-//                public void onStartClose(SwipeLayout layout) {
-//                }
-//
-//                @Override
-//                public void onHandRelease(final SwipeLayout layout, float xvel, float yvel) {
-//                    mSwipeRefreshLayout.setEnabled(true);
-//                    layout.postDelayed(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            layout.close();
-//                        }
-//                    }, 50);
-//                    final ViewHolder viewHolder = (ViewHolder) layout.getTag();
-//                    if (viewHolder.shouldBid) {
-//                        (new VerifyTutorOnboardingAsyncTask() {
-//                            @Override
-//                            public void onPostExecute(ArrayList<OnboardingRequirement> onboardingRequirements) {
-//                                if (onboardingRequirements.size() > 0) {
-//                                    showOnboardingDialog(onboardingRequirements);
-//                                } else {
-//                                    viewHolder.shouldBid = false;
-//                                    layout.setSwipeEnabled(false);
-//                                    ((JobHolder)viewHolder.nameTextView.getTag()).select();
-//                                    viewHolder.nameTextView.setTextColor(getResources().getColor(R.color.seshgreen));
-//
-//                                    handler.postDelayed(new Runnable() {
-//                                        @Override
-//                                        public void run() {
-//                                            viewHolder.rateTextView.setVisibility(View.GONE);
-//                                            viewHolder.checkImageView.setVisibility(View.VISIBLE);
-//                                            viewHolder.checkImageView.setScaleX(0.1f);
-//                                            viewHolder.checkImageView.setScaleY(0.1f);
-//
-//                                            viewHolder.animationSpring = viewHolder.springSystem.createSpring();
-//                                            viewHolder.animationSpring.setCurrentValue(.1f);
-//                                            viewHolder.animationSpring.setEndValue(1.0f);
-//                                            viewHolder.animationSpring.setSpringConfig(SpringConfig.fromBouncinessAndSpeed(9.0, 6.0));
-//                                            viewHolder.animationSpring.addListener(new SimpleSpringListener() {
-//                                                @Override
-//                                                public void onSpringUpdate(Spring spring) {
-//                                                    viewHolder.checkImageView.setScaleX((float) (spring.getCurrentValue()));
-//                                                    viewHolder.checkImageView.setScaleY((float) (spring.getCurrentValue()));
-//                                                }
-//                                            });
-//                                        }
-//                                    }, 200);
-//
-//                                    seshNetworking.createBid(((JobHolder)viewHolder.nameTextView.getTag()).job.requestId, 2, 2,
-//                                            new Response.Listener<JSONObject>() {
-//                                                @Override
-//                                                public void onResponse(JSONObject responseJson) {
-//                                                    onJobResponse(responseJson);
-//                                                }
-//                                            }, new Response.ErrorListener() {
-//                                                @Override
-//                                                public void onErrorResponse(VolleyError volleyError) {
-//                                                    onJobFailure(volleyError.getMessage());
-//                                                }
-//                                            });
-//                                }
-//                            }
-//                        }).execute();
-//                    }
-//                }
-//            });
-
             if (holder.selected) {
                 viewHolder.nameTextView.setTextColor(getResources().getColor(R.color.seshgreen));
                 viewHolder.checkImageView.setVisibility(View.VISIBLE);
                 viewHolder.rateTextView.setVisibility(View.GONE);
+                viewHolder.acceptButton.setVisibility(View.GONE);
                 viewHolder.checkImageView.setImageResource(R.drawable.check_green);
             }else {
                 viewHolder.nameTextView.setTextColor(getResources().getColor(R.color.seshorange));
@@ -509,6 +447,8 @@ public class ViewAvailableJobsFragment extends ListFragment {
                 viewHolder.rateTextView.setVisibility(View.VISIBLE);
                 NumberFormat money = NumberFormat.getCurrencyInstance(Locale.US);
                 viewHolder.rateTextView.setText(money.format(item.rate * item.maxTime));
+                viewHolder.acceptButton.setVisibility(View.VISIBLE);
+                viewHolder.setConfirmMode(false);
             }
 
             viewHolder.nameTextView.setTag(holder);
@@ -530,7 +470,9 @@ public class ViewAvailableJobsFragment extends ListFragment {
                     currentLocation.getLongitude(),
                     item.longitude,
                     results);
-            viewHolder.distanceInformationLabel.setText(fmtDistance(results[0])+ " miles");
+            /* Convert from emters to miles */
+            Double miles = results[0] * 0.000621371;
+            viewHolder.distanceInformationLabel.setText(fmtDistance(miles)+ " miles");
 
             viewHolder.durationInformationLabel.setText(item.maxTime + " hours");
             viewHolder.durationInformationLabel.setVisibility(View.VISIBLE);
@@ -543,7 +485,6 @@ public class ViewAvailableJobsFragment extends ListFragment {
             }
             return convertView;
         }
-
     }
 
     private void onJobResponse(JSONObject responseJson) {
