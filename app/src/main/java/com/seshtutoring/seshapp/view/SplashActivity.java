@@ -73,32 +73,23 @@ public class SplashActivity extends SeshActivity {
         if (SeshAuthManager.sharedManager(this).isValidSession()) {
             if (SeshApplication.IS_LIVE) {
 
-                User currentUser = User.currentUser(this);
-                if (currentUser.school.enabled) {
                     (new LaunchPrerequisiteAsyncTask(this, new PrereqsFulfilledListener() {
                         @Override
                         public void onPrereqsFulfilled() {
                             showStatusBar();
 
-                            Intent mainContainerIntent = new Intent(getApplicationContext(), MainContainerActivity.class);
-                            mainContainerIntent.putExtra(ViewSeshSetTimeActivity.SET_TIME_SESH_ID_KEY, 99);
-                            startActivity(mainContainerIntent);
-                            overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+                            User currentUser = User.currentUser(getApplicationContext());
+                            if (currentUser.school.enabled) {
+                                Intent mainContainerIntent = new Intent(getApplicationContext(), MainContainerActivity.class);
+                                startActivity(mainContainerIntent);
+                                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+                            } else {
+                                Intent launchSchoolIntent = new Intent(getApplicationContext(), LaunchSchoolActivity.class);
+                                startActivity(launchSchoolIntent);
+                                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+                            }
                         }
                     })).execute();
-                } else {
-                    (new LaunchPrerequisiteAsyncTask(this, new PrereqsFulfilledListener() {
-                        @Override
-                        public void onPrereqsFulfilled() {
-                            showStatusBar();
-
-                            Intent launchSchoolIntent = new Intent(getApplicationContext(), LaunchSchoolActivity.class);
-                            startActivity(launchSchoolIntent);
-                            overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-                        }
-                    })).execute();
-                }
-
 
             } else {
                 Intent intent = new Intent(getApplicationContext(), UnreleasedLaunchActivity.class);
