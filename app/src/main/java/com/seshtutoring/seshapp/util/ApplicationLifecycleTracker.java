@@ -5,6 +5,8 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.widget.Toast;
+
 import com.seshtutoring.seshapp.SeshApplication;
 import com.seshtutoring.seshapp.services.notifications.SeshNotificationManagerService;
 import com.seshtutoring.seshapp.util.networking.SeshAuthManager;
@@ -30,13 +32,6 @@ public class ApplicationLifecycleTracker  {
 
     private static final int FIFTEEN_SECONDS = 1000 * 15;
 
-    public static abstract class OnResumeListener {
-        public abstract void onResume(SeshActivity foregroundActivity);
-    }
-
-    private OnResumeListener onResumeListener;
-
-
     public static ApplicationLifecycleTracker sharedInstance(Context context) {
         if (applicationLifecycleTracker == null) {
             applicationLifecycleTracker = new ApplicationLifecycleTracker(context);
@@ -53,6 +48,11 @@ public class ApplicationLifecycleTracker  {
     public void activityResumed(final Activity activity) {
         someActivityInForeground = true;
         activityInForeground = activity;
+
+        if (!activityTransitionInProgress) {
+            applicationDidEnterForeground();
+        }
+
         activityTransitionInProgress = false;
 
         if (SeshAuthManager.sharedManager(mContext).isValidSession() && SeshApplication.IS_LIVE
@@ -62,15 +62,15 @@ public class ApplicationLifecycleTracker  {
                     null, mContext, SeshNotificationManagerService.class);
             mContext.startService(startNotificationQueueHandling);
         }
-
-        if (onResumeListener != null) {
-            onResumeListener.onResume((SeshActivity) activity);
-        }
     }
 
     public void activityPaused() {
         someActivityInForeground = false;
         activityInForeground = null;
+
+        if (!activityTransitionInProgress) {
+            applicationWillEnterBackground();
+        }
 
         if (SeshAuthManager.sharedManager(mContext).isValidSession() && SeshApplication.IS_LIVE) {
             Intent pauseNotificationQueueHandling
@@ -88,12 +88,12 @@ public class ApplicationLifecycleTracker  {
         }
     }
 
-    public void setOnResumeListener(OnResumeListener listener) {
-        this.onResumeListener = listener;
+    public void applicationDidEnterForeground() {
+        Toast.makeText(mContext, "Application did enter foreground", Toast.LENGTH_SHORT).show();
     }
 
-    public void clearOnResumeListener() {
-        this.onResumeListener = null;
+    public void applicationWillEnterBackground() {
+        Toast.makeText(mContext, "Application will enter background", Toast.LENGTH_SHORT).show();
     }
 
     public Activity getActivityInForeground() {
