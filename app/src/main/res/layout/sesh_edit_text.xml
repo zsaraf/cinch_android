@@ -34,7 +34,7 @@
         android:id="@+id/editText"
         android:inputType="textNoSuggestions|textVisiblePassword"
         android:layout_gravity="center_vertical"
-        android:textSize="16sp"
+        android:textSize="16dp"
         android:textColor="@color/seshorange"
         android:textColorHint="@color/seshorange"
         android:lines="1"

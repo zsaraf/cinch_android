@@ -36,7 +36,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/view_request_activity_indicator"
             android:text="searching for tutors..."
-            android:textSize="18sp"
+            android:textSize="18dp"
             android:layout_marginTop="15dp"
             android:layout_centerHorizontal="true"
             android:textColor="@color/seshlightgray"/>
@@ -74,7 +74,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/update_location_notes_edit_text"
-                android:textSize="16sp"
+                android:textSize="16dp"
                 android:textColor="@color/seshlightgray"
                 android:layout_marginLeft="8dp"
                 android:paddingLeft="25dp"

@@ -21,7 +21,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Forgot Password?"
-        android:textSize="16sp"
+        android:textSize="16dp"
         android:id="@+id/forgot_password_link"
         android:layout_centerHorizontal="true"
         android:layout_alignParentBottom="true"
@@ -38,7 +38,7 @@
         android:textColor="@color/terms_text_light_gray"
         android:gravity="center_horizontal"
         android:layout_alignParentBottom="true"
-        android:textSize="12sp"
+        android:textSize="12dp"
         android:text="@string/terms_label"
         android:id="@+id/terms_and_privacy_text" />
 
@@ -54,12 +54,12 @@
             android:layout_height="wrap_content"
             android:textColor="@color/seshlightgray"
             android:text="Already have an account?"
-            android:textSize="16sp" />
+            android:textSize="16dp" />
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/seshorange"
-            android:textSize="16sp"
+            android:textSize="16dp"
             android:paddingLeft="5dp"
             android:paddingTop="5dp"
             android:paddingBottom="5dp"
@@ -79,12 +79,12 @@
             android:layout_height="wrap_content"
             android:textColor="@color/seshlightgray"
             android:text="Don't have an account?"
-            android:textSize="16sp" />
+            android:textSize="16dp" />
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/seshorange"
-            android:textSize="16sp"
+            android:textSize="16dp"
             android:paddingLeft="5dp"
             android:paddingTop="5dp"
             android:paddingBottom="5dp"

@@ -21,12 +21,12 @@
             android:layout_height="wrap_content"
             android:textColor="@color/white"
             android:text="Already have an account?"
-            android:textSize="16sp" />
+            android:textSize="16dp" />
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/seshorange"
-            android:textSize="16sp"
+            android:textSize="16dp"
             android:paddingLeft="5dp"
             android:paddingTop="5dp"
             android:paddingBottom="5dp"

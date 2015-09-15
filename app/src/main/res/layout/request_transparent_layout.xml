@@ -35,7 +35,7 @@
                 android:layout_centerHorizontal="true"
                 android:layout_centerVertical="true"
                 android:textColor="@color/seshorange"
-                android:textSize="18sp"
+                android:textSize="18dp"
                 android:text="Request"/>
             <RelativeLayout
                 android:id="@+id/request_flow_next"

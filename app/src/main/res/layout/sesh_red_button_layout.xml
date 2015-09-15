@@ -7,7 +7,7 @@
         android:capitalize="characters"
         android:minHeight="0dp"
         android:padding="10dp"
-        android:textSize="14sp"
+        android:textSize="14dp"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:textColor="@color/white"

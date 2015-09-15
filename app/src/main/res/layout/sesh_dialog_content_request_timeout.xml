@@ -9,7 +9,7 @@
         android:layout_height="wrap_content"
         android:padding="15dp"
         android:capitalize="characters"
-        android:textSize="18sp"
+        android:textSize="18dp"
         android:text="No Tutors Available"
         android:layout_centerHorizontal="true"
         android:gravity="center_horizontal"
@@ -29,7 +29,7 @@
         android:minHeight="160dp"
         android:capitalize="characters"
         android:inputType="none"
-        android:textSize="16sp"
+        android:textSize="16dp"
         android:text="@string/sesh_request_timeout_dialog_text"
         android:gravity="center"
         android:textColor="@color/seshlightgray" />

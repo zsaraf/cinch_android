@@ -18,7 +18,7 @@
     <TextView
         android:id="@+id/row_title"
         android:textColor="@color/seshorange"
-        android:textSize="20sp"
+        android:textSize="20dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingLeft="5dp"

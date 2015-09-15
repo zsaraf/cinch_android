@@ -32,7 +32,7 @@
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:textSize="15sp"
+            android:textSize="15dp"
             android:textColor="@color/seshorange"
             android:id="@+id/hours_learned_number"
             android:gravity="center"
@@ -41,7 +41,7 @@
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:textSize="15sp"
+            android:textSize="15dp"
             android:textColor="@color/seshgreen"
             android:gravity="center"
             android:id="@+id/student_credits_number"
@@ -61,7 +61,7 @@
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:textSize="12sp"
+            android:textSize="12dp"
             android:text="hours learned"
             android:id="@+id/hours_learned"
             android:textColor="@color/seshlightgray"
@@ -71,7 +71,7 @@
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:textSize="12sp"
+            android:textSize="12dp"
             android:text="credits"
             android:textColor="@color/seshlightgray"
             android:gravity="center"

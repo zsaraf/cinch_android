@@ -9,7 +9,7 @@
         android:layout_height="wrap_content"
         android:text="@string/email_sent_title"
         android:textColor="@color/confirmation_code_activity_gray"
-        android:textSize="28sp"
+        android:textSize="28dp"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="50dp" />
 
@@ -28,7 +28,7 @@
         android:layout_below="@id/email_image"
         android:text="@string/confirmation_code_activity_text"
         android:textColor="@color/confirmation_code_activity_gray"
-        android:textSize="20sp"
+        android:textSize="20dp"
         android:lineSpacingExtra="4dp"
         android:layout_gravity="center_horizontal"
         android:gravity="center"

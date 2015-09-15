@@ -28,7 +28,7 @@
             android:singleLine="true"
             android:scrollHorizontally="true"
             android:ellipsize="end"
-            android:textSize="15sp"
+            android:textSize="15dp"
             android:textColor="@color/seshextralightgray"
             android:clickable="false"
             android:paddingBottom="8dp"

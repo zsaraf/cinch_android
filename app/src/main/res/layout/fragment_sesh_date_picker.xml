@@ -12,7 +12,7 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
         android:layout_marginRight="3dp"
-        android:textSize="16sp"
+        android:textSize="16dp"
         android:textColor="#ff00aeff"
         android:background="@null"/>
     <LinearLayout
