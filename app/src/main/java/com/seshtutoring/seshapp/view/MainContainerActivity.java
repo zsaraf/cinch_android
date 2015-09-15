@@ -334,7 +334,7 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
                         }
                     });
 
-        }else if (type.equals("logout") && selection == 1) {
+        } else if (type.equals("logout") && selection == 1) {
 
             seshNetworking.logout(
                     new Response.Listener<JSONObject>() {

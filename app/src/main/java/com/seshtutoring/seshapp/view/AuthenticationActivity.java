@@ -540,30 +540,58 @@ public class AuthenticationActivity extends SeshActivity implements SeshDialog.O
                         startService(gcmIntent);
 
                         if (SeshApplication.IS_LIVE) {
-                            HashSet<LaunchPrerequisiteAsyncTask.LaunchPrerequisiteFlag> fulfilledPrereqs = new HashSet<>();
-                            fulfilledPrereqs.add(LaunchPrerequisiteAsyncTask.LaunchPrerequisiteFlag.USER_INFORMATION_FETCHED);
-                            (new LaunchPrerequisiteAsyncTask(getApplicationContext(), fulfilledPrereqs,
-                                    new PrereqsFulfilledListener() {
-                                        @Override
-                                        public void onPrereqsFulfilled() {
-                                            seshActivityIndicator
-                                                    .animate()
-                                                    .alpha(0)
-                                                    .setDuration(300)
-                                                    .setListener(new AnimatorListenerAdapter() {
-                                                        @Override
-                                                        public void onAnimationEnd(Animator animation) {
-                                                            super.onAnimationEnd(animation);
-                                                            showStatusBar();
+                            if (user.school.enabled) {
+                                HashSet<LaunchPrerequisiteAsyncTask.LaunchPrerequisiteFlag> fulfilledPrereqs = new HashSet<>();
+                                fulfilledPrereqs.add(LaunchPrerequisiteAsyncTask.LaunchPrerequisiteFlag.USER_INFORMATION_FETCHED);
+                                (new LaunchPrerequisiteAsyncTask(getApplicationContext(), fulfilledPrereqs,
+                                        new PrereqsFulfilledListener() {
+                                            @Override
+                                            public void onPrereqsFulfilled() {
+                                                seshActivityIndicator
+                                                        .animate()
+                                                        .alpha(0)
+                                                        .setDuration(300)
+                                                        .setListener(new AnimatorListenerAdapter() {
+                                                            @Override
+                                                            public void onAnimationEnd(Animator animation) {
+                                                                super.onAnimationEnd(animation);
+                                                                showStatusBar();
 
-                                                            Intent mainContainerIntent =
-                                                                    new Intent(getApplicationContext(), MainContainerActivity.class);
-                                                            startActivity(mainContainerIntent);
-                                                        }
-                                                    })
-                                                    .start();
-                                        }
-                                    })).execute();
+                                                                Intent mainContainerIntent =
+                                                                        new Intent(getApplicationContext(), MainContainerActivity.class);
+                                                                startActivity(mainContainerIntent);
+                                                            }
+                                                        })
+                                                        .start();
+                                            }
+                                        })).execute();
+                            } else {
+                                HashSet<LaunchPrerequisiteAsyncTask.LaunchPrerequisiteFlag> fulfilledPrereqs = new HashSet<>();
+                                fulfilledPrereqs.add(LaunchPrerequisiteAsyncTask.LaunchPrerequisiteFlag.USER_INFORMATION_FETCHED);
+                                (new LaunchPrerequisiteAsyncTask(getApplicationContext(), fulfilledPrereqs,
+                                        new PrereqsFulfilledListener() {
+                                            @Override
+                                            public void onPrereqsFulfilled() {
+                                                seshActivityIndicator
+                                                        .animate()
+                                                        .alpha(0)
+                                                        .setDuration(300)
+                                                        .setListener(new AnimatorListenerAdapter() {
+                                                            @Override
+                                                            public void onAnimationEnd(Animator animation) {
+                                                                super.onAnimationEnd(animation);
+                                                                showStatusBar();
+
+                                                                Intent launchSchoolIntent =
+                                                                        new Intent(getApplicationContext(), LaunchSchoolActivity.class);
+                                                                startActivity(launchSchoolIntent);
+                                                            }
+                                                        })
+                                                        .start();
+                                            }
+                                        })).execute();
+                            }
+
                         } else {
                             Intent unreleasedLaunchIntent = new Intent(getApplicationContext(), UnreleasedLaunchActivity.class);
                             startActivity(unreleasedLaunchIntent);

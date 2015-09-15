@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    tools:context="com.seshtutoring.seshapp.view.LaunchSchoolActivity"
+    >
+    <ImageView
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/background_image"
+    android:layout_alignParentTop="true"
+    android:layout_alignParentLeft="true"
+    android:layout_alignParentStart="false"
+    android:background="@drawable/launch_school_photo"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Stanford University is"
+        android:id="@+id/school_name"
+        android:layout_alignParentTop="false"
+        android:layout_centerHorizontal="true"
+        android:textSize="20dp"
+        android:gravity="center"
+        style="@style/GothamBook"
+        android:textColor="@color/white"
+        android:layout_below="@+id/logout_button" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/line_position"
+        android:layout_below="@+id/school_name"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"
+        android:textSize="70dp"
+        android:text="#50"
+        android:textColor="@color/white"
+        android:gravity="center" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/text_1"
+        android:layout_below="@+id/line_position"
+        android:layout_centerHorizontal="true"
+        android:text="in line to launch!"
+        android:textColor="@color/white"
+        android:textSize="20dp"
+        android:layout_marginTop="10dp"
+        android:gravity="center"
+        style="@style/GothamBook"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Help spread the word by inviting your friends! The more people you invite, the faster you&apos;ll be able to use Sesh!"
+        android:id="@+id/text_2"
+        android:layout_below="@+id/text_1"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:textColor="@color/white"
+        android:textSize="20dp"
+        android:gravity="center_vertical|center_horizontal"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        style="@style/GothamBook"/>
+
+    <com.seshtutoring.seshapp.view.components.SeshButton
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/become_rep_button"
+        android:text="BECOME A CAMPUS REP"
+        android:layout_marginLeft="35dp"
+        android:layout_marginRight="35dp"
+        android:layout_marginBottom="35dp"
+        custom:buttonType="gray"
+        android:layout_alignParentBottom="true" />
+
+    <com.seshtutoring.seshapp.view.components.SeshButton
+        android:id="@+id/become_tutor_button"
+        android:text="BECOME A TUTOR"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="35dp"
+        android:layout_marginRight="35dp"
+        android:layout_marginBottom="10dp"
+        android:layout_above="@+id/become_rep_button"
+        />
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:id="@+id/logout_button"
+        android:longClickable="true"
+        android:paddingLeft="20dp"
+        android:paddingTop="20dp"
+        android:paddingRight="20dp"
+        android:paddingBottom="20dp">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/imageView"
+            android:background="@drawable/x_white"
+            android:paddingLeft="0dp"
+            android:paddingTop="0dp"
+            android:padding="0dp" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/launch_school_overlay"
+        android:alpha="0"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/request_flow_overlay_background">
+        <com.seshtutoring.seshapp.view.components.SeshActivityIndicator
+            android:id="@+id/launch_activity_indicator"
+            android:layout_centerInParent="true"
+            android:layout_width="50dp"
+            android:layout_height="50dp"/>
+        <com.seshtutoring.seshapp.view.components.SeshAnimatedCheckmark
+            android:id="@+id/animated_check_mark"
+            android:layout_centerInParent="true"
+            custom:labelText="Email Sent!"
+            android:layout_width="200dp"
+            android:layout_height="200dp"/>
+
+    </RelativeLayout>
+
+</RelativeLayout>

@@ -209,6 +209,14 @@
             android:windowSoftInputMode="adjustNothing" >
         </activity>
         <activity
+            android:name=".view.LaunchSchoolActivity"
+            android:label="launch school activity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@style/SeshFullScreen"
+            android:windowSoftInputMode="adjustNothing" >
+        </activity>
+        <activity
             android:name=".view.ViewSeshSetTimeActivity"
             android:label="Set Time Activity"
             android:launchMode="singleTop"

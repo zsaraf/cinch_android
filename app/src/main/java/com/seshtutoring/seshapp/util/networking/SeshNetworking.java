@@ -407,22 +407,6 @@ public class SeshNetworking {
         postWithRelativeUrl("complete_app_tour.php", params, successListener, errorListener);
     }
 
-    public void toggleTutorOfflinePing(Response.Listener<JSONObject> successListener,
-                                       Response.ErrorListener errorListener) {
-        Map<String, String> params = new HashMap<>();
-        params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
-
-        postWithRelativeUrl("toggle_tutor_offline_ping.php", params, successListener, errorListener);
-    }
-
-    public void deleteRequest(Response.Listener<JSONObject> successListener,
-                              Response.ErrorListener errorListener) {
-        Map<String, String> params = new HashMap<>();
-        params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
-
-        postWithRelativeUrl("delete_request.php", params, successListener, errorListener);
-    }
-
     public void becomeCampusRepAtSchool(String school,
                                         Response.Listener<JSONObject> successListener,
                                         Response.ErrorListener errorListener) {
