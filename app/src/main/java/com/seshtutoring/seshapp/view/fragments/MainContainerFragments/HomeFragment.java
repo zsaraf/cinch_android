@@ -1,6 +1,7 @@
 package com.seshtutoring.seshapp.view.fragments.MainContainerFragments;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Handler;
@@ -29,6 +30,7 @@ import com.seshtutoring.seshapp.view.RequestActivity;
 import com.seshtutoring.seshapp.view.TutorTermsActivity;
 import com.seshtutoring.seshapp.view.components.SeshDialog;
 import com.seshtutoring.seshapp.view.fragments.LearnViewFragment;
+import com.seshtutoring.seshapp.view.fragments.TeachDisabledViewFragment;
 import com.seshtutoring.seshapp.view.fragments.TeachViewFragment;
 import com.seshtutoring.seshapp.view.MainContainerActivity.FragmentOptionsReceiver;
 
@@ -66,19 +68,14 @@ public class HomeFragment extends Fragment implements FragmentOptionsReceiver {
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
         homeView = layoutInflater.inflate(R.layout.home_fragment, container, false);
 
-        //initialized in viewPager bc may be contributing to issues with detached fragments
-//        this.learnViewFragment = new LearnViewFragment();
-//        this.teachViewFragment = new TeachViewFragment();
+        // initialized in viewPager bc may be contributing to issues with detached fragments
 
         this.viewPager = (ViewPager) homeView.findViewById(R.id.view_pager);
-        this.viewPager.setAdapter(new HomeViewPagerAdapter(getChildFragmentManager()));
+        this.viewPager.setAdapter(new HomeViewPagerAdapter(getChildFragmentManager(), User.currentUser(getActivity()).tutor.enabled));
 
         LayoutUtils utils = new LayoutUtils(getActivity());
 
         tabButtons = (LinearLayout) homeView.findViewById(R.id.home_tabs);
-//        LinearLayout.MarginLayoutParams margins = (LinearLayout.MarginLayoutParams) tabButtons.getLayoutParams();
-//        margins.topMargin = utils.getActionBarHeightPx();
-//        tabButtons.setLayoutParams(margins);
         learnTabButton = (Button) homeView.findViewById(R.id.learn_button);
         teachTabButton = (Button) homeView.findViewById(R.id.teach_button);
 
@@ -147,6 +144,8 @@ public class HomeFragment extends Fragment implements FragmentOptionsReceiver {
     public void onResume() {
         super.onResume();
         /* Handle tutor terms */
+        ((HomeViewPagerAdapter)this.viewPager.getAdapter()).setTutorEnabled(User.currentUser(getActivity()).tutor.enabled);
+
         if (User.currentUser(getActivity()).tutor.enabled == true &&
                 User.currentUser(getActivity()).tutor.didAcceptTerms == false) {
             final SeshDialog seshDialog = new SeshDialog();
@@ -178,14 +177,48 @@ public class HomeFragment extends Fragment implements FragmentOptionsReceiver {
 
     private class HomeViewPagerAdapter extends FragmentStatePagerAdapter {
         private static final int NUM_TABS = 2;
+        public boolean tutorEnabled;
+        public LearnViewFragment learnViewFragment;
+        public TeachViewFragment teachViewFragment;
+        public TeachDisabledViewFragment teachDisabledViewFragment;
 
-        public HomeViewPagerAdapter(FragmentManager fm) {
+        public HomeViewPagerAdapter(FragmentManager fm, boolean tutorEnabled) {
             super(fm);
+            this.tutorEnabled = tutorEnabled;
+        }
+
+        public LearnViewFragment getLearnViewFragment() {
+            if (learnViewFragment == null) {
+                learnViewFragment = new LearnViewFragment();
+            }
+            return learnViewFragment;
+        }
+
+        public TeachViewFragment getTeachViewFragment() {
+            if (teachViewFragment == null) {
+                teachViewFragment = new TeachViewFragment();
+            }
+            return teachViewFragment;
+        }
+
+        public TeachDisabledViewFragment getTeachDisabledViewFragment() {
+            if (teachDisabledViewFragment == null) {
+                teachDisabledViewFragment = new TeachDisabledViewFragment();
+            }
+            return teachDisabledViewFragment;
         }
 
         @Override
         public Fragment getItem(int position) {
-            return (position == 0) ? new LearnViewFragment() : new TeachViewFragment();
+            if (position == 0) {
+                return getLearnViewFragment();
+            } else {
+                if (tutorEnabled) {
+                    return getTeachViewFragment();
+                } else {
+                    return getTeachDisabledViewFragment();
+                }
+            }
         }
 
         @Override
@@ -198,6 +231,14 @@ public class HomeFragment extends Fragment implements FragmentOptionsReceiver {
             // Do nothing here!!  A bit hacky, but this is a fix for something weird in Android's
             // way of handling ViewPagers within fragments
             int i = 0;
+        }
+
+        public void setTutorEnabled(boolean tutorEnabled) {
+            if (this.tutorEnabled != tutorEnabled) {
+                this.tutorEnabled = tutorEnabled;
+                notifyDataSetChanged();
+            }
+
         }
     }
 
@@ -227,7 +268,7 @@ public class HomeFragment extends Fragment implements FragmentOptionsReceiver {
     public void onPause() {
         super.onPause();
         //turn off calls to refresh open jobs when we leave the teach tab
-        if (getCurrTabItem() == TabItem.TEACH_TAB) {
+        if (getCurrTabItem() == TabItem.TEACH_TAB && User.currentUser(getActivity()).tutor.enabled) {
             ViewAvailableJobsFragment viewJobsFragment = (ViewAvailableJobsFragment) getActivity().getFragmentManager().findFragmentByTag("ViewJobsFragment");
             if (viewJobsFragment != null) {
                 viewJobsFragment.stopRepeatingTask();
