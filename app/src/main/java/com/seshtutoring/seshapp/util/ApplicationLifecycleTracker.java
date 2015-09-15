@@ -40,6 +40,12 @@ public class ApplicationLifecycleTracker  {
 
     private static final int FIFTEEN_SECONDS = 1000 * 15;
 
+    public static abstract class OnResumeListener {
+        public abstract void onResume(SeshActivity foregroundActivity);
+    }
+
+    private OnResumeListener onResumeListener;
+
 
     public static ApplicationLifecycleTracker sharedInstance(Context context) {
         if (applicationLifecycleTracker == null) {
@@ -66,6 +72,10 @@ public class ApplicationLifecycleTracker  {
                     null, mContext, SeshNotificationManagerService.class);
             mContext.startService(startNotificationQueueHandling);
         }
+
+        if (onResumeListener != null) {
+            onResumeListener.onResume((SeshActivity) activity);
+        }
     }
 
     public void activityPaused() {
@@ -86,6 +96,14 @@ public class ApplicationLifecycleTracker  {
         } else {
             return activityTransitionInProgress;
         }
+    }
+
+    public void setOnResumeListener(OnResumeListener listener) {
+        this.onResumeListener = listener;
+    }
+
+    public void clearOnResumeListener() {
+        this.onResumeListener = null;
     }
 
     public Activity getActivityInForeground() {
