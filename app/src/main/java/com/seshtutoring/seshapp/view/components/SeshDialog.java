@@ -387,7 +387,12 @@ public class SeshDialog extends DialogFragment {
     }
 
     public void setSecondChoice(String secondChoice) {
+
         this.secondChoice = secondChoice;
+        if (secondChoice != null) {
+            this.dialogType = SeshDialog.SeshDialogType.TWO_BUTTON;
+        }
+
     }
 
     public void setTitle(String title) {

@@ -71,6 +71,7 @@ import com.seshtutoring.seshapp.view.components.SeshDialog;
 import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.HomeFragment;
 import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.LoadingFragment;
 import com.seshtutoring.seshapp.view.MainContainerStateManager.NavigationItemState;
+import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.SettingsFragment;
 import com.seshtutoring.seshapp.view.fragments.SideMenuFragment;
 import com.seshtutoring.seshapp.view.fragments.ViewSeshFragment;
 
@@ -321,18 +322,7 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
 
         if (type.equals("cashout") && selection == 1) {
 
-            seshNetworking.cashout(
-                    new Response.Listener<JSONObject>() {
-                        @Override
-                        public void onResponse(JSONObject responseJson) {
-                            onCashoutResponse(responseJson);
-                        }
-                    }, new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError volleyError) {
-                            onCashoutFailure(volleyError.getMessage());
-                        }
-                    });
+            //moved to SettingsFragment
 
         } else if (type.equals("logout") && selection == 1) {
 
@@ -352,31 +342,6 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
         } else if (type.equals(DIALOG_TYPE_FOUND_TUTOR)) {
             Toast.makeText(this, "showing activity", Toast.LENGTH_LONG).show();
         }
-    }
-
-    private void onCashoutResponse(JSONObject responseJson) {
-        try {
-            if (responseJson.get("status").equals("SUCCESS")) {
-                User currentUser = User.currentUser(this);
-                currentUser.tutor.cashAvailable = 0.0f;
-                currentUser.tutor.save();
-                currentUser.save();
-                this.sendBroadcast(new Intent(this.REFRESH_PROFILE));
-
-                Toast.makeText(this, "You have cashed out!", Toast.LENGTH_LONG).show();
-            } else if (responseJson.get("status").equals("FAILURE")) {
-                String message = responseJson.get("message").toString();
-                Toast.makeText(this, message, Toast.LENGTH_LONG).show();
-            }
-        } catch (JSONException e) {
-            Log.e(TAG, e.toString());
-            Toast.makeText(this, "Cash out failed.", Toast.LENGTH_LONG).show();
-        }
-    }
-
-    private void onCashoutFailure(String errorMessage) {
-        Log.e(TAG, "NETWORK ERROR: " + errorMessage);
-        Toast.makeText(this, "We couldn't reach the network, sorry!", Toast.LENGTH_LONG).show();
     }
 
     private void onLogoutResponse(JSONObject responseJson) {

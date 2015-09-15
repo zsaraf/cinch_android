@@ -61,7 +61,7 @@ public class PaymentFragment extends ListFragment implements FragmentOptionsRece
     private Map<String, Object> options;
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        menu = (ListView) inflater.inflate(R.layout.settings_menu_list, null);
+        menu = (ListView) inflater.inflate(R.layout.payment_menu_list, null);
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
