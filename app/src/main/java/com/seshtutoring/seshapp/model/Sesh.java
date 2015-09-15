@@ -64,7 +64,6 @@ public class Sesh extends SugarRecord<Sesh> {
     public String userSchool;
     public boolean isInstant;
     public boolean requiresAnimatedDisplay;
-    public int numUnreadMessages;
 
     // Due to a bug in SugarORM, Date fields cannot be set to null, so, in order to communicate
     // whether or not the following variables are set, we use longs representing Milliseconds since epoch
@@ -173,7 +172,6 @@ public class Sesh extends SugarRecord<Sesh> {
                     message.save();
                     messages.add(message);
                 }
-                sesh.numUnreadMessages = Message.getUnreadMessagesCount(messages);
                 sesh.save();
             }
         } catch (JSONException e) {

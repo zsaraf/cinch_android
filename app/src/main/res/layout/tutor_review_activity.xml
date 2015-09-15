@@ -5,7 +5,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.seshtutoring.seshapp.view.TutorReviewActivity"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    android:background="@color/white">
     <com.seshtutoring.seshapp.view.components.SeshButton
         android:id="@+id/okay_button"
         android:text="OKAY"

@@ -2,7 +2,10 @@ package com.seshtutoring.seshapp.view.fragments;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
@@ -34,6 +37,7 @@ import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.LearnRequest;
 import com.seshtutoring.seshapp.model.LearnRequest.LearnRequestTableListener;
+import com.seshtutoring.seshapp.model.Message;
 import com.seshtutoring.seshapp.model.Sesh;
 import com.seshtutoring.seshapp.model.Sesh.SeshTableListener;
 import com.seshtutoring.seshapp.services.PeriodicFetchBroadcastReceiver;
@@ -42,6 +46,7 @@ import com.seshtutoring.seshapp.view.MainContainerActivity;
 import com.seshtutoring.seshapp.view.ContainerState;
 import com.seshtutoring.seshapp.view.MainContainerStateManager;
 import com.seshtutoring.seshapp.view.MainContainerStateManager.NavigationItemState;
+import com.seshtutoring.seshapp.view.MessagingActivity;
 import com.seshtutoring.seshapp.view.animations.LearnRequestDisplayAnimation;
 import com.seshtutoring.seshapp.view.animations.SeshDisplayAnimation;
 import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.DummyRequestSeshFragment;
@@ -72,6 +77,7 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenList
     private SelectableItem currentSelectedItem;
     private MainContainerStateManager containerStateManager;
     private boolean itemSelectionInProgress;
+    private BroadcastReceiver broadcastReceiver;
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.side_menu_fragment, container, false);
@@ -387,13 +393,14 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenList
                 }
 
                 RelativeLayout alertBadge = (RelativeLayout) convertView.findViewById(R.id.alert_badge);
+                int unreadMessages = Message.getUnreadMessagesCountForSesh(item.sesh);
 
-                if (item.sesh.numUnreadMessages > 0) {
+                if (unreadMessages > 0) {
                     alertBadge.setVisibility(View.VISIBLE);
 
                     TextView alertBadgeNumber = (TextView) convertView.findViewById(R.id.alert_badge_number);
-                    if (item.sesh.numUnreadMessages < 10) {
-                        alertBadgeNumber.setText(Integer.toString(item.sesh.numUnreadMessages));
+                    if (unreadMessages < 10) {
+                        alertBadgeNumber.setText(Integer.toString(unreadMessages));
                     } else {
                         alertBadgeNumber.setText("+");
                     }
@@ -561,6 +568,32 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenList
             }
         }
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        broadcastReceiver = actionBroadcastReceiver;
+        // Listen for new messages
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(MessagingActivity.REFRESH_MESSAGES);
+        (new UpdateRequestAndSeshListTask()).execute();
+        this.getActivity().registerReceiver(broadcastReceiver, intentFilter);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        this.getActivity().unregisterReceiver(broadcastReceiver);
+    }
+
+
+    private BroadcastReceiver actionBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            (new UpdateRequestAndSeshListTask()).execute();
+        }
+    };
 
     public static abstract class SideMenuOpenAnimation {
         public abstract void prepareAnimation();

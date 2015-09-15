@@ -1,10 +1,12 @@
 package com.seshtutoring.seshapp.model;
 
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 
 import com.orm.SugarRecord;
 import com.orm.dsl.Ignore;
+import com.seshtutoring.seshapp.view.MessagingActivity;
 
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -80,6 +82,10 @@ public class Message extends SugarRecord<Message> {
         return message;
     }
 
+    public static int getUnreadMessagesCountForSesh(Sesh sesh) {
+        return getUnreadMessagesCount(sesh.getMessages());
+    }
+
     public static int getUnreadMessagesCount(List<Message> messages) {
         int count = 0;
 
@@ -105,10 +111,6 @@ public class Message extends SugarRecord<Message> {
                 count++;
             }
         }
-
-        Message message = messages.get(0);
-        message.sesh.numUnreadMessages -= count;
-        message.sesh.save();
     }
 
     private static Message createOrUpdateMessageWithId(int messageId) {
