@@ -58,7 +58,7 @@ public class ProfileBioViewFragment extends Fragment implements MainContainerAct
         emailView.setText(user.email);
         emailView.setIconResourceId(R.drawable.email_icon);
 
-        String major = "Edit profile to add major";
+        String major = "edit profile to add major";
         if (user.major != null && !user.major.isEmpty()) {
             major = user.major;
             majorView.setTextColor(getResources().getColor(R.color.seshlightgray));
@@ -68,7 +68,7 @@ public class ProfileBioViewFragment extends Fragment implements MainContainerAct
         majorView.setText(major);
         majorView.setIconResourceId(R.drawable.book_orange);
 
-        String bio = "Edit profile to add bio";
+        String bio = "edit profile to add bio";
         if (user.bio != null && !user.bio.isEmpty()) {
             bio = user.bio;
             bioView.setTextColor(getResources().getColor(R.color.seshlightgray));

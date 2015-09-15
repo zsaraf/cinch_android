@@ -59,6 +59,7 @@ public class TutorHistoryListFragment extends ListFragment{
             if (pastSeshes.get(i).tutorUserId == user.userId) {
                 //user is the tutor in this sesh, do not include on this page
                 pastSeshes.remove(i);
+                i--;
             }
         }
     }

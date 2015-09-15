@@ -45,7 +45,7 @@ public class ClientHistoryListFragment extends ListFragment{
         this.seshNetworking = new SeshNetworking(mainContainerActivity);
 
         this.pastSeshes = PastSesh.listAll(PastSesh.class);
-        filterPastSeshesForStudent();
+        filterPastSeshesForTutor();
 
         this.tutorHistoryAdapter = new TutorHistoryAdapter(getActivity(), pastSeshes);
         this.list.setAdapter(tutorHistoryAdapter);
@@ -54,11 +54,12 @@ public class ClientHistoryListFragment extends ListFragment{
 
     }
 
-    private void filterPastSeshesForStudent() {
+    private void filterPastSeshesForTutor() {
         for (int i = 0; i < pastSeshes.size(); i++) {
             if (pastSeshes.get(i).studentUserId == user.userId) {
                 //user is the student in this sesh, do not include on this page
                 pastSeshes.remove(i);
+                i--;
             }
         }
     }
