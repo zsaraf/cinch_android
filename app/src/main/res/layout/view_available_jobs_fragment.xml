@@ -10,11 +10,15 @@
         android:layout_height="match_parent"
         android:layout_weight="1"
         android:drawSelectorOnTop="true"
-        android:background="@color/terms_text_light_gray"/>
+        android:divider="@null"
+        android:dividerHeight="0dp"
+        android:background="@color/tableview_background"
+        android:animateLayoutChanges="true"/>
 
     <RelativeLayout android:id="@id/android:empty"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="@color/white">
 
         <RelativeLayout
             android:layout_width="match_parent"

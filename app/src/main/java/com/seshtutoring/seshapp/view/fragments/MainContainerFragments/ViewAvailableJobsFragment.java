@@ -1,6 +1,8 @@
 package com.seshtutoring.seshapp.view.fragments.MainContainerFragments;
 
+import android.animation.Animator;
 import android.animation.LayoutTransition;
+import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.ListFragment;
 import android.content.BroadcastReceiver;
@@ -10,8 +12,10 @@ import android.content.IntentFilter;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.media.Image;
+import android.opengl.Visibility;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -20,10 +24,13 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewPropertyAnimator;
 import android.view.ViewTreeObserver;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -152,6 +159,13 @@ public class ViewAvailableJobsFragment extends ListFragment {
             }
         });
 
+        v.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return false;
+            }
+        });
+
         // Now return the SwipeRefreshLayout as this fragment's content view
         return mSwipeRefreshLayout;
     }
@@ -212,13 +226,14 @@ public class ViewAvailableJobsFragment extends ListFragment {
         public SeshInformationLabel distanceInformationLabel;
         public SeshInformationLabel durationInformationLabel;
         public SeshInformationLabel availableBlocksInformationLabel;
+        public Button acceptButton;
 
         private SpringSystem springSystem;
         public Spring animationSpring;
 
         public ViewGroup topGroup;
 
-        public Boolean shouldBid;
+        public boolean confirmMode;
     }
 
     public class ViewAvailableJobsAdapter extends ArrayAdapter<JobHolder> {
@@ -248,7 +263,7 @@ public class ViewAvailableJobsFragment extends ListFragment {
                 viewHolder = new ViewHolder();
 
                 viewHolder.springSystem = SpringSystem.create();
-                viewHolder.shouldBid = false;
+                viewHolder.confirmMode = false;
 
                 viewHolder.topGroup = (ViewGroup) convertView.findViewById(R.id.top_wrapper);
 
@@ -269,16 +284,114 @@ public class ViewAvailableJobsFragment extends ListFragment {
 
                 viewHolder.checkImageView = (ImageView) convertView.findViewById(R.id.check_mark);
 
+                viewHolder.acceptButton = (Button) convertView.findViewById(R.id.accept_button);
+
                 convertView.setTag(viewHolder);
 
             }else {
                 viewHolder = (ViewHolder) convertView.getTag();
             }
 
-            convertView.setOnClickListener(new View.OnClickListener() {
+            viewHolder.acceptButton.setOnClickListener(new View.OnClickListener() {
+                @TargetApi(Build.VERSION_CODES.LOLLIPOP)
                 @Override
                 public void onClick(View v) {
+                    if (!viewHolder.confirmMode) {
+                        (new Handler()).postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                viewHolder.confirmMode = true;
+                                viewHolder.acceptButton.setText("Confirm");
+                                int sdk = android.os.Build.VERSION.SDK_INT;
+                                Drawable drawable = null;
+                                if (sdk < Build.VERSION_CODES.LOLLIPOP) {
+                                    drawable = getActivity().getResources().getDrawable(R.drawable.sesh_green_border_button);
+                                } else {
+                                    drawable = getActivity().getResources().getDrawable(R.drawable.sesh_green_border_button, null);
+                                }
+                                if(sdk < Build.VERSION_CODES.JELLY_BEAN) {
+                                    viewHolder.acceptButton.setBackgroundDrawable(drawable);
+                                    viewHolder.acceptButton.setTextColor(getActivity().getResources().getColorStateList(R.color.sesh_green_border_button_text_color));
+                                } else {
+                                    viewHolder.acceptButton.setBackground(drawable);
+                                    viewHolder.acceptButton.setTextColor(getActivity().getResources().getColorStateList(R.color.sesh_green_border_button_text_color));
+                                }
+                            }
+                        }, 100);
+                    } else {
+                        (new VerifyTutorOnboardingAsyncTask() {
+                            @Override
+                            public void onPostExecute(ArrayList<OnboardingRequirement> onboardingRequirements) {
+                                if (onboardingRequirements.size() > 0) {
+                                    showOnboardingDialog(onboardingRequirements);
+                                } else {
+                                    viewHolder.acceptButton.
+                                            animate()
+                                            .setDuration(200)
+                                            .alpha(0)
+                                            .scaleX(.01f)
+                                            .scaleY(.01f)
+                                            .y(viewHolder.availableBlocksInformationLabel.getY() +
+                                                    viewHolder.availableBlocksInformationLabel.getMeasuredHeight() -
+                                                    viewHolder.acceptButton.getMeasuredHeight())
+                                            .setListener(new Animator.AnimatorListener() {
+                                                @Override
+                                                public void onAnimationStart(Animator animation) {
 
+                                                }
+
+                                                @Override
+                                                public void onAnimationEnd(Animator animation) {
+                                                    ((JobHolder) viewHolder.nameTextView.getTag()).select();
+                                                    viewHolder.acceptButton.setVisibility(View.GONE);
+                                                    viewHolder.nameTextView.setTextColor(getResources().getColor(R.color.seshgreen));
+
+                                                    viewHolder.rateTextView.setVisibility(View.GONE);
+                                                    viewHolder.checkImageView.setVisibility(View.VISIBLE);
+                                                    viewHolder.checkImageView.setScaleX(0.1f);
+                                                    viewHolder.checkImageView.setScaleY(0.1f);
+
+                                                    viewHolder.animationSpring = viewHolder.springSystem.createSpring();
+                                                    viewHolder.animationSpring.setCurrentValue(.1f);
+                                                    viewHolder.animationSpring.setEndValue(1.0f);
+                                                    viewHolder.animationSpring.setSpringConfig(SpringConfig.fromBouncinessAndSpeed(9.0, 6.0));
+                                                    viewHolder.animationSpring.addListener(new SimpleSpringListener() {
+                                                        @Override
+                                                        public void onSpringUpdate(Spring spring) {
+                                                            viewHolder.checkImageView.setScaleX((float) (spring.getCurrentValue()));
+                                                            viewHolder.checkImageView.setScaleY((float) (spring.getCurrentValue()));
+                                                        }
+                                                    });
+                                                }
+
+                                                @Override
+                                                public void onAnimationCancel(Animator animation) {
+
+                                                }
+
+                                                @Override
+                                                public void onAnimationRepeat(Animator animation) {
+
+                                                }
+                                            })
+                                            .start();
+
+//                                    seshNetworking.createBid(((JobHolder)viewHolder.nameTextView.getTag()).job.requestId, 2, 2,
+//                                            new Response.Listener<JSONObject>() {
+//                                                @Override
+//                                                public void onResponse(JSONObject responseJson) {
+//                                                    onJobResponse(responseJson);
+//                                                }
+//                                            }, new Response.ErrorListener() {
+//                                                @Override
+//                                                public void onErrorResponse(VolleyError volleyError) {
+//                                                    onJobFailure(volleyError.getMessage());
+//                                                }
+//                                            });
+                                }
+                            }
+                        }).execute();
+                    }
                 }
             });
 
