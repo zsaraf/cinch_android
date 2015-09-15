@@ -1,6 +1,7 @@
 package com.seshtutoring.seshapp.model;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -11,6 +12,7 @@ import com.orm.SugarRecord;
 import com.orm.dsl.Ignore;
 import com.seshtutoring.seshapp.services.GCMRegistrationIntentService;
 import com.seshtutoring.seshapp.services.PeriodicFetchBroadcastReceiver;
+import com.seshtutoring.seshapp.services.notifications.SeshNotificationManagerService;
 import com.seshtutoring.seshapp.util.StorageUtils;
 import com.seshtutoring.seshapp.util.networking.SeshAuthManager;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
@@ -88,6 +90,12 @@ public class User extends SugarRecord<User> {
         StorageUtils.clearAllSugarRecords();
         SeshAuthManager.sharedManager(context).clearSession();
         GCMRegistrationIntentService.clearGCMRegistrationToken(context);
+
+        Intent pauseNotificationHandling
+                = new Intent(SeshNotificationManagerService.PAUSE_IN_APP_DISPLAY_QUEUE_HANDLING,
+                    null, context, SeshNotificationManagerService.class);
+        context.startService(pauseNotificationHandling);
+
         Log.i(TAG, "User logged out locally.");
     }
 

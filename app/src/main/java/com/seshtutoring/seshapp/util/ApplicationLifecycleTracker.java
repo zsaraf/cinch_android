@@ -5,17 +5,7 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.os.SystemClock;
-import android.util.Log;
-
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.seshtutoring.seshapp.SeshApplication;
-import com.seshtutoring.seshapp.SeshStateManager;
-import com.seshtutoring.seshapp.model.User;
-import com.seshtutoring.seshapp.services.GCMRegistrationIntentService;
-import com.seshtutoring.seshapp.services.PeriodicFetchBroadcastReceiver;
-import com.seshtutoring.seshapp.services.UserInfoFetcher;
 import com.seshtutoring.seshapp.services.notifications.SeshNotificationManagerService;
 import com.seshtutoring.seshapp.util.networking.SeshAuthManager;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
