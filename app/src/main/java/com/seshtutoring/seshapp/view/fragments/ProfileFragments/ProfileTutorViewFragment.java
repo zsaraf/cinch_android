@@ -32,6 +32,7 @@ public class ProfileTutorViewFragment extends Fragment implements MainContainerA
     private TextView studentHistoryTab;
     private TextView classesTab;
     private int selectedTab;
+    private TextView creditsView;
 
 
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
@@ -43,7 +44,7 @@ public class ProfileTutorViewFragment extends Fragment implements MainContainerA
         this.seshNetworking = new SeshNetworking(mainContainerActivity);
 
         TextView hoursTutoredView = (TextView) this.homeView.findViewById(R.id.hours_taught_number);
-        TextView creditsView = (TextView) this.homeView.findViewById(R.id.tutor_credits_number);
+        creditsView = (TextView) this.homeView.findViewById(R.id.tutor_credits_number);
 
         creditsView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -73,6 +74,13 @@ public class ProfileTutorViewFragment extends Fragment implements MainContainerA
         return this.homeView;
 
     }
+
+    public void refreshTutorCredits() {
+        this.user = User.currentUser(mainContainerActivity.getApplicationContext());
+        DecimalFormat df = new DecimalFormat("0.00");
+        creditsView.setText("$" + df.format(this.user.tutor.cashAvailable));
+    }
+
 
 
     private View.OnClickListener firstTabPress = new View.OnClickListener() {

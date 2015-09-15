@@ -95,6 +95,7 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
     public static final String VIEW_SESH_ACTION = "view_sesh";
     public static final String SESH_CANCELLED_ACTION = "sesh_cancelled";
     public static final String NEW_MESSAGE_ACTION = "new_message";
+    public static final String REFRESH_PROFILE = "refresh_profile";
     public static final String REFRESH_JOBS = "refresh_jobs";
     public static final String FOUND_TUTOR_ACTION = "com.seshtutoring.seshapp.FOUND_TUTOR";
 
@@ -356,6 +357,12 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
     private void onCashoutResponse(JSONObject responseJson) {
         try {
             if (responseJson.get("status").equals("SUCCESS")) {
+                User currentUser = User.currentUser(this);
+                currentUser.tutor.cashAvailable = 0.0f;
+                currentUser.tutor.save();
+                currentUser.save();
+                this.sendBroadcast(new Intent(this.REFRESH_PROFILE));
+
                 Toast.makeText(this, "You have cashed out!", Toast.LENGTH_LONG).show();
             } else if (responseJson.get("status").equals("FAILURE")) {
                 String message = responseJson.get("message").toString();

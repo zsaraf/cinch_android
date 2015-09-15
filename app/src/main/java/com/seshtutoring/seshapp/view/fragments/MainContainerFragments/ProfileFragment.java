@@ -3,8 +3,10 @@ package com.seshtutoring.seshapp.view.fragments.MainContainerFragments;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.media.Image;
@@ -59,6 +61,7 @@ import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.util.networking.VolleyNetworkingWrapper;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
 import com.seshtutoring.seshapp.view.MainContainerActivity.FragmentOptionsReceiver;
+import com.seshtutoring.seshapp.view.MessagingActivity;
 import com.seshtutoring.seshapp.view.OnboardingActivity;
 import com.seshtutoring.seshapp.view.components.SeshButton;
 import com.seshtutoring.seshapp.view.components.SeshIconTextView;
@@ -117,6 +120,7 @@ public class ProfileFragment extends Fragment implements FragmentOptionsReceiver
     private View blackOverlay;
     private Spring spring;
     private boolean cardIsUp;
+    private BroadcastReceiver broadcastReceiver;
 
     private CallbackManager callbackManager;
     private String selectedImagePath;
@@ -393,6 +397,7 @@ public class ProfileFragment extends Fragment implements FragmentOptionsReceiver
 
     private class ProfileViewPagerAdapter extends FragmentStatePagerAdapter {
         private static final int NUM_TABS = 3;
+        public ProfileTutorViewFragment tutorViewFragment;
 
         public ProfileViewPagerAdapter(FragmentManager fm) {
             super(fm);
@@ -405,7 +410,8 @@ public class ProfileFragment extends Fragment implements FragmentOptionsReceiver
             }else if (position == 1) {
                 return new ProfileStudentViewFragment();
             }else {
-                return new ProfileTutorViewFragment();
+                tutorViewFragment = new ProfileTutorViewFragment();
+                return tutorViewFragment;
             }
         }
 
@@ -425,7 +431,30 @@ public class ProfileFragment extends Fragment implements FragmentOptionsReceiver
     public void onResume() {
         super.onResume();
         ((MainContainerActivity)getActivity()).onFragmentReplacedAndRendered();
+
+        broadcastReceiver = actionBroadcastReceiver;
+        // Listen for new messages
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(MainContainerActivity.REFRESH_PROFILE);
+        this.getActivity().registerReceiver(broadcastReceiver, intentFilter);
+
     }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        this.getActivity().unregisterReceiver(broadcastReceiver);
+    }
+
+
+    private BroadcastReceiver actionBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            ProfileViewPagerAdapter pf = (ProfileViewPagerAdapter)viewPager.getAdapter();
+            pf.tutorViewFragment.refreshTutorCredits();
+        }
+    };
+
 
     @Override
     public void updateFragmentOptions(Map<String, Object> options) {
