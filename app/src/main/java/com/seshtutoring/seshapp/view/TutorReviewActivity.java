@@ -97,6 +97,7 @@ public class TutorReviewActivity extends SeshActivity {
         DateTime endTime = new DateTime(this.pastSesh.endTime);
 
         DecimalFormat df = new DecimalFormat("#.##");
+        df.setMinimumFractionDigits(2);
         this.cashEarned.setText("$" + df.format(tutorEarnings));
 
         this.className.setText(className);
