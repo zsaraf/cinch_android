@@ -204,11 +204,9 @@ public class ViewAvailableJobsFragment extends ListFragment {
     };
 
     private class ViewHolder {
-        public RelativeLayout bottomWrapper;
         public TextView nameTextView;
         public TextView rateTextView;
         public ImageView checkImageView;
-        public ImageView backingCheckImageView;
         public SeshInformationLabel courseInformationLabel;
         public SeshInformationLabel assignmentInformationLabel;
         public SeshInformationLabel distanceInformationLabel;
@@ -251,10 +249,6 @@ public class ViewAvailableJobsFragment extends ListFragment {
 
                 viewHolder.springSystem = SpringSystem.create();
                 viewHolder.shouldBid = false;
-                viewHolder.backingCheckImageView = (ImageView) convertView.findViewById(R.id.swipe_view_check_icon);
-                viewHolder.backingCheckImageView.setColorFilter(Color.argb(255, 255, 255, 255));
-
-                viewHolder.bottomWrapper = (RelativeLayout) convertView.findViewById(R.id.bottom_wrapper);
 
                 viewHolder.topGroup = (ViewGroup) convertView.findViewById(R.id.top_wrapper);
 
@@ -288,108 +282,108 @@ public class ViewAvailableJobsFragment extends ListFragment {
                 }
             });
 
-            final SwipeLayout swipeView = (SwipeLayout) convertView.findViewById(R.id.swipe_view);
-            swipeView.setShowMode(SwipeLayout.ShowMode.LayDown);
-            swipeView.setDragEdge(SwipeLayout.DragEdge.Left);
-            swipeView.setSwipeEnabled(false);
-
-            swipeView.addSwipeListener(new SwipeLayout.SwipeListener() {
-
-                @Override
-                public void onClose(SwipeLayout layout) {
-                    //when the SurfaceView totally cover the BottomView.
-                }
-
-                @Override
-                public void onUpdate(SwipeLayout layout, int leftOffset, int topOffset) {
-                    //you are swiping.
-                    if (leftOffset > viewHolder.backingCheckImageView.getMeasuredWidth() + viewHolder.backingCheckImageView.getPaddingLeft()) {
-                        viewHolder.bottomWrapper.setBackgroundColor(mContext.getResources().getColor(R.color.seshgreen));
-                        viewHolder.backingCheckImageView.setX(leftOffset - viewHolder.backingCheckImageView.getMeasuredWidth() - viewHolder.backingCheckImageView.getPaddingLeft());
-                        viewHolder.shouldBid = true;
-                    } else {
-                        viewHolder.bottomWrapper.setBackgroundColor(mContext.getResources().getColor(R.color.terms_text_light_gray));
-                        viewHolder.backingCheckImageView.setX(0);
-                        viewHolder.shouldBid = false;
-                    }
-                }
-
-                @Override
-                public void onStartOpen(SwipeLayout layout) {
-                    mSwipeRefreshLayout.setEnabled(false);
-                }
-
-                @Override
-                public void onOpen(SwipeLayout layout) {
-
-                }
-
-                @Override
-                public void onStartClose(SwipeLayout layout) {
-                }
-
-                @Override
-                public void onHandRelease(final SwipeLayout layout, float xvel, float yvel) {
-                    mSwipeRefreshLayout.setEnabled(true);
-                    layout.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            layout.close();
-                        }
-                    }, 50);
-                    final ViewHolder viewHolder = (ViewHolder) layout.getTag();
-                    if (viewHolder.shouldBid) {
-                        (new VerifyTutorOnboardingAsyncTask() {
-                            @Override
-                            public void onPostExecute(ArrayList<OnboardingRequirement> onboardingRequirements) {
-                                if (onboardingRequirements.size() > 0) {
-                                    showOnboardingDialog(onboardingRequirements);
-                                } else {
-                                    viewHolder.shouldBid = false;
-                                    layout.setSwipeEnabled(false);
-                                    ((JobHolder)viewHolder.nameTextView.getTag()).select();
-                                    viewHolder.nameTextView.setTextColor(getResources().getColor(R.color.seshgreen));
-
-                                    handler.postDelayed(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            viewHolder.rateTextView.setVisibility(View.GONE);
-                                            viewHolder.checkImageView.setVisibility(View.VISIBLE);
-                                            viewHolder.checkImageView.setScaleX(0.1f);
-                                            viewHolder.checkImageView.setScaleY(0.1f);
-
-                                            viewHolder.animationSpring = viewHolder.springSystem.createSpring();
-                                            viewHolder.animationSpring.setCurrentValue(.1f);
-                                            viewHolder.animationSpring.setEndValue(1.0f);
-                                            viewHolder.animationSpring.setSpringConfig(SpringConfig.fromBouncinessAndSpeed(9.0, 6.0));
-                                            viewHolder.animationSpring.addListener(new SimpleSpringListener() {
-                                                @Override
-                                                public void onSpringUpdate(Spring spring) {
-                                                    viewHolder.checkImageView.setScaleX((float) (spring.getCurrentValue()));
-                                                    viewHolder.checkImageView.setScaleY((float) (spring.getCurrentValue()));
-                                                }
-                                            });
-                                        }
-                                    }, 200);
-
-                                    seshNetworking.createBid(((JobHolder)viewHolder.nameTextView.getTag()).job.requestId, 2, 2,
-                                            new Response.Listener<JSONObject>() {
-                                                @Override
-                                                public void onResponse(JSONObject responseJson) {
-                                                    onJobResponse(responseJson);
-                                                }
-                                            }, new Response.ErrorListener() {
-                                                @Override
-                                                public void onErrorResponse(VolleyError volleyError) {
-                                                    onJobFailure(volleyError.getMessage());
-                                                }
-                                            });
-                                }
-                            }
-                        }).execute();
-                    }
-                }
-            });
+//            final SwipeLayout swipeView = (SwipeLayout) convertView.findViewById(R.id.swipe_view);
+//            swipeView.setShowMode(SwipeLayout.ShowMode.LayDown);
+//            swipeView.setDragEdge(SwipeLayout.DragEdge.Left);
+//            swipeView.setSwipeEnabled(false);
+//
+//            swipeView.addSwipeListener(new SwipeLayout.SwipeListener() {
+//
+//                @Override
+//                public void onClose(SwipeLayout layout) {
+//                    //when the SurfaceView totally cover the BottomView.
+//                }
+//
+//                @Override
+//                public void onUpdate(SwipeLayout layout, int leftOffset, int topOffset) {
+//                    //you are swiping.
+//                    if (leftOffset > viewHolder.backingCheckImageView.getMeasuredWidth() + viewHolder.backingCheckImageView.getPaddingLeft()) {
+//                        viewHolder.bottomWrapper.setBackgroundColor(mContext.getResources().getColor(R.color.seshgreen));
+//                        viewHolder.backingCheckImageView.setX(leftOffset - viewHolder.backingCheckImageView.getMeasuredWidth() - viewHolder.backingCheckImageView.getPaddingLeft());
+//                        viewHolder.shouldBid = true;
+//                    } else {
+//                        viewHolder.bottomWrapper.setBackgroundColor(mContext.getResources().getColor(R.color.terms_text_light_gray));
+//                        viewHolder.backingCheckImageView.setX(0);
+//                        viewHolder.shouldBid = false;
+//                    }
+//                }
+//
+//                @Override
+//                public void onStartOpen(SwipeLayout layout) {
+//                    mSwipeRefreshLayout.setEnabled(false);
+//                }
+//
+//                @Override
+//                public void onOpen(SwipeLayout layout) {
+//
+//                }
+//
+//                @Override
+//                public void onStartClose(SwipeLayout layout) {
+//                }
+//
+//                @Override
+//                public void onHandRelease(final SwipeLayout layout, float xvel, float yvel) {
+//                    mSwipeRefreshLayout.setEnabled(true);
+//                    layout.postDelayed(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            layout.close();
+//                        }
+//                    }, 50);
+//                    final ViewHolder viewHolder = (ViewHolder) layout.getTag();
+//                    if (viewHolder.shouldBid) {
+//                        (new VerifyTutorOnboardingAsyncTask() {
+//                            @Override
+//                            public void onPostExecute(ArrayList<OnboardingRequirement> onboardingRequirements) {
+//                                if (onboardingRequirements.size() > 0) {
+//                                    showOnboardingDialog(onboardingRequirements);
+//                                } else {
+//                                    viewHolder.shouldBid = false;
+//                                    layout.setSwipeEnabled(false);
+//                                    ((JobHolder)viewHolder.nameTextView.getTag()).select();
+//                                    viewHolder.nameTextView.setTextColor(getResources().getColor(R.color.seshgreen));
+//
+//                                    handler.postDelayed(new Runnable() {
+//                                        @Override
+//                                        public void run() {
+//                                            viewHolder.rateTextView.setVisibility(View.GONE);
+//                                            viewHolder.checkImageView.setVisibility(View.VISIBLE);
+//                                            viewHolder.checkImageView.setScaleX(0.1f);
+//                                            viewHolder.checkImageView.setScaleY(0.1f);
+//
+//                                            viewHolder.animationSpring = viewHolder.springSystem.createSpring();
+//                                            viewHolder.animationSpring.setCurrentValue(.1f);
+//                                            viewHolder.animationSpring.setEndValue(1.0f);
+//                                            viewHolder.animationSpring.setSpringConfig(SpringConfig.fromBouncinessAndSpeed(9.0, 6.0));
+//                                            viewHolder.animationSpring.addListener(new SimpleSpringListener() {
+//                                                @Override
+//                                                public void onSpringUpdate(Spring spring) {
+//                                                    viewHolder.checkImageView.setScaleX((float) (spring.getCurrentValue()));
+//                                                    viewHolder.checkImageView.setScaleY((float) (spring.getCurrentValue()));
+//                                                }
+//                                            });
+//                                        }
+//                                    }, 200);
+//
+//                                    seshNetworking.createBid(((JobHolder)viewHolder.nameTextView.getTag()).job.requestId, 2, 2,
+//                                            new Response.Listener<JSONObject>() {
+//                                                @Override
+//                                                public void onResponse(JSONObject responseJson) {
+//                                                    onJobResponse(responseJson);
+//                                                }
+//                                            }, new Response.ErrorListener() {
+//                                                @Override
+//                                                public void onErrorResponse(VolleyError volleyError) {
+//                                                    onJobFailure(volleyError.getMessage());
+//                                                }
+//                                            });
+//                                }
+//                            }
+//                        }).execute();
+//                    }
+//                }
+//            });
 
             if (holder.selected) {
                 viewHolder.nameTextView.setTextColor(getResources().getColor(R.color.seshgreen));

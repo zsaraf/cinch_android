@@ -6,7 +6,8 @@
     android:layout_height="match_parent"
     android:id="@+id/swipe_view"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
-    xmlns:custom="http://schemas.android.com/apk/res-auto">
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
+    android:background="@color/terms_text_light_gray">
 
     <android.support.v7.widget.CardView
         android:id="@+id/card"
@@ -14,25 +15,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         card_view:cardBackgroundColor="#F9FFFFFF"
-        android:layout_marginBottom="@dimen/warm_welcome_card_bottom_margin"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:layout_alignParentBottom="true">
-    <!-- Underneath view of swipe layout-->
-    <RelativeLayout
-        android:id="@+id/bottom_wrapper"
-        android:layout_gravity="left"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/terms_text_light_gray" >
-        <ImageView
-            android:id="@+id/swipe_view_check_icon"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:layout_centerVertical="true"
-            android:paddingLeft="30dp"
-            android:src="@drawable/fat_check" />
-    </RelativeLayout>
+        android:layout_marginBottom="0dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginTop="5dp">
 
     <!-- Top view of swipe layout-->
     <RelativeLayout
@@ -121,6 +107,6 @@
             custom:dotsVisible="false"/>
 
     </RelativeLayout>
-    </android.support.v7.widget.CardView>
+    </android.support.v7.widget.CardView >
 
 </RelativeLayout>
