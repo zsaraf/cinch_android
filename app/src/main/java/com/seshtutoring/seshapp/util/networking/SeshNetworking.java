@@ -176,7 +176,7 @@ public class SeshNetworking {
 
             VolleyNetworkingWrapper.getInstance(mContext).addToRequestQueue(requestWithAuth);
         } else {
-            errorListener.onErrorResponse(new VolleyError());
+            errorListener.onErrorResponse(new VolleyError("No authentication token so not making request!"));
         }
     }
 

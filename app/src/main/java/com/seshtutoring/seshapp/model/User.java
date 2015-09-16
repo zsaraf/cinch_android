@@ -63,7 +63,7 @@ public class User extends SugarRecord<User> {
     public static User currentUser(Context context) {
         Iterator<User> iterator = User.findAll(User.class);
         if (iterator.hasNext()) {
-            return User.findAll(User.class).next();
+            return iterator.next();
         } else {
             return null;
         }
