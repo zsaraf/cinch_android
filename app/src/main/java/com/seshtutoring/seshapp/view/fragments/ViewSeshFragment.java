@@ -333,11 +333,13 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
     public void refresh() {
         if (sesh != null) {
             List<Sesh> seshesFound = Sesh.find(Sesh.class, "sesh_id = ?", Integer.toString(new Integer(seshId)));
-            sesh = seshesFound.get(0);
+            if (seshesFound.size() >= 1) {
+                sesh = seshesFound.get(0);
 
-            updateNavBarTitle();
-            updateMiddleBarView();
-            ((ViewSeshPagerAdapter)viewPager.getAdapter()).refresh();
+                updateNavBarTitle();
+                updateMiddleBarView();
+                ((ViewSeshPagerAdapter) viewPager.getAdapter()).refresh();
+            }
         }
     }
 
