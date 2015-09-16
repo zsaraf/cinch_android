@@ -867,9 +867,8 @@ public class AuthenticationActivity extends SeshActivity implements SeshDialog.O
 
         if (entranceType == EntranceType.LOGIN) {
             loginSignupButton.setText("Sign Up");
-
-            utils.crossFade(dontHaveAccountText, alreadyHaveAccountText);
-            utils.crossFade(forgotPasswordLink, termsAndPrivacyPolicyText);
+            utils.crossFadeWithVisibility(dontHaveAccountText, alreadyHaveAccountText);
+            utils.crossFadeWithVisibility(forgotPasswordLink, termsAndPrivacyPolicyText);
 
             int loginSignupY = (int) loginSignupButton.getY() - yDeltaTextAndButton;
             int alreadyHaveAccountY = (int) alreadyHaveAccountText.getY() - yDeltaTextAndButton;
@@ -878,7 +877,10 @@ public class AuthenticationActivity extends SeshActivity implements SeshDialog.O
             int seshLogoY = (fullnameEditText.getTop() / 2) - (seshLogo.getHeight() / 2);
 
             loginSignupButton.animate().setDuration(300).setStartDelay(0).y(loginSignupY);
-            alreadyHaveAccountText.animate().setDuration(300).setStartDelay(0).y(alreadyHaveAccountY);
+            alreadyHaveAccountText.animate()
+                    .setDuration(300)
+                    .setStartDelay(0)
+                    .y(alreadyHaveAccountY);
 
             emailEditText
                     .animate()
@@ -926,20 +928,23 @@ public class AuthenticationActivity extends SeshActivity implements SeshDialog.O
         } else if (entranceType == EntranceType.SIGNUP) {
             loginSignupButton.setText("Log In");
 
-            utils.crossFade(alreadyHaveAccountText, dontHaveAccountText);
-            utils.crossFade(termsAndPrivacyPolicyText, forgotPasswordLink);
+            utils.crossFadeWithVisibility(alreadyHaveAccountText, dontHaveAccountText);
+            utils.crossFadeWithVisibility(termsAndPrivacyPolicyText, forgotPasswordLink);
 
             fullnameEditText.animate().setStartDelay(0).setDuration(100).alpha(0);
             reenterPasswordEditText.animate().setStartDelay(0).setDuration(100).alpha(0);
 
             int loginSignupY = (int)loginSignupButton.getY() + yDeltaTextAndButton;
-            int alreadyHaveAccountY = (int)alreadyHaveAccountText.getY() + yDeltaTextAndButton;
+            final int alreadyHaveAccountY = (int)alreadyHaveAccountText.getY() + yDeltaTextAndButton;
             int emailEditTextY = (int)emailEditText.getY() + yDeltaEmailAndPassword;
             int passwordEditTextY = (int)passwordEditText.getY() + yDeltaEmailAndPassword;
             int seshLogoY = (emailEditTextY / 2) - (seshLogo.getHeight() / 2);
 
             loginSignupButton.animate().setStartDelay(0).setDuration(300).y(loginSignupY);
-            alreadyHaveAccountText.animate().setStartDelay(0).setDuration(300).y(alreadyHaveAccountY);
+            alreadyHaveAccountText.animate()
+                    .setStartDelay(0)
+                    .setDuration(300)
+                    .y(alreadyHaveAccountY);
 
             emailEditText
                     .animate()

@@ -1,5 +1,6 @@
 package com.seshtutoring.seshapp.util;
 
+import android.animation.Animator;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Instrumentation;
@@ -44,9 +45,66 @@ public class LayoutUtils {
     }
 
     public void crossFade(final View fadeOutView, final View fadeInView) {
-        fadeOutView.animate().alpha(0f).setDuration(100);
+        fadeOutView.animate()
+                .alpha(0f)
+                .setDuration(100);
 
-        fadeInView.animate().alpha(1f).setDuration(100);
+        fadeInView.animate()
+                .alpha(1f)
+                .setDuration(100);
+    }
+    public void crossFadeWithVisibility(final View fadeOutView, final View fadeInView) {
+        //make sure to set visibilities so unseen spans aren't clickable
+        fadeOutView.animate()
+                .alpha(0f)
+                .setDuration(100)
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        fadeOutView.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                });
+
+        fadeInView.animate()
+                .alpha(1f)
+                .setDuration(100)
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+                        fadeInView.setVisibility(View.VISIBLE);
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                });
+
     }
 
     public int dpToPixels(float dp) {
