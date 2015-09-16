@@ -34,7 +34,7 @@ import org.json.JSONObject;
 import java.util.List;
 
 public class ViewSeshSetTimeActivity extends SeshActivity {
-    private ImageButton closeSetTimeButton;
+    private RelativeLayout closeSetTimeButton;
 
     public static final int SET_TIME_CREATE_SUCCESS = 1;
     public static final int SET_TIME_CREATE_FAILURE = 2;
@@ -60,7 +60,7 @@ public class ViewSeshSetTimeActivity extends SeshActivity {
             container.setPadding(0, utils.getStatusBarHeight(), 0, 0);
         }
 
-        this.closeSetTimeButton = (ImageButton) findViewById(R.id.close_set_time);
+        this.closeSetTimeButton = (RelativeLayout) findViewById(R.id.set_time_close);
         this.availableBlocksLabel = (SeshInformationLabel) findViewById(R.id.available_blocks_label);
         closeSetTimeButton.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -86,7 +86,7 @@ public class ViewAvailableJobsFragment extends ListFragment {
     private MainContainerActivity mainContainerActivity;
     //    private SwipeRefreshLayout refreshLayout;
     private Typeface boldTypeFace;
-    private ArrayList<JobHolder> availableJobs;
+    private ArrayList<AvailableJob> availableJobs;
     private ArrayList<Course> tutorCourses;
     private ViewAvailableJobsAdapter availableJobsAdapter;
     private SeshNetworking seshNetworking;
@@ -96,23 +96,6 @@ public class ViewAvailableJobsFragment extends ListFragment {
     private TextView brokenPencilTextView;
     private BroadcastReceiver broadcastReceiver;
     private LocationManager locationManager;
-
-    private class JobHolder {
-        public AvailableJob job;
-        public int type;
-        public int status;
-        public boolean selected;
-
-        public void select() {
-            this.selected = true;
-        }
-
-        public JobHolder(AvailableJob job, int type) {
-            this.type = type;
-            this.job = job;
-            this.selected = false;
-        }
-    }
 
     Runnable mStatusChecker = new Runnable() {
         @Override
@@ -177,7 +160,7 @@ public class ViewAvailableJobsFragment extends ListFragment {
         //this.bidQueue = new LinkedList<ViewHolder>();
         this.handler = new Handler();
 
-        this.availableJobs = new ArrayList<JobHolder>();
+        this.availableJobs = new ArrayList<AvailableJob>();
         this.tutorCourses = new ArrayList<Course>();
         this.availableJobsAdapter = new ViewAvailableJobsAdapter(getActivity(), availableJobs);
         getListView().setAdapter(availableJobsAdapter);
@@ -185,26 +168,16 @@ public class ViewAvailableJobsFragment extends ListFragment {
         getListView().setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                ListView listView = ViewAvailableJobsFragment.this.getListView();
-                int first = listView.getFirstVisiblePosition();
-                int count = listView.getChildCount();
-                for (int i = first; i < count; i++) {
-                    View t = (View) listView.getChildAt(i);
-                    ViewHolder viewHolder = (ViewHolder) t.getTag();
-                    if (viewHolder != null) {
-                        viewHolder.setConfirmMode(false);
-                    }
-                }
+                unconfirmAllJobsExcept(null);
             }
         });
-//        getListView().setOnItemClickListener(new View.OnItemClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//
-//            }
-//        });
-
-        //get available jobs from server
+        getListView().setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                unconfirmAllJobsExcept(null);
+                return false;
+            }
+        });
         getAvailableJobs();
     }
 
@@ -291,12 +264,25 @@ public class ViewAvailableJobsFragment extends ListFragment {
         }
     }
 
-    public class ViewAvailableJobsAdapter extends ArrayAdapter<JobHolder> {
+    public void unconfirmAllJobsExcept(ViewHolder viewHolder) {
+        ListView listView = ViewAvailableJobsFragment.this.getListView();
+        int first = listView.getFirstVisiblePosition();
+        int count = listView.getChildCount();
+        for (int i = first; i < count; i++) {
+            View t = (View) listView.getChildAt(i);
+            ViewHolder vh = (ViewHolder) t.getTag();
+            if (vh != null && vh != viewHolder) {
+                vh.setConfirmMode(false);
+            }
+        }
+    }
+
+    public class ViewAvailableJobsAdapter extends ArrayAdapter<AvailableJob> {
 
         private Context mContext;
         private LayoutInflater layoutInflater;
 
-        public ViewAvailableJobsAdapter(Context context, ArrayList<JobHolder> availableJobs) {
+        public ViewAvailableJobsAdapter(Context context, ArrayList<AvailableJob> availableJobs) {
             super(context, R.layout.view_available_jobs_row, availableJobs);
             this.mContext = context;
             layoutInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -308,8 +294,7 @@ public class ViewAvailableJobsFragment extends ListFragment {
 
         public View getView(int position, View convertView, ViewGroup parent) {
 
-            final JobHolder holder = (JobHolder) getItem(position);
-            final AvailableJob item = holder.job;
+            final AvailableJob item = (AvailableJob) getItem(position);
             final ViewHolder viewHolder;
 
             if (convertView == null) {
@@ -355,6 +340,7 @@ public class ViewAvailableJobsFragment extends ListFragment {
                         (new Handler()).postDelayed(new Runnable() {
                             @Override
                             public void run() {
+                                ViewAvailableJobsFragment.this.unconfirmAllJobsExcept(viewHolder);
                                 viewHolder.setConfirmMode(true);
                             }
                         }, 100);
@@ -382,7 +368,8 @@ public class ViewAvailableJobsFragment extends ListFragment {
 
                                                 @Override
                                                 public void onAnimationEnd(Animator animation) {
-                                                    ((JobHolder) viewHolder.nameTextView.getTag()).select();
+                                                    item.isSelected = true;
+                                                    item.save();
                                                     viewHolder.acceptButton.setVisibility(View.GONE);
                                                     viewHolder.nameTextView.setTextColor(getResources().getColor(R.color.seshgreen));
 
@@ -416,7 +403,7 @@ public class ViewAvailableJobsFragment extends ListFragment {
                                             })
                                             .start();
 
-                                    seshNetworking.createBid(((JobHolder)viewHolder.nameTextView.getTag()).job.requestId, 2, 2,
+                                    seshNetworking.createBid(item.availableJobId, 2, 2,
                                             new Response.Listener<JSONObject>() {
                                                 @Override
                                                 public void onResponse(JSONObject responseJson) {
@@ -435,7 +422,7 @@ public class ViewAvailableJobsFragment extends ListFragment {
                 }
             });
 
-            if (holder.selected) {
+            if (item.isSelected) {
                 viewHolder.nameTextView.setTextColor(getResources().getColor(R.color.seshgreen));
                 viewHolder.checkImageView.setVisibility(View.VISIBLE);
                 viewHolder.rateTextView.setVisibility(View.GONE);
@@ -451,7 +438,7 @@ public class ViewAvailableJobsFragment extends ListFragment {
                 viewHolder.setConfirmMode(false);
             }
 
-            viewHolder.nameTextView.setTag(holder);
+            viewHolder.nameTextView.setTag(item);
 
             viewHolder.nameTextView.setText(item.studentName);
             viewHolder.nameTextView.setVisibility(View.VISIBLE);
@@ -472,12 +459,12 @@ public class ViewAvailableJobsFragment extends ListFragment {
                     results);
             /* Convert from emters to miles */
             Double miles = results[0] * 0.000621371;
-            viewHolder.distanceInformationLabel.setText(fmtDistance(miles)+ " miles");
+            viewHolder.distanceInformationLabel.setText(fmtDistance(miles) + " miles");
 
             viewHolder.durationInformationLabel.setText(item.maxTime + " hours");
             viewHolder.durationInformationLabel.setVisibility(View.VISIBLE);
-            List<AvailableBlock> availableBlockList = new ArrayList<AvailableBlock>();
-            availableBlockList.addAll(item.availableBlocks);
+
+            List<AvailableBlock> availableBlockList = AvailableBlock.find(AvailableBlock.class, "available_job = ?", Long.toString(item.getId()));
             if (item.isInstant) {
                 viewHolder.availableBlocksInformationLabel.setText("NOW");
             } else {
@@ -553,11 +540,13 @@ public class ViewAvailableJobsFragment extends ListFragment {
                 try {
                     if (jsonResponse.get("status").equals("SUCCESS")) {
                         availableJobsAdapter.clear();
+                        availableJobs.clear();
                         JSONArray availableJobsArrayJson = jsonResponse.getJSONArray("courses");
                         for (int i = 0; i < availableJobsArrayJson.length(); i++) {
-                            JobHolder jobHolder = new JobHolder(AvailableJob.fromJson((availableJobsArrayJson.getJSONObject(i))), 1);
-                            availableJobs.add(jobHolder);
+                            AvailableJob availableJob= AvailableJob.createOrUpdateAvailableJobWithObject((availableJobsArrayJson.getJSONObject(i)));
+                            availableJobs.add(availableJob);
                         }
+                        AvailableJob.deleteAvailableJobsNotInArray(availableJobs);
                         availableJobsAdapter.notifyDataSetChanged();
                     } else {
                         Log.e(TAG, jsonResponse.getString("message"));

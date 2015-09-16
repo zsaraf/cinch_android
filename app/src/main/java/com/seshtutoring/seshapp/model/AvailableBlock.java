@@ -43,15 +43,17 @@ public class AvailableBlock extends SugarRecord<AvailableBlock> {
 
     public LearnRequest learnRequest;
     public Sesh sesh;
+    public AvailableJob availableJob;
 
     public AvailableBlock() {
     }
 
-    public AvailableBlock(long startTime, long endTime, LearnRequest learnRequest, Sesh sesh) {
+    public AvailableBlock(long startTime, long endTime, LearnRequest learnRequest, Sesh sesh, AvailableJob availableJob) {
         this.startTime = startTime;
         this.endTime = endTime;
         this.learnRequest = learnRequest;
         this.sesh = sesh;
+        this.availableJob = availableJob;
     }
 
     public static AvailableBlock createAvailableBlock(JSONObject availableBlockJson) {
@@ -84,7 +86,7 @@ public class AvailableBlock extends SugarRecord<AvailableBlock> {
     public static AvailableBlock availableBlockForInstantRequest(LearnRequest instantRequest, int hoursUntilExpiration) {
         DateTime startTime = new DateTime(instantRequest.timestamp);
         DateTime endTime = startTime.plusHours(hoursUntilExpiration);
-        return new AvailableBlock(startTime.getMillis(), endTime.getMillis(), instantRequest, null);
+        return new AvailableBlock(startTime.getMillis(), endTime.getMillis(), instantRequest, null, null);
     }
 
     public JSONObject toJson() throws JSONException {
