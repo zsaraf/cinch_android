@@ -19,40 +19,52 @@
         android:layout_width="match_parent"
         android:layout_height="0.5dp"
         android:background="@color/light_gray"
-        android:layout_below="@id/header"/>
+        android:layout_below="@+id/header"/>
 
-    <com.seshtutoring.seshapp.view.components.SeshIconTextView
-        android:id="@+id/school_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:paddingTop="200dp"
-        android:layout_below="@id/divider"></com.seshtutoring.seshapp.view.components.SeshIconTextView>
-
-    <com.seshtutoring.seshapp.view.components.SeshIconTextView
-        android:id="@+id/email"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/school_name"
-        android:paddingTop="15dp"
-        android:layout_alignLeft="@id/school_name"></com.seshtutoring.seshapp.view.components.SeshIconTextView>
-
-    <com.seshtutoring.seshapp.view.components.SeshIconTextView
-        android:id="@+id/major"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:paddingTop="15dp"
-        android:layout_below="@id/email"
-        android:layout_alignLeft="@id/email"></com.seshtutoring.seshapp.view.components.SeshIconTextView>
-
-    <TextView
-        android:id="@+id/bio"
+    <ScrollView
+        android:id="@+id/scroll_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:padding="25dp"
-        android:textSize="14dp"
-        android:layout_below="@id/major"/>
+        android:layout_marginTop="200dp"
+        android:layout_below="@+id/divider"
+        android:layout_above="@+id/edit_button">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.seshtutoring.seshapp.view.components.SeshIconTextView
+                android:id="@+id/school_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"/>
+
+            <com.seshtutoring.seshapp.view.components.SeshIconTextView
+                android:id="@+id/email"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/school_name"
+                android:paddingTop="15dp"
+                android:layout_alignLeft="@id/school_name"/>
+
+            <com.seshtutoring.seshapp.view.components.SeshIconTextView
+                android:id="@+id/major"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingTop="15dp"
+                android:layout_below="@id/email"
+                android:layout_alignLeft="@id/email"/>
+
+            <TextView
+                android:id="@+id/bio"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:padding="25dp"
+                android:textSize="14dp"
+                android:layout_below="@id/major" />
+
+        </RelativeLayout>
+    </ScrollView>
 
     <TextView
         android:id="@+id/edit_button"

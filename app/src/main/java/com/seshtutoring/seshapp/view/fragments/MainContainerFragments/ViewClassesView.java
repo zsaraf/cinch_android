@@ -32,6 +32,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 /**
  * Created by lillioetting on 7/14/15.
@@ -81,32 +83,7 @@ public class ViewClassesView extends RelativeLayout {
         this.classesAdapter = new ViewClassesAdapter(mContext, tutorCourses);
         menu.setAdapter(classesAdapter);
 
-        //get courses from server
-        seshNetworking.getTutorCourses(new Response.Listener<JSONObject>() {
-            public void onResponse(JSONObject jsonResponse) {
-                try {
-                    if (jsonResponse.get("status").equals("SUCCESS")) {
-                        tutorCourses.clear();
-                        JSONArray tutorCoursesArrayJson = jsonResponse.getJSONArray("classes");
-                        for (int i = 0; i < tutorCoursesArrayJson.length(); i++) {
-                            CourseHolder courseHolder = new CourseHolder(Course.fromJson(tutorCoursesArrayJson.getJSONObject(i)), 1);
-                            tutorCourses.add(courseHolder);
-                        }
-                        //adds edit classes button
-                        tutorCourses.add(new CourseHolder(null, 2));
-                        classesAdapter.notifyDataSetChanged();
-                    } else {
-                        Log.e(TAG, jsonResponse.getString("message"));
-                    }
-                } catch (JSONException e) {
-                    Log.e(TAG, e.getMessage());
-                }
-            }
-        }, new Response.ErrorListener() {
-            public void onErrorResponse(VolleyError volleyError) {
-                Log.e(TAG, volleyError.getMessage());
-            }
-        });
+        refreshClasses();
 
         menu.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view,
@@ -123,6 +100,42 @@ public class ViewClassesView extends RelativeLayout {
 
                 }
 
+            }
+        });
+    }
+
+
+    public void refreshClasses() {
+        //get courses from server
+        seshNetworking.getTutorCourses(new Response.Listener<JSONObject>() {
+            public void onResponse(JSONObject jsonResponse) {
+                try {
+                    if (jsonResponse.get("status").equals("SUCCESS")) {
+                        tutorCourses.clear();
+                        JSONArray tutorCoursesArrayJson = jsonResponse.getJSONArray("classes");
+                        for (int i = 0; i < tutorCoursesArrayJson.length(); i++) {
+                            CourseHolder courseHolder = new CourseHolder(Course.fromJson(tutorCoursesArrayJson.getJSONObject(i)), 1);
+                            tutorCourses.add(courseHolder);
+                        }
+                        Collections.sort(tutorCourses, new Comparator<CourseHolder>() {
+                            @Override
+                            public int compare(CourseHolder lhs, CourseHolder rhs) {
+                                return lhs.course.className.compareTo(rhs.course.className);
+                            }
+                        });
+                        //adds edit classes button
+                        tutorCourses.add(new CourseHolder(null, 2));
+                        classesAdapter.notifyDataSetChanged();
+                    } else {
+                        Log.e(TAG, jsonResponse.getString("message"));
+                    }
+                } catch (JSONException e) {
+                    Log.e(TAG, e.getMessage());
+                }
+            }
+        }, new Response.ErrorListener() {
+            public void onErrorResponse(VolleyError volleyError) {
+                Log.e(TAG, volleyError.getMessage());
             }
         });
     }

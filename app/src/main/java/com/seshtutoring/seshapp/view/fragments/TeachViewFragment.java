@@ -167,4 +167,8 @@ public class TeachViewFragment extends Fragment {
 
     }
 
+    public void refreshClasses() {
+        viewClassesView.refreshClasses();
+    }
+
 }

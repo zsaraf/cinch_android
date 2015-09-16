@@ -166,7 +166,13 @@ public class HomeFragment extends Fragment implements FragmentOptionsReceiver {
     private BroadcastReceiver actionBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            /* Handle tutor enabled */
             ((HomeViewPagerAdapter)HomeFragment.this.viewPager.getAdapter()).setTutorEnabled(User.currentUser(getActivity()).tutor.enabled);
+
+            /* Handle refresh tutor classes */
+            if (((HomeViewPagerAdapter) HomeFragment.this.viewPager.getAdapter()).teachViewFragment != null) {
+                ((HomeViewPagerAdapter) HomeFragment.this.viewPager.getAdapter()).teachViewFragment.refreshClasses();
+            }
 
             /* Handle tutor terms */
             if (User.currentUser(getActivity()).tutor.enabled == true &&
@@ -252,15 +258,6 @@ public class HomeFragment extends Fragment implements FragmentOptionsReceiver {
         public void setTutorEnabled(boolean tutorEnabled) {
             if (this.tutorEnabled != tutorEnabled) {
                 this.tutorEnabled = tutorEnabled;
-//                if (this.tutorEnabled) {
-//                    getActivity().getFragmentManager()
-//                            .beginTransaction()
-//                            .replace(R.id.tutor_view_frame, new ViewAvailableJobsFragment())
-//                            .commit();
-//                    getTeachViewFragment().
-//                } else {
-//
-//                }
                 notifyDataSetChanged();
             }
         }
