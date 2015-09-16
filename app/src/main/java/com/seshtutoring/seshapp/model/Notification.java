@@ -343,6 +343,8 @@ public class Notification extends SugarRecord<Notification> {
                 return new SeshReviewNotificationHandler(this, context); // tested
             case REQUEST_SENT:
                 return new RequestSentNotificationHandler(this, context);
+            case DISCOUNT_AVAILABLE:
+                return new DiscountAvailableNotificationHandler(this, context);
             default:
                 return new DefaultNotificationHandler(this, context);
         }
