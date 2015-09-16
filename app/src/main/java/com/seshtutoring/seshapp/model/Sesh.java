@@ -241,7 +241,9 @@ public class Sesh extends SugarRecord<Sesh> {
     }
 
     public String getTimeAbbrvString() {
-        if (seshSetTime == -1) {
+        if (isInstant) {
+            return "Now";
+        } else if (seshSetTime == -1) {
             return "Time TBD";
         } else {
             DateTime setTime = new DateTime(seshSetTime);
