@@ -123,6 +123,7 @@ public class ProfileFragment extends Fragment implements FragmentOptionsReceiver
     private boolean cardIsUp;
     private BroadcastReceiver broadcastReceiver;
     private SeshNetworking seshNetworking;
+    private boolean shouldRefreshProfPic;
 
     private CallbackManager callbackManager;
     private String selectedImagePath;
@@ -155,6 +156,8 @@ public class ProfileFragment extends Fragment implements FragmentOptionsReceiver
 
         this.viewPagerDots = (ImageView) this.homeView.findViewById(R.id.view_pager_dots);
         this.viewPagerDots.setImageResource(R.drawable.sign_up_dots_page1);
+
+        shouldRefreshProfPic = true;
 
         this.viewPager = (ViewPager) this.homeView.findViewById(R.id.view_pager);
         this.viewPager.setAdapter(new ProfileViewPagerAdapter(getFragmentManager()));
@@ -351,12 +354,17 @@ public class ProfileFragment extends Fragment implements FragmentOptionsReceiver
         Uri croppedPhotoUri = Uri.fromFile(croppedPhotoFile);
         if (requestCode == REQUEST_TAKE_PHOTO) {
             if (resultCode == Activity.RESULT_OK) {
+                shouldRefreshProfPic = false;
                 Crop.of(photoUri, croppedPhotoUri).asSquare().start(getActivity(), this);
             } else {
             }
         } else if (requestCode == Crop.REQUEST_PICK) {
-            Crop.of(intent.getData(), croppedPhotoUri).asSquare().start(getActivity(), this);
+            if (resultCode == Activity.RESULT_OK) {
+                shouldRefreshProfPic = false;
+                Crop.of(intent.getData(), croppedPhotoUri).asSquare().start(getActivity(), this);
+            }
         } else if (requestCode == Crop.REQUEST_CROP && resultCode == Activity.RESULT_OK) {
+            shouldRefreshProfPic = false;
             try {
                 photo = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), croppedPhotoUri);
                 Bitmap resizedBitmap = Bitmap.createScaledBitmap(photo, 600, 600, false);
@@ -459,13 +467,14 @@ public class ProfileFragment extends Fragment implements FragmentOptionsReceiver
     @Override
     public void onPause() {
         super.onPause();
+        shouldRefreshProfPic = true;
         this.getActivity().unregisterReceiver(broadcastReceiver);
     }
 
     private void refreshProfilePictureWithUser(User currentUser) {
         boolean needsRefreshing = !currentUser.profilePictureUrl.equals(user.profilePictureUrl);
         this.user = currentUser;
-        if (needsRefreshing) {
+        if (needsRefreshing && shouldRefreshProfPic) {
             seshNetworking.downloadProfilePictureAsync(user.profilePictureUrl, this.profilePicture, new Callback() {
                 @Override
                 public void onSuccess() {
