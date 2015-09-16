@@ -68,6 +68,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.w3c.dom.Text;
 
+import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -107,10 +109,11 @@ public class ViewAvailableJobsFragment extends ListFragment {
 
     public static String fmtDistance(double d)
     {
-        if(d == (long) d)
-            return String.format("%d",(long)d);
-        else
-            return String.format("%s",d);
+        if(d == (long) d) {
+            return String.format("%d", (long) d);
+        } else {
+            return String.format("%.2f", d);
+        } 
     }
 
     @Override
@@ -451,14 +454,18 @@ public class ViewAvailableJobsFragment extends ListFragment {
 
             float[] results = new float[3];
             Location currentLocation = locationManager.getCurrentLocation();
+            Location jobLocation = new Location("job location");
+            jobLocation.setLatitude(item.latitude);
+            jobLocation.setLongitude(item.longitude);
             Location.distanceBetween(
                     currentLocation.getLatitude(),
                     item.latitude,
                     currentLocation.getLongitude(),
                     item.longitude,
                     results);
+            float mi = currentLocation.distanceTo(jobLocation);
             /* Convert from emters to miles */
-            Double miles = results[0] * 0.000621371;
+            Double miles = mi * 0.000621371;
             viewHolder.distanceInformationLabel.setText(fmtDistance(miles) + " miles");
 
             viewHolder.durationInformationLabel.setText(item.maxTime + " hours");
