@@ -63,6 +63,8 @@ import com.seshtutoring.seshapp.view.MainContainerActivity;
 import com.seshtutoring.seshapp.view.MainContainerActivity.FragmentOptionsReceiver;
 import com.seshtutoring.seshapp.view.MessagingActivity;
 import com.seshtutoring.seshapp.view.OnboardingActivity;
+import com.seshtutoring.seshapp.view.components.SeshActivityIndicator;
+import com.seshtutoring.seshapp.view.components.SeshAnimatedCheckmark;
 import com.seshtutoring.seshapp.view.components.SeshButton;
 import com.seshtutoring.seshapp.view.components.SeshIconTextView;
 import com.seshtutoring.seshapp.view.components.SeshViewPager;
@@ -125,6 +127,10 @@ public class ProfileFragment extends Fragment implements FragmentOptionsReceiver
     private CallbackManager callbackManager;
     private String selectedImagePath;
 
+    public RelativeLayout requestFlowOverlay;
+    public SeshActivityIndicator activityIndicator;
+    public SeshAnimatedCheckmark animatedCheckmark;
+
 
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
 
@@ -142,6 +148,10 @@ public class ProfileFragment extends Fragment implements FragmentOptionsReceiver
         //this.profileBioViewFragment = new ProfileBioViewFragment();
         //this.profileStudentViewFragment = new ProfileStudentViewFragment();
         //this.profileTutorViewFragment = new ProfileTutorViewFragment();
+
+        this.requestFlowOverlay = (RelativeLayout) this.homeView.findViewById(R.id.request_flow_overlay);
+        this.activityIndicator = (SeshActivityIndicator) this.homeView.findViewById(R.id.request_activity_indicator);
+        this.animatedCheckmark = (SeshAnimatedCheckmark) this.homeView.findViewById(R.id.animated_check_mark);
 
         this.viewPagerDots = (ImageView) this.homeView.findViewById(R.id.view_pager_dots);
         this.viewPagerDots.setImageResource(R.drawable.sign_up_dots_page1);

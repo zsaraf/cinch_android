@@ -380,7 +380,7 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
 
         if (type.equals("cashout") && selection == 1) {
 
-            //moved to SettingsFragment
+            //moved to individual fragments
 
         } else if (type.equals("logout") && selection == 1) {
 

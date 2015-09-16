@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -23,6 +24,7 @@ import com.seshtutoring.seshapp.view.MainContainerActivity;
 import com.seshtutoring.seshapp.view.components.SeshActivityIndicator;
 import com.seshtutoring.seshapp.view.components.SeshAnimatedCheckmark;
 import com.seshtutoring.seshapp.view.components.SeshDialog;
+import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.ProfileFragment;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -45,10 +47,6 @@ public class ProfileTutorViewFragment extends Fragment implements MainContainerA
     private TextView classesTab;
     private int selectedTab;
     private TextView creditsView;
-    private RelativeLayout requestFlowOverlay;
-    private SeshActivityIndicator activityIndicator;
-    private SeshAnimatedCheckmark animatedCheckmark;
-
 
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
 
@@ -60,10 +58,6 @@ public class ProfileTutorViewFragment extends Fragment implements MainContainerA
 
         TextView hoursTutoredView = (TextView) this.homeView.findViewById(R.id.hours_taught_number);
         creditsView = (TextView) this.homeView.findViewById(R.id.tutor_credits_number);
-
-        this.requestFlowOverlay = (RelativeLayout) this.homeView.findViewById(R.id.request_flow_overlay);
-        this.activityIndicator = (SeshActivityIndicator) this.homeView.findViewById(R.id.request_activity_indicator);
-        this.animatedCheckmark = (SeshAnimatedCheckmark) this.homeView.findViewById(R.id.animated_check_mark);
 
         creditsView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -79,7 +73,7 @@ public class ProfileTutorViewFragment extends Fragment implements MainContainerA
                     @Override
                     public void onClick(View v) {
                         seshDialog.dismiss();
-                        requestFlowOverlay.animate().alpha(1).setListener(null).setDuration(300).start();
+                        ((ProfileFragment)mainContainerActivity.getContainerStateManager().getMainContainerState().fragment).requestFlowOverlay.animate().alpha(1).setListener(null).setDuration(300).start();
                         seshNetworking.cashout(
                                 new Response.Listener<JSONObject>() {
                                     @Override
@@ -207,7 +201,7 @@ public class ProfileTutorViewFragment extends Fragment implements MainContainerA
 
     private void hideAnimationWithSuccess(final boolean success, final String message) {
         if (!success) {
-            requestFlowOverlay
+            ((ProfileFragment)mainContainerActivity.getContainerStateManager().getMainContainerState().fragment).requestFlowOverlay
                     .animate()
                     .setListener(null)
                     .alpha(0)
@@ -220,7 +214,7 @@ public class ProfileTutorViewFragment extends Fragment implements MainContainerA
                         }
                     });
         } else {
-            activityIndicator
+            ((ProfileFragment)mainContainerActivity.getContainerStateManager().getMainContainerState().fragment).activityIndicator
                     .animate()
                     .alpha(0)
                     .setDuration(300)
@@ -228,14 +222,14 @@ public class ProfileTutorViewFragment extends Fragment implements MainContainerA
                         @Override
                         public void onAnimationEnd(Animator animation) {
                             super.onAnimationEnd(animation);
-                            animatedCheckmark.setListener(new SeshAnimatedCheckmark.AnimationCompleteListener() {
+                            ((ProfileFragment)mainContainerActivity.getContainerStateManager().getMainContainerState().fragment).animatedCheckmark.setListener(new SeshAnimatedCheckmark.AnimationCompleteListener() {
                                 @Override
                                 public void onAnimationComplete() {
                                     //setResult(PASSWORD_CHANGED_SUCCESSFULLY_RESPONSE_CODE, null);
-                                    requestFlowOverlay.animate().alpha(0).setListener(null).setDuration(300).start();
+                                    ((ProfileFragment)mainContainerActivity.getContainerStateManager().getMainContainerState().fragment).requestFlowOverlay.animate().alpha(0).setListener(null).setDuration(300).start();
                                 }
                             });
-                            animatedCheckmark.startAnimation();
+                            ((ProfileFragment)mainContainerActivity.getContainerStateManager().getMainContainerState().fragment).animatedCheckmark.startAnimation();
                         }
                     });
         }
