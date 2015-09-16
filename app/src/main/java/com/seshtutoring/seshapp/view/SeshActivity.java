@@ -74,6 +74,7 @@ public abstract class SeshActivity extends AppCompatActivity implements SeshDial
         intentFilter.addAction(MainContainerActivity.DISPLAY_SIDE_MENU_UPDATE);
         intentFilter.addAction(MainContainerActivity.VIEW_SESH_ACTION);
         intentFilter.addAction(MainContainerActivity.NEW_MESSAGE_ACTION);
+        intentFilter.addAction(MainContainerActivity.REQUEST_SENT_ACTION);
         registerReceiver(actionBroadcastReceiver, intentFilter);
 
         Intent intent = getIntent();

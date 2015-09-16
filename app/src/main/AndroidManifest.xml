@@ -100,6 +100,7 @@
                 <action android:name="com.seshtutoring.seshapp.services.notifications.START_QUEUE_HANDLING" />
                 <action android:name="com.seshtutoring.seshapp.services.notifications.PAUSE_QUEUE_HANDLING" />
                 <action android:name="com.seshtutoring.seshapp.services.notifications.CREATE_DISCOUNT_NOTIFICATION" />
+                <action android:name="com.seshtutoring.seshapp.services.notifications.CREATE_REQUEST_SENT_NOTIFICATION_ACTION" />
             </intent-filter>
         </service>
         <service

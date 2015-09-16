@@ -62,6 +62,7 @@ import com.seshtutoring.seshapp.services.GCMRegistrationIntentService;
 import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.services.SeshGCMListenerService;
 import com.seshtutoring.seshapp.services.SeshInstanceIDListenerService;
+import com.seshtutoring.seshapp.services.notifications.SeshNotificationManagerService;
 import com.seshtutoring.seshapp.services.notifications.handlers.SeshCancelledNotificationHandler;
 import com.seshtutoring.seshapp.util.ApplicationLifecycleTracker;
 import com.seshtutoring.seshapp.util.LayoutUtils;
@@ -69,6 +70,7 @@ import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.components.SeshActivityIndicator;
 import com.seshtutoring.seshapp.view.components.SeshBanner;
 import com.seshtutoring.seshapp.view.components.SeshDialog;
+import com.seshtutoring.seshapp.view.fragments.LearnViewFragment;
 import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.HomeFragment;
 import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.LoadingFragment;
 import com.seshtutoring.seshapp.view.MainContainerStateManager.NavigationItemState;
@@ -100,6 +102,7 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
     public static final String REFRESH_PROFILE = "refresh_profile";
     public static final String REFRESH_JOBS = "refresh_jobs";
     public static final String REFRESH_USER_INFO = "refresh_user_info";
+    public static final String REQUEST_SENT_ACTION = "request_sent";
     public static final String FOUND_TUTOR_ACTION = "com.seshtutoring.seshapp.FOUND_TUTOR";
 
     /**
@@ -288,6 +291,14 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
         super.onActivityResult(requestCode, resultCode, data);
         //add last line back in with checks when ready to use FB
         //fbCallbackManager.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == RequestActivity.CREATE_LEARN_REQUEST_REQUEST_CODE) {
+            if (resultCode == RequestActivity.LEARN_REQUEST_CREATE_SUCCESSFUL_RESPONSE_CODE) {
+                Intent intent = new Intent(SeshNotificationManagerService.CREATE_REQUEST_SENT_NOTIFICATION_ACTION,
+                        null, this, SeshNotificationManagerService.class);
+                startService(intent);
+            }
+        }
     }
 
     @Override
@@ -369,6 +380,28 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
                     // hacky, but delay menu open animation to account for activity transition
                     handler.postDelayed(openSideMenu, 2000);
                 }
+            } else if (intent.getAction() == REQUEST_SENT_ACTION) {
+                final SeshDialog seshDialog = new SeshDialog();
+                seshDialog.setDialogType(SeshDialog.SeshDialogType.ONE_BUTTON);
+                seshDialog.setTitle("Request Sent!");
+                seshDialog.setMessage("Hold Tight! We'll notify you as soon as a tutor nearby " +
+                        "accepts your request.");
+                seshDialog.setFirstChoice("OKAY");
+                seshDialog.setType("request_sent");
+                seshDialog.setFirstButtonClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        seshDialog.dismiss();
+                        Handler handler = new Handler();
+                        handler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                slidingMenu.toggle(true);
+                            }
+                        }, 1000);
+                    }
+                });
+                seshDialog.show(getFragmentManager(), null);
             }
         }
 

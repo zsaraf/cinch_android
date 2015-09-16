@@ -445,7 +445,7 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenList
                         }));
 
                 if (item.learnRequest.requiresAnimatedDisplay) {
-                    sideMenuOpenAnimation = new LearnRequestDisplayAnimation(containerStateManager,
+                    sideMenuOpenAnimation = new LearnRequestDisplayAnimation(mainContainerActivity,
                             item.learnRequest, convertView);
                 }
             }

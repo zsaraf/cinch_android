@@ -33,6 +33,8 @@ public class SeshNotificationManagerService extends IntentService {
             = "com.seshtutoring.seshapp.services.notifications.REFRESH_NOTIFICATIONS";
     public static final String CREATE_DISCOUNT_NOTIFICATION_ACTION
             = "com.seshtutoring.seshapp.services.notifications.CREATE_DISCOUNT_NOTIFICATION";
+    public static final String CREATE_REQUEST_SENT_NOTIFICATION_ACTION
+            = "com.seshtutoring.seshapp.services.notifications.CREATE_REQUEST_SENT_NOTIFICATION_ACTION";
     public static final String SET_NOTIFICATION_PENDING_DELETION_KEY = "pending_deletion";
     private boolean paused;
     private ApplicationLifecycleTracker applicationLifecycleTracker;
@@ -76,6 +78,12 @@ public class SeshNotificationManagerService extends IntentService {
                 break;
             case REFRESH_NOTIFICATIONS_ACTION:
                 Notification.createRefreshNotification();
+                if (!displayQueue.notificationHandlingInProgress()) {
+                    displayQueue.handleNext();
+                }
+                break;
+            case CREATE_REQUEST_SENT_NOTIFICATION_ACTION:
+                Notification.createRequestSentNotification();
                 if (!displayQueue.notificationHandlingInProgress()) {
                     displayQueue.handleNext();
                 }

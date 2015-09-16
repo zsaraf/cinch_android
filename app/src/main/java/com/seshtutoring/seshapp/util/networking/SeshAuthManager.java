@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 
+import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.view.SeshActivity;
 
 /**
@@ -62,7 +63,7 @@ public class SeshAuthManager {
     public void invalidateSession() {
         if (!invalidated) {
             invalidated = true;
-            clearSession();
+            User.logoutUserLocally(mContext);
             Intent showErrorDialog = new Intent(SeshActivity.INVALID_SESSION_ID_ACTION);
             mContext.sendBroadcast(showErrorDialog);
         }

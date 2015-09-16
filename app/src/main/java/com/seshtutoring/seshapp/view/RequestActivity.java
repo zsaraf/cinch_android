@@ -73,12 +73,12 @@ public class RequestActivity extends SeshActivity implements
     private SeshAnimatedCheckmark animatedCheckmark;
     private boolean isKeyboardShowing;
 
-    public static final String DIALOG_TYPE_LEARN_REQUEST_SUCCESS = "learn_request_success";
     public static final String DIALOG_TYPE_LEARN_REQUEST_FAILURE = "learn_request_failure";
     private List<Fragment> requestFlowFragments;
 
-    public static final int ENTER_LEARN_REQUEST_FLOW = 1;
+    public static final int CREATE_LEARN_REQUEST_REQUEST_CODE = 1;
     public static final int LEARN_REQUEST_CREATE_EXITED = 4;
+    public static final int LEARN_REQUEST_CREATE_SUCCESSFUL_RESPONSE_CODE = 5;
 
     private int selectedFragmentIndex;
 
@@ -420,11 +420,8 @@ public class RequestActivity extends SeshActivity implements
                                 animatedCheckmark.setListener(new SeshAnimatedCheckmark.AnimationCompleteListener() {
                                     @Override
                                     public void onAnimationComplete() {
-                                        Intent intent = new Intent(MainContainerActivity.DISPLAY_SIDE_MENU_UPDATE, null,
-                                                getApplicationContext(),
-                                                MainContainerActivity.class);
-                                        startActivity(intent);
-                                        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+                                        setResult(LEARN_REQUEST_CREATE_SUCCESSFUL_RESPONSE_CODE);
+                                        finish();
                                     }
                                 });
                                 animatedCheckmark.startAnimation();

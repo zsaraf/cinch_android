@@ -16,6 +16,7 @@ import com.facebook.rebound.SpringConfig;
 import com.facebook.rebound.SpringSystem;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.LearnRequest;
+import com.seshtutoring.seshapp.model.Notification;
 import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.view.ContainerState;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
@@ -30,14 +31,16 @@ import com.stripe.android.compat.AsyncTask;
  */
 public class LearnRequestDisplayAnimation extends SideMenuOpenAnimation {
     private MainContainerStateManager containerStateManager;
+    private Context mContext;
     private LearnRequest learnRequest;
     private LinearLayout contents;
     private Spring spring;
 
 
-    public LearnRequestDisplayAnimation(MainContainerStateManager containerStateManager,
+    public LearnRequestDisplayAnimation(MainContainerActivity mainContainerActivity,
                                         LearnRequest learnRequest, View learnRequestRowItem) {
-        this.containerStateManager = containerStateManager;
+        this.containerStateManager = mainContainerActivity.getContainerStateManager();
+        this.mContext = mainContainerActivity;
         this.learnRequest = learnRequest;
         this.contents = (LinearLayout) learnRequestRowItem.findViewById(R.id.contents);
         this.spring = SpringSystem.create().createSpring();
@@ -79,7 +82,14 @@ public class LearnRequestDisplayAnimation extends SideMenuOpenAnimation {
         @Override
         protected void onPostExecute(Void aVoid) {
             containerStateManager.setContainerStateForLearnRequest(learnRequest);
-            containerStateManager.closeDrawerWithDelay(1000);
+            Handler mainThread = new Handler();
+            mainThread.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    containerStateManager.closeDrawer();
+                    Notification.currentNotificationHandled(mContext, true);
+                }
+            }, 1000);
         }
     }
 }

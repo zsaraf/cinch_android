@@ -17,6 +17,7 @@ import com.seshtutoring.seshapp.services.notifications.handlers.LocationNotesUpd
 import com.seshtutoring.seshapp.services.notifications.handlers.NewMessageNotificationHandler;
 import com.seshtutoring.seshapp.services.notifications.handlers.NewRequestNotificationHandler;
 import com.seshtutoring.seshapp.services.notifications.handlers.NotificationHandler;
+import com.seshtutoring.seshapp.services.notifications.handlers.RequestSentNotificationHandler;
 import com.seshtutoring.seshapp.services.notifications.handlers.RequestTimeoutNotificationHandler;
 import com.seshtutoring.seshapp.services.notifications.handlers.SeshApproachingNotificationHandler;
 import com.seshtutoring.seshapp.services.notifications.handlers.SeshCancelledNotificationHandler;
@@ -46,7 +47,8 @@ public class Notification extends SugarRecord<Notification> {
         NEW_REQUEST, NEW_MESSAGE, LOCATION_NOTES_UPDATED, SESH_STARTED_STUDENT,
         REQUEST_TIMEOUT, SESH_CANCELLED_TUTOR, SESH_CANCELLED_STUDENT, SET_TIME_UPDATED,
         SESH_APPROACHING_STUDENT, SESH_APPROACHING_TUTOR, SESH_REVIEW_STUDENT, SESH_REVIEW_TUTOR,
-        SESH_CREATED_STUDENT, SESH_CREATED_TUTOR, UPDATE_STATE, REFRESH_NOTIFICATIONS, DISCOUNT_AVAILABLE
+        SESH_CREATED_STUDENT, SESH_CREATED_TUTOR, UPDATE_STATE, REFRESH_NOTIFICATIONS, DISCOUNT_AVAILABLE,
+        REQUEST_SENT
     }
 
     @Ignore
@@ -163,6 +165,31 @@ public class Notification extends SugarRecord<Notification> {
         return discountNotification;
     }
 
+    public synchronized static Notification createRequestSentNotification() {
+        Notification requestSentNotification = null;
+
+        int requestSentNotificationId = -3;
+
+        List<Notification> requestSentNotificationsFound
+                = Notification.find(Notification.class, "notification_id = ?",
+                Integer.toString(requestSentNotificationId));
+        if (requestSentNotificationsFound.size() > 0) {
+            requestSentNotification = requestSentNotificationsFound.get(0);
+        } else {
+            requestSentNotification = new Notification();
+        }
+
+        requestSentNotification.notificationId = requestSentNotificationId;
+        requestSentNotification.identifier = "REQUEST_SENT";
+        requestSentNotification.priority = 4;
+        requestSentNotification.pendingDeletion = false;
+        requestSentNotification.wasDisplayedOutsideApp = false;
+
+        requestSentNotification.save();
+
+        return requestSentNotification;
+    }
+
     public synchronized static void refreshNotifications(final Notification refreshNotification, final Context context) {
         final List<Notification> handledNotifications
                 = Notification.find(Notification.class, "pending_deletion = ?", "1");
@@ -267,9 +294,11 @@ public class Notification extends SugarRecord<Notification> {
             return NotificationType.REFRESH_NOTIFICATIONS;
         } else if (identifier.equals("DISCOUNT_AVAILABLE")) {
             return NotificationType.DISCOUNT_AVAILABLE;
+        } else if (identifier.equals("REQUEST_SENT")) {
+            return NotificationType.REQUEST_SENT;
         } else {
-            Log.e(TAG, "Notification has no type....; identifier: " + identifier);
-            return null;
+                Log.e(TAG, "Notification has no type....; identifier: " + identifier);
+                return null;
         }
     }
 
@@ -308,8 +337,8 @@ public class Notification extends SugarRecord<Notification> {
                 return new SeshReviewNotificationHandler(this, context); // tested
             case SESH_REVIEW_TUTOR:
                 return new SeshReviewNotificationHandler(this, context); // tested
-            case DISCOUNT_AVAILABLE:
-                return new DiscountAvailableNotificationHandler(this, context);
+            case REQUEST_SENT:
+                return new RequestSentNotificationHandler(this, context);
             default:
                 return new DefaultNotificationHandler(this, context);
         }

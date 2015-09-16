@@ -268,7 +268,7 @@ public class LearnViewFragment extends Fragment implements OnMapReadyCallback {
                 intent.putExtra(BLURRED_MAP_BITMAP_PATH_KEY, tmpFile.getPath());
                 intent.putExtra(CHOSEN_LOCATION_LAT, mMap.getCameraPosition().target.latitude);
                 intent.putExtra(CHOSEN_LOCATION_LONG, mMap.getCameraPosition().target.longitude);
-                getActivity().startActivityForResult(intent, RequestActivity.ENTER_LEARN_REQUEST_FLOW);
+                getActivity().startActivityForResult(intent, RequestActivity.CREATE_LEARN_REQUEST_REQUEST_CODE);
                 getActivity().overridePendingTransition(R.anim.fade_in, 0);
             }
         });
