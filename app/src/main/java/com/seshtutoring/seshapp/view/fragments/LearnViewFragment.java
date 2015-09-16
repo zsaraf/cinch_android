@@ -154,15 +154,17 @@ public class LearnViewFragment extends Fragment implements OnMapReadyCallback {
     private void setCurrentLocationButtonFilled() {
         if (currentLocationButtonFilled) return;
 
-        if (Build.VERSION.SDK_INT < 16) {
-            currentLocationButton.setBackgroundDrawable(getResources()
-                    .getDrawable(R.drawable.jump_to_my_location_filled));
-        } else if (Build.VERSION.SDK_INT < 21) {
-            currentLocationButton.setBackground(getResources()
-                    .getDrawable(R.drawable.jump_to_my_location_filled));
-        } else  {
-            currentLocationButton.setBackground(getResources()
-                    .getDrawable(R.drawable.jump_to_my_location_filled, null));
+        if (isAdded()) {
+            if (Build.VERSION.SDK_INT < 16) {
+                currentLocationButton.setBackgroundDrawable(getResources()
+                        .getDrawable(R.drawable.jump_to_my_location_filled));
+            } else if (Build.VERSION.SDK_INT < 21) {
+                currentLocationButton.setBackground(getResources()
+                        .getDrawable(R.drawable.jump_to_my_location_filled));
+            } else {
+                currentLocationButton.setBackground(getResources()
+                        .getDrawable(R.drawable.jump_to_my_location_filled, null));
+            }
         }
 
         currentLocationButtonFilled = true;
