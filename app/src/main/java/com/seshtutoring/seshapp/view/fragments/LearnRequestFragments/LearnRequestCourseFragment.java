@@ -170,6 +170,8 @@ public class LearnRequestCourseFragment extends SeshViewPager.InputFragment {
     public void onFragmentInForeground() {
         courseEditText.setText("");
         courseEditText.requestEditTextFocus();
+        courseResults.clear();
+        ((CourseResultsAdapter)this.courseResultsListView.getAdapter()).notifyDataSetChanged();
         selectedCourse = null;
         parentActivity.showKeyboard();
         parentActivity.showRequestFlowNextButton();
