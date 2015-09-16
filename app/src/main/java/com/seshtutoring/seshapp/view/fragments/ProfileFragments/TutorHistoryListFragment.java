@@ -27,6 +27,7 @@ import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
 import com.squareup.picasso.Callback;
 
+import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -141,8 +142,8 @@ public class TutorHistoryListFragment extends ListFragment{
             viewHolder.subTextView.setText(item.className);
             String rightText = "cancelled";
             if (!item.wasCancelled) {
-                NumberFormat formatter = NumberFormat.getCurrencyInstance();
-                rightText = formatter.format(item.cost);
+                DecimalFormat df = new DecimalFormat("0.00");
+                rightText = "$" + df.format(item.cost);
             }
             viewHolder.rightTextView.setText(rightText);
 

@@ -22,6 +22,7 @@ import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
 import com.squareup.picasso.Callback;
 
+import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Collections;
 import java.util.List;
@@ -142,8 +143,8 @@ public class ClientHistoryListFragment extends ListFragment{
 
             String rightText = "cancelled";
             if (!item.wasCancelled) {
-                NumberFormat formatter = NumberFormat.getCurrencyInstance();
-                rightText = formatter.format(item.tutorEarnings);
+                DecimalFormat df = new DecimalFormat("0.00");
+                rightText = "$" + df.format(item.tutorEarnings);
                 viewHolder.rightTextView.setTextColor(getResources().getColor(R.color.seshgreen));
             }else {
                 viewHolder.rightTextView.setTextColor(getResources().getColor(R.color.seshlightgray));
