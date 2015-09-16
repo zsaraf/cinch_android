@@ -591,7 +591,9 @@ public class SeshNetworking {
         long thirtyMinutesMillis = 30 * 60 * 1000;
 
         if (learnRequest.isInstant()) {
-            expirationTime = learnRequest.timestamp + thirtyMinutesMillis;
+            if (learnRequest.expirationTime < learnRequest.timestamp) {
+                learnRequest.expirationTime = learnRequest.timestamp + thirtyMinutesMillis;
+            }
         } else {
             for (AvailableBlock block : learnRequest.availableBlocks) {
                 if (block.endTime - expirationTime > 0) {
@@ -614,7 +616,7 @@ public class SeshNetworking {
             params.put(RATE_PARAM, Constants.getHourlyRate(mContext));
             params.put(FAVORITES_PARAM, new ArrayList<>());  // until Favorites implemented....
             params.put(IS_INSTANT_PARAM, learnRequest.isInstant() ? "1" :    "0");
-            params.put(EXPIRATION_TIME_PARAM, formatter.print(new DateTime(expirationTime)));
+            params.put(EXPIRATION_TIME_PARAM, formatter.print(new DateTime(learnRequest.expirationTime)));
 
             if (learnRequest.discount != null) {
                 params.put(DISCOUNT_ID, learnRequest.discount.discountId);

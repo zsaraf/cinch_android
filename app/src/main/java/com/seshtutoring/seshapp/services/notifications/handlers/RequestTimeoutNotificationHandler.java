@@ -26,6 +26,7 @@ import org.joda.time.DateTime;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -140,13 +141,16 @@ public class RequestTimeoutNotificationHandler extends NotificationHandler {
                 seshDialog.setNetworking(true);
 
                 LearnRequest learnRequest = LearnRequest.learnRequestFromPastRequest(pastRequest);
+                learnRequest.timestamp = (new Date()).getTime();
+
+                long oneHourMillis = 60 * 60 * 1000;
 
                 if (oneHourButton.isSelected()) {
-                    learnRequest.createAvailableBlockForNow(1);
+                    learnRequest.expirationTime = learnRequest.timestamp + 1 * oneHourMillis;
                 } else if (threeHoursButton.isSelected()) {
-                    learnRequest.createAvailableBlockForNow(3);
+                    learnRequest.expirationTime = learnRequest.timestamp + 3 * oneHourMillis;
                 } else if (fiveHoursButton.isSelected()) {
-                    learnRequest.createAvailableBlockForNow(5);
+                    learnRequest.expirationTime = learnRequest.timestamp + 5 * oneHourMillis;
                 }
 
                 final Runnable dismissCallback = new Runnable() {
