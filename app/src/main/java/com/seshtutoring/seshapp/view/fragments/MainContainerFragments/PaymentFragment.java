@@ -1,8 +1,10 @@
 package com.seshtutoring.seshapp.view.fragments.MainContainerFragments;
 
 //import android.app.DialogFragment;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Typeface;
 import android.support.v4.app.ListFragment;
 import android.os.Bundle;
@@ -29,6 +31,7 @@ import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.AddCardActivity;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
 import com.seshtutoring.seshapp.view.MainContainerActivity.FragmentOptionsReceiver;
+import com.seshtutoring.seshapp.view.MessagingActivity;
 import com.seshtutoring.seshapp.view.components.PaymentListItem;
 import com.seshtutoring.seshapp.view.components.PaymentMenuAdapter;
 import com.seshtutoring.seshapp.view.components.SeshDialog;
@@ -57,6 +60,7 @@ public class PaymentFragment extends ListFragment implements FragmentOptionsRece
     private TextView editText;
     private SeshNetworking seshNetworking;
     private SeshDialog confirmDialog;
+    private BroadcastReceiver broadcastReceiver;
 
     private Map<String, Object> options;
 
@@ -273,6 +277,30 @@ public class PaymentFragment extends ListFragment implements FragmentOptionsRece
         }
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        broadcastReceiver = actionBroadcastReceiver;
+        // Listen for new messages
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(MainContainerActivity.REFRESH_USER_INFO);
+        this.getActivity().registerReceiver(broadcastReceiver, intentFilter);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        this.getActivity().unregisterReceiver(broadcastReceiver);
+    }
+
+
+    private BroadcastReceiver actionBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            refreshCards();
+        }
+    };
 
     private void showErrorDialog(String title, String message) {
         SeshDialog.showDialog(getActivity().getFragmentManager(), title, message,
