@@ -29,6 +29,7 @@ import com.seshtutoring.seshapp.view.components.SeshInformationLabel;
 import com.seshtutoring.seshapp.view.fragments.LearnViewFragment;
 
 import org.joda.time.DateTime;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.List;
@@ -123,27 +124,42 @@ public class ViewSeshSetTimeActivity extends SeshActivity {
         seshNetworking.setSetTime(sesh.seshId, dateTime, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject jsonObject) {
-                sesh.seshSetTime = dateTime.getMillis();
-                sesh.save();
-                onBackPressed();
+                try {
+                    if (jsonObject.getString("status").equals("SUCCESS")) {
+                        sesh.seshSetTime = dateTime.getMillis();
+                        sesh.save();
+                        onBackPressed();
+                    } else {
+                        displayErrorDialog("Error!", jsonObject.getString("message"));
+                    }
+                } catch (JSONException e) {
+                    displayErrorDialog("Network Error!", "Try again later!");
+                    e.printStackTrace();
+                }
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError volleyError) {
-                final SeshDialog seshDialog = new SeshDialog();
-                seshDialog.setTitle("Network Error!");
-                seshDialog.setMessage("We can't connect to the network! Try again!");
-                seshDialog.setDialogType(SeshDialog.SeshDialogType.ONE_BUTTON);
-                seshDialog.setFirstChoice("OKAY");
-                seshDialog.setFirstButtonClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        setNetworking(false);
-                        seshDialog.dismiss();
-                    }
-                });
+                displayErrorDialog("Network Error!", "We can't connect to the network! Try again!");
             }
         });
+    }
+
+    private void displayErrorDialog(String title, String message) {
+        setNetworking(false);
+        final SeshDialog seshDialog = new SeshDialog();
+        seshDialog.setTitle("Network Error!");
+        seshDialog.setMessage("We can't connect to the network! Try again!");
+        seshDialog.setDialogType(SeshDialog.SeshDialogType.ONE_BUTTON);
+        seshDialog.setFirstChoice("OKAY");
+        seshDialog.setFirstButtonClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setNetworking(false);
+                seshDialog.dismiss();
+            }
+        });
+        seshDialog.show(getFragmentManager(), "kjnfkje");
     }
 
     private void setNetworking(Boolean networking) {

@@ -35,6 +35,14 @@
             android:textColor="@color/seshorange"
             android:textSize="20dp"
             android:text="Set Time"/>
+
+        <com.seshtutoring.seshapp.view.components.SeshActivityIndicator
+            android:id="@+id/set_time_activity_indicator"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
+            android:alpha="0"/>
     </RelativeLayout>
 
     <com.seshtutoring.seshapp.view.components.SeshEditText
@@ -65,12 +73,6 @@
         custom:informationLabelText="default"
         custom:informationLabelIcon="@drawable/calendar_unfilled"
         custom:textColor="@color/white"/>
-    <com.seshtutoring.seshapp.view.components.SeshActivityIndicator
-        android:id="@+id/set_time_activity_indicator"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_centerInParent="true"
-        android:alpha="0"/>
     </RelativeLayout>
 
     <com.seshtutoring.seshapp.view.components.SeshDatePicker
