@@ -11,6 +11,7 @@ import android.location.Criteria;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.Settings;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -53,6 +54,7 @@ import com.seshtutoring.seshapp.model.AvailableBlock;
 import com.seshtutoring.seshapp.model.LearnRequest;
 import com.seshtutoring.seshapp.model.Notification;
 import com.seshtutoring.seshapp.model.OutstandingCharge;
+import com.seshtutoring.seshapp.model.Sesh;
 import com.seshtutoring.seshapp.util.LocationManager;
 import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.util.StorageUtils;
@@ -155,7 +157,7 @@ public class LearnViewFragment extends Fragment implements OnMapReadyCallback {
                     .getDrawable(R.drawable.jump_to_my_location_filled));
         } else  {
             currentLocationButton.setBackground(getResources()
-                    .getDrawable(R.drawable.jump_to_my_location_filled));
+                    .getDrawable(R.drawable.jump_to_my_location_filled, null));
         }
 
         currentLocationButtonFilled = true;
@@ -172,7 +174,7 @@ public class LearnViewFragment extends Fragment implements OnMapReadyCallback {
                     .getDrawable(R.drawable.jump_to_my_location));
         } else  {
             currentLocationButton.setBackground(getResources()
-                    .getDrawable(R.drawable.jump_to_my_location));
+                    .getDrawable(R.drawable.jump_to_my_location, null));
         }
 
         currentLocationButtonFilled = false;
@@ -342,8 +344,9 @@ public class LearnViewFragment extends Fragment implements OnMapReadyCallback {
      * Blocking SQL call that determines if an instant request is already open
      * @return Boolean instantRequestExists
      */
-    private Boolean instantRequestAlreadyExists() {
-        return LearnRequest.find(LearnRequest.class, "is_instant = ?", "1").size() > 0;
+    private Boolean instantRequestOrSeshAlreadyExists() {
+        return LearnRequest.find(LearnRequest.class, "is_instant = ?", "1").size() > 0 ||
+                Sesh.find(Sesh.class, "is_student = ?", "1").size() > 0;
     }
 
     /**
@@ -351,16 +354,24 @@ public class LearnViewFragment extends Fragment implements OnMapReadyCallback {
      */
     private class StartRequestActivityAsyncTask extends AsyncTask<Void, Void, Boolean> {
         public Boolean doInBackground(Void... params) {
-            return instantRequestAlreadyExists();
+            return instantRequestOrSeshAlreadyExists();
         }
 
         public void onPostExecute(Boolean instantRequestExists) {
             if (instantRequestExists) {
-                SeshDialog.showDialog(getActivity().getFragmentManager(), "Whoops!", "You can't have multiple requests out" +
-                        " at once!  Cancel your current request if you wish to create a new Sesh request",
+                SeshDialog.showDialog(getActivity().getFragmentManager(), "Whoops!", "You can't have multiple requests or Seshes out" +
+                        " at once!  Cancel your current request or Sesh if you wish to create a new Sesh request",
                         "OKAY", null, "only_one_instant");
             } else {
+                requestButton.setEnabled(false);
                 startRequestActivityWithBlurTransition();
+                Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                       requestButton.setEnabled(true);
+                    }
+                }, 3000);
             }
         }
     }
