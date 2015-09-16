@@ -2,12 +2,14 @@ package com.seshtutoring.seshapp.view.fragments.ProfileFragments;
 
 import android.app.ListFragment;
 import android.content.Context;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.seshtutoring.seshapp.R;
@@ -37,22 +39,48 @@ public class ClientHistoryListFragment extends ListFragment{
     private MainContainerActivity mainContainerActivity;
     private User user;
 
+    private Typeface boldTypeFace;
+    private TextView emptyTextView;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
+
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
 
-        this.list = (ListView) layoutInflater.inflate(R.layout.profile_list_view, null);
+        RelativeLayout view = (RelativeLayout) layoutInflater.inflate(R.layout.profile_list_view, null);
+
+        return view;
+
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
 
         mainContainerActivity = (MainContainerActivity) getActivity();
+        boldTypeFace = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Gotham-Book.otf");
+
+        emptyTextView = (TextView) this.getView().findViewById(R.id.list_empty_text);
+        emptyTextView.setTypeface(boldTypeFace);
+
+        this.seshNetworking = new SeshNetworking(getActivity());
+
         this.user = User.currentUser(mainContainerActivity.getApplicationContext());
         this.seshNetworking = new SeshNetworking(mainContainerActivity);
+
+        String emptyStr = "you haven't tutored any seshes yet - try picking up a request today!";
+        if (user.tutor == null || !user.tutor.enabled) {
+            emptyStr = "you're not registered as a tutor yet, sign up at seshtutoring.com!";
+        }
+        emptyTextView.setText(emptyStr);
 
         this.pastSeshes = PastSesh.listAll(PastSesh.class);
         filterPastSeshesForTutor();
 
         this.tutorHistoryAdapter = new TutorHistoryAdapter(getActivity(), pastSeshes);
-        this.list.setAdapter(tutorHistoryAdapter);
-
-        return this.list;
-
+        getListView().setAdapter(tutorHistoryAdapter);
     }
 
     private void filterPastSeshesForTutor() {
@@ -115,7 +143,7 @@ public class ClientHistoryListFragment extends ListFragment{
             String rightText = "cancelled";
             if (!item.wasCancelled) {
                 NumberFormat formatter = NumberFormat.getCurrencyInstance();
-                rightText = formatter.format(item.cost);
+                rightText = formatter.format(item.tutorEarnings);
                 viewHolder.rightTextView.setTextColor(getResources().getColor(R.color.seshgreen));
             }else {
                 viewHolder.rightTextView.setTextColor(getResources().getColor(R.color.seshlightgray));

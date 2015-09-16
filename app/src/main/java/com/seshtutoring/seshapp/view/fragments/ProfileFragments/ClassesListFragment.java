@@ -2,12 +2,14 @@ package com.seshtutoring.seshapp.view.fragments.ProfileFragments;
 
 import android.app.ListFragment;
 import android.content.Context;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.android.volley.Response;
@@ -37,18 +39,43 @@ public class ClassesListFragment extends ListFragment {
     private MainContainerActivity mainContainerActivity;
     private User user;
     private ArrayList<Course> tutorCourses;
+    private TextView emptyTextView;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
 
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
 
-        this.list = (ListView) layoutInflater.inflate(R.layout.profile_list_view, null);
+        RelativeLayout view = (RelativeLayout) layoutInflater.inflate(R.layout.profile_list_view, null);
+
+        return view;
+
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
 
         mainContainerActivity = (MainContainerActivity) getActivity();
         this.user = User.currentUser(mainContainerActivity.getApplicationContext());
         this.seshNetworking = new SeshNetworking(mainContainerActivity);
 
+        Typeface boldTypeFace = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Gotham-Book.otf");
+
+        emptyTextView = (TextView) this.getView().findViewById(R.id.list_empty_text);
+        emptyTextView.setTypeface(boldTypeFace);
+
+        String emptyStr = "you're not registered to tutor any classes yet - add some classes at seshtutoring.com!";
+        if (user.tutor == null || !user.tutor.enabled) {
+            emptyStr = "you're not registered as a tutor yet, sign up at seshtutoring.com!";
+        }
+        emptyTextView.setText(emptyStr);
+
         this.tutorCourses = new ArrayList<Course>();
         this.classesAdapter = new ClassListAdapter(getActivity(), tutorCourses);
-        this.list.setAdapter(this.classesAdapter);
+        getListView().setAdapter(this.classesAdapter);
 
         //get courses from server
         seshNetworking.getTutorCourses(new Response.Listener<JSONObject>() {
@@ -73,9 +100,6 @@ public class ClassesListFragment extends ListFragment {
 //                Log.e(TAG, volleyError.getMessage());
             }
         });
-
-        return this.list;
-
     }
 
     public class ClassListAdapter extends ArrayAdapter<Course> {
