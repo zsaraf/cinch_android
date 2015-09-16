@@ -2,6 +2,7 @@ package com.seshtutoring.seshapp.view;
 
 import android.app.ActionBar;
 import android.app.AlarmManager;
+import android.app.Application;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.os.Looper;
@@ -98,6 +99,7 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
     public static final String NEW_MESSAGE_ACTION = "new_message";
     public static final String REFRESH_PROFILE = "refresh_profile";
     public static final String REFRESH_JOBS = "refresh_jobs";
+    public static final String REFRESH_USER_INFO = "refresh_user_info";
     public static final String FOUND_TUTOR_ACTION = "com.seshtutoring.seshapp.FOUND_TUTOR";
 
     /**
@@ -116,6 +118,7 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
     private RelativeLayout editButton;
     private MainContainerStateManager containerStateManager;
     private CallbackManager fbCallbackManager;
+    private ApplicationLifecycleTracker tracker;
 
     private final Fragment loadingFragment = new LoadingFragment();
 
@@ -232,6 +235,37 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
                     slidingMenu.toggle(true);
                 }
                 return true;
+            }
+        });
+
+        ApplicationLifecycleTracker.sharedInstance(this).setApplicationLifecycleCallback(new ApplicationLifecycleTracker.ApplicationLifecycleCallback() {
+            @Override
+            public void applicationDidEnterForeground() {
+                SeshNetworking seshNetworking = new SeshNetworking(getApplicationContext());
+                seshNetworking.getFullUserInfo(new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject jsonObject) {
+                        try {
+                            if (jsonObject.getString("status").equals("SUCCESS")) {
+                                Context context = getApplicationContext();
+                                User.createOrUpdateUserWithObject(jsonObject.getJSONObject("data"), context);
+                                context.sendBroadcast(new Intent(MainContainerActivity.REFRESH_USER_INFO));
+                            }
+                        } catch (JSONException e) {
+
+                        }
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError volleyError) {
+
+                    }
+                });
+            }
+
+            @Override
+            public void applicationWillEnterBackground() {
+
             }
         });
     }

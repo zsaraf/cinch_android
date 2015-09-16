@@ -182,8 +182,8 @@ public class MessagingActivity extends SeshActivity implements View.OnClickListe
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
+    public void onResume() {
+        super.onResume();
 
         // Listen for new messages
         IntentFilter intentFilter = new IntentFilter();

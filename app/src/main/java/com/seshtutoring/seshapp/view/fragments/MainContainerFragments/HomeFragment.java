@@ -1,8 +1,10 @@
 package com.seshtutoring.seshapp.view.fragments.MainContainerFragments;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.os.Handler;
 import android.os.Parcelable;
@@ -26,6 +28,7 @@ import com.seshtutoring.seshapp.model.Notification;
 import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
+import com.seshtutoring.seshapp.view.MessagingActivity;
 import com.seshtutoring.seshapp.view.RequestActivity;
 import com.seshtutoring.seshapp.view.TutorTermsActivity;
 import com.seshtutoring.seshapp.view.components.SeshDialog;
@@ -60,6 +63,7 @@ public class HomeFragment extends Fragment implements FragmentOptionsReceiver {
     private Button teachTabButton;
     private TabItem currTabItem;
     private LinearLayout tabButtons;
+    private BroadcastReceiver broadcastReceiver;
 
     private Map<String, Object> options;
 
@@ -173,7 +177,20 @@ public class HomeFragment extends Fragment implements FragmentOptionsReceiver {
             Log.d(TAG, "Fragment flag worked");
             // show available jobs view
         }
+
+        broadcastReceiver = actionBroadcastReceiver;
+        // Listen for new messages
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(MainContainerActivity.REFRESH_USER_INFO);
+        this.getActivity().registerReceiver(broadcastReceiver, intentFilter);
     }
+
+    private BroadcastReceiver actionBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+        }
+    };
 
     private class HomeViewPagerAdapter extends FragmentStatePagerAdapter {
         private static final int NUM_TABS = 2;
@@ -274,6 +291,7 @@ public class HomeFragment extends Fragment implements FragmentOptionsReceiver {
                 viewJobsFragment.stopRepeatingTask();
             }
         }
+        this.getActivity().unregisterReceiver(broadcastReceiver);
     }
 
     public void mapViewReady() {
