@@ -17,6 +17,8 @@ import android.widget.TextView;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.seshtutoring.seshapp.R;
+import com.seshtutoring.seshapp.model.PastSesh;
+import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.util.SoftKeyboard;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
@@ -26,6 +28,8 @@ import com.seshtutoring.seshapp.view.components.SeshDialog;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.List;
 
 /**
  * Created by franzwarning on 8/26/15.
@@ -47,6 +51,7 @@ public class ReportProblemActivity extends SeshActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.report_problem_activity);
+        User user = User.currentUser(this);
 
         // Set the shite
         this.uhoh = (TextView)findViewById(R.id.textView);
@@ -65,6 +70,17 @@ public class ReportProblemActivity extends SeshActivity {
 
         Bundle b = getIntent().getExtras();
         final int pastSeshId = b.getInt(PAST_SESH_ID);
+
+        //change text depending on whether user is tutor or student
+        List<PastSesh> pastSesh = PastSesh.find(PastSesh.class, "past_sesh_id = ?", Integer.toString(pastSeshId));
+        if (pastSesh.size() == 1 && pastSesh.get(0).tutorUserId == user.userId) {
+            //is tutor
+            this.description.setText(R.string.tutor_report_problem);
+        }else if (pastSesh.size() == 1) {
+            //is student
+            this.description.setText(R.string.student_report_problem);
+        }
+
 
         this.submitButton = (SeshButton) findViewById(R.id.submit_button);
         this.submitButton.setOnClickListener(new View.OnClickListener() {

@@ -29,6 +29,8 @@
 
     <string name="messaging_activity">MessagingActivity</string>
 
+    <string name="student_report_problem">Providing great tutors is our number one concern. Please let us know about any problems you may have experienced during your Sesh. Your comments will not be seen by the tutor.</string>
+    <string name="tutor_report_problem">We value our tutors and want to continue to improve your experience. Please let us know about any problems you may have experienced during your Sesh. Your comments will not be seen by the student.</string>
 
     <string name="view_classes_on_text">close to view available jobs</string>
     <string name="view_classes_off_text">tap to view eligible courses</string>
