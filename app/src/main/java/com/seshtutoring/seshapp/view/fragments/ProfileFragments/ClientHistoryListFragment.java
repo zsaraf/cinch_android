@@ -21,6 +21,7 @@ import com.seshtutoring.seshapp.view.MainContainerActivity;
 import com.squareup.picasso.Callback;
 
 import java.text.NumberFormat;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -62,6 +63,7 @@ public class ClientHistoryListFragment extends ListFragment{
                 i--;
             }
         }
+        Collections.reverse(pastSeshes);
     }
 
     private class ViewHolder {
