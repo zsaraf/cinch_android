@@ -99,7 +99,7 @@ public class AvailableJob extends SugarRecord<AvailableJob> {
             maxTimeVal = json.getDouble(MAX_TIME_KEY)/60;
             requestIdVal = json.getInt(REQUEST_ID_KEY);
             rateVal = json.getDouble(RATE_KEY);
-            courseVal = Course.fromClassRowJson(json.getJSONObject(CLASS_KEY));
+            courseVal = Course.createOrUpdateCourseWithJSON(json.getJSONObject(CLASS_KEY), null, true);
             isInstantVal = json.getInt(IS_INSTANT_KEY) == 1 ? true : false;
 
             if (AvailableJob.listAll(AvailableJob.class).size() > 0) {

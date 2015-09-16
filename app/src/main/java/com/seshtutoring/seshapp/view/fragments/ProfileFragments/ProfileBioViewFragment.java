@@ -1,6 +1,9 @@
 package com.seshtutoring.seshapp.view.fragments.ProfileFragments;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -29,6 +32,11 @@ public class ProfileBioViewFragment extends Fragment implements MainContainerAct
     private Map<String, Object> options;
     private User user;
     private MainContainerActivity mainContainerActivity;
+    private SeshIconTextView schoolView;
+    private SeshIconTextView emailView;
+    private SeshIconTextView majorView;
+    private TextView bioView;
+    private BroadcastReceiver broadcastReceiver;
 
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
 
@@ -37,10 +45,10 @@ public class ProfileBioViewFragment extends Fragment implements MainContainerAct
         mainContainerActivity = (MainContainerActivity) getActivity();
         user = User.currentUser(mainContainerActivity.getApplicationContext());
 
-        SeshIconTextView schoolView = (SeshIconTextView) v.findViewById(R.id.school_name);
-        SeshIconTextView emailView = (SeshIconTextView) v.findViewById(R.id.email);
-        SeshIconTextView majorView = (SeshIconTextView) v.findViewById(R.id.major);
-        TextView bioView = (TextView) v.findViewById(R.id.bio);
+        schoolView = (SeshIconTextView) v.findViewById(R.id.school_name);
+        emailView = (SeshIconTextView) v.findViewById(R.id.email);
+        majorView = (SeshIconTextView) v.findViewById(R.id.major);
+        bioView = (TextView) v.findViewById(R.id.bio);
         TextView editButton = (TextView) v.findViewById(R.id.edit_button);
         editButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -53,10 +61,51 @@ public class ProfileBioViewFragment extends Fragment implements MainContainerAct
             }
         });
 
-        schoolView.setText(user.school.schoolName);
         schoolView.setIconResourceId(R.drawable.university_big);
-        emailView.setText(user.email);
         emailView.setIconResourceId(R.drawable.email_icon);
+        majorView.setIconResourceId(R.drawable.book_orange);
+
+        refreshBioViewWithUser(user);
+
+        broadcastReceiver = actionBroadcastReceiver;
+
+
+        return v;
+
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        // Listen for new messages
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(MainContainerActivity.REFRESH_USER_INFO);
+        this.mainContainerActivity.registerReceiver(broadcastReceiver, intentFilter);
+
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        this.mainContainerActivity.unregisterReceiver(broadcastReceiver);
+    }
+
+
+    private BroadcastReceiver actionBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            User currentUser = User.currentUser(context);
+            refreshBioViewWithUser(currentUser);
+        }
+    };
+
+    public void refreshBioViewWithUser(User user) {
+        this.user = user;
+
+        emailView.setText(user.email);
+        schoolView.setText(user.school.schoolName);
+
 
         String major = "edit profile to add major";
         if (user.major != null && !user.major.isEmpty()) {
@@ -66,7 +115,6 @@ public class ProfileBioViewFragment extends Fragment implements MainContainerAct
             majorView.setTextColor(getResources().getColor(R.color.light_gray));
         }
         majorView.setText(major);
-        majorView.setIconResourceId(R.drawable.book_orange);
 
         String bio = "edit profile to add bio";
         if (user.bio != null && !user.bio.isEmpty()) {
@@ -77,7 +125,7 @@ public class ProfileBioViewFragment extends Fragment implements MainContainerAct
         }
         bioView.setText(bio);
 
-        return v;
+
 
     }
 

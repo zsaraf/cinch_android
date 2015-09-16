@@ -107,7 +107,6 @@ public class ProfileFragment extends Fragment implements FragmentOptionsReceiver
     private View homeView;
     private ViewPager viewPager;
     private ImageView viewPagerDots;
-    private SeshNetworking seshNetworking;
     private ProfileBioViewFragment profileBioViewFragment;
     private ProfileStudentViewFragment profileStudentViewFragment;
     private ProfileTutorViewFragment profileTutorViewFragment;
@@ -123,6 +122,7 @@ public class ProfileFragment extends Fragment implements FragmentOptionsReceiver
     private Spring spring;
     private boolean cardIsUp;
     private BroadcastReceiver broadcastReceiver;
+    private SeshNetworking seshNetworking;
 
     private CallbackManager callbackManager;
     private String selectedImagePath;
@@ -182,7 +182,7 @@ public class ProfileFragment extends Fragment implements FragmentOptionsReceiver
         });
 
         this.profilePicture = (CircleImageView)this.homeView.findViewById(R.id.profile_picture);
-        SeshNetworking seshNetworking = new SeshNetworking(mainContainerActivity);
+        seshNetworking = new SeshNetworking(mainContainerActivity);
         seshNetworking.downloadProfilePictureAsync(user.profilePictureUrl, this.profilePicture, new Callback() {
             @Override
             public void onSuccess() {
@@ -260,6 +260,8 @@ public class ProfileFragment extends Fragment implements FragmentOptionsReceiver
 
         isCompleted = false;
         cardIsUp = false;
+
+        broadcastReceiver = actionBroadcastReceiver;
 
         return this.homeView;
 
@@ -408,19 +410,23 @@ public class ProfileFragment extends Fragment implements FragmentOptionsReceiver
     private class ProfileViewPagerAdapter extends FragmentStatePagerAdapter {
         private static final int NUM_TABS = 3;
         public ProfileTutorViewFragment tutorViewFragment;
+        public ProfileStudentViewFragment studentViewFragment;
+        public ProfileBioViewFragment bioViewFragment;
 
         public ProfileViewPagerAdapter(FragmentManager fm) {
             super(fm);
+            bioViewFragment =  new ProfileBioViewFragment();
+            studentViewFragment = new ProfileStudentViewFragment();
+            tutorViewFragment = new ProfileTutorViewFragment();
         }
 
         @Override
         public Fragment getItem(int position) {
             if (position == 0) {
-                return new ProfileBioViewFragment();
+                return bioViewFragment;
             }else if (position == 1) {
-                return new ProfileStudentViewFragment();
+                return studentViewFragment;
             }else {
-                tutorViewFragment = new ProfileTutorViewFragment();
                 return tutorViewFragment;
             }
         }
@@ -442,10 +448,10 @@ public class ProfileFragment extends Fragment implements FragmentOptionsReceiver
         super.onResume();
         ((MainContainerActivity)getActivity()).onFragmentReplacedAndRendered();
 
-        broadcastReceiver = actionBroadcastReceiver;
         // Listen for new messages
         IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(MainContainerActivity.REFRESH_PROFILE);
+        intentFilter.addAction(MainContainerActivity.REFRESH_USER_INFO);
+
         this.getActivity().registerReceiver(broadcastReceiver, intentFilter);
 
     }
@@ -456,12 +462,29 @@ public class ProfileFragment extends Fragment implements FragmentOptionsReceiver
         this.getActivity().unregisterReceiver(broadcastReceiver);
     }
 
+    private void refreshProfilePictureWithUser(User currentUser) {
+        boolean needsRefreshing = !currentUser.profilePictureUrl.equals(user.profilePictureUrl);
+        this.user = currentUser;
+        if (needsRefreshing) {
+            seshNetworking.downloadProfilePictureAsync(user.profilePictureUrl, this.profilePicture, new Callback() {
+                @Override
+                public void onSuccess() {
+
+                }
+
+                @Override
+                public void onError() {
+
+                }
+            });
+        }
+    }
 
     private BroadcastReceiver actionBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            ProfileViewPagerAdapter pf = (ProfileViewPagerAdapter)viewPager.getAdapter();
-            pf.tutorViewFragment.refreshTutorCredits();
+            User currentUser = User.currentUser(getActivity());
+            refreshProfilePictureWithUser(currentUser);
         }
     };
 

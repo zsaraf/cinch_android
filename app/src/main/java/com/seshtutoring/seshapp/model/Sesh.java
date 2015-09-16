@@ -165,12 +165,10 @@ public class Sesh extends SugarRecord<Sesh> {
 
             if (seshJson.get(MESSAGES_KEY) != null) {
                 JSONArray messagesJSON = seshJson.getJSONArray(MESSAGES_KEY);
-                List<Message> messages = new ArrayList<>();
                 for (int i = 0; i < messagesJSON.length(); i++) {
                     JSONObject messageJSON = messagesJSON.getJSONObject(i);
                     Message message = Message.createOrUpdateMessageWithJSON(messageJSON, sesh, context);
                     message.save();
-                    messages.add(message);
                 }
                 sesh.save();
             }

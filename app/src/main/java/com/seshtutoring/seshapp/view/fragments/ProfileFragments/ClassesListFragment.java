@@ -33,13 +33,12 @@ import java.util.List;
 public class ClassesListFragment extends ListFragment {
 
 
-    private ListView list;
     private ClassListAdapter classesAdapter;
     private SeshNetworking seshNetworking;
     private MainContainerActivity mainContainerActivity;
     private User user;
-    private ArrayList<Course> tutorCourses;
     private TextView emptyTextView;
+    private List<Course> tutorCourses;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -73,34 +72,24 @@ public class ClassesListFragment extends ListFragment {
         }
         emptyTextView.setText(emptyStr);
 
-        this.tutorCourses = new ArrayList<Course>();
+        this.tutorCourses = new ArrayList<>();
         this.classesAdapter = new ClassListAdapter(getActivity(), tutorCourses);
         getListView().setAdapter(this.classesAdapter);
 
-        //get courses from server
-        seshNetworking.getTutorCourses(new Response.Listener<JSONObject>() {
-            public void onResponse(JSONObject jsonResponse) {
-                try {
-                    if (jsonResponse.get("status").equals("SUCCESS")) {
-                        tutorCourses.clear();
-                        JSONArray tutorCoursesArrayJson = jsonResponse.getJSONArray("classes");
-                        for (int i = 0; i < tutorCoursesArrayJson.length(); i++) {
-                            tutorCourses.add(Course.fromJson(tutorCoursesArrayJson.getJSONObject(i)));
-                        }
-                        classesAdapter.notifyDataSetChanged();
-                    } else {
-//                        Log.e(TAG, jsonResponse.getString("message"));
-                    }
-                } catch (JSONException e) {
-//                    Log.e(TAG, e.getMessage());
-                }
-            }
-        }, new Response.ErrorListener() {
-            public void onErrorResponse(VolleyError volleyError) {
-//                Log.e(TAG, volleyError.getMessage());
-            }
-        });
+        refreshListWithUser(this.user);
+
     }
+
+    public void refreshListWithUser(User user) {
+        if (this.classesAdapter != null) {
+            this.classesAdapter.clear();
+            this.tutorCourses = user.tutor.getCourses();
+            this.classesAdapter.addAll(this.tutorCourses);
+            this.classesAdapter.notifyDataSetChanged();
+        }
+
+    }
+
 
     public class ClassListAdapter extends ArrayAdapter<Course> {
 

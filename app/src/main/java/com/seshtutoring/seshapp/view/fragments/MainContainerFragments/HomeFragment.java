@@ -183,11 +183,6 @@ public class HomeFragment extends Fragment implements FragmentOptionsReceiver {
             /* Handle tutor enabled */
             ((HomeViewPagerAdapter)HomeFragment.this.viewPager.getAdapter()).setTutorEnabled(User.currentUser(getActivity()).tutor.enabled);
 
-            /* Handle refresh tutor classes */
-            if (((HomeViewPagerAdapter) HomeFragment.this.viewPager.getAdapter()).teachViewFragment != null) {
-                ((HomeViewPagerAdapter) HomeFragment.this.viewPager.getAdapter()).teachViewFragment.refreshClasses();
-            }
-
             /* Handle tutor terms */
             if (User.currentUser(getActivity()).tutor.enabled == true &&
                     User.currentUser(getActivity()).tutor.didAcceptTerms == false) {

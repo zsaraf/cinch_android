@@ -4,6 +4,10 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.opengl.Visibility;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -18,6 +22,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.seshtutoring.seshapp.R;
+import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
 import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.ViewAvailableJobsFragment;
@@ -43,6 +48,7 @@ public class TeachViewFragment extends Fragment {
     private View viewClassesButton;
     private View tintView;
     private ViewClassesView viewClassesView;
+    private BroadcastReceiver broadcastReceiver;
 
     private static final float TINT_VIEW_ALPHA = .8f;
 
@@ -83,8 +89,35 @@ public class TeachViewFragment extends Fragment {
         classesButtonText.setText(R.string.view_classes_off_text);
         setCurrentView();
 
+        broadcastReceiver = actionBroadcastReceiver;
+
         return view;
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        // Listen for new messages
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(MainContainerActivity.REFRESH_USER_INFO);
+        this.getActivity().registerReceiver(broadcastReceiver, intentFilter);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        this.getActivity().unregisterReceiver(broadcastReceiver);
+    }
+
+
+    private BroadcastReceiver actionBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            User currentUser = User.currentUser(context);
+            viewClassesView.refreshClassesViewWithUser(currentUser);
+        }
+    };
 
     private void toggleViewClasses() {
 
@@ -165,10 +198,6 @@ public class TeachViewFragment extends Fragment {
                     .replace(R.id.tutor_view_frame, new ViewAvailableJobsFragment())
                     .commit();
 
-    }
-
-    public void refreshClasses() {
-        viewClassesView.refreshClasses();
     }
 
 }

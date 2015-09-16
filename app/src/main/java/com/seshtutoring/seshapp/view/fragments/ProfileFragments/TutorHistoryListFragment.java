@@ -38,7 +38,6 @@ import java.util.List;
  */
 public class TutorHistoryListFragment extends ListFragment{
 
-    private ListView list;
     private List<PastSesh> pastSeshes;
     private TutorHistoryAdapter tutorHistoryAdapter;
     private SeshNetworking seshNetworking;
@@ -81,7 +80,17 @@ public class TutorHistoryListFragment extends ListFragment{
         filterPastSeshesForStudent();
 
         this.tutorHistoryAdapter = new TutorHistoryAdapter(getActivity(), pastSeshes);
+
         getListView().setAdapter(tutorHistoryAdapter);
+
+    }
+
+    public void refreshListWithUser(User user) {
+        this.tutorHistoryAdapter.clear();
+        this.pastSeshes = PastSesh.listAll(PastSesh.class);
+        filterPastSeshesForStudent();
+        this.tutorHistoryAdapter.addAll(this.pastSeshes);
+        this.tutorHistoryAdapter.notifyDataSetChanged();
     }
 
     private void filterPastSeshesForStudent() {

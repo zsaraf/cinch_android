@@ -67,5 +67,6 @@ public class StorageUtils {
         Student.deleteAll(Student.class);
         Tutor.deleteAll(Tutor.class);
         User.deleteAll(User.class);
+        Course.deleteAll(Course.class);
     }
 }

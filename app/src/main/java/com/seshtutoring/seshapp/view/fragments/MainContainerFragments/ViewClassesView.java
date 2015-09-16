@@ -23,6 +23,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.Course;
+import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
@@ -34,6 +35,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 
 /**
  * Created by lillioetting on 7/14/15.
@@ -47,6 +49,7 @@ public class ViewClassesView extends RelativeLayout {
     private ViewClassesAdapter classesAdapter;
     private SeshNetworking seshNetworking;
     private Context mContext;
+    private User user;
 
     private class CourseHolder {
 
@@ -78,12 +81,12 @@ public class ViewClassesView extends RelativeLayout {
         this.seshNetworking = new SeshNetworking(mContext);
 
         this.tutorCourses = new ArrayList<CourseHolder>();
-        //adds edit classes button
-        tutorCourses.add(new CourseHolder(null, 2));
+
         this.classesAdapter = new ViewClassesAdapter(mContext, tutorCourses);
         menu.setAdapter(classesAdapter);
 
-        refreshClasses();
+        this.user = User.currentUser(mContext);
+        refreshClassesViewWithUser(user);
 
         menu.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view,
@@ -104,40 +107,15 @@ public class ViewClassesView extends RelativeLayout {
         });
     }
 
-
-    public void refreshClasses() {
-        //get courses from server
-        seshNetworking.getTutorCourses(new Response.Listener<JSONObject>() {
-            public void onResponse(JSONObject jsonResponse) {
-                try {
-                    if (jsonResponse.get("status").equals("SUCCESS")) {
-                        tutorCourses.clear();
-                        JSONArray tutorCoursesArrayJson = jsonResponse.getJSONArray("classes");
-                        for (int i = 0; i < tutorCoursesArrayJson.length(); i++) {
-                            CourseHolder courseHolder = new CourseHolder(Course.fromJson(tutorCoursesArrayJson.getJSONObject(i)), 1);
-                            tutorCourses.add(courseHolder);
-                        }
-                        Collections.sort(tutorCourses, new Comparator<CourseHolder>() {
-                            @Override
-                            public int compare(CourseHolder lhs, CourseHolder rhs) {
-                                return lhs.course.className.compareTo(rhs.course.className);
-                            }
-                        });
-                        //adds edit classes button
-                        tutorCourses.add(new CourseHolder(null, 2));
-                        classesAdapter.notifyDataSetChanged();
-                    } else {
-                        Log.e(TAG, jsonResponse.getString("message"));
-                    }
-                } catch (JSONException e) {
-                    Log.e(TAG, e.getMessage());
-                }
-            }
-        }, new Response.ErrorListener() {
-            public void onErrorResponse(VolleyError volleyError) {
-                Log.e(TAG, volleyError.getMessage());
-            }
-        });
+    public void refreshClassesViewWithUser(User user) {
+        this.tutorCourses.clear();
+        this.tutorCourses.add(new CourseHolder(null, 2));
+        List<Course> tutorCourses = user.tutor.getCourses();
+        for (int i = 0; i < tutorCourses.size(); i++) {
+            Course course = tutorCourses.get(i);
+            this.tutorCourses.add(new CourseHolder(course, 1));
+        }
+        this.classesAdapter.notifyDataSetChanged();
     }
 
     private class ViewHolder {

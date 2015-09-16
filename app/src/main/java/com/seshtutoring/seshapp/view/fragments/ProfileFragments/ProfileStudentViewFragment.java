@@ -1,5 +1,9 @@
 package com.seshtutoring.seshapp.view.fragments.ProfileFragments;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
@@ -27,6 +31,10 @@ public class ProfileStudentViewFragment extends Fragment implements MainContaine
     private View listViewFrame;
     private SeshNetworking seshNetworking;
     private MainContainerActivity mainContainerActivity;
+    private TextView hoursLearnedView;
+    private TextView creditsView;
+    private TutorHistoryListFragment tutorHistoryListFragment;
+    private BroadcastReceiver broadcastReceiver;
 
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
 
@@ -36,20 +44,58 @@ public class ProfileStudentViewFragment extends Fragment implements MainContaine
         this.user = User.currentUser(mainContainerActivity.getApplicationContext());
         this.seshNetworking = new SeshNetworking(mainContainerActivity);
 
-        TextView hoursLearnedView = (TextView) this.homeView.findViewById(R.id.hours_learned_number);
-        TextView creditsView = (TextView) this.homeView.findViewById(R.id.student_credits_number);
+        hoursLearnedView = (TextView) this.homeView.findViewById(R.id.hours_learned_number);
+        creditsView = (TextView) this.homeView.findViewById(R.id.student_credits_number);
 
         DecimalFormat df = new DecimalFormat("0.00");
         hoursLearnedView.setText(df.format(this.user.student.hoursLearned));
         creditsView.setText("$" + df.format(this.user.student.credits));
 
+        tutorHistoryListFragment = new TutorHistoryListFragment();
+
         getActivity().getFragmentManager()
                 .beginTransaction()
-                .replace(R.id.profile_student_view_frame, new TutorHistoryListFragment(), "TutorHistoryListFragment")
+                .replace(R.id.profile_student_view_frame, tutorHistoryListFragment, "TutorHistoryListFragment")
                 .commit();
+
+        broadcastReceiver = actionBroadcastReceiver;
 
         return this.homeView;
 
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        // Listen for new messages
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(MainContainerActivity.REFRESH_USER_INFO);
+        this.mainContainerActivity.registerReceiver(broadcastReceiver, intentFilter);
+
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        this.mainContainerActivity.unregisterReceiver(broadcastReceiver);
+    }
+
+
+    private BroadcastReceiver actionBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            User currentUser = User.currentUser(context);
+            refreshStudentInfoWithUser(currentUser);
+        }
+    };
+
+    public void refreshStudentInfoWithUser(User user) {
+        this.user = user;
+        DecimalFormat df = new DecimalFormat("0.00");
+        hoursLearnedView.setText(df.format(this.user.student.hoursLearned));
+        creditsView.setText("$" + df.format(this.user.student.credits));
+        tutorHistoryListFragment.refreshListWithUser(user);
     }
 
     @Override

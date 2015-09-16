@@ -247,7 +247,7 @@ public class SettingsFragment extends Fragment implements FragmentOptionsReceive
                 currentUser.tutor.cashAvailable = 0.0f;
                 currentUser.tutor.save();
                 currentUser.save();
-                mainContainerActivity.sendBroadcast(new Intent(mainContainerActivity.REFRESH_PROFILE));
+                mainContainerActivity.sendBroadcast(new Intent(mainContainerActivity.REFRESH_TUTOR_CREDITS));
 
                 hideAnimationWithSuccess(true, "Successfully cashed out!");
 

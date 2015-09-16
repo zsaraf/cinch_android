@@ -93,7 +93,7 @@ public class LearnRequestCourseFragment extends SeshViewPager.InputFragment {
                                 courseResults.clear();
                                 JSONArray classesArrayJson = jsonResponse.getJSONArray("classes");
                                 for (int i = 0; i < classesArrayJson.length(); i++) {
-                                    courseResults.add(Course.fromJson((classesArrayJson.getJSONObject(i))));
+                                    courseResults.add(Course.createCourseFromSearchJSON((classesArrayJson.getJSONObject(i))));
                                 }
                                 courseResultsAdapter.notifyDataSetChanged();
                             } else {
@@ -151,9 +151,9 @@ public class LearnRequestCourseFragment extends SeshViewPager.InputFragment {
 
     @Override
     public void saveValues() {
-        parentActivity.getCurrentLearnRequest().classId = String.format("%d", selectedCourse.classId);
+        parentActivity.getCurrentLearnRequest().classId = String.format("%d", selectedCourse.courseId);
         parentActivity.getCurrentLearnRequest().classString = String.format("%s %s",
-                selectedCourse.deptAbbrev, selectedCourse.classNumber);
+                selectedCourse.deptAbbrev, selectedCourse.number);
     }
 
     @Override

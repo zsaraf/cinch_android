@@ -196,6 +196,16 @@ public class User extends SugarRecord<User> {
                 }
             }
 
+            user.tutor.clearTutorCourses();
+            if (dataJson.has("tutor_classes")) {
+                JSONArray courses = dataJson.getJSONArray("tutor_classes");
+                for (int i = 0; i < courses.length(); i++) {
+                    JSONObject courseJSON = courses.getJSONObject(i);
+                    Course newCourse = Course.createOrUpdateCourseWithJSON(courseJSON, user.tutor, false);
+                    newCourse.save();
+                }
+            }
+
             OutstandingCharge.deleteAll(OutstandingCharge.class);
             if (dataJson.has("outstanding_charges")) {
                 JSONArray outstandingCharges = dataJson.getJSONArray("outstanding_charges");

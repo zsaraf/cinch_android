@@ -2,7 +2,10 @@ package com.seshtutoring.seshapp.view.fragments.ProfileFragments;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
@@ -47,6 +50,10 @@ public class ProfileTutorViewFragment extends Fragment implements MainContainerA
     private TextView classesTab;
     private int selectedTab;
     private TextView creditsView;
+    private TextView hoursTutoredView;
+    private ClassesListFragment classesListFragment;
+    private ClientHistoryListFragment clientHistoryListFragment;
+    private BroadcastReceiver broadcastReceiver;
 
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
 
@@ -56,7 +63,7 @@ public class ProfileTutorViewFragment extends Fragment implements MainContainerA
         this.user = User.currentUser(mainContainerActivity.getApplicationContext());
         this.seshNetworking = new SeshNetworking(mainContainerActivity);
 
-        TextView hoursTutoredView = (TextView) this.homeView.findViewById(R.id.hours_taught_number);
+        hoursTutoredView = (TextView) this.homeView.findViewById(R.id.hours_taught_number);
         creditsView = (TextView) this.homeView.findViewById(R.id.tutor_credits_number);
 
         creditsView.setOnClickListener(new View.OnClickListener() {
@@ -73,7 +80,7 @@ public class ProfileTutorViewFragment extends Fragment implements MainContainerA
                     @Override
                     public void onClick(View v) {
                         seshDialog.dismiss();
-                        ((ProfileFragment)mainContainerActivity.getContainerStateManager().getMainContainerState().fragment).requestFlowOverlay.animate().alpha(1).setListener(null).setDuration(300).start();
+                        ((ProfileFragment) mainContainerActivity.getContainerStateManager().getMainContainerState().fragment).requestFlowOverlay.animate().alpha(1).setListener(null).setDuration(300).start();
                         seshNetworking.cashout(
                                 new Response.Listener<JSONObject>() {
                                     @Override
@@ -109,19 +116,27 @@ public class ProfileTutorViewFragment extends Fragment implements MainContainerA
         this.studentHistoryTab = (TextView) this.homeView.findViewById(R.id.client_history_tab);
         this.classesTab = (TextView) this.homeView.findViewById(R.id.classes_tab);
 
+        clientHistoryListFragment = new ClientHistoryListFragment();
+        classesListFragment = new ClassesListFragment();
+
         setCurrentListView();
 
         this.studentHistoryTab.setOnClickListener(firstTabPress);
         this.classesTab.setOnClickListener(secondTabPress);
 
+        broadcastReceiver = actionBroadcastReceiver;
+
         return this.homeView;
 
     }
 
-    public void refreshTutorCredits() {
-        this.user = User.currentUser(mainContainerActivity.getApplicationContext());
+    public void refreshTutorInfoWithUser(User user) {
+        this.user = user;
         DecimalFormat df = new DecimalFormat("0.00");
         creditsView.setText("$" + df.format(this.user.tutor.cashAvailable));
+        hoursTutoredView.setText(df.format(this.user.tutor.hoursTutored));
+        classesListFragment.refreshListWithUser(user);
+        clientHistoryListFragment.refreshListWithUser(user);
     }
 
 
@@ -148,6 +163,33 @@ public class ProfileTutorViewFragment extends Fragment implements MainContainerA
         }
     };
 
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        // Listen for new messages
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(MainContainerActivity.REFRESH_USER_INFO);
+        intentFilter.addAction(MainContainerActivity.REFRESH_TUTOR_CREDITS);
+        this.mainContainerActivity.registerReceiver(broadcastReceiver, intentFilter);
+
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        this.mainContainerActivity.unregisterReceiver(broadcastReceiver);
+    }
+
+
+    private BroadcastReceiver actionBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            User currentUser = User.currentUser(context);
+            refreshTutorInfoWithUser(currentUser);
+        }
+    };
+
     private void setCurrentListView() {
 
         if (selectedTab == 0) {
@@ -155,7 +197,7 @@ public class ProfileTutorViewFragment extends Fragment implements MainContainerA
             this.classesTab.setTextColor(getResources().getColor(R.color.light_gray));
             getActivity().getFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.profile_tutor_view_frame, new ClientHistoryListFragment(), "ClientHistoryListFragment")
+                    .replace(R.id.profile_tutor_view_frame, clientHistoryListFragment, "ClientHistoryListFragment")
                     .commit();
 
         }else {
@@ -163,7 +205,7 @@ public class ProfileTutorViewFragment extends Fragment implements MainContainerA
             this.classesTab.setTextColor(getResources().getColor(R.color.seshorange));
             getActivity().getFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.profile_tutor_view_frame, new ClassesListFragment(), "ClassesListFragment")
+                    .replace(R.id.profile_tutor_view_frame, classesListFragment, "ClassesListFragment")
                     .commit();
 
         }
@@ -177,7 +219,7 @@ public class ProfileTutorViewFragment extends Fragment implements MainContainerA
                 currentUser.tutor.cashAvailable = 0.0f;
                 currentUser.tutor.save();
                 currentUser.save();
-                mainContainerActivity.sendBroadcast(new Intent(mainContainerActivity.REFRESH_PROFILE));
+                refreshTutorInfoWithUser(currentUser);
 
                 hideAnimationWithSuccess(true, "Successfully cashed out!");
 

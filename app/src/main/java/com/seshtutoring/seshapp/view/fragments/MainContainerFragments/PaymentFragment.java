@@ -129,6 +129,8 @@ public class PaymentFragment extends ListFragment implements FragmentOptionsRece
             }
         });
 
+        broadcastReceiver = actionBroadcastReceiver;
+
         ((MainContainerActivity)getActivity()).onFragmentReplacedAndRendered();
 
     }
@@ -281,7 +283,6 @@ public class PaymentFragment extends ListFragment implements FragmentOptionsRece
     public void onResume() {
         super.onResume();
 
-        broadcastReceiver = actionBroadcastReceiver;
         // Listen for new messages
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(MainContainerActivity.REFRESH_USER_INFO);
