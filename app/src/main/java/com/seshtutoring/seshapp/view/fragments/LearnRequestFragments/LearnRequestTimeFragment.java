@@ -126,7 +126,7 @@ public class LearnRequestTimeFragment extends SeshViewPager.InputFragment implem
         if (currentLearnRequest.discount != null) {
             discountFloat = Math.min(currentLearnRequest.discount.creditAmount, timeCostFloat);
         }
-        float creditsAppliedFloat = Math.min(timeCostFloat - discountFloat, currentUser.getCreditSum());
+        float creditsAppliedFloat = Math.min(timeCostFloat + additionalStudentsFloat - discountFloat, currentUser.getCreditSum());
         float estimatedTotalFloat = CostUtils.calculateEstimatedTotal(timeCostFloat, additionalStudentsFloat,
                 discountFloat, creditsAppliedFloat);
         creditsAppliedNumber.setText("-$" + CostUtils.floatToString(creditsAppliedFloat, 2));

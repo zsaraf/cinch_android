@@ -48,12 +48,14 @@ import com.facebook.rebound.Spring;
 import com.facebook.rebound.SpringConfig;
 import com.facebook.rebound.SpringSystem;
 import com.seshtutoring.seshapp.R;
+import com.seshtutoring.seshapp.SeshApplication;
 import com.seshtutoring.seshapp.model.AvailableBlock;
 import com.seshtutoring.seshapp.model.AvailableJob;
 import com.seshtutoring.seshapp.model.Course;
 import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.util.LocationManager;
+import com.seshtutoring.seshapp.util.SeshMixpanelAPI;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
 import com.seshtutoring.seshapp.view.OnboardingActivity;
@@ -98,6 +100,7 @@ public class ViewAvailableJobsFragment extends ListFragment {
     private TextView brokenPencilTextView;
     private BroadcastReceiver broadcastReceiver;
     private LocationManager locationManager;
+    private SeshMixpanelAPI seshMixpanelAPI;
 
     Runnable mStatusChecker = new Runnable() {
         @Override
@@ -145,6 +148,8 @@ public class ViewAvailableJobsFragment extends ListFragment {
                 getAvailableJobs();
             }
         });
+
+        this.seshMixpanelAPI = ((SeshApplication)getActivity().getApplication()).getSeshMixpanelAPI();
 
         // Now return the SwipeRefreshLayout as this fragment's content view
         return mSwipeRefreshLayout;
@@ -352,8 +357,10 @@ public class ViewAvailableJobsFragment extends ListFragment {
                             @Override
                             public void onPostExecute(ArrayList<OnboardingRequirement> onboardingRequirements) {
                                 if (onboardingRequirements.size() > 0) {
+                                    seshMixpanelAPI.track("Entered Tutor Onboarding");
                                     showOnboardingDialog(onboardingRequirements);
                                 } else {
+                                    seshMixpanelAPI.track("Tutor Accepting Available Job");
                                     viewHolder.acceptButton.
                                             animate()
                                             .setDuration(200)

@@ -6,6 +6,8 @@ import android.content.SharedPreferences;
 import com.mixpanel.android.mpmetrics.MixpanelAPI;
 import com.seshtutoring.seshapp.SeshApplication;
 
+import org.json.JSONObject;
+
 import java.util.Map;
 import java.util.concurrent.Future;
 
@@ -37,6 +39,12 @@ public class SeshMixpanelAPI {
     public void trackMap(String event, Map<String, Object> properties) {
         if (!SeshApplication.IS_DEV) {
             mixpanelAPI.trackMap(event, properties);
+        }
+    }
+
+    public void registerSuperProperties(JSONObject props) {
+        if (!SeshApplication.IS_DEV) {
+            mixpanelAPI.registerSuperProperties(props);
         }
     }
 }

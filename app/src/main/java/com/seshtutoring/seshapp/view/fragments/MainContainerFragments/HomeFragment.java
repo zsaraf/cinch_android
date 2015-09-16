@@ -23,10 +23,12 @@ import android.widget.LinearLayout;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.seshtutoring.seshapp.R;
+import com.seshtutoring.seshapp.SeshApplication;
 import com.seshtutoring.seshapp.model.Discount;
 import com.seshtutoring.seshapp.model.Notification;
 import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.util.LayoutUtils;
+import com.seshtutoring.seshapp.util.SeshMixpanelAPI;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
 import com.seshtutoring.seshapp.view.MessagingActivity;
 import com.seshtutoring.seshapp.view.RequestActivity;
@@ -36,6 +38,9 @@ import com.seshtutoring.seshapp.view.fragments.LearnViewFragment;
 import com.seshtutoring.seshapp.view.fragments.TeachDisabledViewFragment;
 import com.seshtutoring.seshapp.view.fragments.TeachViewFragment;
 import com.seshtutoring.seshapp.view.MainContainerActivity.FragmentOptionsReceiver;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.lang.reflect.Field;
 import java.util.Map;
@@ -107,6 +112,15 @@ public class HomeFragment extends Fragment implements FragmentOptionsReceiver {
         }
 
         Discount.displayDiscountNotificationIfNecessary(getActivity());
+
+        SeshMixpanelAPI seshMixpanelAPI = ((SeshApplication)getActivity().getApplication()).getSeshMixpanelAPI();
+        JSONObject props = new JSONObject();
+        try {
+            props.put("User School", User.currentUser(getActivity()).school.schoolName);
+            seshMixpanelAPI.registerSuperProperties(props);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
         return homeView;
     }

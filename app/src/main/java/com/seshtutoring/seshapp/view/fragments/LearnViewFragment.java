@@ -50,6 +50,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.seshtutoring.seshapp.R;
+import com.seshtutoring.seshapp.SeshApplication;
 import com.seshtutoring.seshapp.model.AvailableBlock;
 import com.seshtutoring.seshapp.model.LearnRequest;
 import com.seshtutoring.seshapp.model.Notification;
@@ -57,6 +58,7 @@ import com.seshtutoring.seshapp.model.OutstandingCharge;
 import com.seshtutoring.seshapp.model.Sesh;
 import com.seshtutoring.seshapp.util.LocationManager;
 import com.seshtutoring.seshapp.util.LayoutUtils;
+import com.seshtutoring.seshapp.util.SeshMixpanelAPI;
 import com.seshtutoring.seshapp.util.StorageUtils;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
@@ -87,6 +89,7 @@ public class LearnViewFragment extends Fragment implements OnMapReadyCallback {
     private SeshButton requestButton;
     private ImageButton currentLocationButton;
     private boolean currentLocationButtonFilled;
+    private SeshMixpanelAPI seshMixpanelAPI;
     public static final String BLURRED_MAP_BITMAP_PATH_KEY = "blurred_map_bitmap";
     public static final String CHOSEN_LOCATION_LAT = "chosen_location_lat";
     public static final String CHOSEN_LOCATION_LONG = "chosen_location_long";
@@ -142,6 +145,8 @@ public class LearnViewFragment extends Fragment implements OnMapReadyCallback {
 
         ImageView marker = (ImageView) view.findViewById(R.id.location_marker);
         marker.setY(marker.getY() - (utils.getDimensionPx(R.dimen.learn_view_map_marker_height) / 2));
+
+        this.seshMixpanelAPI = ((SeshApplication)getActivity().getApplication()).getSeshMixpanelAPI();
 
         return view;
     }
@@ -363,6 +368,7 @@ public class LearnViewFragment extends Fragment implements OnMapReadyCallback {
                         " at once!  Cancel your current request or Sesh if you wish to create a new Sesh request",
                         "OKAY", null, "only_one_instant");
             } else {
+                seshMixpanelAPI.track("Entered Request Flow");
                 requestButton.setEnabled(false);
                 startRequestActivityWithBlurTransition();
                 Handler handler = new Handler();

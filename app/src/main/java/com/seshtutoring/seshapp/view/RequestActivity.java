@@ -26,11 +26,13 @@ import com.facebook.rebound.Spring;
 import com.facebook.rebound.SpringConfig;
 import com.facebook.rebound.SpringSystem;
 import com.seshtutoring.seshapp.R;
+import com.seshtutoring.seshapp.SeshApplication;
 import com.seshtutoring.seshapp.model.Card;
 import com.seshtutoring.seshapp.model.Discount;
 import com.seshtutoring.seshapp.model.LearnRequest;
 import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.util.LayoutUtils;
+import com.seshtutoring.seshapp.util.SeshMixpanelAPI;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking.SynchronousRequest;
 import com.seshtutoring.seshapp.view.components.LearnRequestProgressBar;
@@ -72,6 +74,7 @@ public class RequestActivity extends SeshActivity implements
     private SeshActivityIndicator activityIndicator;
     private SeshAnimatedCheckmark animatedCheckmark;
     private boolean isKeyboardShowing;
+    private SeshMixpanelAPI seshMixpanelAPI;
 
     public static final String DIALOG_TYPE_LEARN_REQUEST_FAILURE = "learn_request_failure";
     private List<Fragment> requestFlowFragments;
@@ -88,6 +91,8 @@ public class RequestActivity extends SeshActivity implements
         super.onCreate(savedInstanceBundle);
 
         setContentView(R.layout.request_transparent_layout);
+
+        this.seshMixpanelAPI = ((SeshApplication)getApplication()).getSeshMixpanelAPI();
 
         // configure transparent status bar
         if (Build.VERSION.SDK_INT >= 19) {
@@ -202,8 +207,10 @@ public class RequestActivity extends SeshActivity implements
             @Override
             protected void onPostExecute(ArrayList<OnboardingRequirement> onboardingRequirements) {
                 if (onboardingRequirements.size() > 0) {
+                    seshMixpanelAPI.track("Entered Student Onboarding");
                     showOnboardingDialog(onboardingRequirements);
                 } else {
+                    seshMixpanelAPI.track("Created Learn Request");
                     requestFlowOverlay.animate().alpha(1).setDuration(300).start();
                     (new CreateLearnRequestAsyncTask()).execute(getApplicationContext(), currentLearnRequest);
                 }
