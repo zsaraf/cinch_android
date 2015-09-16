@@ -66,13 +66,13 @@
         android:layout_alignParentTop="false"
         android:layout_alignParentBottom="false">
         <RelativeLayout
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/review_container"
             android:layout_centerVertical="true">
             <com.seshtutoring.seshapp.view.components.SeshInformationLabel
                 android:id="@+id/money_label"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="35dp"
                 android:layout_marginLeft="35dp"
@@ -81,7 +81,7 @@
                 custom:informationLabelIcon="@drawable/moneysign_big" />
             <com.seshtutoring.seshapp.view.components.SeshInformationLabel
                 android:id="@+id/duration_label"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="35dp"
                 android:layout_marginLeft="35dp"
@@ -91,7 +91,7 @@
                 custom:informationLabelIcon="@drawable/clock_orange"/>
             <com.seshtutoring.seshapp.view.components.SeshInformationLabel
                 android:id="@+id/class_label"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="35dp"
                 android:layout_marginLeft="35dp"
