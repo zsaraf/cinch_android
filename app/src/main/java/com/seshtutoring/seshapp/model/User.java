@@ -23,6 +23,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -60,7 +61,12 @@ public class User extends SugarRecord<User> {
 
 
     public static User currentUser(Context context) {
-        return User.findAll(User.class).next();
+        Iterator<User> iterator = User.findAll(User.class);
+        if (iterator.hasNext()) {
+            return User.findAll(User.class).next();
+        } else {
+            return null;
+        }
     }
 
     public static void fetchUserInfoFromServer(final Context context) {

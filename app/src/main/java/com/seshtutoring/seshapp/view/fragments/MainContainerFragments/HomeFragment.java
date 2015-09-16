@@ -294,7 +294,7 @@ public class HomeFragment extends Fragment implements FragmentOptionsReceiver {
     public void onPause() {
         super.onPause();
         //turn off calls to refresh open jobs when we leave the teach tab
-        if (getCurrTabItem() == TabItem.TEACH_TAB && User.currentUser(getActivity()).tutor.enabled) {
+        if (getCurrTabItem() == TabItem.TEACH_TAB && User.currentUser(getActivity()) != null && User.currentUser(getActivity()).tutor.enabled) {
             ViewAvailableJobsFragment viewJobsFragment = (ViewAvailableJobsFragment) getActivity().getFragmentManager().findFragmentByTag("ViewJobsFragment");
             if (viewJobsFragment != null) {
                 viewJobsFragment.stopRepeatingTask();
