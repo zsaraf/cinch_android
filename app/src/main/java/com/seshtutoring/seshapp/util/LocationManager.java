@@ -77,7 +77,7 @@ public class LocationManager implements GoogleApiClient.ConnectionCallbacks,
             Log.e(TAG, "Unable to retrieve last known coordinates, resorting to default current location");
             Location defaultLocationCoordinates = new Location("");
             defaultLocationCoordinates.setLatitude(37.4300d);
-            defaultLocationCoordinates.setLongitude(122.1700d);
+            defaultLocationCoordinates.setLongitude(-122.1700d);
             return defaultLocationCoordinates;
         }
     }
