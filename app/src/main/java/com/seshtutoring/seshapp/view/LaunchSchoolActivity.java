@@ -2,6 +2,7 @@ package com.seshtutoring.seshapp.view;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -17,6 +18,7 @@ import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.Notification;
 import com.seshtutoring.seshapp.model.PastSesh;
 import com.seshtutoring.seshapp.model.User;
+import com.seshtutoring.seshapp.util.ApplicationLifecycleTracker;
 import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.components.SeshActivityIndicator;
@@ -96,6 +98,42 @@ public class LaunchSchoolActivity extends SeshActivity implements SeshDialog.OnS
         });
 
         setupLabels();
+
+        ApplicationLifecycleTracker.sharedInstance(this).setApplicationLifecycleCallback(new ApplicationLifecycleTracker.ApplicationLifecycleCallback() {
+            @Override
+            public void applicationDidEnterForeground() {
+                SeshNetworking seshNetworking = new SeshNetworking(getApplicationContext());
+                seshNetworking.getFullUserInfo(new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject jsonObject) {
+                        try {
+                            if (jsonObject.getString("status").equals("SUCCESS")) {
+                                Context context = getApplicationContext();
+                                user = User.createOrUpdateUserWithObject(jsonObject.getJSONObject("data"), context);
+                                if (user.school.enabled) {
+                                    Intent mainContainerIntent = new Intent(getApplicationContext(), MainContainerActivity.class);
+                                    startActivity(mainContainerIntent);
+                                    overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+                                }
+
+                            }
+                        } catch (JSONException e) {
+
+                        }
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError volleyError) {
+
+                    }
+                });
+            }
+
+            @Override
+            public void applicationWillEnterBackground() {
+
+            }
+        });
     }
 
     public void onDialogSelection(int selection, String type) {
