@@ -407,6 +407,7 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
             if (responseJson.get("status").equals("SUCCESS")) {
                 User.logoutUserLocally(this);
                 Intent intent = new Intent(this, AuthenticationActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
             } else if (responseJson.get("status").equals("FAILURE")) {
                 String message = responseJson.get("message").toString();
@@ -453,7 +454,6 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.main_container, newState.fragment, newState.fragment.getTag())
-                .addToBackStack(newState.fragment.getTag())
                 .commitAllowingStateLoss();
 
         if (options != null) {
@@ -504,6 +504,11 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
 
     public MainContainerStateManager getContainerStateManager() {
         return containerStateManager;
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
     }
 }
 

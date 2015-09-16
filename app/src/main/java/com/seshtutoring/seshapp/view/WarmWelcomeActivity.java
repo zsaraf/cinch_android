@@ -64,6 +64,7 @@ public class WarmWelcomeActivity extends SeshActivity implements SeshDialog.OnSe
                 Intent authenticationIntent = new Intent(WarmWelcomeActivity.this, AuthenticationActivity.class);
                 authenticationIntent.putExtra(AuthenticationActivity.ENTRANCE_TYPE_KEY, AuthenticationActivity.EntranceType.SIGNUP);
                 startActivity(authenticationIntent);
+                finish();
             }
         });
 

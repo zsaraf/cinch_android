@@ -32,8 +32,8 @@ android {
         applicationId "com.seshtutoring.seshapp"
         minSdkVersion 15
         targetSdkVersion 22
-        versionCode 1
-        versionName "1.0"
+        versionCode 3
+        versionName "1.2"
         renderscriptTargetApi 22
         renderscriptSupportModeEnabled true
     }

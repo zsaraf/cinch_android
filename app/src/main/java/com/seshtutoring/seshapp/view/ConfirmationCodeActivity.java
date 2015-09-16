@@ -26,6 +26,7 @@ import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.components.SeshButton;
 import com.seshtutoring.seshapp.services.UserInfoFetcher.UserInfoSavedListener;
 import com.seshtutoring.seshapp.services.UserInfoFetcher.SaveUserInfoAsyncTask;
+import com.seshtutoring.seshapp.view.components.SeshDialog;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -79,13 +80,13 @@ public class ConfirmationCodeActivity extends SeshActivity {
                     public void onResponse(JSONObject jsonObject) {
                         try {
                             if (jsonObject.get("status").equals("SUCCESS")) {
-                                Toast.makeText(getApplicationContext(), "Verification Email Resent", Toast.LENGTH_LONG).show();
+                                showDialog("Verification Email Sent!", "Check your inbox and confirm your email address in order to start Seshing!");
                             } else {
-                                Toast.makeText(getApplicationContext(), "Network Error", Toast.LENGTH_LONG).show();
-                                Log.e(TAG, jsonObject.get("message").toString());
+                                showDialog("Error!", jsonObject.getString("message"));
+                                Log.e(TAG, jsonObject.getString("message"));
                             }
                         } catch (JSONException e) {
-                            Toast.makeText(getApplicationContext(), "Network Error", Toast.LENGTH_LONG).show();
+                            showDialog("Network Error", "We couldn't reach the server.  Check your connection and try again!");
                             Log.e(TAG, e.toString());
                         }
                     }
@@ -93,11 +94,21 @@ public class ConfirmationCodeActivity extends SeshActivity {
                     @Override
                     public void onErrorResponse(VolleyError volleyError) {
                         Log.e(TAG, volleyError.toString());
-                        Toast.makeText(getApplicationContext(), "Network Error", Toast.LENGTH_LONG).show();
+                        showDialog("Network Error", "We couldn't reach the server.  Check your connection and try again!");
                     }
                 });
             }
         });
+    }
+
+    private void showDialog(String title, String message) {
+        SeshDialog seshDialog = new SeshDialog();
+        seshDialog.setDialogType(SeshDialog.SeshDialogType.ONE_BUTTON);
+        seshDialog.setTitle(title);
+        seshDialog.setMessage(message);
+        seshDialog.setFirstChoice("OKAY");
+        seshDialog.setType("error_dialog");
+        seshDialog.show(getFragmentManager(), null);
     }
 
     // user navigates to different app, presumably to check email
@@ -137,6 +148,7 @@ public class ConfirmationCodeActivity extends SeshActivity {
                                                 @Override
                                                 public void onPrereqsFulfilled() {
                                                     Intent intent = new Intent(getApplicationContext(), MainContainerActivity.class);
+                                                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                                                     startActivity(intent);
                                                 }
                                             })).execute();
@@ -180,4 +192,7 @@ public class ConfirmationCodeActivity extends SeshActivity {
         super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
     }
 
+    public void onDialogSelection(int selected, String type) {
+        // do nothing
+    }
 }

@@ -121,7 +121,9 @@ public abstract class SeshActivity extends AppCompatActivity implements SeshDial
             public void onClick(View v) {
                 StorageUtils.clearAllSugarRecords();
                 Intent intent = new Intent(getApplicationContext(), AuthenticationActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
+                finish();
             }
         });
         seshDialog.showWithDelay(getFragmentManager(), null, 1500);

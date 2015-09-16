@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.seshtutoring.seshapp"
     android:versionCode="3"
-    android:versionName="Launch" >
+    android:versionName="1.2" >
 
     <uses-sdk android:minSdkVersion="15" />
 
@@ -131,7 +131,6 @@
         <activity
             android:name=".view.WarmWelcomeActivity"
             android:launchMode="singleTop"
-            android:noHistory="true"
             android:screenOrientation="portrait"
             android:theme="@style/SeshFullScreen"
             android:windowSoftInputMode="adjustResize" >
@@ -313,9 +312,6 @@
             android:parentActivityName=".view.MainContainerActivity"
             android:screenOrientation="portrait"
             android:theme="@style/SeshActionBarTheme" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.seshtutoring.seshapp.view.MainContainerActivity" />
         </activity>
 
         <meta-data
