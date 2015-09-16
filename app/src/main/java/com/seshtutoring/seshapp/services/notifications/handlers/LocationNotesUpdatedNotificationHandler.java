@@ -20,8 +20,10 @@ public class LocationNotesUpdatedNotificationHandler extends BannerNotificationH
 
     private void saveNewLocationNotes() {
         Sesh sesh = mNotification.correspondingSesh();
-        sesh.locationNotes = (String) mNotification.getDataObject("location_notes");
-        sesh.save();
+        if (sesh != null) {
+            sesh.locationNotes = (String) mNotification.getDataObject("location_notes");
+            sesh.save();
+        }
     }
 
     @Override
@@ -50,7 +52,10 @@ public class LocationNotesUpdatedNotificationHandler extends BannerNotificationH
         return new Runnable() {
             @Override
             public void run() {
-                mContext.sendBroadcast(viewSeshActionIntent(true, mNotification.correspondingSesh()));
+                Sesh correspondingSesh = mNotification.correspondingSesh();
+                if (correspondingSesh != null && !mNotification.viewSeshFragmentIsVisible(correspondingSesh, mContext)) {
+                    mContext.sendBroadcast(viewSeshActionIntent(true, correspondingSesh));
+                }
             }
         };
     }

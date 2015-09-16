@@ -1,5 +1,6 @@
 package com.seshtutoring.seshapp.model;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
@@ -26,9 +27,12 @@ import com.seshtutoring.seshapp.services.notifications.handlers.SeshReviewNotifi
 import com.seshtutoring.seshapp.services.notifications.handlers.SeshStartedStudentNotificationHandler;
 import com.seshtutoring.seshapp.services.notifications.handlers.SetTimeUpdatedNotificationHandler;
 import com.seshtutoring.seshapp.services.notifications.handlers.UpdateStateNotificationHandler;
+import com.seshtutoring.seshapp.util.ApplicationLifecycleTracker;
 import com.seshtutoring.seshapp.util.networking.SeshAuthManager;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking.SynchronousRequest;
+import com.seshtutoring.seshapp.view.ContainerState;
+import com.seshtutoring.seshapp.view.MainContainerActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -358,6 +362,19 @@ public class Notification extends SugarRecord<Notification> {
         } else {
             return null;
         }
+    }
+
+    public boolean viewSeshFragmentIsVisible(Sesh correspondingSesh, Context mContext) {
+        Activity activity = ApplicationLifecycleTracker.sharedInstance(mContext).activityInForeground;
+        if (activity instanceof MainContainerActivity) {
+            MainContainerActivity mainContainerActivity = (MainContainerActivity)activity;
+            ContainerState containerState = (mainContainerActivity).getContainerStateManager().getMainContainerState();
+            if (containerState.tag.equals(correspondingSesh.getContainerStateTag())) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     @Override

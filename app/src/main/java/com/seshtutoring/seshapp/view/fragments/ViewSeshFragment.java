@@ -261,6 +261,10 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
         return v;
     }
 
+    public void openMessaging() {
+        messageButtonClicked();
+    }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         //if the RequestCode = RESULT_DIAL then do waht you want

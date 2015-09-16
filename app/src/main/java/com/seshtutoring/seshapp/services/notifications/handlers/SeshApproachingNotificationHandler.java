@@ -26,30 +26,37 @@ public class SeshApproachingNotificationHandler  extends BannerNotificationHandl
         loadImage(profilePicture, new Callback() {
             @Override
             public void onSuccess() {
-                    displayBanner();
-                }
+                displayBanner();
+            }
+
             @Override
             public void onError() {
-                    displayBanner();
-                }
+                displayBanner();
+            }
         });
     }
 
     @Override
     public void handleDisplayOutsideApp() {
-        showNotificationForIntent(viewSeshActionIntent(false));
+        Sesh correspondingSesh = mNotification.correspondingSesh();
+        if (correspondingSesh != null) {
+            showNotificationForIntent(viewSeshActionIntent(false, correspondingSesh));
+        }
     }
 
     public Runnable bannerTapCallback() {
         return new Runnable() {
             @Override
             public void run() {
-                mContext.sendBroadcast(viewSeshActionIntent(true));
+                Sesh correspondingSesh = mNotification.correspondingSesh();
+                if (correspondingSesh != null && !mNotification.viewSeshFragmentIsVisible(correspondingSesh, mContext)) {
+                    mContext.sendBroadcast(viewSeshActionIntent(true, mNotification.correspondingSesh()));
+                }
             }
         };
     }
 
-    private Intent viewSeshActionIntent(boolean forBroadcast) {
+    private Intent viewSeshActionIntent(boolean forBroadcast, Sesh correspondingSesh) {
         Intent intent;
         if (forBroadcast) {
             intent = new Intent(MainContainerActivity.VIEW_SESH_ACTION);
@@ -57,7 +64,7 @@ public class SeshApproachingNotificationHandler  extends BannerNotificationHandl
             intent = new Intent(MainContainerActivity.VIEW_SESH_ACTION,
                     null, mContext, MainContainerActivity.class);
         }
-        intent.putExtra(ViewSeshFragment.SESH_KEY, mNotification.correspondingSesh().seshId);
+        intent.putExtra(ViewSeshFragment.SESH_KEY, correspondingSesh.seshId);
         return intent;
     }
 }

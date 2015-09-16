@@ -26,7 +26,7 @@ public class ApplicationLifecycleTracker  {
     private boolean someActivityInForeground;
     private boolean activityTransitionInProgress;
 
-    private Activity activityInForeground;
+    public Activity activityInForeground;
 
     private Context mContext;
 

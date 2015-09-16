@@ -1,6 +1,7 @@
 package com.seshtutoring.seshapp.services.notifications.handlers;
 
 import android.app.Activity;
+import android.app.Application;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -13,7 +14,9 @@ import com.seshtutoring.seshapp.model.Message;
 import com.seshtutoring.seshapp.model.Notification;
 import com.seshtutoring.seshapp.model.Sesh;
 import com.seshtutoring.seshapp.util.ApplicationLifecycleTracker;
+import com.seshtutoring.seshapp.view.ContainerState;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
+import com.seshtutoring.seshapp.view.MainContainerStateManager;
 import com.seshtutoring.seshapp.view.MessagingActivity;
 import com.seshtutoring.seshapp.view.fragments.ViewSeshFragment;
 import com.squareup.picasso.Callback;
@@ -41,17 +44,21 @@ public class NewMessageNotificationHandler extends BannerNotificationHandler {
     @Override
     public void handleDisplayInsideApp() {
         saveNewMessage();
-        loadImage(profilePicture, new Callback() {
-            @Override
-            public void onSuccess() {
-                displayBanner();
-            }
+        if (!(ApplicationLifecycleTracker.sharedInstance(mContext).activityInForeground instanceof MessagingActivity)) {
+            loadImage(profilePicture, new Callback() {
+                @Override
+                public void onSuccess() {
+                    displayBanner();
+                }
 
-            @Override
-            public void onError() {
-                displayBanner();
-            }
-        });
+                @Override
+                public void onError() {
+                    displayBanner();
+                }
+            });
+        } else {
+            Notification.currentNotificationHandled(mContext, true);
+        }
     }
 
     @Override
@@ -64,7 +71,17 @@ public class NewMessageNotificationHandler extends BannerNotificationHandler {
         return new Runnable() {
             @Override
             public void run() {
-                mContext.sendBroadcast(viewSeshActionIntent(true, mNotification.correspondingSesh()));
+
+                Sesh correspondingSesh = mNotification.correspondingSesh();
+                if (correspondingSesh != null) {
+                    if (!mNotification.viewSeshFragmentIsVisible(correspondingSesh, mContext)) {
+                        mContext.sendBroadcast(viewSeshActionIntent(true, mNotification.correspondingSesh()));
+                    } else {
+                        MainContainerActivity mainContainerActivity = (MainContainerActivity) ApplicationLifecycleTracker.sharedInstance(mContext).activityInForeground;
+                        ViewSeshFragment viewSeshFragment = (ViewSeshFragment)mainContainerActivity.getContainerStateManager().getMainContainerState().fragment;
+                        viewSeshFragment.openMessaging();
+                    }
+                }
             }
         };
     }

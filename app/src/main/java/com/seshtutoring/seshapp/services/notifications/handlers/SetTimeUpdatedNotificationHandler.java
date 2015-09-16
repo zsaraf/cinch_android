@@ -52,7 +52,10 @@ public class SetTimeUpdatedNotificationHandler extends BannerNotificationHandler
         return new Runnable() {
             @Override
             public void run() {
+                Sesh correspondingSesh = mNotification.correspondingSesh();
+                if (correspondingSesh != null && !mNotification.viewSeshFragmentIsVisible(correspondingSesh, mContext)) {
                     mContext.sendBroadcast(viewSeshActionIntent(true, mNotification.correspondingSesh()));
+                }
             }
         };
     }
