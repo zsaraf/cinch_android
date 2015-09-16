@@ -339,7 +339,7 @@ public class AddCardActivity extends SeshActivity {
             }
 
         } else {
-            finish();
+            super.onBackPressed();
         }
     }
 

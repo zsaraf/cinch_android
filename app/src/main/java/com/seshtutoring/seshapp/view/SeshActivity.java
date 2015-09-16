@@ -180,9 +180,21 @@ public abstract class SeshActivity extends AppCompatActivity implements SeshDial
     }
 
     @Override
+    public void startActivity(Intent intent, Bundle bundle) {
+        ApplicationLifecycleTracker.sharedInstance(this).setActivityTransitionInProgress(true);
+        super.startActivity(intent, bundle);
+    }
+
+    @Override
     public void startActivityForResult(Intent intent, int requestCode) {
         ApplicationLifecycleTracker.sharedInstance(this).setActivityTransitionInProgress(true);
         super.startActivityForResult(intent, requestCode);
+    }
+
+    @Override
+    public void startActivityForResult(Intent intent, int requestCode, Bundle bundle) {
+        ApplicationLifecycleTracker.sharedInstance(this).setActivityTransitionInProgress(true);
+        super.startActivityForResult(intent, requestCode, bundle);
     }
 
     @Override

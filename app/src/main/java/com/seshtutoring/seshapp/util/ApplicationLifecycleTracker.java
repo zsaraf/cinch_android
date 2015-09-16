@@ -30,7 +30,12 @@ public class ApplicationLifecycleTracker  {
 
     private Context mContext;
 
-    private static final int FIFTEEN_SECONDS = 1000 * 15;
+    public interface ApplicationLifecycleCallback {
+        void applicationDidEnterForeground();
+        void applicationWillEnterBackground();
+    }
+
+    private ApplicationLifecycleCallback listener;
 
     public static ApplicationLifecycleTracker sharedInstance(Context context) {
         if (applicationLifecycleTracker == null) {
@@ -89,11 +94,15 @@ public class ApplicationLifecycleTracker  {
     }
 
     public void applicationDidEnterForeground() {
-        Toast.makeText(mContext, "Application did enter foreground", Toast.LENGTH_SHORT).show();
+        if (listener != null) {
+            listener.applicationDidEnterForeground();
+        }
     }
 
     public void applicationWillEnterBackground() {
-        Toast.makeText(mContext, "Application will enter background", Toast.LENGTH_SHORT).show();
+        if (listener != null) {
+            listener.applicationWillEnterBackground();
+        }
     }
 
     public Activity getActivityInForeground() {
@@ -102,5 +111,13 @@ public class ApplicationLifecycleTracker  {
 
     public void setActivityTransitionInProgress(boolean inProgress) {
         this.activityTransitionInProgress = inProgress;
+    }
+
+    public void setApplicationLifecycleCallback(ApplicationLifecycleCallback callback) {
+        this.listener = callback;
+    }
+
+    public void clearApplicationLifecycleCallback() {
+        this.listener = null;
     }
 }
