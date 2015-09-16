@@ -118,7 +118,7 @@ public class ViewClassesView extends RelativeLayout {
                     //show web view
                     Intent viewIntent =
                             new Intent("android.intent.action.VIEW",
-                                    Uri.parse("https://www.seshtutoring.com"));
+                                    Uri.parse("https://www.seshtutoring.com/profile?action=classes"));
                     mContext.startActivity(viewIntent);
 
                 }
