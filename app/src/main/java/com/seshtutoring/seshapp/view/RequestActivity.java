@@ -99,10 +99,7 @@ public class RequestActivity extends SeshActivity implements
             LayoutUtils utils = new LayoutUtils(this);
             RelativeLayout container = (RelativeLayout) findViewById(R.id.request_layout_container);
             container.setPadding(0, utils.getStatusBarHeight(), 0, 0);
-        } else {
-
         }
-
         Intent intent = getIntent();
 
         this.currentLearnRequest = new LearnRequest();
@@ -167,7 +164,11 @@ public class RequestActivity extends SeshActivity implements
         requestFlowSlider.attachToActivity(this);
         requestFlowSlider.setViewPagerFragments(requestFlowFragments);
         requestFlowSlider.setProgressBar(learnRequestProgressBar);
-        requestFlowSlider.setSwipingAllowed(true);
+        if (Build.VERSION.SDK_INT >= 19) {
+            requestFlowSlider.setSwipingAllowed(true);
+        } else {
+            requestFlowSlider.setSwipingAllowed(false);
+        }
 
         final LayoutUtils utils = new LayoutUtils(this);
         final View rootView = (findViewById(android.R.id.content));
