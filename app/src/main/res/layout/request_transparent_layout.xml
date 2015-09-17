@@ -22,12 +22,14 @@
             <RelativeLayout
                 android:id="@+id/request_flow_close"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:padding="20dp">
                 <ImageView
                     android:layout_width="20dp"
                     android:layout_height="20dp"
-                    android:layout_margin="20dp"
-                    android:background="@drawable/close" />
+                    android:background="@drawable/close"
+                    android:layout_centerInParent="true"/>
             </RelativeLayout>
             <TextView
                 android:layout_width="wrap_content"
@@ -41,12 +43,13 @@
                 android:id="@+id/request_flow_next"
                 android:layout_alignParentRight="true"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:padding="20dp">
                 <ImageView
                     android:layout_width="20dp"
                     android:layout_height="20dp"
-                    android:layout_margin="20dp"
-                    android:background="@drawable/next"/>
+                    android:background="@drawable/next"
+                    android:layout_centerInParent="true"/>
             </RelativeLayout>
         </RelativeLayout>
         <com.seshtutoring.seshapp.view.components.LearnRequestProgressBar

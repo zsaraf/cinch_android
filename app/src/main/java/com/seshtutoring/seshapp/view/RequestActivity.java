@@ -99,6 +99,8 @@ public class RequestActivity extends SeshActivity implements
             LayoutUtils utils = new LayoutUtils(this);
             RelativeLayout container = (RelativeLayout) findViewById(R.id.request_layout_container);
             container.setPadding(0, utils.getStatusBarHeight(), 0, 0);
+        } else {
+
         }
 
         Intent intent = getIntent();
@@ -184,12 +186,12 @@ public class RequestActivity extends SeshActivity implements
                 });
 
                 spring.setCurrentValue(learnRequestTopBar.getY());
-                spring.setEndValue(utils.getStatusBarHeight());
-                if (Build.VERSION.SDK_INT < 16) {
-                    rootView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-                } else {
-                    rootView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                double endValue = 0;
+                if (Build.VERSION.SDK_INT >= 19) {
+                    endValue += utils.getStatusBarHeight();
                 }
+                spring.setEndValue(endValue);
+                rootView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
             }
         });
 
