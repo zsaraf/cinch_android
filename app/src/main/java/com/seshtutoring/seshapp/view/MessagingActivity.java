@@ -41,6 +41,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.List;
 import android.os.Handler;
 
@@ -59,6 +60,7 @@ public class MessagingActivity extends SeshActivity implements View.OnClickListe
     private ListView listView;
     private MessageAdapter messageAdapter;
     private Sesh sesh;
+    private int seshId;
     private boolean wasKeyboardOpen = false;
     private SeshNetworking seshNetworking;
     private SoftKeyboard softKeyboard;
@@ -112,17 +114,10 @@ public class MessagingActivity extends SeshActivity implements View.OnClickListe
 
         // Get the the sesh
         Bundle b = getIntent().getExtras();
-        final int seshId = b.getInt(SESH_ID);
-
-        List<Sesh> foundSeshes = Sesh.find(Sesh.class, "sesh_id = ?", Integer.toString(new Integer(seshId)));
-        this.sesh = foundSeshes.get(0);
-
-        if (this.sesh == null) {
-            Log.e(TAG, "Couldn't find sesh with ID: " + seshId);
-        }
+        this.seshId = b.getInt(SESH_ID);
 
         // Setup the message adapter
-        this.messageAdapter = new MessageAdapter(this, this.sesh.getMessages());
+        this.messageAdapter = new MessageAdapter(this);
 
         // Setup the list view
         this.listView.setOverScrollMode(ListView.OVER_SCROLL_ALWAYS);
@@ -130,17 +125,7 @@ public class MessagingActivity extends SeshActivity implements View.OnClickListe
 
         watchKeyboard();
 
-        listView.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                listView.smoothScrollToPosition(messageAdapter.getCount() - 1);
-            }
-        }, 250);
-
         broadcastReceiver = actionBroadcastReceiver;
-
-        isCurrentOnMessages();
-
     }
 
     private void isCurrentOnMessages() {
@@ -185,6 +170,18 @@ public class MessagingActivity extends SeshActivity implements View.OnClickListe
     public void onResume() {
         super.onResume();
 
+        this.sesh = Sesh.findSeshWithId(this.seshId);
+        this.messageAdapter.messages = this.sesh.getMessages();
+
+        listView.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                listView.smoothScrollToPosition(messageAdapter.getCount() - 1);
+            }
+        }, 250);
+
+        isCurrentOnMessages();
+
         // Listen for new messages
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(REFRESH_MESSAGES);
@@ -202,12 +199,17 @@ public class MessagingActivity extends SeshActivity implements View.OnClickListe
     private BroadcastReceiver actionBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            isCurrentOnMessages();
-            messageAdapter.messages = sesh.getMessages();
-            messageAdapter.notifyDataSetChanged();
-            listView.smoothScrollToPosition(messageAdapter.getCount() - 1);
+            onNewMessage();
         }
     };
+
+    public void onNewMessage() {
+        this.sesh = Sesh.findSeshWithId(this.seshId);
+        isCurrentOnMessages();
+        messageAdapter.messages = sesh.getMessages();
+        messageAdapter.notifyDataSetChanged();
+        listView.smoothScrollToPosition(messageAdapter.getCount() - 1);
+    }
 
     private void watchKeyboard() {
 
@@ -266,14 +268,16 @@ public class MessagingActivity extends SeshActivity implements View.OnClickListe
                         if (jsonObject.getString("status").equals("SUCCESS")) {
 
                             JSONArray messagesJSON = jsonObject.getJSONArray("messages");
+                            List<Message> messages = new ArrayList<>();
                             for (int i = 0; i < messagesJSON.length(); i++) {
                                 JSONObject messageJSON = messagesJSON.getJSONObject(i);
                                 Message message = Message.createOrUpdateMessageWithJSON(messageJSON, sesh, getApplicationContext());
                                 message.save();
+                                messages.add(message);
                             }
                             isCurrentOnMessages();
 
-                            messageAdapter.messages = sesh.getMessages();
+                            messageAdapter.messages = messages;
                             messageAdapter.notifyDataSetChanged();
                             listView.smoothScrollToPosition(messageAdapter.getCount() - 1);
                             textField.setHint("Message...");

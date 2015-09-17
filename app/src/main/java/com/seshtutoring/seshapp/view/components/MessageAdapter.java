@@ -14,6 +14,7 @@ import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.Message;
 import com.seshtutoring.seshapp.util.LayoutUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -26,10 +27,10 @@ public class MessageAdapter extends BaseAdapter {
     private static LayoutInflater inflater = null;
     private Typeface tf;
 
-    public MessageAdapter(Context context, List<Message> messages) {
+    public MessageAdapter(Context context) {
         // TODO Auto-generated constructor stub
         this.context = context;
-        this.messages = messages;
+        this.messages = new ArrayList<>();
         LayoutUtils layUtils = new LayoutUtils(context);
 
         this.tf = layUtils.getLightGothamTypeface();
