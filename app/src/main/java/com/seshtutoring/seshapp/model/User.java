@@ -25,6 +25,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -169,14 +170,16 @@ public class User extends SugarRecord<User> {
                 }
             }
 
-            Sesh.deleteAll(Sesh.class);
+            List<Sesh> currentSeshes = new ArrayList<>();
             if (dataJson.has("open_seshes")) {
                 JSONArray openSeshes = dataJson.getJSONArray("open_seshes");
                 for (int i = 0; i < openSeshes.length(); i++) {
                     JSONObject openSeshJson = openSeshes.getJSONObject(i);
-                    Sesh.createOrUpdateSeshWithObject(openSeshJson, context);
+                    Sesh newSesh = Sesh.createOrUpdateSeshWithObject(openSeshJson, context);
+                    currentSeshes.add(newSesh);
                 }
             }
+            deleteSeshesNotInArray(currentSeshes);
 
             LearnRequest.deleteAll(LearnRequest.class);
             if (dataJson.has("open_requests")) {
@@ -239,6 +242,22 @@ public class User extends SugarRecord<User> {
                 PastSesh.find(PastSesh.class, "tutor_user_id = ?", Integer.toString(userId));
         studentPastSeshes.addAll(tutorPastSeshes);
         return studentPastSeshes;
+    }
+
+    public static void deleteSeshesNotInArray(List<Sesh> seshes) {
+        List<Sesh> allSeshes = Sesh.listAll(Sesh.class);
+        for (Sesh sesh : allSeshes) {
+            boolean containsSesh = false;
+            for (int i = 0; i < seshes.size(); i++) {
+                Sesh currentSesh = seshes.get(i);
+                if (currentSesh.seshId == sesh.seshId) {
+                    containsSesh = true;
+                }
+            }
+            if (!containsSesh) {
+                sesh.delete();
+            }
+        }
     }
 
     public List<Card> getCards() {
