@@ -83,6 +83,7 @@ public class LearnRequestTimeFragment extends SeshViewPager.InputFragment implem
         estimatedTotalLabel.setTypeface(bold);
 
         durationTextBox = (SeshEditText) v.findViewById(R.id.duration_edit_text);
+        durationTextBox.setOnKeyListener(null);
         seshDurationPicker = (SeshDurationPicker) v.findViewById(R.id.duration_picker);
 
         isCompleted = false;

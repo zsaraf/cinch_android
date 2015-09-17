@@ -9,6 +9,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.Matrix;
+import android.media.ExifInterface;
 import android.media.Image;
 import android.net.Uri;
 import android.os.Environment;
@@ -352,8 +354,15 @@ public class ProfileFragment extends Fragment implements FragmentOptionsReceiver
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
         Uri photoUri = Uri.fromFile(rawPhotoFile);
         Uri croppedPhotoUri = Uri.fromFile(croppedPhotoFile);
+
         if (requestCode == REQUEST_TAKE_PHOTO) {
             if (resultCode == Activity.RESULT_OK) {
+                try {
+                    Bitmap uncroppedBitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), photoUri);
+                    Log.i("coewkjfnas", "sfdkjfansd");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 shouldRefreshProfPic = false;
                 Crop.of(photoUri, croppedPhotoUri).asSquare().start(getActivity(), this);
             } else {
@@ -368,8 +377,19 @@ public class ProfileFragment extends Fragment implements FragmentOptionsReceiver
             try {
                 photo = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), croppedPhotoUri);
                 Bitmap resizedBitmap = Bitmap.createScaledBitmap(photo, 600, 600, false);
+
                 FileOutputStream out = new FileOutputStream(resizedPhotoFile);
                 resizedBitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+                try {
+                    ExifInterface exifInterface = new ExifInterface(croppedPhotoUri.getPath());
+                    int exifOrientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION,
+                            ExifInterface.ORIENTATION_NORMAL);
+                    Log.i("EXIF ORIENTATION", exifOrientation + "");
+                    resizedBitmap = rotateBitmap(resizedBitmap, exifOrientation);
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
 
                 profilePicture.setImageBitmap(resizedBitmap);
 
@@ -400,6 +420,50 @@ public class ProfileFragment extends Fragment implements FragmentOptionsReceiver
                 user.save();
             } catch (IOException e) {
             }
+        }
+    }
+
+    public static Bitmap rotateBitmap(Bitmap bitmap, int orientation) {
+
+        Matrix matrix = new Matrix();
+        switch (orientation) {
+            case ExifInterface.ORIENTATION_NORMAL:
+                return bitmap;
+            case ExifInterface.ORIENTATION_FLIP_HORIZONTAL:
+                matrix.setScale(-1, 1);
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_180:
+                matrix.setRotate(180);
+                break;
+            case ExifInterface.ORIENTATION_FLIP_VERTICAL:
+                matrix.setRotate(180);
+                matrix.postScale(-1, 1);
+                break;
+            case ExifInterface.ORIENTATION_TRANSPOSE:
+                matrix.setRotate(90);
+                matrix.postScale(-1, 1);
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_90:
+                matrix.setRotate(90);
+                break;
+            case ExifInterface.ORIENTATION_TRANSVERSE:
+                matrix.setRotate(-90);
+                matrix.postScale(-1, 1);
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_270:
+                matrix.setRotate(-90);
+                break;
+            default:
+                return bitmap;
+        }
+        try {
+            Bitmap bmRotated = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+            bitmap.recycle();
+            return bmRotated;
+        }
+        catch (OutOfMemoryError e) {
+            e.printStackTrace();
+            return null;
         }
     }
 
