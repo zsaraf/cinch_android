@@ -25,6 +25,7 @@ import android.widget.Toast;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.seshtutoring.seshapp.SeshApplication;
 import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.util.SoftKeyboard;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
@@ -73,7 +74,11 @@ public class AddCardActivity extends SeshActivity {
         setContentView(R.layout.activity_add_card);
         seshNetworking = new SeshNetworking(this);
         try {
-            stripe = new Stripe("pk_test_E48987GUrgLiosECqaIUdgXt");
+            if (SeshApplication.IS_DEV) {
+                stripe = new Stripe("pk_test_E48987GUrgLiosECqaIUdgXt");
+            } else {
+                stripe = new Stripe("pk_live_JmGDanJioaYsqSBMtDHe0FdP");
+            }
         } catch (AuthenticationException e) {
             e.printStackTrace();
         }
