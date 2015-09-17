@@ -539,7 +539,7 @@ public class ViewAvailableJobsFragment extends ListFragment {
                 SeshDialog seshDialog = new SeshDialog();
                 seshDialog.setDialogType(SeshDialog.SeshDialogType.ONE_BUTTON);
                 seshDialog.setTitle("Onboarding Complete");
-                seshDialog.setMessage("You're good to go!  Swipe again to accept the Sesh request!");
+                seshDialog.setMessage("You're good to go!  Hit confirm again to accept the Sesh request!");
                 seshDialog.setFirstChoice("OKAY");
                 seshDialog.setType("onboarding_complete");
                 seshDialog.showWithDelay(getFragmentManager(), null, 1000);

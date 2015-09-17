@@ -181,8 +181,7 @@ public class PaymentFragment extends ListFragment implements FragmentOptionsRece
     }
 
     private void onCardsFailure(String message) {
-        Log.e(TAG, message);
-        Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
+        showErrorDialog("Whoops!", "There was a network error, please check your internet connection and try again!");
     }
 
     public void deleteCard(final Card card) {

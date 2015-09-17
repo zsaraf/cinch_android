@@ -431,7 +431,7 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
                     });
 
         } else if (type.equals(DIALOG_TYPE_FOUND_TUTOR)) {
-            Toast.makeText(this, "showing activity", Toast.LENGTH_LONG).show();
+            //Toast.makeText(this, "showing activity", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -444,17 +444,22 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
                 startActivity(intent);
             } else if (responseJson.get("status").equals("FAILURE")) {
                 String message = responseJson.get("message").toString();
-                Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+                showErrorDialog("Whoops!", message);
             }
         } catch (JSONException e) {
-            Log.e(TAG, e.toString());
-            Toast.makeText(this, "Logout failed.", Toast.LENGTH_LONG).show();
+            showErrorDialog("Whoops!", "There was a network error, please check your internet connection and try again!");
+
         }
     }
 
     private void onLogoutFailure(String errorMessage) {
-        Log.e(TAG, "NETWORK ERROR: " + errorMessage);
-        Toast.makeText(this, "We couldn't reach the network, sorrys!", Toast.LENGTH_LONG).show();
+        showErrorDialog("Whoops!", "There was a network error, please check your internet connection and try again!");
+
+    }
+
+    private void showErrorDialog(String title, String message) {
+        SeshDialog.showDialog(getFragmentManager(), title, message,
+                "OKAY", null, "view_request_network_error");
     }
 
     /**
