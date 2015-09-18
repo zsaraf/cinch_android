@@ -5,21 +5,13 @@
     android:id="@+id/promote_layout"
     android:padding="20dp"
     xmlns:custom="http://schemas.android.com/apk/res-auto">
-    <ImageView
-        android:id="@+id/promote_trumpet_image"
-        android:layout_width="100dp"
-        android:layout_height="50dp"
-        android:layout_centerHorizontal="true"
-        android:src="@drawable/horn"/>
     <TextView
         android:id="@+id/promote_share_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="@color/seshorange"
         android:text="Share Sesh"
-        android:textSize="20dp"
-        android:textStyle="bold"
-        android:layout_below="@+id/promote_trumpet_image"/>
+        android:textSize="20dp" />
     <TextView
         android:id="@+id/promote_share_description"
         android:layout_width="wrap_content"
@@ -28,114 +20,24 @@
         android:paddingTop="10dp"
         android:textSize="16dp"
         android:text="The power of Sesh lies with its community. The more people you share Sesh with, the better experience you will have!"/>
-    <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_below="@id/promote_share_description"
-        android:gravity="center"
-        android:layout_marginLeft="-10dp"
-        android:layout_marginRight="-10dp"
-        android:paddingTop="20dp">
-        <RelativeLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1">
-            <ImageButton
-                android:id="@+id/promote_share_button"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_centerHorizontal="true"
-                android:src="@drawable/fb_share"
-                android:background="@color/transparent"
-                android:scaleType="fitXY" />
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="SHARE"
-                android:textSize="16dp"
-                android:paddingTop="10dp"
-                android:layout_centerHorizontal="true"
-                android:layout_below="@id/promote_share_button"
-                android:textColor="@color/seshcharcoal"/>
-        </RelativeLayout>
-        <RelativeLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1">
-            <ImageButton
-                android:id="@+id/promote_tweet_button"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_centerHorizontal="true"
-                android:src="@drawable/tweet_share"
-                android:background="@color/transparent"
-                android:scaleType="fitXY"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="TWEET"
-                android:textSize="16dp"
-                android:paddingTop="10dp"
-                android:layout_centerHorizontal="true"
-                android:layout_below="@id/promote_tweet_button"
-                android:textColor="@color/seshcharcoal"/>
-        </RelativeLayout>
-        <RelativeLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1">
-            <ImageButton
-                android:id="@+id/promote_message_button"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_centerHorizontal="true"
-                android:src="@drawable/text_share"
-                android:background="@color/transparent"
-                android:scaleType="fitXY"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="MESSAGE"
-                android:textSize="16dp"
-                android:paddingTop="10dp"
-                android:layout_centerHorizontal="true"
-                android:layout_below="@id/promote_message_button"
-                android:textColor="@color/seshcharcoal"/>
-        </RelativeLayout>
-        <RelativeLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1">
-            <ImageButton
-                android:id="@+id/promote_email_button"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_centerHorizontal="true"
-                android:src="@drawable/email_share"
-                android:background="@color/transparent"
-                android:scaleType="fitXY"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="EMAIL"
-                android:textSize="16dp"
-                android:paddingTop="10dp"
-                android:layout_centerHorizontal="true"
-                android:layout_below="@id/promote_email_button"
-                android:textColor="@color/seshcharcoal"/>
-        </RelativeLayout>
 
-    </LinearLayout>
+    <com.seshtutoring.seshapp.view.components.SeshButton
+        android:id="@+id/promote_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="0dp"
+        android:layout_marginRight="0dp"
+        android:layout_marginBottom="0dp"
+        android:layout_marginTop="20dp"
+        android:text="SHARE"
+        custom:buttonType="red"
+        android:layout_below="@id/promote_share_description"/>
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true">
+        android:layout_marginTop="20dp"
+        android:layout_below="@+id/promote_button">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -146,7 +48,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Redeem"
-                android:textStyle="bold"
                 android:textSize="20dp"
                 android:textColor="@color/seshorange"
                 android:layout_centerVertical="true"

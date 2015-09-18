@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -39,10 +40,11 @@ import java.util.Map;
 public class PromoteFragment extends Fragment implements FragmentOptionsReceiver {
     private Map<String, Object> options;
 
-    ImageButton fbShareButton, tweetButton, messageButton, emailButton;
     SeshButton redeemButton;
     SeshEditText redeemEditText;
     SeshActivityIndicator seshActivityIndicator;
+
+    SeshButton shareButton;
 
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
         View v = layoutInflater.inflate(R.layout.promote_fragment, null);
@@ -52,14 +54,6 @@ public class PromoteFragment extends Fragment implements FragmentOptionsReceiver
         RelativeLayout promoteLayout = (RelativeLayout) v.findViewById(R.id.promote_layout);
         int padding = utils.dpToPixels(20);
         promoteLayout.setPadding(padding, utils.getActionBarHeightPx(), padding, padding);
-
-        fbShareButton = (ImageButton) v.findViewById(R.id.promote_share_button);
-
-        tweetButton = (ImageButton) v.findViewById(R.id.promote_tweet_button);
-
-        messageButton = (ImageButton) v.findViewById(R.id.promote_message_button);
-
-        emailButton = (ImageButton) v.findViewById(R.id.promote_email_button);
 
         redeemButton = (SeshButton) v.findViewById(R.id.promote_redeem_button);
 
@@ -72,17 +66,15 @@ public class PromoteFragment extends Fragment implements FragmentOptionsReceiver
             public void onClick(View v) {
                     Intent shareIntent = new Intent(android.content.Intent.ACTION_SEND);
                     shareIntent.setType("text/plain");
-                    shareIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "share subject");
-                    shareIntent.putExtra(android.content.Intent.EXTRA_TEXT, "share text");
+                    shareIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Try out Sesh!");
+                    shareIntent.putExtra(android.content.Intent.EXTRA_TEXT, "Try out Sesh Tutoring, a mobile tutoring app for college campuses. Get instant in-person help on assignments from students who've previously aced the class! Visit http://seshtutoring.com to learn more!");
 
                     getActivity().startActivity(Intent.createChooser(shareIntent, "Share Sesh!"));
             }
         };
 
-        fbShareButton.setOnClickListener(onButtonClickListener);
-        tweetButton.setOnClickListener(onButtonClickListener);
-        messageButton.setOnClickListener(onButtonClickListener);
-        emailButton.setOnClickListener(onButtonClickListener);
+        shareButton = (SeshButton) v.findViewById(R.id.promote_button);
+        shareButton.setOnClickListener(onButtonClickListener);
 
         redeemButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -150,18 +142,6 @@ public class PromoteFragment extends Fragment implements FragmentOptionsReceiver
                 break;
             }
         }
-    }
-
-    private void shareTweet() {
-
-    }
-
-    private void shareMessage() {
-
-    }
-
-    private void shareEmail() {
-
     }
 
     @Override
