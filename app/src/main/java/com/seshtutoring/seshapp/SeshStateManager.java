@@ -114,14 +114,16 @@ public class SeshStateManager {
         Log.d(TAG, "STARTING IN SESH ACTIVITY");
         Intent intent = new Intent(mContext, InSeshActivity.class);
         Activity foregroundActivity = ApplicationLifecycleTracker.sharedInstance(mContext).getActivityInForeground();
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         foregroundActivity.startActivity(intent);
-        foregroundActivity.overridePendingTransition(R.anim.slide_up, R.anim.hold);
     }
 
     private void startMainContainerActivity() {
         Intent intent = new Intent(mContext, MainContainerActivity.class);
+        Activity foregroundActivity = ApplicationLifecycleTracker.sharedInstance(mContext).getActivityInForeground();
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-        ApplicationLifecycleTracker.sharedInstance(mContext).getActivityInForeground().startActivity(intent);
+        foregroundActivity.startActivity(intent);
+        foregroundActivity.finish();
     }
 
     public static SeshStateManager sharedInstance(Context context) {
