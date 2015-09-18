@@ -377,9 +377,6 @@ public class ProfileFragment extends Fragment implements FragmentOptionsReceiver
             try {
                 photo = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), croppedPhotoUri);
                 Bitmap resizedBitmap = Bitmap.createScaledBitmap(photo, 600, 600, false);
-
-                FileOutputStream out = new FileOutputStream(resizedPhotoFile);
-                resizedBitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
                 try {
                     ExifInterface exifInterface = new ExifInterface(croppedPhotoUri.getPath());
                     int exifOrientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION,
@@ -387,9 +384,14 @@ public class ProfileFragment extends Fragment implements FragmentOptionsReceiver
                     Log.i("EXIF ORIENTATION", exifOrientation + "");
                     resizedBitmap = rotateBitmap(resizedBitmap, exifOrientation);
 
+
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+
+                FileOutputStream out = new FileOutputStream(resizedPhotoFile);
+                resizedBitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+
 
                 profilePicture.setImageBitmap(resizedBitmap);
 
