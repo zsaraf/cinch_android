@@ -90,9 +90,17 @@ public class ViewSeshUserDescriptionFragment extends Fragment {
             List<Sesh> seshesFound = Sesh.find(Sesh.class, "sesh_id = ?", Integer.toString(new Integer(seshId)));
             sesh = seshesFound.get(0);
 
-            bioTextView.setText(sesh.userDescription);
+            if (sesh.userDescription.length() > 0) {
+                bioTextView.setText(sesh.userDescription);
+            } else {
+                bioTextView.setText("Unspecified bio");
+            }
             schoolLabel.setText(User.currentUser(getActivity()).school.schoolName);
-            majorLabel.setText(sesh.userMajor);
+            if (sesh.userMajor.length() > 0) {
+                majorLabel.setText(sesh.userMajor);
+            } else {
+                majorLabel.setText("Unspecified major");
+            }
         }
     }
 

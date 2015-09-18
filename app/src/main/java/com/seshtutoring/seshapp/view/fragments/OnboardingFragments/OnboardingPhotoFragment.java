@@ -6,6 +6,8 @@ import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Matrix;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -254,6 +256,19 @@ public class OnboardingPhotoFragment extends SeshViewPager.InputFragment {
             try {
                 photo = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), croppedPhotoUri);
                 Bitmap resizedBitmap = Bitmap.createScaledBitmap(photo, 600, 600, false);
+
+                try {
+                    ExifInterface exifInterface = new ExifInterface(croppedPhotoUri.getPath());
+                    int exifOrientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION,
+                            ExifInterface.ORIENTATION_NORMAL);
+                    Log.i("EXIF ORIENTATION", exifOrientation + "");
+                    resizedBitmap = rotateBitmap(resizedBitmap, exifOrientation);
+
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
                 FileOutputStream out = new FileOutputStream(resizedPhotoFile);
                 resizedBitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
 
@@ -308,6 +323,50 @@ public class OnboardingPhotoFragment extends SeshViewPager.InputFragment {
         });
 
         return seshDialog;
+    }
+
+    public static Bitmap rotateBitmap(Bitmap bitmap, int orientation) {
+
+        Matrix matrix = new Matrix();
+        switch (orientation) {
+            case ExifInterface.ORIENTATION_NORMAL:
+                return bitmap;
+            case ExifInterface.ORIENTATION_FLIP_HORIZONTAL:
+                matrix.setScale(-1, 1);
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_180:
+                matrix.setRotate(180);
+                break;
+            case ExifInterface.ORIENTATION_FLIP_VERTICAL:
+                matrix.setRotate(180);
+                matrix.postScale(-1, 1);
+                break;
+            case ExifInterface.ORIENTATION_TRANSPOSE:
+                matrix.setRotate(90);
+                matrix.postScale(-1, 1);
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_90:
+                matrix.setRotate(90);
+                break;
+            case ExifInterface.ORIENTATION_TRANSVERSE:
+                matrix.setRotate(-90);
+                matrix.postScale(-1, 1);
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_270:
+                matrix.setRotate(-90);
+                break;
+            default:
+                return bitmap;
+        }
+        try {
+            Bitmap bmRotated = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+            bitmap.recycle();
+            return bmRotated;
+        }
+        catch (OutOfMemoryError e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     private class UploadProfilePictureAsyncTask extends AsyncTask<Void, Void, Void> {
