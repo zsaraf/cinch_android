@@ -52,7 +52,7 @@ public class Notification extends SugarRecord<Notification> {
         REQUEST_TIMEOUT, SESH_CANCELLED_TUTOR, SESH_CANCELLED_STUDENT, SET_TIME_UPDATED,
         SESH_APPROACHING_STUDENT, SESH_APPROACHING_TUTOR, SESH_REVIEW_STUDENT, SESH_REVIEW_TUTOR,
         SESH_CREATED_STUDENT, SESH_CREATED_TUTOR, UPDATE_STATE, REFRESH_NOTIFICATIONS, DISCOUNT_AVAILABLE,
-        REQUEST_SENT
+        REQUEST_SENT, UNKNOWN_NOTIFICATION
     }
 
     @Ignore
@@ -301,8 +301,7 @@ public class Notification extends SugarRecord<Notification> {
         } else if (identifier.equals("REQUEST_SENT")) {
             return NotificationType.REQUEST_SENT;
         } else {
-                Log.e(TAG, "Notification has no type....; identifier: " + identifier);
-                return null;
+            return NotificationType.UNKNOWN_NOTIFICATION;
         }
     }
 

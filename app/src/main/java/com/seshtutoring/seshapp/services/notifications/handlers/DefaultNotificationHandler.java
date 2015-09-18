@@ -1,6 +1,7 @@
 package com.seshtutoring.seshapp.services.notifications.handlers;
 
 import android.content.Context;
+import android.content.Intent;
 
 import com.seshtutoring.seshapp.SeshApplication;
 import com.seshtutoring.seshapp.model.Notification;
@@ -17,4 +18,7 @@ public class DefaultNotificationHandler extends NotificationHandler {
     public void handleDisplayInsideApp() {
         Notification.currentNotificationHandled(mContext, true);
     }
+
+    @Override
+    protected void showNotificationForIntent(Intent intent) { }
 }
