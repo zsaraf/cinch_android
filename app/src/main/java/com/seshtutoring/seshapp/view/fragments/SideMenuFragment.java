@@ -379,7 +379,7 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenList
                     ImageView icon = (ImageView)convertView.findViewById(R.id.open_sesh_list_row_status_icon);
                     int drawableId;
 
-                    if (item.sesh.seshSetTime == -1) {
+                    if (item.sesh.seshSetTime == -1 && !item.sesh.isInstant) {
                         drawableId = R.drawable.alert;
                     } else {
                         drawableId = R.drawable.check_green;
