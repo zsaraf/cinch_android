@@ -17,7 +17,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Stanford University is"
+        android:text="School Name is"
         android:id="@+id/school_name"
         android:layout_alignParentTop="false"
         android:layout_centerHorizontal="true"
@@ -25,7 +25,9 @@
         android:gravity="center"
         style="@style/GothamBook"
         android:textColor="@color/white"
-        android:layout_below="@+id/logout_button" />
+        android:layout_below="@+id/logout_button"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp" />
 
     <TextView
         android:layout_width="match_parent"
@@ -63,8 +65,8 @@
         android:textColor="@color/white"
         android:textSize="20dp"
         android:gravity="center_vertical|center_horizontal"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
         style="@style/GothamBook"/>
 
     <com.seshtutoring.seshapp.view.components.SeshButton

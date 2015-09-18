@@ -1,5 +1,7 @@
 package com.seshtutoring.seshapp.view;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -141,17 +143,32 @@ public class ConfirmationCodeActivity extends SeshActivity {
                                 seshMixpanelAPI.track("User Verified Signup");
 
                                 if (SeshApplication.IS_LIVE) {
-                                    HashSet<LaunchPrerequisiteFlag> fulfilledPrereqs = new HashSet<>();
-                                    fulfilledPrereqs.add(LaunchPrerequisiteFlag.USER_INFORMATION_FETCHED);
-                                    (new LaunchPrerequisiteAsyncTask(getApplicationContext(), fulfilledPrereqs,
-                                            new PrereqsFulfilledListener() {
-                                                @Override
-                                                public void onPrereqsFulfilled() {
-                                                    Intent intent = new Intent(getApplicationContext(), MainContainerActivity.class);
-                                                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                                                    startActivity(intent);
-                                                }
-                                            })).execute();
+                                    if (user.school.enabled) {
+                                        HashSet<LaunchPrerequisiteFlag> fulfilledPrereqs = new HashSet<>();
+                                        fulfilledPrereqs.add(LaunchPrerequisiteFlag.USER_INFORMATION_FETCHED);
+                                        (new LaunchPrerequisiteAsyncTask(getApplicationContext(), fulfilledPrereqs,
+                                                new PrereqsFulfilledListener() {
+                                                    @Override
+                                                    public void onPrereqsFulfilled() {
+                                                        Intent intent = new Intent(getApplicationContext(), MainContainerActivity.class);
+                                                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                                        startActivity(intent);
+                                                    }
+                                                })).execute();
+                                    } else {
+                                        HashSet<LaunchPrerequisiteFlag> fulfilledPrereqs = new HashSet<>();
+                                        fulfilledPrereqs.add(LaunchPrerequisiteFlag.USER_INFORMATION_FETCHED);
+                                        (new LaunchPrerequisiteAsyncTask(getApplicationContext(), fulfilledPrereqs,
+                                                new PrereqsFulfilledListener() {
+                                                    @Override
+                                                    public void onPrereqsFulfilled() {
+                                                        Intent intent = new Intent(getApplicationContext(), LaunchSchoolActivity.class);
+                                                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                                        startActivity(intent);
+                                                    }
+                                                })).execute();
+                                    }
+
                                 } else {
                                     Intent intent = new Intent(getApplicationContext(), UnreleasedLaunchActivity.class);
                                     startActivity(intent);
