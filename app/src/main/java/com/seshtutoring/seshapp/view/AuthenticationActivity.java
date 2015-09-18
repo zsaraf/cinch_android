@@ -132,6 +132,7 @@ public class AuthenticationActivity extends SeshActivity implements SeshDialog.O
 
         this.dontHaveAccountText = (LinearLayout) findViewById(R.id.dont_have_account_text);
         this.alreadyHaveAccountText = (LinearLayout) findViewById(R.id.already_have_account_text);
+        //this.forgotPasswordWrapper = (LinearLayout) findViewById(R.id.forgot_password_wrapper);
         this.forgotPasswordLink = (TextView) findViewById(R.id.forgot_password_link);
         this.termsAndPrivacyPolicyText = (TextView) findViewById(R.id.terms_and_privacy_text);
 
@@ -724,13 +725,17 @@ public class AuthenticationActivity extends SeshActivity implements SeshDialog.O
             public void onGlobalLayout() {
 
                 if (entranceType == EntranceType.LOGIN) {
+                    final int yDeltaAccount = utils.dpToPixels(TERMS_TEXT_OFFSET_DP);
+                    int yPos = (int) alreadyHaveAccountText.getY() + yDeltaAccount;
+                    alreadyHaveAccountText.setY(yPos);
+
                     fullnameEditText.setAlpha(0);
                     reenterPasswordEditText.setAlpha(0);
                     alreadyHaveAccountText.setAlpha(0);
                     termsAndPrivacyPolicyText.setAlpha(0);
 
-                    //alreadyHaveAccountText.setVisibility(View.GONE);
-                    //termsAndPrivacyPolicyText.setVisibility(View.GONE);
+                    alreadyHaveAccountText.setVisibility(View.GONE);
+                    termsAndPrivacyPolicyText.setVisibility(View.GONE);
 
                     fullnameEditText.setEditTextEnabled(false);
                     reenterPasswordEditText.setEditTextEnabled(false);
