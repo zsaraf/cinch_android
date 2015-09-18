@@ -74,11 +74,17 @@ public class LocationManager implements GoogleApiClient.ConnectionCallbacks,
         if (currentBestLocation != null) {
             return currentBestLocation;
         } else {
-            Log.e(TAG, "Unable to retrieve last known coordinates, resorting to default current location");
-            Location defaultLocationCoordinates = new Location("");
-            defaultLocationCoordinates.setLatitude(37.4300d);
-            defaultLocationCoordinates.setLongitude(-122.1700d);
-            return defaultLocationCoordinates;
+            currentBestLocation = LocationServices.FusedLocationApi.getLastLocation(
+                    mGoogleApiClient);
+            if (currentBestLocation != null) {
+                return currentBestLocation;
+            } else {
+                Log.e(TAG, "Unable to retrieve last known coordinates, resorting to default current location");
+                Location defaultLocationCoordinates = new Location("");
+                defaultLocationCoordinates.setLatitude(37.4300d);
+                defaultLocationCoordinates.setLongitude(-122.1700d);
+                return defaultLocationCoordinates;
+            }
         }
     }
 
