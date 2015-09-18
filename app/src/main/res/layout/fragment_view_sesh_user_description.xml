@@ -14,43 +14,43 @@
             android:layout_height="fill_parent">
 
             <RelativeLayout
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true">
 
-            <com.seshtutoring.seshapp.view.components.SeshInformationLabel
-                android:id="@+id/school_label"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginRight="35dp"
-                android:layout_marginLeft="35dp"
-                custom:informationLabelText="class"
-                custom:informationLabelIcon="@drawable/university_big" />
+                <com.seshtutoring.seshapp.view.components.SeshInformationLabel
+                    android:id="@+id/school_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="35dp"
+                    android:layout_marginLeft="35dp"
+                    custom:informationLabelText="class"
+                    custom:informationLabelIcon="@drawable/university_big" />
 
-            <com.seshtutoring.seshapp.view.components.SeshInformationLabel
-                android:id="@+id/major_label"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginRight="35dp"
-                android:layout_marginLeft="35dp"
-                android:layout_marginTop="10dp"
-                android:layout_below="@+id/school_label"
-                custom:informationLabelText="hello"
-                custom:informationLabelIcon="@drawable/major_profile" />
+                <com.seshtutoring.seshapp.view.components.SeshInformationLabel
+                    android:id="@+id/major_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="35dp"
+                    android:layout_marginLeft="35dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_below="@+id/school_label"
+                    custom:informationLabelText="hello"
+                    custom:informationLabelIcon="@drawable/major_profile" />
 
-            <TextView
-                android:id="@+id/bio_text_view"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
-                android:layout_below="@+id/major_label"
-                android:layout_marginLeft="40dp"
-                android:layout_marginRight="40dp"
-                android:layout_marginTop="20dp"
-                android:gravity="center"
-                android:text="My name is Zach Saraf and I love going hiking everyday and doing fun things with my friends because its cool and this is a run on sentence and I just want it to be long"/>
+                <TextView
+                    android:id="@+id/bio_text_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:layout_below="@+id/major_label"
+                    android:layout_marginLeft="40dp"
+                    android:layout_marginRight="40dp"
+                    android:layout_marginTop="20dp"
+                    android:gravity="center"
+                    android:text="My name is Zach Saraf and I love going hiking everyday and doing fun things with my friends because its cool and this is a run on sentence and I just want it to be long"/>
 
-        </RelativeLayout>
+            </RelativeLayout>
         </RelativeLayout>
 
     </ScrollView>
