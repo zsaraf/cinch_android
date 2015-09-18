@@ -9,6 +9,8 @@ import com.android.volley.toolbox.RequestFuture;
 import com.seshtutoring.seshapp.model.Notification;
 import com.seshtutoring.seshapp.model.PastSesh;
 import com.seshtutoring.seshapp.model.Sesh;
+import com.seshtutoring.seshapp.model.Tutor;
+import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking.SynchronousRequest;
 
@@ -43,6 +45,8 @@ public abstract class SeshEndedNotificationHandler extends NotificationHandler {
                 Notification.currentNotificationHandled(mContext, false);
             }
         };
+
+        User.fetchUserInfoFromServer(mContext);
 
         JSONObject jsonObject = request.execute();
         Log.d(TAG, "REPLACE SESH CALLED");

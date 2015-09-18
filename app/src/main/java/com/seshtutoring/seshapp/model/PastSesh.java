@@ -115,4 +115,8 @@ public class PastSesh extends SugarRecord<PastSesh> {
         return formatter.parseDateTime(rawTimeString).toDate();
     }
 
+    public boolean isStudent(Context context) {
+        return (this.studentId == User.currentUser(context).student.studentId);
+    }
+
 }
