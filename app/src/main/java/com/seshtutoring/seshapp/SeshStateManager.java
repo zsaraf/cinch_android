@@ -120,6 +120,7 @@ public class SeshStateManager {
 
     private void startMainContainerActivity() {
         Intent intent = new Intent(mContext, MainContainerActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         ApplicationLifecycleTracker.sharedInstance(mContext).getActivityInForeground().startActivity(intent);
     }
 
