@@ -2,6 +2,8 @@ package com.seshtutoring.seshapp.view.fragments.LearnRequestFragments;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -11,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -81,28 +84,42 @@ public class LearnRequestCourseFragment extends SeshViewPager.InputFragment {
             }
 
             @Override
-            public void afterTextChanged(Editable s) {
-                if (s.toString().equals("") || selectedCourse != null) {
-                    courseResults.clear();
-                    return;
-                }
-                seshNetworking.searchForClassName(s.toString(), new Response.Listener<JSONObject>() {
-                    public void onResponse(JSONObject jsonResponse) {
-                        try {
-                            if (jsonResponse.get("status").equals("SUCCESS")) {
-                                courseResults.clear();
-                                JSONArray classesArrayJson = jsonResponse.getJSONArray("classes");
-                                for (int i = 0; i < classesArrayJson.length(); i++) {
-                                    courseResults.add(Course.createCourseFromSearchJSON((classesArrayJson.getJSONObject(i))));
-                                }
-                                courseResultsAdapter.notifyDataSetChanged();
-                            } else {
-                                Log.e(TAG, jsonResponse.getString("message"));
-                            }
-                        } catch (JSONException e) {
-                            Log.e(TAG, e.getMessage());
+            public void afterTextChanged(final Editable s) {
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (s.toString().equals("") || selectedCourse != null) {
+                            courseResults.clear();
+                            return;
                         }
                     }
+                });
+                seshNetworking.searchForClassName(s.toString(), new Response.Listener<JSONObject>()
+                {
+                    public void onResponse(final JSONObject jsonResponse) {
+                        new Handler(Looper.getMainLooper()).post(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    if (jsonResponse.get("status").equals("SUCCESS")) {
+                                        courseResults.clear();
+                                        JSONArray classesArrayJson = jsonResponse.getJSONArray("classes");
+                                        for (int i = 0; i < classesArrayJson.length(); i++) {
+                                            courseResults.add(Course.createCourseFromSearchJSON((classesArrayJson.getJSONObject(i))));
+                                        }
+                                        courseResultsAdapter.notifyDataSetChanged();
+                                    } else {
+                                        Log.e(TAG, jsonResponse.getString("message"));
+                                    }
+                                } catch (JSONException e) {
+                                    Log.e(TAG, e.getMessage());
+                                }
+                            }
+                        });
+                    }
+
+
+
                 }, new Response.ErrorListener() {
                     public void onErrorResponse(VolleyError volleyError) {
                         Log.e(TAG, volleyError.getMessage());
@@ -134,7 +151,7 @@ public class LearnRequestCourseFragment extends SeshViewPager.InputFragment {
             View v = convertView;
 
             if (v == null) {
-                 v = layoutInflater.inflate(R.layout.course_results_row, null);
+                v = layoutInflater.inflate(R.layout.course_results_row, null);
             }
 
             TextView classRowText = (TextView) v.findViewById(R.id.course_row_text);
@@ -170,8 +187,13 @@ public class LearnRequestCourseFragment extends SeshViewPager.InputFragment {
     public void onFragmentInForeground() {
         courseEditText.setText("");
         courseEditText.requestEditTextFocus();
-        courseResults.clear();
-        ((CourseResultsAdapter)this.courseResultsListView.getAdapter()).notifyDataSetChanged();
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                courseResults.clear();
+                ((CourseResultsAdapter)courseResultsListView.getAdapter()).notifyDataSetChanged();
+            }
+        });
         selectedCourse = null;
         parentActivity.showKeyboard();
         parentActivity.showRequestFlowNextButton();
@@ -180,5 +202,10 @@ public class LearnRequestCourseFragment extends SeshViewPager.InputFragment {
     @Override
     public void beforeFragmentInForeground() {
         // do nothing
+    }
+
+    @Override
+    public SeshEditText editText() {
+        return courseEditText;
     }
 }

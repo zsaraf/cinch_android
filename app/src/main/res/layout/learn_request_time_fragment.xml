@@ -142,13 +142,161 @@
                 android:gravity="center_horizontal"
                 android:textColor="@color/white"/>
         </LinearLayout>
-
-    <com.seshtutoring.seshapp.view.components.SeshDurationPicker
-                android:layout_width="match_parent"
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_alignParentBottom="true"
+        android:background="@color/white">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Next"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            android:textSize="16dp"
+            android:padding="10dp"
+            android:textColor="#5799E4"
+            android:id="@+id/next_button" />
+        <LinearLayout
+            android:id="@+id/title_labels_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:layout_marginBottom="5dp"
+            android:layout_marginTop="-5dp"
+            android:layout_below="@id/next_button">
+            <TextView
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_gravity="bottom"
-                android:id="@+id/duration_picker"
-                android:layout_alignParentBottom="true"
-        android:layout_marginBottom="0dp"
-        android:paddingBottom="0dp"/>
+                android:id="@+id/hours_layout"
+                android:gravity="center"
+                android:layout_weight="1"
+                android:textSize="18dp"
+                android:text="Hours"/>
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:id="@+id/minutes_layout"
+                android:gravity="center"
+                android:textSize="18dp"
+                android:text="Minutes"/>
+
+            </LinearLayout>
+        <View
+            android:id="@+id/separator"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/seshlightgray"
+            android:layout_marginBottom="5dp"
+            android:layout_below="@id/title_labels_layout"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:layout_marginBottom="10dp"
+            android:layout_below="@id/separator">
+
+            <RelativeLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:textSize="18dp"
+                        android:id="@+id/hours_0"
+                        android:background="@color/transparent"
+                        android:text="0"/>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:textSize="18dp"
+                        android:id="@+id/hours_1"
+                        android:background="@color/transparent"
+                        android:text="1"/>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:textSize="18dp"
+                        android:id="@+id/hours_2"
+                        android:background="@color/transparent"
+                        android:text="2"/>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:textSize="18dp"
+                        android:id="@+id/hours_3"
+                        android:background="@color/transparent"
+                        android:text="3"/>
+
+                </LinearLayout>
+
+
+            </RelativeLayout>
+            <RelativeLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:textSize="18dp"
+                        android:id="@+id/minutes_0"
+                        android:text="0"/>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:textSize="18dp"
+                        android:id="@+id/minutes_1"
+                        android:text="15"/>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:textSize="18dp"
+                        android:id="@+id/minutes_2"
+                        android:text="30"/>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:textSize="18dp"
+                        android:id="@+id/minutes_3"
+                        android:text="45"/>
+                </LinearLayout>
+            </RelativeLayout>
+
+        </LinearLayout>
+
+
+    </RelativeLayout>
 </RelativeLayout>

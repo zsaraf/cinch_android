@@ -2,10 +2,12 @@ package com.seshtutoring.seshapp.view.fragments.LearnRequestFragments;
 
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -14,15 +16,21 @@ import com.seshtutoring.seshapp.model.Constants;
 import com.seshtutoring.seshapp.model.LearnRequest;
 import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.util.CostUtils;
+import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.view.RequestActivity;
 import com.seshtutoring.seshapp.view.components.SeshViewPager;
 import com.seshtutoring.seshapp.view.components.SeshDurationPicker;
 import com.seshtutoring.seshapp.view.components.SeshEditText;
 
+import org.w3c.dom.Text;
+
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by nadavhollander on 7/21/15.
  */
-public class LearnRequestTimeFragment extends SeshViewPager.InputFragment implements SeshDurationPicker.OnDurationChangeListener {
+public class LearnRequestTimeFragment extends SeshViewPager.InputFragment {
     private TextView timeCostLabel;
     private TextView timeCostNumber;
     private TextView creditsAppliedNumber;
@@ -35,7 +43,6 @@ public class LearnRequestTimeFragment extends SeshViewPager.InputFragment implem
     private TextView estimatedTotalLabel;
     private TextView estimatedTotalNumber;
     private SeshEditText durationTextBox;
-    private SeshDurationPicker seshDurationPicker;
     private RequestActivity parentActivity;
     private float hourlyRate;
     private int additionalStudentsFee;
@@ -43,6 +50,11 @@ public class LearnRequestTimeFragment extends SeshViewPager.InputFragment implem
     private SeshViewPager seshViewPager;
     private boolean isCompleted;
     private LearnRequest currentLearnRequest;
+    private int currentHours;
+    private int currentMinutes;
+    private ArrayList<TextView> minutesViews;
+    private ArrayList<TextView> hoursViews;
+
 
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
         View v = layoutInflater.inflate(R.layout.learn_request_time_fragment, container, false);
@@ -71,7 +83,6 @@ public class LearnRequestTimeFragment extends SeshViewPager.InputFragment implem
         discountLabel = (TextView) v.findViewById(R.id.discount_label);
         discountNumber = (TextView) v.findViewById(R.id.discount_number);
 
-
         if (currentLearnRequest.discount != null) {
             discountLabel.setText(currentLearnRequest.discount.learnRequestTitle);
         }
@@ -83,40 +94,139 @@ public class LearnRequestTimeFragment extends SeshViewPager.InputFragment implem
         estimatedTotalLabel.setTypeface(bold);
 
         durationTextBox = (SeshEditText) v.findViewById(R.id.duration_edit_text);
-        durationTextBox.setOnKeyListener(null);
-        seshDurationPicker = (SeshDurationPicker) v.findViewById(R.id.duration_picker);
 
         isCompleted = false;
 
-        seshDurationPicker.setOnDurationChangedListener(this);
-        seshDurationPicker.setNextButtonOnClickListener(new View.OnClickListener() {
+        configMinutesViewWithView(v);
+        configHoursViewWithView(v);
+
+        TextView nextButton = (TextView)v.findViewById(R.id.next_button);
+        nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                isCompleted = true;
                 seshViewPager.flingNextFragment();
+
             }
         });
 
         return v;
     }
 
-    @Override
-    public void onDurationChanged(int hourValue, int minuteValue) {
+    View.OnClickListener hoursClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            LayoutUtils layoutUtils = new LayoutUtils(getActivity());
+            for (TextView textView : hoursViews) {
+                if (textView == v) {
+                    textView.setTypeface(layoutUtils.getMediumGothamTypeface());
+                    textView.setTextColor(getActivity().getResources().getColor(R.color.seshorange));
+                } else {
+                    textView.setTypeface(layoutUtils.getLightGothamTypeface());
+                    textView.setTextColor(getActivity().getResources().getColor(R.color.seshlightgray));
+                }
+            }
+
+            String hours = ((TextView)v).getText().toString();
+            setCurrentHours(Integer.parseInt(hours));
+        }
+    };
+
+    View.OnClickListener minutesClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(final View v) {
+            // run code
+            LayoutUtils layoutUtils = new LayoutUtils(getActivity());
+            for (TextView textView : minutesViews) {
+                v.setFocusableInTouchMode(false);
+                v.setFocusable(false);
+                if (textView == v) {
+                    textView.setTypeface(layoutUtils.getMediumGothamTypeface());
+                    textView.setTextColor(getActivity().getResources().getColor(R.color.seshorange));
+                } else {
+                    textView.setTypeface(layoutUtils.getLightGothamTypeface());
+                    textView.setTextColor(getActivity().getResources().getColor(R.color.seshlightgray));
+                }
+            }
+            String minutes = ((TextView) v).getText().toString();
+            setCurrentMinutes(Integer.parseInt(minutes));
+        }
+    };
+
+    private void configMinutesViewWithView(final View view) {
+        this.minutesViews = new ArrayList<TextView>();
+
+        this.minutesViews.add((TextView) view.findViewById(R.id.minutes_0));
+        this.minutesViews.add((TextView)view.findViewById(R.id.minutes_1));
+        this.minutesViews.add((TextView)view.findViewById(R.id.minutes_2));
+        this.minutesViews.add((TextView)view.findViewById(R.id.minutes_3));
+
+        for (int i = 0; i < this.minutesViews.size(); i++) {
+
+            TextView minutesView = this.minutesViews.get(i);
+            minutesView.setOnClickListener(minutesClickListener);
+        }
+
+        // Select 30 minutes by default
+        minutesClickListener.onClick(this.minutesViews.get(2));
+    }
+
+    private void configHoursViewWithView(View v) {
+        this.hoursViews = new ArrayList<TextView>();
+
+        this.hoursViews.add((TextView) v.findViewById(R.id.hours_0));
+        this.hoursViews.add((TextView)v.findViewById(R.id.hours_1));
+        this.hoursViews.add((TextView)v.findViewById(R.id.hours_2));
+        this.hoursViews.add((TextView)v.findViewById(R.id.hours_3));
+
+
+
+        for (int i = 0; i < this.hoursViews.size(); i++) {
+
+            TextView hoursView = this.hoursViews.get(i);
+            hoursView.setOnClickListener(hoursClickListener);
+        }
+
+        // Select 0 hours by default
+        hoursClickListener.onClick(this.hoursViews.get(0));
+    }
+
+    private void setCurrentHours(int currentHours) {
+        this.currentHours = currentHours;
+        onDurationChanged();
+
+        // Set visibility of minutes views
+        for (int i = 0; i <= 1; i++) {
+            ((TextView)this.minutesViews.get(i)).setVisibility(this.currentHours == 0 ? View.GONE : View.VISIBLE);
+        }
+
+        // Select 30 minutes if current h
+        if (this.currentHours == 0 && currentMinutes < 30) {
+            minutesClickListener.onClick(minutesViews.get(2));
+        }
+    }
+
+    private void setCurrentMinutes(int currentMinutes) {
+        this.currentMinutes = currentMinutes;
+        onDurationChanged();
+    }
+
+
+    public void onDurationChanged() {
         String seshDuration = "";
 
-        if (hourValue > 0) {
-            if (hourValue == 1) {
-                seshDuration += hourValue + " hr ";
+        if (currentHours > 0) {
+            if (currentHours == 1) {
+                seshDuration += currentHours + " hr ";
             } else {
-                seshDuration += hourValue + " hrs ";
+                seshDuration += currentHours + " hrs ";
             }
         }
-        if (minuteValue > 0) {
-            seshDuration += minuteValue + " min";
+        if (currentMinutes > 0) {
+            seshDuration += currentMinutes + " min";
         }
 
         durationTextBox.setText(seshDuration);
-        updateCostValues(hourValue, minuteValue);
+        updateCostValues(currentHours, currentMinutes);
     }
 
     private void updateCostValues(int hourValue, int minuteValue) {
@@ -137,6 +247,7 @@ public class LearnRequestTimeFragment extends SeshViewPager.InputFragment implem
         estimatedTotalNumber.setText("$" + CostUtils.floatToString(estimatedTotalFloat, 2));
     }
 
+
     @Override
     public boolean isCompleted() {
         return isCompleted;
@@ -145,7 +256,7 @@ public class LearnRequestTimeFragment extends SeshViewPager.InputFragment implem
     @Override
     public void saveValues() {
         parentActivity.getCurrentLearnRequest().estTime =
-                (seshDurationPicker.getHourValue() * 60) + seshDurationPicker.getMinuteValue();
+                (currentHours * 60) + currentMinutes;
         parentActivity.getCurrentLearnRequest().setEstTimeString(durationTextBox.getText());
     }
 
@@ -158,6 +269,7 @@ public class LearnRequestTimeFragment extends SeshViewPager.InputFragment implem
     public void onFragmentInForeground() {
         parentActivity.showRequestFlowNextButton();
         parentActivity.hideKeyboard();
+        isCompleted = true;
     }
 
     @Override
@@ -174,6 +286,6 @@ public class LearnRequestTimeFragment extends SeshViewPager.InputFragment implem
             discountRow.setVisibility(View.GONE);
         }
 
-        onDurationChanged(seshDurationPicker.getHourValue(), seshDurationPicker.getMinuteValue());
+        onDurationChanged();
     }
 }

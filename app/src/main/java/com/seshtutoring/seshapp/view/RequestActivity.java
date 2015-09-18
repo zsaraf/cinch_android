@@ -75,6 +75,7 @@ public class RequestActivity extends SeshActivity implements
     private SeshAnimatedCheckmark animatedCheckmark;
     private boolean isKeyboardShowing;
     private SeshMixpanelAPI seshMixpanelAPI;
+    private Handler mHandler;
 
     public static final String DIALOG_TYPE_LEARN_REQUEST_FAILURE = "learn_request_failure";
     private List<Fragment> requestFlowFragments;
@@ -164,11 +165,8 @@ public class RequestActivity extends SeshActivity implements
         requestFlowSlider.attachToActivity(this);
         requestFlowSlider.setViewPagerFragments(requestFlowFragments);
         requestFlowSlider.setProgressBar(learnRequestProgressBar);
-        if (Build.VERSION.SDK_INT >= 19) {
             requestFlowSlider.setSwipingAllowed(true);
-        } else {
-            requestFlowSlider.setSwipingAllowed(false);
-        }
+
 
         final LayoutUtils utils = new LayoutUtils(this);
         final View rootView = (findViewById(android.R.id.content));

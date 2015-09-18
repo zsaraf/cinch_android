@@ -70,4 +70,9 @@ public class LearnRequestAssignmentFragment extends SeshViewPager.InputFragment 
     public void beforeFragmentInForeground() {
         // do nothing
     }
+
+    @Override
+    public SeshEditText editText() {
+        return assignmentInput;
+    }
  }

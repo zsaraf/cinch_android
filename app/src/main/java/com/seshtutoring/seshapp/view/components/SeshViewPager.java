@@ -2,6 +2,8 @@ package com.seshtutoring.seshapp.view.components;
 
 import android.app.Activity;
 import android.content.Context;
+import android.os.Build;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.GestureDetectorCompat;
 import android.util.AttributeSet;
@@ -10,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
@@ -57,6 +60,7 @@ public class SeshViewPager extends RelativeLayout {
     private int numFragments;
     private LinearLayout fragmentsContainer;
     private boolean swipingAllowed;
+    private Handler mHandler;
 
     public static abstract class InputFragment extends Fragment {
         public abstract boolean isCompleted();
@@ -72,6 +76,10 @@ public class SeshViewPager extends RelativeLayout {
 
         public void beforeFragmentInForeground() {
             // optional implementation
+        }
+
+        public SeshEditText editText() {
+            return null;
         }
     }
 
@@ -154,6 +162,53 @@ public class SeshViewPager extends RelativeLayout {
 
         currentScrollViewIndex = 1;
         currentFragmentIndex = 0;
+
+//        if (Build.VERSION.SDK_INT < 19) {
+//            mHandler = new Handler();
+//            mHandler.postDelayed(new Runnable() {
+//                @Override
+//                public void run() {
+//                    startRepeatingTask();
+//                }
+//            }, 2000);
+//        }
+    }
+
+    Runnable mStatusChecker = new Runnable() {
+        @Override
+        public void run() {
+            checkContentOffset(); //this function can change value of mInterval.
+            mHandler.postDelayed(mStatusChecker, 1);
+        }
+    };
+
+    public void checkContentOffset() {
+        if (clampSpring.isAtRest()) {
+            final int initialScrollX = currentScrollViewIndex * fragmentWidth;
+            int currentValue = (int) clampSpring.getCurrentValue();
+            final int clampOffsetPx = utils.dpToPixels(CLAMP_OFFSET_DP);
+            int scrollXValue;
+            if (currentValue < clampOffsetPx / 2) {
+                scrollXValue = initialScrollX + currentValue;
+            } else {
+                scrollXValue = initialScrollX + (clampOffsetPx - currentValue);
+            }
+            if (scrollView.getScrollX() != scrollXValue) {
+                scrollView.scrollToX(scrollXValue);
+            }
+
+        }
+
+
+    }
+
+
+    void startRepeatingTask() {
+        mStatusChecker.run();
+    }
+
+    void stopRepeatingTask() {
+        mHandler.removeCallbacks(mStatusChecker);
     }
 
     public void attachToActivity(SeshActivity activity) {
@@ -212,6 +267,7 @@ public class SeshViewPager extends RelativeLayout {
     }
 
     public void flingToFragmentIndex(int index) {
+
         if (index < 0 || index > numFragments - 1) {
             if (index > currentFragmentIndex) {
                 clampNextFragment();
@@ -228,6 +284,14 @@ public class SeshViewPager extends RelativeLayout {
                 return;
             } else {
                 inputFragment.saveValues();
+            }
+        }
+
+        if (currentFragmentIndex >= 0 && currentFragmentIndex < numFragments) {
+            Fragment fragment = fragments.get(currentFragmentIndex);
+            SeshEditText editText = ((SeshViewPager.InputFragment) fragment).editText();
+            if (editText != null) {
+                editText.clearEditTextFocus();
             }
         }
 
@@ -270,6 +334,10 @@ public class SeshViewPager extends RelativeLayout {
 
     public void flingPrevFragment() {
         flingToFragmentIndex(currentFragmentIndex - 1);
+    }
+
+    public void flingSameFragment() {
+        flingToFragmentIndex(currentFragmentIndex);
     }
 
     public void clampNextFragment() {
