@@ -729,8 +729,8 @@ public class AuthenticationActivity extends SeshActivity implements SeshDialog.O
                     alreadyHaveAccountText.setAlpha(0);
                     termsAndPrivacyPolicyText.setAlpha(0);
 
-                    alreadyHaveAccountText.setVisibility(View.GONE);
-                    termsAndPrivacyPolicyText.setVisibility(View.GONE);
+                    //alreadyHaveAccountText.setVisibility(View.GONE);
+                    //termsAndPrivacyPolicyText.setVisibility(View.GONE);
 
                     fullnameEditText.setEditTextEnabled(false);
                     reenterPasswordEditText.setEditTextEnabled(false);
