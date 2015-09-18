@@ -173,6 +173,10 @@ public class SeshNetworking {
 
             JsonPostRequestWithAuth requestWithAuth = new JsonPostRequestWithAuth(absoluteUrl,
                     jsonParams, successListenerWrapper, errorListener);
+            requestWithAuth.setRetryPolicy(new DefaultRetryPolicy(
+                    20000,
+                    DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                    DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 
             VolleyNetworkingWrapper.getInstance(mContext).addToRequestQueue(requestWithAuth);
         } else {
@@ -202,7 +206,7 @@ public class SeshNetworking {
         JsonPostRequestWithAuth requestWithAuth = new JsonPostRequestWithAuth(absoluteUrl,
                 new JSONObject(params), successListener, errorListener);
         requestWithAuth.setRetryPolicy(new DefaultRetryPolicy(
-                10000,
+                20000,
                 DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 
