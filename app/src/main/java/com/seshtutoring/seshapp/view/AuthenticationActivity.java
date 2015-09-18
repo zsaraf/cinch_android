@@ -729,6 +729,9 @@ public class AuthenticationActivity extends SeshActivity implements SeshDialog.O
                     alreadyHaveAccountText.setAlpha(0);
                     termsAndPrivacyPolicyText.setAlpha(0);
 
+                    alreadyHaveAccountText.setVisibility(View.GONE);
+                    termsAndPrivacyPolicyText.setVisibility(View.GONE);
+
                     fullnameEditText.setEditTextEnabled(false);
                     reenterPasswordEditText.setEditTextEnabled(false);
 
@@ -764,6 +767,8 @@ public class AuthenticationActivity extends SeshActivity implements SeshDialog.O
 
                     dontHaveAccountText.setAlpha(0);
                     forgotPasswordLink.setAlpha(0);
+                    dontHaveAccountText.setVisibility(View.GONE);
+                    forgotPasswordLink.setVisibility(View.GONE);
                     loginSignupButton.setText("Sign up");
 
 //                    int alreadyHaveAccountY = content.getHeight() - utils.dpToPixels(ACCOUNT_TEXT_OFFSET_DP);
