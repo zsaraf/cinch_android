@@ -142,36 +142,30 @@ public class ConfirmationCodeActivity extends SeshActivity {
                             public void onUserInfoSaved(User user) {
                                 seshMixpanelAPI.track("User Verified Signup");
 
-                                if (SeshApplication.IS_LIVE) {
-                                    if (user.school.enabled) {
-                                        HashSet<LaunchPrerequisiteFlag> fulfilledPrereqs = new HashSet<>();
-                                        fulfilledPrereqs.add(LaunchPrerequisiteFlag.USER_INFORMATION_FETCHED);
-                                        (new LaunchPrerequisiteAsyncTask(getApplicationContext(), fulfilledPrereqs,
-                                                new PrereqsFulfilledListener() {
-                                                    @Override
-                                                    public void onPrereqsFulfilled() {
-                                                        Intent intent = new Intent(getApplicationContext(), MainContainerActivity.class);
-                                                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                                                        startActivity(intent);
-                                                    }
-                                                })).execute();
-                                    } else {
-                                        HashSet<LaunchPrerequisiteFlag> fulfilledPrereqs = new HashSet<>();
-                                        fulfilledPrereqs.add(LaunchPrerequisiteFlag.USER_INFORMATION_FETCHED);
-                                        (new LaunchPrerequisiteAsyncTask(getApplicationContext(), fulfilledPrereqs,
-                                                new PrereqsFulfilledListener() {
-                                                    @Override
-                                                    public void onPrereqsFulfilled() {
-                                                        Intent intent = new Intent(getApplicationContext(), LaunchSchoolActivity.class);
-                                                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                                                        startActivity(intent);
-                                                    }
-                                                })).execute();
-                                    }
-
+                                if (user.school.enabled) {
+                                    HashSet<LaunchPrerequisiteFlag> fulfilledPrereqs = new HashSet<>();
+                                    fulfilledPrereqs.add(LaunchPrerequisiteFlag.USER_INFORMATION_FETCHED);
+                                    (new LaunchPrerequisiteAsyncTask(getApplicationContext(), fulfilledPrereqs,
+                                            new PrereqsFulfilledListener() {
+                                                @Override
+                                                public void onPrereqsFulfilled() {
+                                                    Intent intent = new Intent(getApplicationContext(), MainContainerActivity.class);
+                                                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                                    startActivity(intent);
+                                                }
+                                            })).execute();
                                 } else {
-                                    Intent intent = new Intent(getApplicationContext(), UnreleasedLaunchActivity.class);
-                                    startActivity(intent);
+                                    HashSet<LaunchPrerequisiteFlag> fulfilledPrereqs = new HashSet<>();
+                                    fulfilledPrereqs.add(LaunchPrerequisiteFlag.USER_INFORMATION_FETCHED);
+                                    (new LaunchPrerequisiteAsyncTask(getApplicationContext(), fulfilledPrereqs,
+                                            new PrereqsFulfilledListener() {
+                                                @Override
+                                                public void onPrereqsFulfilled() {
+                                                    Intent intent = new Intent(getApplicationContext(), LaunchSchoolActivity.class);
+                                                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                                    startActivity(intent);
+                                                }
+                                            })).execute();
                                 }
                             }
                         });
@@ -203,7 +197,7 @@ public class ConfirmationCodeActivity extends SeshActivity {
     }
 
 
-//    IF YOU WANT DEFAULT SESH FONTS, INCLUDE THIS METHOD IN YOUR ACTIVITIES
+    //    IF YOU WANT DEFAULT SESH FONTS, INCLUDE THIS METHOD IN YOUR ACTIVITIES
     @Override
     protected void attachBaseContext(Context newBase) {
         super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));

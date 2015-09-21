@@ -164,7 +164,7 @@ public class AddTutorClassesActivity extends AppCompatActivity {
             TextView classRowText = (TextView) v.findViewById(R.id.course_row_text);
             classRowText.setText(courseRowData.formatForTextView());
 
-            if (classesToAdd.contains(courseRowData)) {
+            if (shouldHighlightTutorCourse(courseRowData)) {
                 classRowText.setTextColor(getResources().getColor(R.color.seshgreen));
             } else {
                 classRowText.setTextColor(getResources().getColor(R.color.seshorange));
@@ -177,6 +177,12 @@ public class AddTutorClassesActivity extends AppCompatActivity {
             // TODO change this
             return 3;
         }
+    }
+
+    private Boolean shouldHighlightTutorCourse(Course course) {
+        return (tutorClasses.contains(course)) ?
+                (!classesToDelete.contains(course)) :
+                (classesToAdd.contains(course));
     }
 
 }

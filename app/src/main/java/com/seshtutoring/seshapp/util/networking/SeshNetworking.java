@@ -114,6 +114,8 @@ public class SeshNetworking {
     private static final String MESSAGE_ID_PARAM = "message_id";
     private static final String DISCOUNT_ID = "discount_id";
     private static final String CARD_ID_PARAM = "card_id";
+    private static final String CLASSES_TO_ADD_ID = "classes_to_add";
+    private static final String CLASSES_TO_DELETE_ID = "classes_to_delete";
 
     private Context mContext;
 
@@ -272,16 +274,6 @@ public class SeshNetworking {
         params.put(TIMEZONE_NAME_PARAM, timezone.getID());
 
         postWithRelativeUrl("update_device_token.php", params, successListener, errorListener);
-    }
-
-    public void updateAnonymousToken(String deviceToken,
-                                     Response.Listener<JSONObject> successListener,
-                                     Response.ErrorListener errorListener) {
-        Map<String, String> params = new HashMap<>();
-        params.put("token", deviceToken);
-        params.put(DEVICE_TYPE_PARAM, "android");
-
-        postWithRelativeUrl("update_anonymous_device_token.php", params, successListener, errorListener);
     }
 
     public void updateUserInformationWithMajorAndBio(String major, String bio,
@@ -895,6 +887,29 @@ public class SeshNetworking {
         String url = baseUrl() + apiUrl() + "upload_profile_picture.php";
         JsonMultipartRequest request = new JsonMultipartRequest(url, SeshAuthManager.sharedManager(mContext).getAccessToken(), successListener, errorListener, getRealPathFromURI(selectedImageUri));
         VolleyNetworkingWrapper.getInstance(mContext).addToRequestQueue(request);
+    }
+
+    public void editTutorClasses(List<Course> classesToAdd, List<Course> classesToDelete, Response.Listener<JSONObject> successListener, Response.ErrorListener errorListener) {
+        JSONArray idsToAdd = new JSONArray();
+        for (Course course : classesToAdd) {
+            idsToAdd.put(course.courseId);
+        }
+
+        JSONArray idsToDelete = new JSONArray();
+        for (Course course : classesToDelete) {
+            idsToDelete.put(course.courseId);
+        }
+
+        JSONObject params = new JSONObject();
+        try {
+            params.put("session_id", SeshAuthManager.sharedManager(mContext).getAccessToken());
+            params.put(CLASSES_TO_ADD_ID, idsToAdd);
+            params.put(CLASSES_TO_DELETE_ID, idsToDelete);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        postWithRelativeUrl("edit_tutor_classes.php", params, successListener, errorListener);
     }
 
     public String getRealPathFromURI(Uri contentUri) {

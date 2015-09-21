@@ -133,7 +133,6 @@ public class WarmWelcomeActivity extends SeshActivity implements SeshDialog.OnSe
         // Refresh device token on server via GCM service
         Intent gcmIntent = new Intent(this, GCMRegistrationIntentService.class);
         gcmIntent.putExtra(SeshInstanceIDListenerService.IS_TOKEN_STALE_KEY, false);
-        gcmIntent.putExtra(GCMRegistrationIntentService.ANONYMOUS_TOKEN_REFRESH, true);
         startService(gcmIntent);
 
         ((SeshApplication)getApplication()).getSeshMixpanelAPI().track("Entered Warm Welcome Flow");

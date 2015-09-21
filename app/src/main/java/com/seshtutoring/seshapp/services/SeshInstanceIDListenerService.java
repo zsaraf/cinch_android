@@ -19,9 +19,6 @@ public class SeshInstanceIDListenerService extends InstanceIDListenerService {
         Log.i(TAG, "GCM requested token refresh");
         Intent intent = new Intent(this, GCMRegistrationIntentService.class);
         intent.putExtra(IS_TOKEN_STALE_KEY, true);
-        if (!SeshApplication.IS_LIVE) {
-            intent.putExtra(GCMRegistrationIntentService.ANONYMOUS_TOKEN_REFRESH, true);
-        }
         startService(intent);
     }
 }

@@ -308,7 +308,6 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
         // Refresh device token on server via GCM service
         Intent gcmIntent = new Intent(this, GCMRegistrationIntentService.class);
         gcmIntent.putExtra(SeshInstanceIDListenerService.IS_TOKEN_STALE_KEY, false);
-        gcmIntent.putExtra(GCMRegistrationIntentService.ANONYMOUS_TOKEN_REFRESH, false);
         startService(gcmIntent);
 
         GoogleApiAvailability googleApiAvailability = GoogleApiAvailability.getInstance();

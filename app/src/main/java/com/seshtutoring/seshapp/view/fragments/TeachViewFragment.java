@@ -75,6 +75,7 @@ public class TeachViewFragment extends Fragment implements ViewClassesView.ViewC
         tutorViewFrame = view.findViewById(R.id.tutor_view_frame);
 
         viewClassesView = (ViewClassesView) view.findViewById(R.id.view_classes_view);
+        viewClassesView.listener = this;
         tintView = (View) view.findViewById(R.id.tint_view);
 
         activity = (MainContainerActivity) getActivity();

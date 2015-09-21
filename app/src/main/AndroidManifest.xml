@@ -139,13 +139,6 @@
             android:windowSoftInputMode="adjustResize" >
         </activity>
         <activity
-            android:name=".view.UnreleasedLaunchActivity"
-            android:launchMode="singleTop"
-            android:screenOrientation="portrait"
-            android:theme="@style/SeshFullScreen"
-            android:windowSoftInputMode="adjustResize" >
-        </activity>
-        <activity
             android:name=".view.RatingActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
@@ -205,6 +198,14 @@
         <activity
             android:name=".view.OnboardingActivity"
             android:label="tutor onboarding"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@style/SeshTransparent"
+            android:windowSoftInputMode="adjustNothing" >
+        </activity>
+        <activity
+            android:name=".view.AddTutorClassesActivity"
+            android:label="@string/title_activity_add_tutor_classes"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
             android:theme="@style/SeshTransparent"
@@ -328,10 +329,6 @@
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
             android:theme="@style/SeshActionBarTheme" >
-        </activity>
-        <activity
-            android:name=".view.AddTutorClassesActivity"
-            android:label="@string/title_activity_add_tutor_classes" >
         </activity>
     </application>
 

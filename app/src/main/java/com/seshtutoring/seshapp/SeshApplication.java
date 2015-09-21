@@ -58,20 +58,6 @@ public class SeshApplication extends SugarApp {
         return applicationLifecycleTracker;
     }
 
-    //    Pre-reg app functionality -- to be deleted v1
-    public void setAndroidReleaseDate(DateTime releaseDate) {
-        this.androidReleaseDate = releaseDate;
-    }
-
-    //    Pre-reg app functionality -- to be deleted v1
-    public DateTime getAndroidReleaseDate() {
-        if (androidReleaseDate != null) {
-            return androidReleaseDate;
-        } else {
-            return new DateTime(2015, 8, 10, 9, 0);
-        }
-    }
-
     public SeshMixpanelAPI getSeshMixpanelAPI() {
         return seshMixpanelAPI;
     }

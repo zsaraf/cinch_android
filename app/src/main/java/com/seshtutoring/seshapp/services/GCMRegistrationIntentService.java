@@ -37,7 +37,6 @@ public class GCMRegistrationIntentService extends IntentService {
     public static final String GCM_REGISTRATION_ID_KEY = "registration_id";
     public static final String RETRY_INTERVAL_KEY = "retry_interval";
     public static final String TOKEN_REGISTRATION_COMPLETE = "registration_complete";
-    public static final String ANONYMOUS_TOKEN_REFRESH = "anonymous_token_refresh";
 
     private static final int MAX_RETRY_INTERVAL = 1000 * 32;
 
@@ -55,8 +54,7 @@ public class GCMRegistrationIntentService extends IntentService {
         gcmSharedPreferences = getSharedPreferences(GCM_STATUS_SHARED_PREFS, 0);
 
         // Device token cannot be refreshed without user being logged in
-        if (!SeshAuthManager.sharedManager(getApplicationContext()).isValidSession()
-                && !(intent.getBooleanExtra(ANONYMOUS_TOKEN_REFRESH, false))) return;
+        if (!SeshAuthManager.sharedManager(getApplicationContext()).isValidSession()) return;
 
         this.intent = intent;
 
@@ -85,8 +83,7 @@ public class GCMRegistrationIntentService extends IntentService {
             // we refresh with IS_TOKEN_STALE false, so that we can send a cached token, if it's available.
             if (!intent.getBooleanExtra(SeshInstanceIDListenerService.IS_TOKEN_STALE_KEY, true)) {
                 if (gcmSharedPreferences.contains(GCM_TOKEN_KEY)) {
-                    sendRegistrationToServer(gcmSharedPreferences.getString(GCM_TOKEN_KEY, null),
-                            intent.getBooleanExtra(ANONYMOUS_TOKEN_REFRESH, false));
+                    sendRegistrationToServer(gcmSharedPreferences.getString(GCM_TOKEN_KEY, null));
                     return;
                 }
             }
@@ -121,11 +118,7 @@ public class GCMRegistrationIntentService extends IntentService {
 
     private void tokenFound(String token, SharedPreferences gcmSharedPreferences) {
         gcmSharedPreferences.edit().putString(GCM_TOKEN_KEY, token).apply();
-        if (intent.hasExtra(ANONYMOUS_TOKEN_REFRESH) && intent.getBooleanExtra(ANONYMOUS_TOKEN_REFRESH, false)) {
-            sendRegistrationToServer(token, true);
-        } else {
-            sendRegistrationToServer(token, false);
-        }
+        sendRegistrationToServer(token);
     }
 
     /**
@@ -136,53 +129,29 @@ public class GCMRegistrationIntentService extends IntentService {
      *
      * @param token The new token.
      */
-    private void sendRegistrationToServer(String token, boolean anonymous) {
+    private void sendRegistrationToServer(String token) {
         SeshNetworking seshNetworking = new SeshNetworking(this);
-        if (!anonymous) {
-            seshNetworking.updateDeviceToken(token, new Response.Listener<JSONObject>() {
-                @Override
-                public void onResponse(JSONObject jsonObject) {
-                    try {
-                        if (jsonObject.getString("status").equals("SUCCESS")) {
-                            Log.i(TAG, "REGISTERED TOKEN TO SERVER");
-                            Intent registrationComplete = new Intent(TOKEN_REGISTRATION_COMPLETE);
-                            LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(registrationComplete);
-                        } else {
-                            Log.e(TAG, "GCM ERROR: Failed to update device token on server: " + jsonObject.getString("message"));
-                        }
-                    } catch (JSONException e) {
-                        Log.e(TAG, "GCM ERROR: Failed to update device token on server; response malformed: " + e);
+        seshNetworking.updateDeviceToken(token, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject jsonObject) {
+                try {
+                    if (jsonObject.getString("status").equals("SUCCESS")) {
+                        Log.i(TAG, "REGISTERED TOKEN TO SERVER");
+                        Intent registrationComplete = new Intent(TOKEN_REGISTRATION_COMPLETE);
+                        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(registrationComplete);
+                    } else {
+                        Log.e(TAG, "GCM ERROR: Failed to update device token on server: " + jsonObject.getString("message"));
                     }
+                } catch (JSONException e) {
+                    Log.e(TAG, "GCM ERROR: Failed to update device token on server; response malformed: " + e);
                 }
-            }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    retryWithExponentialBackoff();
-                }
-            });
-        } else {
-            seshNetworking.updateAnonymousToken(token, new Response.Listener<JSONObject>() {
-                @Override
-                public void onResponse(JSONObject jsonObject) {
-                    try {
-                        if (jsonObject.getString("status").equals("SUCCESS")) {
-                            Log.i(TAG, "REGISTERED TOKEN TO SERVER");
-                            Intent registrationComplete = new Intent(TOKEN_REGISTRATION_COMPLETE);
-                            LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(registrationComplete);
-                        } else {
-                            Log.e(TAG, "GCM ERROR: Failed to update device token on server: " + jsonObject.getString("message"));
-                        }
-                    } catch (JSONException e) {
-                        Log.e(TAG, "GCM ERROR: Failed to update device token on server; response malformed: " + e);
-                    }
-                }
-            }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    retryWithExponentialBackoff();
-                }
-            });
-        }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                retryWithExponentialBackoff();
+            }
+        });
     }
 
     private void retryWithExponentialBackoff() {

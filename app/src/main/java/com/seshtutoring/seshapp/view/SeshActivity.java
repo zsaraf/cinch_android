@@ -158,11 +158,6 @@ public abstract class SeshActivity extends AppCompatActivity implements SeshDial
         updateDialogShowing = true;
     }
 
-    //    Pre-reg app functionality -- to be deleted v1
-    private boolean appUpdateRequired() {
-        return ((SeshApplication)getApplication()).getAndroidReleaseDate().isBeforeNow();
-    }
-
     protected Bitmap getBlurBackgroundOverrideBitmap() {
         return DEFAULT_BLUR_BACKGROUND_OVERRIDE;
     }

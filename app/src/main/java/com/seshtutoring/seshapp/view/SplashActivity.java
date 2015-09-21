@@ -36,7 +36,7 @@ public class SplashActivity extends SeshActivity {
         Thread timerThread = new Thread(){
             public void run(){
                 try{
-                        sleep(1200);
+                    sleep(1200);
                 }catch(InterruptedException e){
                     e.printStackTrace();
                 }finally{
@@ -71,31 +71,24 @@ public class SplashActivity extends SeshActivity {
 
     private void startInitialActivity() {
         if (SeshAuthManager.sharedManager(this).isValidSession()) {
-            if (SeshApplication.IS_LIVE) {
 
-                    (new LaunchPrerequisiteAsyncTask(this, new PrereqsFulfilledListener() {
-                        @Override
-                        public void onPrereqsFulfilled() {
-                            showStatusBar();
+            (new LaunchPrerequisiteAsyncTask(this, new PrereqsFulfilledListener() {
+                @Override
+                public void onPrereqsFulfilled() {
+                    showStatusBar();
 
-                            User currentUser = User.currentUser(getApplicationContext());
-                            if (currentUser.school.enabled) {
-                                Intent mainContainerIntent = new Intent(getApplicationContext(), MainContainerActivity.class);
-                                startActivity(mainContainerIntent);
-                                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-                            } else {
-                                Intent launchSchoolIntent = new Intent(getApplicationContext(), LaunchSchoolActivity.class);
-                                startActivity(launchSchoolIntent);
-                                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-                            }
-                        }
-                    })).execute();
-
-            } else {
-                Intent intent = new Intent(getApplicationContext(), UnreleasedLaunchActivity.class);
-                startActivity(intent);
-                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-            }
+                    User currentUser = User.currentUser(getApplicationContext());
+                    if (currentUser.school.enabled) {
+                        Intent mainContainerIntent = new Intent(getApplicationContext(), MainContainerActivity.class);
+                        startActivity(mainContainerIntent);
+                        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+                    } else {
+                        Intent launchSchoolIntent = new Intent(getApplicationContext(), LaunchSchoolActivity.class);
+                        startActivity(launchSchoolIntent);
+                        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+                    }
+                }
+            })).execute();
         } else {
             Intent warmWelcomeIntent = new Intent(getApplicationContext(), WarmWelcomeActivity.class);
             startActivity(warmWelcomeIntent);

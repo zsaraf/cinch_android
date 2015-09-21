@@ -101,7 +101,7 @@ public class ViewClassesView extends RelativeLayout {
 
                 CourseHolder obj = (CourseHolder) menu.getItemAtPosition(position);
 
-                if (obj.type == 2) {
+                if (obj.type == 2 && listener != null) {
                     listener.viewClassesViewDidTapAddClasses();
                 }
 

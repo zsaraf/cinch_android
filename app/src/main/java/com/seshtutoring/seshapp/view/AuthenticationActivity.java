@@ -537,71 +537,64 @@ public class AuthenticationActivity extends SeshActivity implements SeshDialog.O
                         // Refresh device on server via GCM service
                         Intent gcmIntent = new Intent(getApplicationContext(), GCMRegistrationIntentService.class);
                         gcmIntent.putExtra(SeshInstanceIDListenerService.IS_TOKEN_STALE_KEY, true);
-                        gcmIntent.putExtra(GCMRegistrationIntentService.ANONYMOUS_TOKEN_REFRESH, false);
                         startService(gcmIntent);
 
-                        if (SeshApplication.IS_LIVE) {
-                            if (user.school.enabled) {
-                                HashSet<LaunchPrerequisiteAsyncTask.LaunchPrerequisiteFlag> fulfilledPrereqs = new HashSet<>();
-                                fulfilledPrereqs.add(LaunchPrerequisiteAsyncTask.LaunchPrerequisiteFlag.USER_INFORMATION_FETCHED);
-                                (new LaunchPrerequisiteAsyncTask(getApplicationContext(), fulfilledPrereqs,
-                                        new PrereqsFulfilledListener() {
-                                            @Override
-                                            public void onPrereqsFulfilled() {
-                                                seshActivityIndicator
-                                                        .animate()
-                                                        .alpha(0)
-                                                        .setDuration(300)
-                                                        .setListener(new AnimatorListenerAdapter() {
-                                                            @Override
-                                                            public void onAnimationEnd(Animator animation) {
-                                                                super.onAnimationEnd(animation);
-                                                                showStatusBar();
+                        if (user.school.enabled) {
+                            HashSet<LaunchPrerequisiteAsyncTask.LaunchPrerequisiteFlag> fulfilledPrereqs = new HashSet<>();
+                            fulfilledPrereqs.add(LaunchPrerequisiteAsyncTask.LaunchPrerequisiteFlag.USER_INFORMATION_FETCHED);
+                            (new LaunchPrerequisiteAsyncTask(getApplicationContext(), fulfilledPrereqs,
+                                    new PrereqsFulfilledListener() {
+                                        @Override
+                                        public void onPrereqsFulfilled() {
+                                            seshActivityIndicator
+                                                    .animate()
+                                                    .alpha(0)
+                                                    .setDuration(300)
+                                                    .setListener(new AnimatorListenerAdapter() {
+                                                        @Override
+                                                        public void onAnimationEnd(Animator animation) {
+                                                            super.onAnimationEnd(animation);
+                                                            showStatusBar();
 
-                                                                Intent mainContainerIntent =
-                                                                        new Intent(getApplicationContext(), MainContainerActivity.class);
-                                                                mainContainerIntent
-                                                                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
-                                                                                | Intent.FLAG_ACTIVITY_CLEAR_TASK
-                                                                                | Intent.FLAG_ACTIVITY_NEW_TASK);
-                                                                startActivity(mainContainerIntent);
-                                                            }
-                                                        })
-                                                        .start();
-                                            }
-                                        })).execute();
-                            } else {
-                                HashSet<LaunchPrerequisiteAsyncTask.LaunchPrerequisiteFlag> fulfilledPrereqs = new HashSet<>();
-                                fulfilledPrereqs.add(LaunchPrerequisiteAsyncTask.LaunchPrerequisiteFlag.USER_INFORMATION_FETCHED);
-                                (new LaunchPrerequisiteAsyncTask(getApplicationContext(), fulfilledPrereqs,
-                                        new PrereqsFulfilledListener() {
-                                            @Override
-                                            public void onPrereqsFulfilled() {
-                                                seshActivityIndicator
-                                                        .animate()
-                                                        .alpha(0)
-                                                        .setDuration(300)
-                                                        .setListener(new AnimatorListenerAdapter() {
-                                                            @Override
-                                                            public void onAnimationEnd(Animator animation) {
-                                                                super.onAnimationEnd(animation);
-                                                                showStatusBar();
-
-                                                                Intent launchSchoolIntent =
-                                                                        new Intent(getApplicationContext(), LaunchSchoolActivity.class);
-                                                                startActivity(launchSchoolIntent);
-                                                            }
-                                                        })
-                                                        .start();
-                                            }
-                                        })).execute();
-                            }
-
+                                                            Intent mainContainerIntent =
+                                                                    new Intent(getApplicationContext(), MainContainerActivity.class);
+                                                            mainContainerIntent
+                                                                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
+                                                                            | Intent.FLAG_ACTIVITY_CLEAR_TASK
+                                                                            | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                                            startActivity(mainContainerIntent);
+                                                        }
+                                                    })
+                                                    .start();
+                                        }
+                                    })).execute();
                         } else {
-                            Intent unreleasedLaunchIntent = new Intent(getApplicationContext(), UnreleasedLaunchActivity.class);
-                            startActivity(unreleasedLaunchIntent);
-                            overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+                            HashSet<LaunchPrerequisiteAsyncTask.LaunchPrerequisiteFlag> fulfilledPrereqs = new HashSet<>();
+                            fulfilledPrereqs.add(LaunchPrerequisiteAsyncTask.LaunchPrerequisiteFlag.USER_INFORMATION_FETCHED);
+                            (new LaunchPrerequisiteAsyncTask(getApplicationContext(), fulfilledPrereqs,
+                                    new PrereqsFulfilledListener() {
+                                        @Override
+                                        public void onPrereqsFulfilled() {
+                                            seshActivityIndicator
+                                                    .animate()
+                                                    .alpha(0)
+                                                    .setDuration(300)
+                                                    .setListener(new AnimatorListenerAdapter() {
+                                                        @Override
+                                                        public void onAnimationEnd(Animator animation) {
+                                                            super.onAnimationEnd(animation);
+                                                            showStatusBar();
+
+                                                            Intent launchSchoolIntent =
+                                                                    new Intent(getApplicationContext(), LaunchSchoolActivity.class);
+                                                            startActivity(launchSchoolIntent);
+                                                        }
+                                                    })
+                                                    .start();
+                                        }
+                                    })).execute();
                         }
+
                     }
                 });
             } else if (responseJson.get("status").equals("UNVERIFIED")) {
@@ -639,12 +632,12 @@ public class AuthenticationActivity extends SeshActivity implements SeshDialog.O
                 seshMixpanelAPI.trackMap("User Login Failed - Error", properties);
 
                 onLoginSignupError("Login Error",
-                                responseJson.getString("message"));
+                        responseJson.getString("message"));
             }
         } catch (JSONException e) {
             Log.e(TAG, e.toString());
             onLoginSignupError("Network Error",
-                            "We couldn't reach the network, sorry!");
+                    "We couldn't reach the network, sorry!");
         }
     }
 
