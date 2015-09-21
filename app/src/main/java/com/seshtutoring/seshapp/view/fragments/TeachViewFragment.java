@@ -24,6 +24,7 @@ import android.widget.Toast;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.util.LayoutUtils;
+import com.seshtutoring.seshapp.view.AddTutorClassesActivity;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
 import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.ViewAvailableJobsFragment;
 import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.ViewClassesView;
@@ -38,7 +39,7 @@ import me.brendanweinstein.util.ToastUtils;
 /**
  * Created by nadavhollander on 7/14/15.
  */
-public class TeachViewFragment extends Fragment {
+public class TeachViewFragment extends Fragment implements ViewClassesView.ViewClassesViewListener {
 
     private static View view;
     private MainContainerActivity activity;
@@ -198,6 +199,13 @@ public class TeachViewFragment extends Fragment {
                     .replace(R.id.tutor_view_frame, new ViewAvailableJobsFragment())
                     .commit();
 
+    }
+
+    @Override
+    public void viewClassesViewDidTapAddClasses() {
+        Intent intent = new Intent(getActivity(), AddTutorClassesActivity.class);
+        startActivityForResult(intent, 0);
+        getActivity().overridePendingTransition(R.anim.fade_in, 0);
     }
 
 }

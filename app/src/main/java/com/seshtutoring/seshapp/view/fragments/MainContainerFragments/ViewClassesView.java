@@ -27,6 +27,7 @@ import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
+import com.seshtutoring.seshapp.view.ViewSeshSetTimeActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -50,6 +51,12 @@ public class ViewClassesView extends RelativeLayout {
     private SeshNetworking seshNetworking;
     private Context mContext;
     private User user;
+
+    public interface ViewClassesViewListener {
+        public void viewClassesViewDidTapAddClasses();
+    }
+
+    public ViewClassesViewListener listener;
 
     private class CourseHolder {
 
@@ -95,12 +102,7 @@ public class ViewClassesView extends RelativeLayout {
                 CourseHolder obj = (CourseHolder) menu.getItemAtPosition(position);
 
                 if (obj.type == 2) {
-                    //show web view
-                    Intent viewIntent =
-                            new Intent("android.intent.action.VIEW",
-                                    Uri.parse("https://www.seshtutoring.com/profile?action=classes"));
-                    mContext.startActivity(viewIntent);
-
+                    listener.viewClassesViewDidTapAddClasses();
                 }
 
             }
