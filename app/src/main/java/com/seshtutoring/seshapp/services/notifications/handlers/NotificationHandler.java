@@ -4,6 +4,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.app.NotificationCompat;
@@ -26,6 +27,7 @@ import com.squareup.picasso.Callback;
 public abstract class NotificationHandler {
     public static final int DEFAULT_NOTIFICATION_ID = 0;
     public static final String NOTIFICATION_ID_EXTRA = "opened_by_notification";
+    public static final String NOTIFICATION_INTENT = "notification_intent";
 
     protected Context mContext;
     protected Notification mNotification;
@@ -36,12 +38,17 @@ public abstract class NotificationHandler {
     }
 
     protected void showNotificationForIntent(Intent intent) {
+
         intent.putExtra(NOTIFICATION_ID_EXTRA, DEFAULT_NOTIFICATION_ID);
+
+        PackageManager pm = mContext.getPackageManager();
+        Intent launchIntent = pm.getLaunchIntentForPackage("com.seshtutoring.seshapp");
+        launchIntent.putExtra(NOTIFICATION_INTENT, intent);
 
         // ensures back button will lead to home screen
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(mContext);
         stackBuilder.addParentStack(MainContainerActivity.class);
-        stackBuilder.addNextIntent(intent);
+        stackBuilder.addNextIntent(launchIntent);
 
         PendingIntent pendingIntent = stackBuilder.getPendingIntent(
                 0,

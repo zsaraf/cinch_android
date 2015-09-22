@@ -14,6 +14,7 @@ import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.SeshApplication;
 import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.services.SeshGCMListenerService;
+import com.seshtutoring.seshapp.services.notifications.handlers.NotificationHandler;
 import com.seshtutoring.seshapp.util.LaunchPrerequisiteAsyncTask;
 import com.seshtutoring.seshapp.util.LaunchPrerequisiteAsyncTask.PrereqsFulfilledListener;
 import com.seshtutoring.seshapp.util.networking.SeshAuthManager;
@@ -33,6 +34,8 @@ public class SplashActivity extends SeshActivity {
         setContentView(R.layout.splash_activity);
         this.logo = (ImageView) findViewById(R.id.logo);
 
+        final Intent intent = getIntent();
+
         Thread timerThread = new Thread(){
             public void run(){
                 try{
@@ -48,7 +51,7 @@ public class SplashActivity extends SeshActivity {
                             handler.postDelayed(new Runnable() {
                                 @Override
                                 public void run() {
-                                    startInitialActivity();
+                                    startInitialActivityWithIntent(intent);
                                 }
                             }, 300);
                         }
@@ -57,7 +60,6 @@ public class SplashActivity extends SeshActivity {
             }
         };
 
-        Intent intent = getIntent();
 
         if (!intent.hasExtra(SeshGCMListenerService.NOTIFICATION_ID_EXTRA)) {
             timerThread.start();
@@ -65,11 +67,11 @@ public class SplashActivity extends SeshActivity {
             int notificationId = intent.getIntExtra(SeshGCMListenerService.NOTIFICATION_ID_EXTRA, -1);
             ((NotificationManager)
                     getSystemService(NOTIFICATION_SERVICE)).cancel(notificationId);
-            startInitialActivity();
+            startInitialActivityWithIntent(intent);
         }
     }
 
-    private void startInitialActivity() {
+    private void startInitialActivityWithIntent(final Intent intent) {
         if (SeshAuthManager.sharedManager(this).isValidSession()) {
 
             (new LaunchPrerequisiteAsyncTask(this, new PrereqsFulfilledListener() {
@@ -79,9 +81,15 @@ public class SplashActivity extends SeshActivity {
 
                     User currentUser = User.currentUser(getApplicationContext());
                     if (currentUser.school.enabled) {
-                        Intent mainContainerIntent = new Intent(getApplicationContext(), MainContainerActivity.class);
-                        startActivity(mainContainerIntent);
-                        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+                        if (intent.hasExtra(NotificationHandler.NOTIFICATION_INTENT)) {
+                            Intent mainContainerIntent = intent.getParcelableExtra(NotificationHandler.NOTIFICATION_INTENT);
+                            startActivity(mainContainerIntent);
+                            overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+                        } else {
+                            Intent mainContainerIntent = new Intent(getApplicationContext(), MainContainerActivity.class);
+                            startActivity(mainContainerIntent);
+                            overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+                        }
                     } else {
                         Intent launchSchoolIntent = new Intent(getApplicationContext(), LaunchSchoolActivity.class);
                         startActivity(launchSchoolIntent);
