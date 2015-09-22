@@ -131,6 +131,9 @@ public class AddTutorClassesActivity extends AppCompatActivity {
                     }
                 }
                 courseResultsAdapter.notifyDataSetChanged();
+
+                boolean checkButtonHidden = classesToAdd.size() == 0 && classesToDelete.size() == 0;
+                submitButton.setVisibility(checkButtonHidden ? View.GONE : View.VISIBLE);
             }
         });
         this.seshNetworking = new SeshNetworking(this);
@@ -289,7 +292,7 @@ public class AddTutorClassesActivity extends AppCompatActivity {
         cancelButton.setEnabled(!networking);
         submitButton.setEnabled(!networking);
 
-        requestFlowOverlay.animate().alpha((networking) ? 1.0f : 0.0f).setDuration(300).start();
+        requestFlowOverlay.animate().alpha((networking) ? 1.0f : 0.0f).setDuration(600).start();
     }
 
     private void handleResponseError(String title, String message) {
