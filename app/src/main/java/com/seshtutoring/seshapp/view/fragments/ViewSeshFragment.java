@@ -340,9 +340,12 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
             if (seshesFound.size() >= 1) {
                 sesh = seshesFound.get(0);
 
-                updateNavBarTitle();
-                updateMiddleBarView();
-                ((ViewSeshPagerAdapter) viewPager.getAdapter()).refresh();
+                if (getActivity() != null) {
+
+                    updateNavBarTitle();
+                    updateMiddleBarView();
+                    ((ViewSeshPagerAdapter) viewPager.getAdapter()).refresh();
+                }
             }
         }
     }
