@@ -8,14 +8,16 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/action_bar_height"
         android:id="@+id/add_tutor_classes_top_bar">
         <RelativeLayout
             android:id="@+id/add_tutor_classes_close"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_alignParentLeft="true"
-            android:padding="20dp">
+            android:layout_alignParentTop="true"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp">
             <ImageView
                 android:layout_width="20dp"
                 android:layout_height="20dp"
@@ -23,19 +25,20 @@
                 android:layout_centerInParent="true"/>
         </RelativeLayout>
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
             android:textColor="@color/seshorange"
             android:textSize="18dp"
             android:text="Add/Remove Classes"/>
         <RelativeLayout
             android:id="@+id/add_tutor_classes_check"
-            android:layout_alignParentRight="true"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="20dp">
+            android:layout_height="match_parent"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp">
             <ImageView
                 android:layout_width="20dp"
                 android:layout_height="20dp"
