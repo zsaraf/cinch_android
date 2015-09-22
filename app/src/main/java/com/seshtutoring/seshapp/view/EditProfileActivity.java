@@ -73,22 +73,30 @@ public class EditProfileActivity extends SeshActivity {
     }
 
     private void doneCalled() {
+        InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
         Intent resultIntent = new Intent();
         if (bioText.getText().toString().isEmpty() && majorText.getText().toString().isEmpty()) {
             setResult(RESULT_CANCELED, resultIntent);
             finish();
+            overridePendingTransition(R.anim.hold, R.anim.fade_out);
         }else {
             resultIntent.putExtra("bio", bioText.getText().toString());
             resultIntent.putExtra("major", majorText.getText().toString());
             setResult(RESULT_OK, resultIntent);
             finish();
+            overridePendingTransition(R.anim.hold, R.anim.fade_out);
         }
+
     }
 
     private void cancelCalled() {
+        InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
         Intent resultIntent = new Intent();
         setResult(RESULT_CANCELED, resultIntent);
         finish();
+        overridePendingTransition(R.anim.hold, R.anim.fade_out);
     }
 
     @Override
