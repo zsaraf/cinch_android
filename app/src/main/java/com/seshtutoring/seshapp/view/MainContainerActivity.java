@@ -385,8 +385,7 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
                 final SeshDialog seshDialog = new SeshDialog();
                 seshDialog.setDialogType(SeshDialog.SeshDialogType.ONE_BUTTON);
                 seshDialog.setTitle("Request Sent!");
-                seshDialog.setMessage("Hold Tight! We'll notify you as soon as a tutor nearby " +
-                        "accepts your request.");
+                seshDialog.setMessage("Hold Tight! We'll notify you as soon as a tutor accepts your request.");
                 seshDialog.setFirstChoice("OKAY");
                 seshDialog.setType("request_sent");
                 seshDialog.setFirstButtonClickListener(new View.OnClickListener() {

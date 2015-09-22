@@ -19,15 +19,14 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/duration_edit_text"
-        android:layout_above="@+id/learn_request_duration_layout"
-        android:paddingTop="15dp"
-        android:paddingBottom="5dp">
+        android:layout_above="@+id/learn_request_duration_layout">
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
-        android:layout_gravity="center_vertical"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
         android:orientation="vertical"
         android:id="@+id/cost_breakdown" >
         <RelativeLayout
