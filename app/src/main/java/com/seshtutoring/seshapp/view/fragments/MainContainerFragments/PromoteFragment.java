@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.net.Uri;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -40,11 +41,12 @@ import java.util.Map;
 public class PromoteFragment extends Fragment implements FragmentOptionsReceiver {
     private Map<String, Object> options;
 
-    SeshButton redeemButton;
-    SeshEditText redeemEditText;
-    SeshActivityIndicator seshActivityIndicator;
+    private SeshButton redeemButton;
+    private SeshEditText redeemEditText;
+    private SeshActivityIndicator seshActivityIndicator;
+    private ImageButton fbShareButton, tweetButton, instaButton;
 
-    SeshButton shareButton;
+    private SeshButton shareButton;
 
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
         View v = layoutInflater.inflate(R.layout.promote_fragment, null);
@@ -64,17 +66,40 @@ public class PromoteFragment extends Fragment implements FragmentOptionsReceiver
         View.OnClickListener onButtonClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                    Intent shareIntent = new Intent(android.content.Intent.ACTION_SEND);
-                    shareIntent.setType("text/plain");
-                    shareIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Try out Sesh!");
-                    shareIntent.putExtra(android.content.Intent.EXTRA_TEXT, "Try out Sesh Tutoring, a mobile tutoring app for college campuses. Get instant in-person help on assignments from students who've previously aced the class! Visit http://seshtutoring.com to learn more!");
+                String link = null;
+                if (v == fbShareButton) {
+                    link = "https://www.facebook.com/seshtutoring";
+                } else if (v == tweetButton) {
+                    link = "https://twitter.com/seshtutoring";
+                } else {
+                    link = "https://instagram.com/sesh_tutoring/";
+                }
 
-                    getActivity().startActivity(Intent.createChooser(shareIntent, "Share Sesh!"));
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(link));
+                startActivity(browserIntent);
             }
         };
 
+        fbShareButton = (ImageButton) v.findViewById(R.id.promote_share_button);
+        tweetButton = (ImageButton) v.findViewById(R.id.promote_tweet_button);
+        instaButton = (ImageButton) v.findViewById(R.id.promote_insta_button);
+
+        fbShareButton.setOnClickListener(onButtonClickListener);
+        tweetButton.setOnClickListener(onButtonClickListener);
+        instaButton.setOnClickListener(onButtonClickListener);
+
         shareButton = (SeshButton) v.findViewById(R.id.promote_button);
-        shareButton.setOnClickListener(onButtonClickListener);
+        shareButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent shareIntent = new Intent(android.content.Intent.ACTION_SEND);
+                shareIntent.setType("text/plain");
+                shareIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Try out Sesh!");
+                shareIntent.putExtra(android.content.Intent.EXTRA_TEXT, "Try out Sesh Tutoring, a mobile tutoring app for college campuses. Get instant in-person help on assignments from students who've previously aced the class! Visit http://seshtutoring.com to learn more!");
+
+                getActivity().startActivity(Intent.createChooser(shareIntent, "Share Sesh!"));
+            }
+        });
 
         redeemButton.setOnClickListener(new View.OnClickListener() {
             @Override

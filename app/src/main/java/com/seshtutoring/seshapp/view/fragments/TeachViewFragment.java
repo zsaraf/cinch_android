@@ -116,10 +116,14 @@ public class TeachViewFragment extends Fragment implements ViewClassesView.ViewC
     private BroadcastReceiver actionBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            User currentUser = User.currentUser(context);
-            viewClassesView.refreshClassesViewWithUser(currentUser);
+            refreshTutorClasses();
         }
     };
+
+    public void refreshTutorClasses() {
+        User currentUser = User.currentUser(getActivity());
+        viewClassesView.refreshClassesViewWithUser(currentUser);
+    }
 
     private void toggleViewClasses() {
 
@@ -205,7 +209,7 @@ public class TeachViewFragment extends Fragment implements ViewClassesView.ViewC
     @Override
     public void viewClassesViewDidTapAddClasses() {
         Intent intent = new Intent(getActivity(), AddTutorClassesActivity.class);
-        startActivityForResult(intent, 0);
+        startActivityForResult(intent, AddTutorClassesActivity.ADD_TUTOR_CLASSES_CREATE);
         getActivity().overridePendingTransition(R.anim.fade_in, 0);
     }
 

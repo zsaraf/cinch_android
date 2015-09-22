@@ -100,6 +100,11 @@ public class Course extends SugarRecord<Course> {
         return course;
     }
 
+    @Override
+    public boolean equals(Object other) {
+        return this.courseId == ((Course)other).courseId;
+    }
+
     public String formatForTextView() {
         return deptAbbrev + " " + number + ": " + name;
     }

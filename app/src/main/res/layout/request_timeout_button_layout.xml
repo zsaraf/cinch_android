@@ -3,37 +3,31 @@
     android:layout_width="match_parent" android:layout_height="match_parent"
     android:id="@+id/timeout_button_background"
     android:background="@drawable/request_timeout_button_unselected">
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"/>
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_margin="5dp">
         <TextView
             android:id="@+id/num_hours_label"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="1"
-            android:textSize="18dp"
+            android:textSize="15dp"
             android:gravity="center_horizontal"
-            android:textColor="@color/seshlightgray"/>
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"/>
+            android:textColor="@color/seshlightgray"
+            android:layout_marginBottom="-2dp"
+            android:padding="0dp"/>
         <TextView
             android:id="@+id/hours_label"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="hour"
-            android:textSize="18dp"
+            android:textSize="15dp"
             android:gravity="center_horizontal"
-            android:textColor="@color/seshlightgray"/>
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"/>
-    </LinearLayout>
+            android:textColor="@color/seshlightgray"
+            android:layout_below="@id/num_hours_label"
+            android:layout_marginTop="0dp"
+            android:padding="0dp"/>
+    </RelativeLayout>
 </RelativeLayout>

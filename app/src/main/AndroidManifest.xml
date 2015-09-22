@@ -208,8 +208,7 @@
             android:label="@string/title_activity_add_tutor_classes"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
-            android:theme="@style/SeshTransparent"
-            android:windowSoftInputMode="adjustNothing" >
+            android:theme="@style/SeshTransparent" >
         </activity>
         <activity
             android:name=".view.LaunchSchoolActivity"

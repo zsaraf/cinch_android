@@ -2,9 +2,9 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#000000"
-    android:alpha=".9"
-    xmlns:custom="http://schemas.android.com/apk/res-auto">
+    android:background="@color/seshcharcoal"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/add_tutor_classes_container">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -29,7 +29,7 @@
             android:layout_centerVertical="true"
             android:textColor="@color/seshorange"
             android:textSize="18dp"
-            android:text="Add Classes"/>
+            android:text="Add/Remove Classes"/>
         <RelativeLayout
             android:id="@+id/add_tutor_classes_check"
             android:layout_alignParentRight="true"
@@ -66,5 +66,24 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/course_results_list"/>
+
+    <RelativeLayout
+        android:id="@+id/add_tutor_classes_overlay"
+        android:alpha="0"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/request_flow_overlay_background">
+        <com.seshtutoring.seshapp.view.components.SeshActivityIndicator
+            android:id="@+id/add_tutor_classes_activity_indicator"
+            android:layout_centerInParent="true"
+            android:layout_width="50dp"
+            android:layout_height="50dp"/>
+        <com.seshtutoring.seshapp.view.components.SeshAnimatedCheckmark
+            android:id="@+id/animated_check_mark"
+            android:layout_centerInParent="true"
+            custom:labelText="Classes Added!"
+            android:layout_width="200dp"
+            android:layout_height="200dp"/>
+    </RelativeLayout>
 
 </RelativeLayout>

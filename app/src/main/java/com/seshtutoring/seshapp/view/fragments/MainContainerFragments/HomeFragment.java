@@ -29,6 +29,7 @@ import com.seshtutoring.seshapp.model.Notification;
 import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.util.SeshMixpanelAPI;
+import com.seshtutoring.seshapp.view.AddTutorClassesActivity;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
 import com.seshtutoring.seshapp.view.MessagingActivity;
 import com.seshtutoring.seshapp.view.RequestActivity;
@@ -62,8 +63,6 @@ public class HomeFragment extends Fragment implements FragmentOptionsReceiver {
 
     private View homeView;
     private ViewPager viewPager;
-    private LearnViewFragment learnViewFragment;
-    private TeachViewFragment teachViewFragment;
     private Button learnTabButton;
     private Button teachTabButton;
     private TabItem currTabItem;
@@ -156,7 +155,7 @@ public class HomeFragment extends Fragment implements FragmentOptionsReceiver {
             Log.e(TAG, "Cannot pull learn view map when learn tab is not selected.");
             return null;
         }
-        return learnViewFragment.getMap();
+        return ((HomeViewPagerAdapter)this.viewPager.getAdapter()).learnViewFragment.getMap();
     }
     @Override
     public void onResume() {
@@ -280,7 +279,13 @@ public class HomeFragment extends Fragment implements FragmentOptionsReceiver {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        learnViewFragment.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == AddTutorClassesActivity.ADD_TUTOR_CLASSES_CREATE) {
+            ((HomeViewPagerAdapter)this.viewPager.getAdapter()).teachViewFragment.refreshTutorClasses();
+        } else {
+            ((HomeViewPagerAdapter)this.viewPager.getAdapter()).learnViewFragment.onActivityResult(requestCode, resultCode, data);
+        }
+
+
     }
 
     @Override
