@@ -34,7 +34,7 @@
             android:layout_marginTop="30dp"
             android:layout_centerHorizontal="true"
             android:layout_below="@id/add_photo_label"
-            android:src="@drawable/default_profile_pic"
+            android:src="@drawable/default_profile_picture"
             app:border_width="1dp"
             app:border_color="@color/seshorange"/>
         <TextView

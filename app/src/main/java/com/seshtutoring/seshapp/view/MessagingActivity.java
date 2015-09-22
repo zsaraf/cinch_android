@@ -75,7 +75,7 @@ public class MessagingActivity extends SeshActivity implements View.OnClickListe
         utils.setupCustomActionBar(this, true);
 
         TextView title = (TextView) findViewById(R.id.action_bar_title);
-        title.setText("MESSAGES");
+        title.setText("Messaging");
         title.setTypeface(Typeface.createFromAsset(this.getAssets(), "fonts/Gotham-Book.otf"));
 
         RelativeLayout menuButton = (RelativeLayout) findViewById(R.id.action_bar_menu_button);

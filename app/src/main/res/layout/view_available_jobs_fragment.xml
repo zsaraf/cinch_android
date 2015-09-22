@@ -22,24 +22,24 @@
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:paddingBottom="50dp"
+            android:layout_height="wrap_content"
             android:layout_centerInParent="true">
             <ImageView
                 android:layout_width="200dp"
                 android:layout_height="wrap_content"
-                android:layout_above="@+id/broken_text_view"
                 android:layout_centerHorizontal="true"
-                android:src="@drawable/sesh_broken"/>
+                android:src="@drawable/sesh_broken"
+                android:id="@+id/broken_pencil"
+                android:layout_alignParentTop="true" />
             <TextView
                 android:id="@+id/broken_text_view"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_below="@+id/broken_pencil"
+                android:layout_centerHorizontal="true"
                 android:padding="50dp"
                 android:textSize="19dp"
                 android:gravity="center"
-                android:layout_centerHorizontal="true"
-                android:layout_centerInParent="true"
                 android:text="Ahh, snap! There are no available jobs right now. Stay available and we will notify you when new jobs open up!" />
         </RelativeLayout>
 

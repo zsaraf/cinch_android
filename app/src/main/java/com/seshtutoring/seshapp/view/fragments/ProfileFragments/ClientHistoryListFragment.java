@@ -70,9 +70,9 @@ public class ClientHistoryListFragment extends ListFragment{
         this.user = User.currentUser(mainContainerActivity.getApplicationContext());
         this.seshNetworking = new SeshNetworking(mainContainerActivity);
 
-        String emptyStr = "you haven't tutored any seshes yet - try picking up a request today!";
+        String emptyStr = "You haven't tutored any Seshes yet. Pick up a request today!";
         if (user.tutor == null || !user.tutor.enabled) {
-            emptyStr = "you're not registered as a tutor yet, sign up at seshtutoring.com!";
+            emptyStr = "You're not registered as a tutor yet. Sign up today at seshtutoring.com!";
         }
         emptyTextView.setText(emptyStr);
 

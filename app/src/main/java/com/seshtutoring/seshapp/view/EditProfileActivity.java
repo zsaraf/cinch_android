@@ -10,8 +10,10 @@ import android.view.ViewTreeObserver;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 
 import com.seshtutoring.seshapp.R;
+import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.view.components.ActionMultilineEditText;
 import com.seshtutoring.seshapp.view.components.SeshEditText;
 import com.seshtutoring.seshapp.view.components.SeshViewPager;
@@ -38,10 +40,14 @@ public class EditProfileActivity extends SeshActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.edit_profile_activity);
 
-        ImageView doneButton = (ImageView) findViewById(R.id.done_icon);
-        ImageView cancelButton = (ImageView) findViewById(R.id.cancel_icon);
-        doneButton.setImageResource(R.drawable.check_green);
-        cancelButton.setImageResource(R.drawable.x_orange);
+        if (Build.VERSION.SDK_INT >= 19) {
+            LayoutUtils utils = new LayoutUtils(this);
+            RelativeLayout container = (RelativeLayout) findViewById(R.id.top_bar);
+            container.setPadding(0, utils.getStatusBarHeight(), 0, 0);
+        }
+
+        RelativeLayout doneButton = (RelativeLayout) findViewById(R.id.done_icon);
+        RelativeLayout cancelButton = (RelativeLayout) findViewById(R.id.cancel_icon);
         majorText = (SeshEditText) findViewById(R.id.major_edit_text);
         bioText = (ActionMultilineEditText) findViewById(R.id.bio_edit_text);
 

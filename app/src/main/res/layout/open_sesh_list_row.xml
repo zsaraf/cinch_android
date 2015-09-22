@@ -17,7 +17,7 @@
             android:layout_width="35dp"
             android:layout_height="35dp"
             android:layout_centerVertical="true"
-            android:src="@drawable/profile"
+            android:src="@drawable/default_profile_picture"
             app:border_width="1dp"
             app:border_color="@color/seshorange"/>
         <RelativeLayout

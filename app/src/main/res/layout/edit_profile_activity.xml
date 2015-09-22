@@ -6,40 +6,61 @@
     android:layout_height="match_parent"
     android:alpha="0.95"
     android:background="#000000">
-    <ImageView
-        android:layout_width="25dp"
-        android:layout_height="25dp"
-        android:id="@+id/cancel_icon"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_marginTop="50dp"
-        android:layout_marginLeft="20dp"/>
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/edit_profile_title"
-        android:textColor="@color/seshorange"
-        android:layout_marginTop="50dp"
-        android:textSize="18dp"
-        android:layout_centerHorizontal="true"
-        android:gravity="center"
-        android:text="Edit Profile" />
-    <ImageView
-        android:layout_width="25dp"
-        android:layout_height="25dp"
-        android:id="@+id/done_icon"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentRight="true"
-        android:layout_marginTop="50dp"
-        android:layout_marginRight="20dp"/>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/action_bar_height"
+        android:id="@+id/top_bar">
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:id="@+id/cancel_icon">
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_centerInParent="true"
+                android:background="@drawable/x_red" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:id="@+id/done_icon">
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_centerInParent="true"
+                android:background="@drawable/check_green"/>
+        </RelativeLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/edit_profile_title"
+            android:textColor="@color/seshorange"
+            android:textSize="18dp"
+            android:gravity="center"
+            android:text="Edit Profile" />
+
+
+    </RelativeLayout>
+
+
     <com.seshtutoring.seshapp.view.components.SeshEditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/major_edit_text"
         custom:editTextHint="Major"
         custom:editTextType="choose_class"
-        android:layout_below="@id/edit_profile_title"
-        android:layout_marginTop="50dp"
+        android:layout_below="@id/top_bar"
+        android:layout_marginTop="10dp"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp">
     </com.seshtutoring.seshapp.view.components.SeshEditText>
