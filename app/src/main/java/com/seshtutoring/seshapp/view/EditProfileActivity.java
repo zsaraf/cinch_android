@@ -41,7 +41,7 @@ public class EditProfileActivity extends SeshActivity {
         ImageView doneButton = (ImageView) findViewById(R.id.done_icon);
         ImageView cancelButton = (ImageView) findViewById(R.id.cancel_icon);
         doneButton.setImageResource(R.drawable.check_green);
-        cancelButton.setImageResource(R.drawable.x_red);
+        cancelButton.setImageResource(R.drawable.x_orange);
         majorText = (SeshEditText) findViewById(R.id.major_edit_text);
         bioText = (ActionMultilineEditText) findViewById(R.id.bio_edit_text);
 
