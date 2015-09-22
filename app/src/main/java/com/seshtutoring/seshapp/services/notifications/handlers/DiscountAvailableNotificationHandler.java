@@ -34,7 +34,7 @@ public class DiscountAvailableNotificationHandler extends BannerNotificationHand
                 SeshDialog seshDialog = new SeshDialog();
                 seshDialog.setTitle("Discount Available!");
                 seshDialog.setMessage("Please select the location where you would like to have your" +
-                        " Sesh and then click Request.");
+                        " Sesh and then click \"Request\".");
                 seshDialog.setFirstChoice("OKAY");
                 seshDialog.setDialogType(SeshDialog.SeshDialogType.ONE_BUTTON);
                 seshDialog.setType("discount_available");

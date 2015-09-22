@@ -667,7 +667,7 @@ public class AuthenticationActivity extends SeshActivity implements SeshDialog.O
                 intent.putExtra(SIGN_UP_PASSWORD_KEY, passwordEditText.getText());
                 startActivity(intent);
 
-                seshMixpanelAPI.track("User Signed Up Succesfully -- Needs Verification");
+                seshMixpanelAPI.track("User Signed Up Successfully -- Needs Verification");
             }
         } catch (JSONException e) {
             Log.e(TAG, e.toString());

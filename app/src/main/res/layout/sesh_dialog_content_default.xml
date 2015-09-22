@@ -23,7 +23,7 @@
         android:layout_marginLeft="30dp"
         android:layout_marginBottom="40dp"
         android:layout_centerHorizontal="true"
-        android:minHeight="160dp"
+        android:minHeight="120dp"
         android:capitalize="characters"
         android:textSize="16dp"
         android:text="Lorem ipsum"

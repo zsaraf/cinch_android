@@ -70,7 +70,7 @@ public class SeshDisplayAnimation extends SideMenuFragment.SideMenuOpenAnimation
     }
 
     public void onAnimationCompleted() {
-        if (sesh.isStudent) {
+        if (sesh.isStudent && dummyPastRequestContents != null) {
             seshRowParentView.removeView(dummyPastRequestContents);
         }
         (new AnimationCompleteAsyncTask()).execute();

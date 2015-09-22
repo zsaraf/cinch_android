@@ -122,10 +122,10 @@ public class ChangePasswordActivity extends SeshActivity {
                 String confirmPassword = confirmPasswordField.getText().toString();
 
                 if(newPassword.length() < 5) {
-                    showErrorDialog("Woops!", "Password must be greater than 5 characters");
+                    showErrorDialog("Whoops!", "Password must be greater than 5 characters.");
                     return;
                 } else if (!newPassword.equals(confirmPassword)) {
-                    showErrorDialog("Woops!", "Password confirmation does not match");
+                    showErrorDialog("Whoops!", "Password confirmation does not match.");
                     return;
                 }
 
