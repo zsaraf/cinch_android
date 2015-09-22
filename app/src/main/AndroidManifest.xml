@@ -271,6 +271,14 @@
                 android:value="com.seshtutoring.seshapp.view.MainContainerActivity" />
         </activity>
         <activity
+            android:name=".view.EditProfileActivity"
+            android:label="edit profile"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@style/SeshTransparent"
+            android:windowSoftInputMode="stateVisible" >
+        </activity>
+        <activity
             android:name=".view.AboutActivity"
             android:label="@string/title_activity_about"
             android:launchMode="singleTop"

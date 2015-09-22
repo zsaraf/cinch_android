@@ -235,4 +235,9 @@ public class SeshEditText extends RelativeLayout {
     public void setKeyDownListener(Runnable listener) {
         editText.setKeyDownListener(listener);
     }
+
+    public void setHint(String hint) {
+        this.hint = hint;
+        editText.setHint(hint);
+    }
 }
