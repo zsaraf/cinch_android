@@ -4,10 +4,13 @@
     android:layout_height="match_parent"
     android:id="@+id/promote_layout"
     xmlns:custom="http://schemas.android.com/apk/res-auto">
+
     <ScrollView
+        android:id="@+id/promote_scroll_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scrollbars="none">
+        android:layout_height="wrap_content"
+        android:scrollbars="none"
+        android:layout_alignParentBottom="true">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -21,8 +24,7 @@
                 android:layout_height="wrap_content"
                 android:textColor="@color/seshorange"
                 android:text="Share Sesh"
-                android:textSize="20dp"
-                android:layout_marginTop="20dp"/>
+                android:textSize="20dp" />
             <TextView
                 android:id="@+id/promote_share_description"
                 android:layout_width="wrap_content"
@@ -48,7 +50,7 @@
                 android:id="@+id/promote_redeem_section"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="30dp"
                 android:layout_below="@+id/promote_button">
 
                 <RelativeLayout
@@ -105,83 +107,65 @@
                     android:layout_below="@id/promote_promo_code_edit_text"/>
 
             </RelativeLayout>
-
-            <TextView
-                android:id="@+id/promote_social_media_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/seshorange"
-                android:text="Sesh Social Media"
-                android:textSize="20dp"
-                android:layout_marginTop="15dp"
-                android:layout_below="@id/promote_redeem_section"/>
-            <TextView
-                android:id="@+id/promote_social_media_description"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/promote_social_media_title"
-                android:paddingTop="5dp"
-                android:textSize="16dp"
-                android:text="Follow us for the latest Sesh news!"/>
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_below="@id/promote_social_media_description">
-
-                <LinearLayout
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center"
-                    android:layout_marginLeft="-10dp"
-                    android:layout_marginRight="-10dp"
-                    android:layout_marginTop="10dp">
-                    <RelativeLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1">
-                        <ImageButton
-                            android:id="@+id/promote_share_button"
-                            android:layout_width="50dp"
-                            android:layout_height="50dp"
-                            android:layout_centerHorizontal="true"
-                            android:src="@drawable/facebook_hover_big"
-                            android:background="@color/transparent"
-                            android:scaleType="fitXY" />
-                    </RelativeLayout>
-                    <RelativeLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1">
-                        <ImageButton
-                            android:id="@+id/promote_tweet_button"
-                            android:layout_width="50dp"
-                            android:layout_height="50dp"
-                            android:layout_centerHorizontal="true"
-                            android:src="@drawable/twitter_hover_big"
-                            android:background="@color/transparent"
-                            android:scaleType="fitXY"/>
-                    </RelativeLayout>
-                    <RelativeLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1">
-                        <ImageButton
-                            android:id="@+id/promote_insta_button"
-                            android:layout_width="50dp"
-                            android:layout_height="50dp"
-                            android:layout_centerHorizontal="true"
-                            android:src="@drawable/instagram_hover_big"
-                            android:background="@color/transparent"
-                            android:scaleType="fitXY"/>
-                    </RelativeLayout>
-
-                </LinearLayout>
-            </RelativeLayout>
         </RelativeLayout>
-
     </ScrollView>
 
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/promote_scroll_view" >
+
+    <LinearLayout
+        android:id="@+id/button_layout"
+        android:layout_width="fill_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginLeft="-10dp"
+        android:layout_marginRight="-10dp"
+        android:layout_centerInParent="true">
+
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+            <ImageButton
+                android:id="@+id/promote_share_button"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_centerHorizontal="true"
+                android:src="@drawable/facebook_hover_big"
+                android:background="@color/transparent"
+                android:scaleType="fitXY" />
+        </RelativeLayout>
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+            <ImageButton
+                android:id="@+id/promote_tweet_button"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_centerHorizontal="true"
+                android:src="@drawable/twitter_hover_big"
+                android:background="@color/transparent"
+                android:scaleType="fitXY"/>
+        </RelativeLayout>
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+            <ImageButton
+                android:id="@+id/promote_insta_button"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_centerHorizontal="true"
+                android:src="@drawable/instagram_hover_big"
+                android:background="@color/transparent"
+                android:scaleType="fitXY"/>
+        </RelativeLayout>
+
+    </LinearLayout>
+    </RelativeLayout>
 
 </RelativeLayout>

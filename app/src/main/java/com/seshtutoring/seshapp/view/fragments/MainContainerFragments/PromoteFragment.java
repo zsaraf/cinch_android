@@ -141,6 +141,8 @@ public class PromoteFragment extends Fragment implements FragmentOptionsReceiver
                 .setDuration(300)
                 .setStartDelay(0)
                 .start();
+        shareButton.setEnabled(!networking);
+        redeemButton.setEnabled(!networking);
     }
 
     private void presentDialog(String title, String message) {
