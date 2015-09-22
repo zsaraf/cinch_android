@@ -61,6 +61,7 @@ public class AddTutorClassesActivity extends AppCompatActivity {
     private RelativeLayout requestFlowOverlay;
     private SeshActivityIndicator activityIndicator;
     private SeshAnimatedCheckmark animatedCheckmark;
+    private LayoutUtils layoutUtils;
 
     public static final int ADD_TUTOR_CLASSES_REFRESH = 9;
     public static final int ADD_TUTOR_CLASSES_NO_UPDATE = 10;
@@ -71,12 +72,15 @@ public class AddTutorClassesActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_tutor_classes);
 
+        layoutUtils = new LayoutUtils(this);
         // configure transparent status bar
         if (Build.VERSION.SDK_INT >= 19) {
-            LayoutUtils utils = new LayoutUtils(this);
             RelativeLayout container = (RelativeLayout) findViewById(R.id.add_tutor_classes_container);
-            container.setPadding(0, utils.getStatusBarHeight(), 0, 0);
+            container.setPadding(0, layoutUtils.getStatusBarHeight(), 0, 0);
         }
+
+        TextView textView = (TextView) findViewById(R.id.add_remove_classes_title_text_view);
+        textView.setTypeface(layoutUtils.getLightGothamTypeface());
 
         this.tutorClasses = User.currentUser(this).tutor.getCourses();
         this.classesToAdd = new ArrayList<Course>();
@@ -209,7 +213,6 @@ public class AddTutorClassesActivity extends AppCompatActivity {
             }
 
             TextView classRowText = (TextView) v.findViewById(R.id.course_row_text);
-            LayoutUtils layoutUtils = new LayoutUtils(AddTutorClassesActivity.this);
             classRowText.setTypeface(layoutUtils.getLightGothamTypeface());
             classRowText.setText(courseRowData.formatForTextView());
 
@@ -241,6 +244,7 @@ public class AddTutorClassesActivity extends AppCompatActivity {
             public void onResponse(JSONObject jsonObject) {
                 try {
                     if (jsonObject.get("status").equals("SUCCESS")) {
+                        User.currentUser(AddTutorClassesActivity.this).refreshTutorCoursesWithArray(jsonObject.getJSONArray("classes"));
                         activityIndicator
                                 .animate()
                                 .alpha(0)

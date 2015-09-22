@@ -199,14 +199,10 @@ public class User extends SugarRecord<User> {
                 }
             }
 
-            user.tutor.clearTutorCourses();
             if (dataJson.has("tutor_classes")) {
-                JSONArray courses = dataJson.getJSONArray("tutor_classes");
-                for (int i = 0; i < courses.length(); i++) {
-                    JSONObject courseJSON = courses.getJSONObject(i);
-                    Course newCourse = Course.createOrUpdateCourseWithJSON(courseJSON, user.tutor, false);
-                    newCourse.save();
-                }
+                user.refreshTutorCoursesWithArray(dataJson.getJSONArray("tutor_classes"));
+            } else {
+                user.tutor.clearTutorCourses();
             }
 
             OutstandingCharge.deleteAll(OutstandingCharge.class);
@@ -256,6 +252,20 @@ public class User extends SugarRecord<User> {
             }
             if (!containsSesh) {
                 sesh.delete();
+            }
+        }
+    }
+
+    public void refreshTutorCoursesWithArray(JSONArray courses) {
+        tutor.clearTutorCourses();
+        for (int i = 0; i < courses.length(); i++) {
+            JSONObject courseJSON = null;
+            try {
+                courseJSON = courses.getJSONObject(i);
+                Course newCourse = Course.createOrUpdateCourseWithJSON(courseJSON, tutor, false);
+                newCourse.save();
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
         }
     }

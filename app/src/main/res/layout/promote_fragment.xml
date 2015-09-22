@@ -3,179 +3,182 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/promote_layout"
-    android:padding="20dp"
     xmlns:custom="http://schemas.android.com/apk/res-auto">
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-    <TextView
-        android:id="@+id/promote_share_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@color/seshorange"
-        android:text="Share Sesh"
-        android:textSize="20dp"
-        android:layout_marginTop="20dp"/>
-    <TextView
-        android:id="@+id/promote_share_description"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/promote_share_title"
-        android:paddingTop="5dp"
-        android:textSize="16dp"
-        android:text="The power of Sesh lies with its community. The more people you share Sesh with, the better experience you will have!"/>
-
-    <com.seshtutoring.seshapp.view.components.SeshButton
-        android:id="@+id/promote_button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="0dp"
-        android:layout_marginRight="0dp"
-        android:layout_marginBottom="0dp"
-        android:layout_marginTop="10dp"
-        android:text="SHARE"
-        custom:buttonType="red"
-        android:layout_below="@id/promote_share_description"/>
-
-    <RelativeLayout
-        android:id="@+id/promote_redeem_section"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:layout_below="@+id/promote_button">
+        android:layout_height="match_parent"
+        android:scrollbars="none">
 
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/promote_text_view_relative_layout">
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:paddingBottom="10dp">
             <TextView
-                android:id="@+id/promote_redeem_text_view"
+                android:id="@+id/promote_share_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Redeem"
-                android:textSize="20dp"
                 android:textColor="@color/seshorange"
-                android:layout_centerVertical="true"
-                android:layout_marginBottom="5dp" />
-            <com.seshtutoring.seshapp.view.components.SeshActivityIndicator
-                android:id="@+id/promote_redeem_activity_indicator"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_marginLeft="15dp"
-                android:paddingBottom="10dp"
-                android:paddingTop="10dp"
-                android:alpha="0"
-                android:layout_centerVertical="true"
-                android:layout_toRightOf="@id/promote_redeem_text_view"/>
-        </RelativeLayout>
+                android:text="Share Sesh"
+                android:textSize="20dp"
+                android:layout_marginTop="20dp"/>
+            <TextView
+                android:id="@+id/promote_share_description"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/promote_share_title"
+                android:paddingTop="5dp"
+                android:textSize="16dp"
+                android:text="The power of Sesh lies with its community. The more people you share Sesh with, the better experience you will have!"/>
 
-        <TextView
-            android:id="@+id/promote_redeem_description"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/promote_text_view_relative_layout"
-            android:layout_marginBottom="10dp"
-            android:textSize="16dp"
-            android:text="Redeem a promotional code here to receive free credits!"/>
+            <com.seshtutoring.seshapp.view.components.SeshButton
+                android:id="@+id/promote_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="0dp"
+                android:layout_marginRight="0dp"
+                android:layout_marginBottom="0dp"
+                android:layout_marginTop="10dp"
+                android:text="SHARE"
+                custom:buttonType="red"
+                android:layout_below="@id/promote_share_description"/>
 
-        <com.seshtutoring.seshapp.view.components.SeshEditText
-            android:id="@+id/promote_promo_code_edit_text"
-            android:layout_below="@+id/promote_redeem_description"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingBottom="5dp"
-            custom:editTextHint="Code"/>
+            <RelativeLayout
+                android:id="@+id/promote_redeem_section"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_below="@+id/promote_button">
 
-        <com.seshtutoring.seshapp.view.components.SeshButton
-            android:id="@+id/promote_redeem_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="0dp"
-            android:layout_marginRight="0dp"
-            android:layout_marginBottom="0dp"
-            android:text="REDEEM"
-            custom:buttonType="red"
-            android:layout_below="@id/promote_promo_code_edit_text"/>
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/promote_text_view_relative_layout">
+                    <TextView
+                        android:id="@+id/promote_redeem_text_view"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Redeem"
+                        android:textSize="20dp"
+                        android:textColor="@color/seshorange"
+                        android:layout_centerVertical="true"
+                        android:layout_marginBottom="5dp" />
+                    <com.seshtutoring.seshapp.view.components.SeshActivityIndicator
+                        android:id="@+id/promote_redeem_activity_indicator"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_marginLeft="15dp"
+                        android:paddingBottom="10dp"
+                        android:paddingTop="10dp"
+                        android:alpha="0"
+                        android:layout_centerVertical="true"
+                        android:layout_toRightOf="@id/promote_redeem_text_view"/>
+                </RelativeLayout>
 
-    </RelativeLayout>
+                <TextView
+                    android:id="@+id/promote_redeem_description"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/promote_text_view_relative_layout"
+                    android:layout_marginBottom="10dp"
+                    android:textSize="16dp"
+                    android:text="Redeem a promotional code here to receive free credits!"/>
 
-    <TextView
-        android:id="@+id/promote_social_media_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@color/seshorange"
-        android:text="Sesh Social Media"
-        android:textSize="20dp"
-        android:layout_marginTop="15dp"
-        android:layout_below="@id/promote_redeem_section"/>
-    <TextView
-        android:id="@+id/promote_social_media_description"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/promote_social_media_title"
-        android:paddingTop="5dp"
-        android:textSize="16dp"
-        android:text="Follow us for the latest Sesh news!"/>
+                <com.seshtutoring.seshapp.view.components.SeshEditText
+                    android:id="@+id/promote_promo_code_edit_text"
+                    android:layout_below="@+id/promote_redeem_description"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="5dp"
+                    custom:editTextHint="Code"/>
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/promote_social_media_description">
+                <com.seshtutoring.seshapp.view.components.SeshButton
+                    android:id="@+id/promote_redeem_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="0dp"
+                    android:layout_marginRight="0dp"
+                    android:layout_marginBottom="0dp"
+                    android:text="REDEEM"
+                    custom:buttonType="red"
+                    android:layout_below="@id/promote_promo_code_edit_text"/>
 
-    <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center"
-        android:layout_marginLeft="-10dp"
-        android:layout_marginRight="-10dp"
-        android:layout_marginTop="10dp">
-        <RelativeLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1">
-            <ImageButton
-                android:id="@+id/promote_share_button"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_centerHorizontal="true"
-                android:src="@drawable/facebook_hover"
-                android:background="@color/transparent"
-                android:scaleType="fitXY" />
-        </RelativeLayout>
-        <RelativeLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1">
-            <ImageButton
-                android:id="@+id/promote_tweet_button"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_centerHorizontal="true"
-                android:src="@drawable/twitter_hover"
-                android:background="@color/transparent"
-                android:scaleType="fitXY"/>
-        </RelativeLayout>
-        <RelativeLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1">
-            <ImageButton
-                android:id="@+id/promote_insta_button"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_centerHorizontal="true"
-                android:src="@drawable/instagram_hover"
-                android:background="@color/transparent"
-                android:scaleType="fitXY"/>
-        </RelativeLayout>
+            </RelativeLayout>
 
-    </LinearLayout>
-    </RelativeLayout>
+            <TextView
+                android:id="@+id/promote_social_media_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/seshorange"
+                android:text="Sesh Social Media"
+                android:textSize="20dp"
+                android:layout_marginTop="15dp"
+                android:layout_below="@id/promote_redeem_section"/>
+            <TextView
+                android:id="@+id/promote_social_media_description"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/promote_social_media_title"
+                android:paddingTop="5dp"
+                android:textSize="16dp"
+                android:text="Follow us for the latest Sesh news!"/>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@id/promote_social_media_description">
+
+                <LinearLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:layout_marginLeft="-10dp"
+                    android:layout_marginRight="-10dp"
+                    android:layout_marginTop="10dp">
+                    <RelativeLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1">
+                        <ImageButton
+                            android:id="@+id/promote_share_button"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
+                            android:layout_centerHorizontal="true"
+                            android:src="@drawable/facebook_hover_big"
+                            android:background="@color/transparent"
+                            android:scaleType="fitXY" />
+                    </RelativeLayout>
+                    <RelativeLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1">
+                        <ImageButton
+                            android:id="@+id/promote_tweet_button"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
+                            android:layout_centerHorizontal="true"
+                            android:src="@drawable/twitter_hover_big"
+                            android:background="@color/transparent"
+                            android:scaleType="fitXY"/>
+                    </RelativeLayout>
+                    <RelativeLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1">
+                        <ImageButton
+                            android:id="@+id/promote_insta_button"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
+                            android:layout_centerHorizontal="true"
+                            android:src="@drawable/instagram_hover_big"
+                            android:background="@color/transparent"
+                            android:scaleType="fitXY"/>
+                    </RelativeLayout>
+
+                </LinearLayout>
+            </RelativeLayout>
         </RelativeLayout>
 
     </ScrollView>
