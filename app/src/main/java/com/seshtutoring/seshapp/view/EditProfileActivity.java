@@ -51,11 +51,11 @@ public class EditProfileActivity extends SeshActivity {
         Intent data = getIntent();
         String bio = data.getStringExtra("curr_bio");
         String major = data.getStringExtra("curr_major");
-        if (!bio.isEmpty()) {
-            bioText.setHint(bio);
+        if (!bio.isEmpty() && !bio.equals("edit profile to add bio")) {
+            bioText.setText(bio);
         }
-        if (!major.isEmpty()) {
-            majorText.setHint(major);
+        if (!major.isEmpty() && !major.equals("edit profile to add major")) {
+            majorText.setText(major);
         }
 
         doneButton.setOnClickListener(new View.OnClickListener() {

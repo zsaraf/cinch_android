@@ -109,8 +109,12 @@ public class ProfileBioViewFragment extends Fragment implements MainContainerAct
                     String major = data.getStringExtra("major");
                     oldBio = bioView.getText().toString();
                     oldMajor = majorView.getText().toString();
-                    bioView.setText(bio);
-                    majorView.setText(major);
+                    if (!bio.isEmpty()) {
+                        bioView.setText(bio);
+                    }
+                    if (!major.isEmpty()) {
+                        majorView.setText(major);
+                    }
                     seshNetworking.updateUserInformationWithMajorAndBio(major, bio, new Response.Listener<JSONObject>() {
                         @Override
                         public void onResponse(JSONObject responseJson) {
@@ -136,6 +140,17 @@ public class ProfileBioViewFragment extends Fragment implements MainContainerAct
                 //success!!
                 bioView.setTextColor(getResources().getColor(R.color.seshlightgray));
                 majorView.setTextColor(getResources().getColor(R.color.seshlightgray));
+                user.major = majorView.getText().toString();
+                user.bio = bioView.getText().toString();
+                if (bioView.getText().equals("edit profile to add bio")) {
+                    bioView.setTextColor(getResources().getColor(R.color.light_gray));
+                    user.bio = "";
+                }
+                if (majorView.getText().equals("edit profile to add major")) {
+                    majorView.setTextColor(getResources().getColor(R.color.light_gray));
+                    user.major = "";
+                }
+                user.save();
 
             } else if (responseJson.get("status").equals("FAILURE")) {
                 String message = responseJson.get("message").toString();
