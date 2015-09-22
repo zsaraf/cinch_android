@@ -42,7 +42,7 @@ public class EditProfileActivity extends SeshActivity {
 
         if (Build.VERSION.SDK_INT >= 19) {
             LayoutUtils utils = new LayoutUtils(this);
-            RelativeLayout container = (RelativeLayout) findViewById(R.id.top_bar);
+            RelativeLayout container = (RelativeLayout) findViewById(R.id.edit_container);
             container.setPadding(0, utils.getStatusBarHeight(), 0, 0);
         }
 

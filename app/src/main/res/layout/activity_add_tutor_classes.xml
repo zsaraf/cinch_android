@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/seshcharcoal"
+    android:background="@color/white"
     xmlns:custom="http://schemas.android.com/apk/res-auto"
     android:id="@+id/add_tutor_classes_container">
 
@@ -84,7 +84,7 @@
         <com.seshtutoring.seshapp.view.components.SeshAnimatedCheckmark
             android:id="@+id/animated_check_mark"
             android:layout_centerInParent="true"
-            custom:labelText="Classes Added!"
+            custom:labelText="Classes Updated!"
             android:layout_width="200dp"
             android:layout_height="200dp"/>
     </RelativeLayout>

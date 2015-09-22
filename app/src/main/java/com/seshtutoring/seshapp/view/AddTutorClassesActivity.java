@@ -257,7 +257,6 @@ public class AddTutorClassesActivity extends AppCompatActivity {
                                             }
                                         });
                                         animatedCheckmark.startAnimation();
-
                                     }
                                 });
                     } else {
