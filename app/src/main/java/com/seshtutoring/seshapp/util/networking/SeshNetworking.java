@@ -23,6 +23,7 @@ import com.seshtutoring.seshapp.model.Constants;
 import com.seshtutoring.seshapp.model.Course;
 import com.seshtutoring.seshapp.model.LearnRequest;
 import com.seshtutoring.seshapp.model.Notification;
+import com.seshtutoring.seshapp.util.DeviceUtils;
 import com.seshtutoring.seshapp.util.SeshImageCache;
 import com.seshtutoring.seshapp.view.SeshActivity;
 import com.squareup.okhttp.Interceptor;
@@ -100,7 +101,6 @@ public class SeshNetworking {
     private static final String AVAILABLE_BLOCKS_PARAM = "available_blocks";
     private static final String IS_INSTANT_PARAM = "is_instant";
     private static final String EXPIRATION_TIME_PARAM = "expiration_time";
-    private static final String TIMEZONE_NAME_PARAM = "timezone_name";
     private static final String TUTOR_COURSES_PARAM = "courses";
     private static final String REQUEST_ID_PARAM = "request_id";
     private static final String VERSION_NUMBER_PARAM = "version_number";
@@ -235,7 +235,8 @@ public class SeshNetworking {
         params.put(FORMAT_PARAM, "json");
         params.put(EMAIL_PARAM, email);
         params.put(PASSWORD_PARAM, password);
-        params.put(VERSION_NUMBER_PARAM, "2.0");
+
+        DeviceUtils.paramsByAddingDeviceInformation(params, mContext);
 
         postWithRelativeUrl("login.php", params, successListener, errorListener);
     }
@@ -266,12 +267,9 @@ public class SeshNetworking {
         Map<String, String> params = new HashMap<>();
         params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
         params.put(DEVICE_TOKEN_PARAM, deviceToken);
-        params.put(DEVICE_TYPE_PARAM, "android");
         params.put(IS_DEV_PARAM, SeshApplication.IS_DEV ? "1" : "0");
 
-        DateTimeZone timezone = DateTimeZone.getDefault();
-
-        params.put(TIMEZONE_NAME_PARAM, timezone.getID());
+        DeviceUtils.paramsByAddingDeviceInformation(params, mContext);
 
         postWithRelativeUrl("update_device_token.php", params, successListener, errorListener);
     }
