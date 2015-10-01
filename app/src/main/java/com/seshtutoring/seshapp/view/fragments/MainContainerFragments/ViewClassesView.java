@@ -23,6 +23,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.Course;
+import com.seshtutoring.seshapp.model.Department;
 import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
@@ -34,6 +35,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -43,6 +45,7 @@ import java.util.List;
  */
 public class ViewClassesView extends RelativeLayout {
     private static final String TAG = ViewClassesView.class.getName();
+    public static final int editClassesButtonIdx = 0;
 
     private MainContainerActivity mainContainerActivity;
     private ListView menu;
@@ -60,12 +63,12 @@ public class ViewClassesView extends RelativeLayout {
 
     private class CourseHolder {
 
-        public Course course;
+        public Object object;
         public int type;
 
-        public CourseHolder(Course course, int type) {
+        public CourseHolder(Object object, int type) {
             this.type = type;
-            this.course = course;
+            this.object = object;
         }
 
     }
@@ -112,12 +115,40 @@ public class ViewClassesView extends RelativeLayout {
     public void refreshClassesViewWithUser(User user) {
         this.tutorCourses.clear();
         this.tutorCourses.add(new CourseHolder(null, 2));
+        List<Department> tutorDepartments = user.tutor.getDepartments();
+        Collections.sort(tutorDepartments, new Comparator<Department>() {
+            @Override
+            public int compare(Department lhs, Department rhs) {
+                return lhs.abbrev.compareTo(rhs.abbrev);
+            }
+        });
+        for (int i = 0; i < tutorDepartments.size(); i++) {
+            Department department = tutorDepartments.get(i);
+            this.tutorCourses.add(new CourseHolder(department, 1));
+        }
         List<Course> tutorCourses = user.tutor.getCourses();
+        Collections.sort(tutorCourses, new Comparator<Course>() {
+            @Override
+            public int compare(Course lhs, Course rhs) {
+                return (lhs.deptAbbrev + lhs.number).compareTo(rhs.deptAbbrev + rhs.number);
+            }
+        });
         for (int i = 0; i < tutorCourses.size(); i++) {
             Course course = tutorCourses.get(i);
-            this.tutorCourses.add(new CourseHolder(course, 1));
+            // Find out if the tutor has this course as a tutor department
+
+            if (shouldDisplayClass(course, tutorDepartments)) {
+                this.tutorCourses.add(new CourseHolder(course, 1));
+            }
         }
         this.classesAdapter.notifyDataSetChanged();
+    }
+
+    private Boolean shouldDisplayClass(Course course, List<Department> tutorDepartments) {
+        for (Department department : tutorDepartments) {
+            if (course.deptId == department.departmentId) return false;
+        }
+        return true;
     }
 
     private class ViewHolder {
@@ -163,9 +194,15 @@ public class ViewClassesView extends RelativeLayout {
             }
 
             if (item.type == 2) {
-                viewHolder.mainTextView.setText("Add/Remove Class");
-            }else {
-                viewHolder.mainTextView.setText(item.course.shortFormatForTextView());
+                viewHolder.mainTextView.setText("+/- CLASSES");
+            } else {
+                if (item.object instanceof Course) {
+                    Course course = (Course) item.object;
+                    viewHolder.mainTextView.setText(course.shortFormatForTextView());
+                } else {
+                    Department department = (Department) item.object;
+                    viewHolder.mainTextView.setText("ALL " + department.abbrev + " CLASSES");
+                }
             }
             return convertView;
         }

@@ -22,6 +22,7 @@ public class Course extends SugarRecord<Course> {
     private static final String NUMBER_KEY = "number";
     private static final String DEPT_KEY = "department";
     private static final String ABBREV_KEY = "abbrev";
+    private static final String DEPT_ID_KEY = "id";
     private static final String COURSE_ID_KEY = "id";
 
     private static final String SEARCH_DEPT_ABBREV_KEY = "deptAbbrev";
@@ -29,22 +30,22 @@ public class Course extends SugarRecord<Course> {
     private static final String SEARCH_COURSE_ID_KEY = "classId";
     private static final String SEARCH_NAME_KEY = "className";
 
-
-
     public String name;
     public String number;
     public String deptAbbrev;
+    public int deptId;
     public int courseId;
     public Tutor tutor;
 
     public Course() {}
 
-    public Course(String name, String number, String deptAbbrev, int courseId, Tutor tutor) {
+    public Course(String name, String number, String deptAbbrev, int courseId, Tutor tutor, int deptId) {
         this.name = name;
         this.number = number;
         this.deptAbbrev = deptAbbrev;
         this.courseId = courseId;
         this.tutor = tutor;
+        this.deptId = deptId;
     }
 
     public static Course createCourseFromSearchJSON(JSONObject jsonObject) {
@@ -78,6 +79,7 @@ public class Course extends SugarRecord<Course> {
             course.name = jsonObject.getString(NAME_KEY);
             course.number = jsonObject.getString(NUMBER_KEY);
             course.deptAbbrev = jsonObject.getJSONObject(DEPT_KEY).getString(ABBREV_KEY);
+            course.deptId = jsonObject.getJSONObject(DEPT_KEY).getInt(DEPT_ID_KEY);
             course.tutor = tutor;
 
         } catch (JSONException e) {

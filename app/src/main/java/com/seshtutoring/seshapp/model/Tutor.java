@@ -78,4 +78,12 @@ public class Tutor extends SugarRecord<Tutor> {
     public void clearTutorCourses() {
         Course.deleteAll(Course.class, "tutor = ?", Long.toString(this.getId()));
     }
+
+    public List<Department> getDepartments() {
+        return Department.find(Department.class, "tutor = ?", Long.toString(this.getId()));
+    }
+
+    public void clearTutorDepartments() {
+        Department.deleteAll(Department.class, "tutor = ?", Long.toString(this.getId()));
+    }
 }
