@@ -29,6 +29,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.Course;
+import com.seshtutoring.seshapp.model.Department;
 import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
@@ -44,17 +45,21 @@ import org.json.JSONObject;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class AddTutorClassesActivity extends AppCompatActivity {
     private static final String TAG = AddTutorClassesActivity.class.getName();
 
-    private ArrayList<Course> classesToAdd;
-    private ArrayList<Course> classesToDelete;
-    private ArrayList<Course> courseResults;
+    private ArrayList<Course> classesToAdd, classesToDelete;
+    private ArrayList<Department> departmentsToAdd, departmentsToDelete;
+
+    private ArrayList<Object> courseResults;
+
     private SeshEditText courseEditText;
     private ListView courseResultsListView;
     private CourseResultsAdapter courseResultsAdapter;
     private List<Course> tutorClasses;
+    private List<Department> tutorDepartments;
     private SeshNetworking seshNetworking;
     private RelativeLayout cancelButton;
     private RelativeLayout submitButton;
@@ -83,10 +88,14 @@ public class AddTutorClassesActivity extends AppCompatActivity {
         textView.setTypeface(layoutUtils.getLightGothamTypeface());
 
         this.tutorClasses = User.currentUser(this).tutor.getCourses();
+        this.tutorDepartments = User.currentUser(this).tutor.getDepartments();
         this.classesToAdd = new ArrayList<Course>();
         this.classesToDelete = new ArrayList<Course>();
+        this.courseResults = new ArrayList<Object>();
 
-        this.courseResults = new ArrayList<Course>();
+        this.departmentsToAdd = new ArrayList<Department>();
+        this.departmentsToDelete = new ArrayList<Department>();
+
         this.courseEditText = (SeshEditText) findViewById(R.id.course_edit_text);
         this.courseResultsListView = (ListView) findViewById(R.id.course_results_list);
         this.courseResultsAdapter = new CourseResultsAdapter(this, courseResults);
@@ -115,24 +124,45 @@ public class AddTutorClassesActivity extends AppCompatActivity {
         this.courseResultsListView.setAdapter(courseResultsAdapter);
         this.courseResultsListView.setOnItemClickListener(new ListView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Course selectedCourse = courseResults.get(position);
-
-                if (tutorClasses.contains(selectedCourse)) {
-                    if (classesToDelete.contains(selectedCourse)) {
-                        classesToDelete.remove(selectedCourse);
+                Object object = courseResults.get(position);
+                if (object instanceof Course) {
+                    Course selectedCourse = (Course) object;
+                    if (tutorClasses.contains(selectedCourse)) {
+                        if (classesToDelete.contains(selectedCourse)) {
+                            classesToDelete.remove(selectedCourse);
+                        } else {
+                            classesToDelete.add(selectedCourse);
+                        }
                     } else {
-                        classesToDelete.add(selectedCourse);
+                        if (classesToAdd.contains(selectedCourse)) {
+                            classesToAdd.remove(selectedCourse);
+                        } else {
+                            classesToAdd.add(selectedCourse);
+                        }
                     }
                 } else {
-                    if (classesToAdd.contains(selectedCourse)) {
-                        classesToAdd.remove(selectedCourse);
+                    Department selectedDepartment = (Department) object;
+                    if (tutorDepartments.contains(selectedDepartment)) {
+                        if (departmentsToDelete.contains(selectedDepartment)) {
+                            departmentsToDelete.remove(selectedDepartment);
+                        } else {
+                            departmentsToDelete.add(selectedDepartment);
+                        }
                     } else {
-                        classesToAdd.add(selectedCourse);
+                        if (departmentsToAdd.contains(selectedDepartment)) {
+                            departmentsToAdd.remove(selectedDepartment);
+                        } else {
+                            departmentsToAdd.add(selectedDepartment);
+                        }
                     }
                 }
+
                 courseResultsAdapter.notifyDataSetChanged();
 
-                boolean checkButtonHidden = classesToAdd.size() == 0 && classesToDelete.size() == 0;
+                boolean checkButtonHidden = classesToAdd.size() == 0 &&
+                                            classesToDelete.size() == 0 &&
+                                            departmentsToAdd.size() == 0 &&
+                                            departmentsToDelete.size() == 0;
                 submitButton.setVisibility(checkButtonHidden ? View.GONE : View.VISIBLE);
             }
         });
@@ -168,6 +198,11 @@ public class AddTutorClassesActivity extends AppCompatActivity {
                                 try {
                                     if (jsonResponse.get("status").equals("SUCCESS")) {
                                         courseResults.clear();
+                                        JSONArray departmentsArrayJson = jsonResponse.getJSONArray("departments");
+                                        for (int i = 0; i < departmentsArrayJson.length() && i < 1; i++) {
+                                            courseResults.add(Department.createOrUpdateDepartmentWithJSON(departmentsArrayJson.getJSONObject(i), true));
+                                        }
+
                                         JSONArray classesArrayJson = jsonResponse.getJSONArray("classes");
                                         for (int i = 0; i < classesArrayJson.length(); i++) {
                                             courseResults.add(Course.createCourseFromSearchJSON((classesArrayJson.getJSONObject(i))));
@@ -193,11 +228,11 @@ public class AddTutorClassesActivity extends AppCompatActivity {
         });
     }
 
-    private class CourseResultsAdapter extends ArrayAdapter<Course> {
+    private class CourseResultsAdapter extends ArrayAdapter<Object> {
         private Context mContext;
         private LayoutInflater layoutInflater;
 
-        public CourseResultsAdapter(Context context, ArrayList<Course> classResults) {
+        public CourseResultsAdapter(Context context, ArrayList<Object> classResults) {
             super(context, R.layout.course_results_row, classResults);
             this.mContext = context;
             layoutInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -208,7 +243,7 @@ public class AddTutorClassesActivity extends AppCompatActivity {
         }
 
         public View getView(int position, View convertView, ViewGroup parent) {
-            Course courseRowData = getItem(position);
+            Object courseRowData = getItem(position);
             View v = convertView;
 
             if (v == null) {
@@ -217,7 +252,13 @@ public class AddTutorClassesActivity extends AppCompatActivity {
 
             TextView classRowText = (TextView) v.findViewById(R.id.course_row_text);
             classRowText.setTypeface(layoutUtils.getLightGothamTypeface());
-            classRowText.setText(courseRowData.formatForTextView());
+            if (courseRowData instanceof Course) {
+                Course course = (Course)courseRowData;
+                classRowText.setText(course.formatForTextView());
+            } else {
+                Department department = (Department)courseRowData;
+                classRowText.setText("ALL " + department.abbrev + " CLASSES");
+            }
 
             if (shouldHighlightTutorCourse(courseRowData)) {
                 classRowText.setTextColor(getResources().getColor(R.color.seshgreen));
@@ -233,21 +274,29 @@ public class AddTutorClassesActivity extends AppCompatActivity {
         }
     }
 
-    private Boolean shouldHighlightTutorCourse(Course course) {
-        return (tutorClasses.contains(course)) ?
-                (!classesToDelete.contains(course)) :
-                (classesToAdd.contains(course));
+    private Boolean shouldHighlightTutorCourse(Object object) {
+        if (object instanceof Course) {
+            Course course = (Course)object;
+            return (tutorClasses.contains(course)) ?
+                    (!classesToDelete.contains(course)) :
+                    (classesToAdd.contains(course));
+        } else {
+            Department department = (Department)object;
+            return (tutorDepartments.contains(department)) ?
+                    (!departmentsToDelete.contains(department)) :
+                    departmentsToAdd.contains(department);
+        }
     }
 
     private void handleSubmitPressed() {
         setNetworking(true);
 
-        seshNetworking.editTutorClasses(classesToAdd, classesToDelete, new Response.Listener<JSONObject>() {
+        seshNetworking.editTutorClasses(classesToAdd, classesToDelete, departmentsToAdd, departmentsToDelete, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject jsonObject) {
                 try {
                     if (jsonObject.get("status").equals("SUCCESS")) {
-                        User.currentUser(AddTutorClassesActivity.this).refreshTutorCoursesWithArray(jsonObject.getJSONArray("classes"));
+                        User.currentUser(AddTutorClassesActivity.this).refreshTutorCoursesWithArray(jsonObject.getJSONArray("classes"), jsonObject.getJSONArray("departments"));
                         activityIndicator
                                 .animate()
                                 .alpha(0)

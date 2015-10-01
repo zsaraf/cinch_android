@@ -21,6 +21,7 @@ import com.seshtutoring.seshapp.SeshApplication;
 import com.seshtutoring.seshapp.model.AvailableBlock;
 import com.seshtutoring.seshapp.model.Constants;
 import com.seshtutoring.seshapp.model.Course;
+import com.seshtutoring.seshapp.model.Department;
 import com.seshtutoring.seshapp.model.LearnRequest;
 import com.seshtutoring.seshapp.model.Notification;
 import com.seshtutoring.seshapp.util.DeviceUtils;
@@ -116,6 +117,8 @@ public class SeshNetworking {
     private static final String CARD_ID_PARAM = "card_id";
     private static final String CLASSES_TO_ADD_ID = "classes_to_add";
     private static final String CLASSES_TO_DELETE_ID = "classes_to_delete";
+    private static final String DEPARTMENTS_TO_ADD_ID = "depts_to_add";
+    private static final String DEPARTMENTS_TO_DELETE_ID = "depts_to_delete";
 
     private Context mContext;
 
@@ -887,22 +890,39 @@ public class SeshNetworking {
         VolleyNetworkingWrapper.getInstance(mContext).addToRequestQueue(request);
     }
 
-    public void editTutorClasses(List<Course> classesToAdd, List<Course> classesToDelete, Response.Listener<JSONObject> successListener, Response.ErrorListener errorListener) {
-        JSONArray idsToAdd = new JSONArray();
+    public void editTutorClasses(List<Course> classesToAdd,
+                                 List<Course> classesToDelete,
+                                 List<Department> departmentsToAdd,
+                                 List<Department> departmentsToDelete,
+                                 Response.Listener<JSONObject> successListener,
+                                 Response.ErrorListener errorListener) {
+        JSONArray courseIdsToAdd = new JSONArray();
         for (Course course : classesToAdd) {
-            idsToAdd.put(course.courseId);
+            courseIdsToAdd.put(course.courseId);
         }
 
-        JSONArray idsToDelete = new JSONArray();
+        JSONArray courseIdsToDelete = new JSONArray();
         for (Course course : classesToDelete) {
-            idsToDelete.put(course.courseId);
+            courseIdsToDelete.put(course.courseId);
+        }
+
+        JSONArray deptIdsToAdd = new JSONArray();
+        for (Department department : departmentsToAdd) {
+            deptIdsToAdd.put(department.departmentId);
+        }
+
+        JSONArray deptIdsToDelete = new JSONArray();
+        for (Department department : departmentsToDelete) {
+            deptIdsToDelete.put(department.departmentId);
         }
 
         JSONObject params = new JSONObject();
         try {
             params.put("session_id", SeshAuthManager.sharedManager(mContext).getAccessToken());
-            params.put(CLASSES_TO_ADD_ID, idsToAdd);
-            params.put(CLASSES_TO_DELETE_ID, idsToDelete);
+            params.put(CLASSES_TO_ADD_ID, courseIdsToAdd);
+            params.put(CLASSES_TO_DELETE_ID, courseIdsToDelete);
+            params.put(DEPARTMENTS_TO_ADD_ID, deptIdsToAdd);
+            params.put(DEPARTMENTS_TO_DELETE_ID, deptIdsToDelete);
         } catch (JSONException e) {
             e.printStackTrace();
         }

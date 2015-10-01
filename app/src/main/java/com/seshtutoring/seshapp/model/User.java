@@ -200,7 +200,7 @@ public class User extends SugarRecord<User> {
             }
 
             if (dataJson.has("tutor_classes")) {
-                user.refreshTutorCoursesWithArray(dataJson.getJSONArray("tutor_classes"));
+                user.refreshTutorCoursesWithArray(dataJson.getJSONArray("tutor_classes"), dataJson.getJSONArray("tutor_departments"));
             } else {
                 user.tutor.clearTutorCourses();
             }
@@ -256,7 +256,7 @@ public class User extends SugarRecord<User> {
         }
     }
 
-    public void refreshTutorCoursesWithArray(JSONArray courses) {
+    public void refreshTutorCoursesWithArray(JSONArray courses, JSONArray departments) {
         tutor.clearTutorCourses();
         for (int i = 0; i < courses.length(); i++) {
             JSONObject courseJSON = null;
@@ -264,6 +264,19 @@ public class User extends SugarRecord<User> {
                 courseJSON = courses.getJSONObject(i);
                 Course newCourse = Course.createOrUpdateCourseWithJSON(courseJSON, tutor, false);
                 newCourse.save();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+        tutor.clearTutorDepartments();
+        for (int i = 0; i < departments.length(); i++) {
+            JSONObject departmentJSON = null;
+            try {
+                departmentJSON = departments.getJSONObject(i);
+                Department department = Department.createOrUpdateDepartmentWithJSON(departmentJSON, false);
+                department.tutor = tutor;
+                department.save();
             } catch (JSONException e) {
                 e.printStackTrace();
             }
