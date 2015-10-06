@@ -64,7 +64,6 @@
         custom:editTextHint="Class"/>
     <ListView
         android:layout_below="@id/course_edit_text"
-        android:listSelector="@drawable/sesh_list_view_selector"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
         android:divider="@null"
