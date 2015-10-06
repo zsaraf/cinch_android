@@ -28,12 +28,12 @@
         android:ellipsize="end"
         android:textSize="15dp"
         android:text="cool"
-        android:textColor="@color/transparent"
         android:layout_marginLeft="8dp"
         android:paddingLeft="48dp"
         android:paddingRight="0dp"
         android:gravity="right"
-        android:layout_centerVertical="true"/>
+        android:layout_centerVertical="true"
+        android:visibility="invisible"/>
 
     </RelativeLayout>
 
