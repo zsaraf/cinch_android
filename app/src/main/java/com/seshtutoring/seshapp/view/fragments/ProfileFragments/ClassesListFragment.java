@@ -1,44 +1,30 @@
 package com.seshtutoring.seshapp.view.fragments.ProfileFragments;
 
+import android.app.Fragment;
 import android.app.ListFragment;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.seshtutoring.seshapp.R;
-import com.seshtutoring.seshapp.model.Course;
 import com.seshtutoring.seshapp.model.User;
-import com.seshtutoring.seshapp.util.networking.SeshNetworking;
+import com.seshtutoring.seshapp.view.AddTutorClassesActivity;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.ViewClassesView;
 
 /**
  * Created by lillioetting on 9/9/15.
  */
-public class ClassesListFragment extends ListFragment {
+public class ClassesListFragment extends Fragment implements ViewClassesView.ViewClassesViewListener {
 
-
-    private ClassListAdapter classesAdapter;
-    private SeshNetworking seshNetworking;
     private MainContainerActivity mainContainerActivity;
     private User user;
-    private TextView emptyTextView;
-    private List<Course> tutorCourses;
+    private ViewClassesView viewClassesView;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -47,7 +33,9 @@ public class ClassesListFragment extends ListFragment {
 
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
 
-        RelativeLayout view = (RelativeLayout) layoutInflater.inflate(R.layout.profile_list_view, null);
+        RelativeLayout view = (RelativeLayout) layoutInflater.inflate(R.layout.classes_list_fragment, null);
+        viewClassesView = (ViewClassesView) view.findViewById(R.id.view_classes_view);
+        viewClassesView.listener = this;
 
         return view;
 
@@ -56,67 +44,17 @@ public class ClassesListFragment extends ListFragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
-        mainContainerActivity = (MainContainerActivity) getActivity();
-        this.user = User.currentUser(mainContainerActivity.getApplicationContext());
-        this.seshNetworking = new SeshNetworking(mainContainerActivity);
-
-        Typeface boldTypeFace = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Gotham-Book.otf");
-
-        emptyTextView = (TextView) this.getView().findViewById(R.id.list_empty_text);
-        emptyTextView.setTypeface(boldTypeFace);
-
-        String emptyStr = "you're not registered to tutor any classes yet - add some classes at seshtutoring.com!";
-        if (user.tutor == null || !user.tutor.enabled) {
-            emptyStr = "you're not registered as a tutor yet, sign up at seshtutoring.com!";
-        }
-        emptyTextView.setText(emptyStr);
-
-        this.tutorCourses = new ArrayList<>();
-        this.classesAdapter = new ClassListAdapter(getActivity(), tutorCourses);
-        getListView().setAdapter(this.classesAdapter);
-
         refreshListWithUser(this.user);
-
     }
 
     public void refreshListWithUser(User user) {
-        if (this.classesAdapter != null) {
-            this.classesAdapter.clear();
-            this.tutorCourses = user.tutor.getCourses();
-            this.classesAdapter.addAll(this.tutorCourses);
-            this.classesAdapter.notifyDataSetChanged();
-        }
-
+        viewClassesView.refreshClassesViewWithUser(user);
     }
 
-
-    public class ClassListAdapter extends ArrayAdapter<Course> {
-
-        private Context mContext;
-        private LayoutInflater layoutInflater;
-
-        public ClassListAdapter(Context context, List<Course> courses) {
-            super(context, R.layout.profile_class_row, courses);
-            this.mContext = context;
-            layoutInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        }
-
-        public View getView(int position, View convertView, ViewGroup parent) {
-
-            Course course = getItem(position);
-
-            if (convertView == null) {
-                convertView = LayoutInflater.from(getContext()).inflate(R.layout.profile_class_row,
-                        null);
-            }
-
-            TextView classText = (TextView) convertView.findViewById(R.id.course_row_text);
-            classText.setText(course.shortFormatForTextView());
-
-            return convertView;
-        }
-
+    public void viewClassesViewDidTapAddClasses() {
+        Intent intent = new Intent(getActivity(), AddTutorClassesActivity.class);
+        startActivityForResult(intent, AddTutorClassesActivity.ADD_TUTOR_CLASSES_CREATE);
+        getActivity().overridePendingTransition(R.anim.fade_in, 0);
     }
 
 }
