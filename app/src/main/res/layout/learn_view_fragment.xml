@@ -10,7 +10,12 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="@dimen/learn_view_map_padding_top">
+        android:layout_marginTop="@dimen/home_view_tab_buttons_height">
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="15dp"
+            android:layout_below="@+id/tab_layout"
+            android:background="@drawable/black_gradient"/>
         <ImageButton
             android:id="@+id/current_location_button"
             android:layout_width="35dp"

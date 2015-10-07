@@ -2,12 +2,20 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/seshextralightgray"
+        android:layout_alignParentTop="true"
+        android:id="@+id/top_border"/>
+
     <RelativeLayout
         android:id="@+id/view_classes_button"
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/white">
+        android:background="@color/white"
+        android:layout_below="@+id/top_border">
 
         <ImageView
             android:id="@+id/tutor_classes_icon"
