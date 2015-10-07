@@ -336,11 +336,7 @@ public class LearnViewFragment extends Fragment implements OnMapReadyCallback {
      * method in {@link #onResume()} to guarantee that it will be called.
      */
     private void setUpMapIfNeeded() {
-        // Do a null check to confirm that we have not already instantiated the map.
-//        if (mMap == null) {
-            // Try to obtain the map from the SupportMapFragment.
-            ((SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map)).getMapAsync(this);
-//        }
+        ((SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map)).getMapAsync(this);
     }
 
     @Override

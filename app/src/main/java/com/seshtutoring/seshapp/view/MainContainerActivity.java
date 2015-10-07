@@ -249,33 +249,6 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
             }
         });
 
-        ApplicationLifecycleTracker.sharedInstance(this).setApplicationLifecycleCallback(new ApplicationLifecycleTracker.ApplicationLifecycleCallback() {
-            @Override
-            public void applicationDidEnterForeground() {
-
-                (new LaunchPrerequisiteAsyncTask(getApplicationContext(), new LaunchPrerequisiteAsyncTask.PrereqsFulfilledListener() {
-                    @Override
-                    public void onPrereqsFulfilled() {
-
-                        User currentUser = User.currentUser(getApplicationContext());
-                        if (!currentUser.school.enabled) {
-                            Intent launchSchoolIntent = new Intent(getApplicationContext(), LaunchSchoolActivity.class);
-                            startActivity(launchSchoolIntent);
-                            overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-                        }
-
-                        getApplicationContext().sendBroadcast(new Intent(MainContainerActivity.REFRESH_USER_INFO));
-
-                    }
-                })).execute();
-            }
-
-            @Override
-            public void applicationWillEnterBackground() {
-
-            }
-        });
-
         this.locationManager = LocationManager.sharedInstance(this);
         broadcastReceiver = actionBroadcastReceiver;
     }
@@ -306,6 +279,14 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
                 } catch (IntentSender.SendIntentException e) {
                     e.printStackTrace();
                 }
+            } else if (intent.getAction() == REFRESH_USER_INFO) {
+                User currentUser = User.currentUser(getApplicationContext());
+                if (!currentUser.school.enabled) {
+                    Intent launchSchoolIntent = new Intent(getApplicationContext(), LaunchSchoolActivity.class);
+                    startActivity(launchSchoolIntent);
+                    overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+                }
+
             }
         }
     };
@@ -367,6 +348,7 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
         this.locationManager.connectClient();
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(MainContainerActivity.LOCATION_MANAGER_FAILED);
+        intentFilter.addAction(MainContainerActivity.REFRESH_USER_INFO);
         this.registerReceiver(broadcastReceiver, intentFilter);
     }
 

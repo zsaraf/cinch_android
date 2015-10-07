@@ -74,16 +74,24 @@ public class SplashActivity extends SeshActivity {
     private void startInitialActivityWithIntent(final Intent intent) {
 
         if (SeshAuthManager.sharedManager(this).isValidSession()) {
-            this.showStatusBar();
-            if (intent.hasExtra(NotificationHandler.NOTIFICATION_INTENT)) {
-                Intent mainContainerIntent = intent.getParcelableExtra(NotificationHandler.NOTIFICATION_INTENT);
-                startActivity(mainContainerIntent);
+            User currentUser = User.currentUser(this);
+            if (!currentUser.school.enabled) {
+                Intent launchSchoolIntent = new Intent(getApplicationContext(), LaunchSchoolActivity.class);
+                startActivity(launchSchoolIntent);
                 overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
             } else {
-                Intent mainContainerIntent = new Intent(getApplicationContext(), MainContainerActivity.class);
-                startActivity(mainContainerIntent);
-                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+                this.showStatusBar();
+                if (intent.hasExtra(NotificationHandler.NOTIFICATION_INTENT)) {
+                    Intent mainContainerIntent = intent.getParcelableExtra(NotificationHandler.NOTIFICATION_INTENT);
+                    startActivity(mainContainerIntent);
+                    overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+                } else {
+                    Intent mainContainerIntent = new Intent(getApplicationContext(), MainContainerActivity.class);
+                    startActivity(mainContainerIntent);
+                    overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+                }
             }
+
         } else {
             Intent warmWelcomeIntent = new Intent(getApplicationContext(), WarmWelcomeActivity.class);
             startActivity(warmWelcomeIntent);

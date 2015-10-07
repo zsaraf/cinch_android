@@ -586,7 +586,7 @@ public class AuthenticationActivity extends SeshActivity implements SeshDialog.O
                 seshMixpanelAPI.track("User Login Failed - Unverified");
 
                 final SeshDialog unverifiedDialog = new SeshDialog();
-                unverifiedDialog.setTitle("Unverified Account");
+                unverifiedDialog.setTitle("Unverified Accoun t");
                 unverifiedDialog.setMessage("Your account still hasn't been verified. Check your email for the verification link.");
                 unverifiedDialog.setFirstChoice("OKAY");
                 unverifiedDialog.setSecondChoice("RESEND EMAIL");
