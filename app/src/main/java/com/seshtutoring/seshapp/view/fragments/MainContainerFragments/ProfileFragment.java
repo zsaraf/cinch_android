@@ -109,7 +109,7 @@ public class ProfileFragment extends Fragment implements FragmentOptionsReceiver
         this.homeView = layoutInflater.inflate(R.layout.profile_fragment, null);
 
         LayoutUtils layUtils = new LayoutUtils(getActivity());
-        this.homeView.setPadding(0, layUtils.getActionBarHeightPx(), 0, 0);
+
 
         user = User.currentUser(mainContainerActivity.getApplicationContext());
         this.seshNetworking = new SeshNetworking(mainContainerActivity);

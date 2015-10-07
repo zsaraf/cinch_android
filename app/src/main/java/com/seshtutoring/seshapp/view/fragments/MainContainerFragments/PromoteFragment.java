@@ -51,11 +51,6 @@ public class PromoteFragment extends Fragment implements FragmentOptionsReceiver
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
         View v = layoutInflater.inflate(R.layout.promote_fragment, null);
 
-        // Add padding to account for action bar
-        LayoutUtils utils = new LayoutUtils(getActivity());
-        RelativeLayout promoteLayout = (RelativeLayout) v.findViewById(R.id.promote_layout);
-        promoteLayout.setPadding(0, utils.getActionBarHeightPx(), 0, 0);
-
         redeemButton = (SeshButton) v.findViewById(R.id.promote_redeem_button);
 
         seshActivityIndicator = (SeshActivityIndicator) v.findViewById(R.id.promote_redeem_activity_indicator);

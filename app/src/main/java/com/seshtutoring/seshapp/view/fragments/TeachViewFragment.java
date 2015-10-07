@@ -68,7 +68,7 @@ public class TeachViewFragment extends Fragment implements ViewClassesView.ViewC
         }
 
         LayoutUtils layUtils = new LayoutUtils(getActivity());
-        view.setPadding(0, layUtils.getActionBarHeightPx() + (int)getResources().getDimensionPixelSize(R.dimen.home_view_tab_buttons_height) - 1, 0, 0);
+        view.setPadding(0, (int)getResources().getDimensionPixelSize(R.dimen.home_view_tab_buttons_height) - 1, 0, 0);
 
         viewClassesButton = view.findViewById(R.id.view_classes_button);
         classesButtonText = (TextView) view.findViewById(R.id.classes_button_text);

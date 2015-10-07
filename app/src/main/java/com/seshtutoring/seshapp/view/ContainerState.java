@@ -13,15 +13,13 @@ public class ContainerState {
     public int iconRes;
     public Fragment fragment;
     public String tag;
-    public int slidingMenuTouchMode;
 
     public ContainerState(String title, int iconRes, Fragment fragment, String tag,
-                          boolean isNavigationItem, int slidingMenuTouchMode) {
+                          boolean isNavigationItem) {
         this.title = title;
         this.iconRes = iconRes;
         this.fragment = fragment;
         this.tag = tag;
-        this.slidingMenuTouchMode = slidingMenuTouchMode;
     }
 
     @Override
@@ -30,8 +28,7 @@ public class ContainerState {
             return ((ContainerState) o).title == title &&
                     ((ContainerState) o).iconRes == iconRes &&
                     ((ContainerState) o).fragment.getClass() == fragment.getClass() &&
-                    ((ContainerState) o).tag == tag &&
-                    ((ContainerState) o).slidingMenuTouchMode == slidingMenuTouchMode;
+                    ((ContainerState) o).tag == tag;
         } else return false;
     }
 }
