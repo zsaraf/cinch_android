@@ -9,9 +9,7 @@
     android:id="@+id/list"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/white"
-    android:dividerHeight="0dp"
-    android:divider="@null" />
+    android:background="@color/white" />
     <View
         android:id="@+id/bottom_border"
         android:layout_width="match_parent"

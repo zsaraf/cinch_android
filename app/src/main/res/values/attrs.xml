@@ -38,6 +38,10 @@
         </attr>
         <attr name="textSize" format="integer" />
     </declare-styleable>
+    <declare-styleable name="ViewClassesView">
+        <attr name="bottom_border_visible" format="boolean" />
+        <attr name="divider_visible" format="boolean"/>
+    </declare-styleable>
     <declare-styleable name="SeshInformationLabel">
         <attr name="informationLabelText" format="string" />
         <attr name="informationLabelIcon" format="color|reference" />

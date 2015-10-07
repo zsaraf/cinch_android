@@ -54,6 +54,7 @@ public class ViewClassesView extends RelativeLayout {
     private SeshNetworking seshNetworking;
     private Context mContext;
     private User user;
+    private View bottomBorder;
 
     public interface ViewClassesViewListener {
         public void viewClassesViewDidTapAddClasses();
@@ -80,6 +81,28 @@ public class ViewClassesView extends RelativeLayout {
         LayoutInflater mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View v = mInflater.inflate(R.layout.view_classes_view, this, true);
         menu = (ListView)v.findViewById(R.id.list);
+
+        TypedArray a = context.getTheme().obtainStyledAttributes(
+                attrs,
+                R.styleable.ViewClassesView,
+                0, 0);
+
+        boolean bottomBorderVisible;
+        boolean dividerVisible;
+        try {
+            bottomBorderVisible = a.getBoolean(R.styleable.ViewClassesView_bottom_border_visible, true);
+            dividerVisible = a.getBoolean(R.styleable.ViewClassesView_divider_visible, false);
+        } finally {
+            a.recycle();
+        }
+
+        bottomBorder = findViewById(R.id.bottom_border);
+        bottomBorder.setVisibility(bottomBorderVisible ? VISIBLE : GONE);
+
+        if (!dividerVisible) {
+            menu.setDivider(null);
+            menu.setDividerHeight(0);
+        }
 
         init(attrs, 0);
     }
@@ -113,35 +136,37 @@ public class ViewClassesView extends RelativeLayout {
     }
 
     public void refreshClassesViewWithUser(User user) {
-        this.tutorCourses.clear();
-        this.tutorCourses.add(new CourseHolder(null, 2));
-        List<Department> tutorDepartments = user.tutor.getDepartments();
-        Collections.sort(tutorDepartments, new Comparator<Department>() {
-            @Override
-            public int compare(Department lhs, Department rhs) {
-                return lhs.abbrev.compareTo(rhs.abbrev);
+        if (user != null) {
+            this.tutorCourses.clear();
+            this.tutorCourses.add(new CourseHolder(null, 2));
+            List<Department> tutorDepartments = user.tutor.getDepartments();
+            Collections.sort(tutorDepartments, new Comparator<Department>() {
+                @Override
+                public int compare(Department lhs, Department rhs) {
+                    return lhs.abbrev.compareTo(rhs.abbrev);
+                }
+            });
+            for (int i = 0; i < tutorDepartments.size(); i++) {
+                Department department = tutorDepartments.get(i);
+                this.tutorCourses.add(new CourseHolder(department, 1));
             }
-        });
-        for (int i = 0; i < tutorDepartments.size(); i++) {
-            Department department = tutorDepartments.get(i);
-            this.tutorCourses.add(new CourseHolder(department, 1));
-        }
-        List<Course> tutorCourses = user.tutor.getCourses();
-        Collections.sort(tutorCourses, new Comparator<Course>() {
-            @Override
-            public int compare(Course lhs, Course rhs) {
-                return (lhs.deptAbbrev + lhs.number).compareTo(rhs.deptAbbrev + rhs.number);
-            }
-        });
-        for (int i = 0; i < tutorCourses.size(); i++) {
-            Course course = tutorCourses.get(i);
-            // Find out if the tutor has this course as a tutor department
+            List<Course> tutorCourses = user.tutor.getCourses();
+            Collections.sort(tutorCourses, new Comparator<Course>() {
+                @Override
+                public int compare(Course lhs, Course rhs) {
+                    return (lhs.deptAbbrev + lhs.number).compareTo(rhs.deptAbbrev + rhs.number);
+                }
+            });
+            for (int i = 0; i < tutorCourses.size(); i++) {
+                Course course = tutorCourses.get(i);
+                // Find out if the tutor has this course as a tutor department
 
-            if (shouldDisplayClass(course, tutorDepartments)) {
-                this.tutorCourses.add(new CourseHolder(course, 1));
+                if (shouldDisplayClass(course, tutorDepartments)) {
+                    this.tutorCourses.add(new CourseHolder(course, 1));
+                }
             }
+            this.classesAdapter.notifyDataSetChanged();
         }
-        this.classesAdapter.notifyDataSetChanged();
     }
 
     private Boolean shouldDisplayClass(Course course, List<Department> tutorDepartments) {
