@@ -72,31 +72,18 @@ public class SplashActivity extends SeshActivity {
     }
 
     private void startInitialActivityWithIntent(final Intent intent) {
+
         if (SeshAuthManager.sharedManager(this).isValidSession()) {
-
-            (new LaunchPrerequisiteAsyncTask(this, new PrereqsFulfilledListener() {
-                @Override
-                public void onPrereqsFulfilled() {
-                    showStatusBar();
-
-                    User currentUser = User.currentUser(getApplicationContext());
-                    if (currentUser.school.enabled) {
-                        if (intent.hasExtra(NotificationHandler.NOTIFICATION_INTENT)) {
-                            Intent mainContainerIntent = intent.getParcelableExtra(NotificationHandler.NOTIFICATION_INTENT);
-                            startActivity(mainContainerIntent);
-                            overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-                        } else {
-                            Intent mainContainerIntent = new Intent(getApplicationContext(), MainContainerActivity.class);
-                            startActivity(mainContainerIntent);
-                            overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-                        }
-                    } else {
-                        Intent launchSchoolIntent = new Intent(getApplicationContext(), LaunchSchoolActivity.class);
-                        startActivity(launchSchoolIntent);
-                        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-                    }
-                }
-            })).execute();
+            this.showStatusBar();
+            if (intent.hasExtra(NotificationHandler.NOTIFICATION_INTENT)) {
+                Intent mainContainerIntent = intent.getParcelableExtra(NotificationHandler.NOTIFICATION_INTENT);
+                startActivity(mainContainerIntent);
+                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+            } else {
+                Intent mainContainerIntent = new Intent(getApplicationContext(), MainContainerActivity.class);
+                startActivity(mainContainerIntent);
+                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+            }
         } else {
             Intent warmWelcomeIntent = new Intent(getApplicationContext(), WarmWelcomeActivity.class);
             startActivity(warmWelcomeIntent);

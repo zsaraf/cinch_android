@@ -2,8 +2,10 @@ package com.seshtutoring.seshapp.view.fragments;
 
 import android.app.Activity;
 import android.app.DownloadManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -56,6 +58,7 @@ import com.seshtutoring.seshapp.model.LearnRequest;
 import com.seshtutoring.seshapp.model.Notification;
 import com.seshtutoring.seshapp.model.OutstandingCharge;
 import com.seshtutoring.seshapp.model.Sesh;
+import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.util.LocationManager;
 import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.util.SeshMixpanelAPI;
@@ -93,6 +96,8 @@ public class LearnViewFragment extends Fragment implements OnMapReadyCallback {
     public static final String BLURRED_MAP_BITMAP_PATH_KEY = "blurred_map_bitmap";
     public static final String CHOSEN_LOCATION_LAT = "chosen_location_lat";
     public static final String CHOSEN_LOCATION_LONG = "chosen_location_long";
+    private BroadcastReceiver broadcastReceiver;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -119,11 +124,14 @@ public class LearnViewFragment extends Fragment implements OnMapReadyCallback {
         currentLocationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Location currentLocation = locationManager.getCurrentLocation();
-                if (currentLocation != null) {
-                    moveCameraToLocation(currentLocation, true);
-                    setCurrentLocationButtonFilled();
+                if (locationManager.isConnected) {
+                    Location currentLocation = locationManager.getCurrentLocation();
+                    if (currentLocation != null) {
+                        moveCameraToLocation(currentLocation, true);
+                        setCurrentLocationButtonFilled();
+                    }
                 }
+
             }
         });
 
@@ -148,8 +156,33 @@ public class LearnViewFragment extends Fragment implements OnMapReadyCallback {
 
         this.seshMixpanelAPI = ((SeshApplication)getActivity().getApplication()).getSeshMixpanelAPI();
 
+        broadcastReceiver = actionBroadcastReceiver;
+
         return view;
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        // Listen for new messages
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(MainContainerActivity.LOCATION_MANAGER_CONNECTED);
+        this.getActivity().registerReceiver(broadcastReceiver, intentFilter);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        this.getActivity().unregisterReceiver(broadcastReceiver);
+    }
+
+
+    private BroadcastReceiver actionBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            moveCameraToLocation(locationManager.getCurrentLocation(), true);
+        }
+    };
 
     private void setCurrentLocationButtonFilled() {
         if (currentLocationButtonFilled) return;
@@ -188,16 +221,18 @@ public class LearnViewFragment extends Fragment implements OnMapReadyCallback {
     }
 
     private void checkIfMarkerOnCurrentLocation() {
-        Location currentLocation = locationManager.getCurrentLocation();
-        LatLng markerTarget = mMap.getCameraPosition().target;
-        Location markerLocation = new Location("");
-        markerLocation.setLatitude(markerTarget.latitude);
-        markerLocation.setLongitude(markerTarget.longitude);
+        if (locationManager.isConnected) {
+            Location currentLocation = locationManager.getCurrentLocation();
+            LatLng markerTarget = mMap.getCameraPosition().target;
+            Location markerLocation = new Location("");
+            markerLocation.setLatitude(markerTarget.latitude);
+            markerLocation.setLongitude(markerTarget.longitude);
 
-        if (currentLocation.distanceTo(markerLocation) < 5) {
-            setCurrentLocationButtonFilled();
-        } else {
-            setCurrentLocationButtonUnfilled();
+            if (currentLocation.distanceTo(markerLocation) < 5) {
+                setCurrentLocationButtonFilled();
+            } else {
+                setCurrentLocationButtonUnfilled();
+            }
         }
     }
 
@@ -304,8 +339,7 @@ public class LearnViewFragment extends Fragment implements OnMapReadyCallback {
         // Do a null check to confirm that we have not already instantiated the map.
 //        if (mMap == null) {
             // Try to obtain the map from the SupportMapFragment.
-            ((SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map))
-                    .getMapAsync(this);
+            ((SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map)).getMapAsync(this);
 //        }
     }
 
@@ -313,7 +347,6 @@ public class LearnViewFragment extends Fragment implements OnMapReadyCallback {
     public void onMapReady(GoogleMap map) {
         mMap = map;
         setUpMap();
-        ((HomeFragment)getParentFragment()).mapViewReady();
     }
 
     private void setUpMap() {
@@ -334,7 +367,9 @@ public class LearnViewFragment extends Fragment implements OnMapReadyCallback {
                 checkIfMarkerOnCurrentLocation();
             }
         });
-        moveCameraToLocation(locationManager.getCurrentLocation(), false);
+        if (locationManager.isConnected) {
+            moveCameraToLocation(locationManager.getCurrentLocation(), false);
+        }
     }
 
     private void moveCameraToLocation(Location location, boolean animated) {

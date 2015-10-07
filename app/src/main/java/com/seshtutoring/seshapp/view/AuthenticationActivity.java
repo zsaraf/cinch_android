@@ -540,61 +540,46 @@ public class AuthenticationActivity extends SeshActivity implements SeshDialog.O
                         startService(gcmIntent);
 
                         if (user.school.enabled) {
-                            HashSet<LaunchPrerequisiteAsyncTask.LaunchPrerequisiteFlag> fulfilledPrereqs = new HashSet<>();
-                            fulfilledPrereqs.add(LaunchPrerequisiteAsyncTask.LaunchPrerequisiteFlag.USER_INFORMATION_FETCHED);
-                            (new LaunchPrerequisiteAsyncTask(getApplicationContext(), fulfilledPrereqs,
-                                    new PrereqsFulfilledListener() {
-                                        @Override
-                                        public void onPrereqsFulfilled() {
-                                            seshActivityIndicator
-                                                    .animate()
-                                                    .alpha(0)
-                                                    .setDuration(300)
-                                                    .setListener(new AnimatorListenerAdapter() {
-                                                        @Override
-                                                        public void onAnimationEnd(Animator animation) {
-                                                            super.onAnimationEnd(animation);
-                                                            showStatusBar();
 
-                                                            Intent mainContainerIntent =
-                                                                    new Intent(getApplicationContext(), MainContainerActivity.class);
-                                                            mainContainerIntent
-                                                                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
-                                                                            | Intent.FLAG_ACTIVITY_CLEAR_TASK
-                                                                            | Intent.FLAG_ACTIVITY_NEW_TASK);
-                                                            startActivity(mainContainerIntent);
-                                                        }
-                                                    })
-                                                    .start();
+                            seshActivityIndicator
+                                    .animate()
+                                    .alpha(0)
+                                    .setDuration(300)
+                                    .setListener(new AnimatorListenerAdapter() {
+                                        @Override
+                                        public void onAnimationEnd(Animator animation) {
+                                            super.onAnimationEnd(animation);
+                                            showStatusBar();
+
+                                            Intent mainContainerIntent =
+                                                    new Intent(getApplicationContext(), MainContainerActivity.class);
+                                            mainContainerIntent
+                                                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
+                                                            | Intent.FLAG_ACTIVITY_CLEAR_TASK
+                                                            | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                            startActivity(mainContainerIntent);
                                         }
-                                    })).execute();
+                                    })
+                                    .start();
+
                         } else {
-                            HashSet<LaunchPrerequisiteAsyncTask.LaunchPrerequisiteFlag> fulfilledPrereqs = new HashSet<>();
-                            fulfilledPrereqs.add(LaunchPrerequisiteAsyncTask.LaunchPrerequisiteFlag.USER_INFORMATION_FETCHED);
-                            (new LaunchPrerequisiteAsyncTask(getApplicationContext(), fulfilledPrereqs,
-                                    new PrereqsFulfilledListener() {
+                            seshActivityIndicator
+                                    .animate()
+                                    .alpha(0)
+                                    .setDuration(300)
+                                    .setListener(new AnimatorListenerAdapter() {
                                         @Override
-                                        public void onPrereqsFulfilled() {
-                                            seshActivityIndicator
-                                                    .animate()
-                                                    .alpha(0)
-                                                    .setDuration(300)
-                                                    .setListener(new AnimatorListenerAdapter() {
-                                                        @Override
-                                                        public void onAnimationEnd(Animator animation) {
-                                                            super.onAnimationEnd(animation);
-                                                            showStatusBar();
+                                        public void onAnimationEnd(Animator animation) {
+                                            super.onAnimationEnd(animation);
+                                            showStatusBar();
 
-                                                            Intent launchSchoolIntent =
-                                                                    new Intent(getApplicationContext(), LaunchSchoolActivity.class);
-                                                            startActivity(launchSchoolIntent);
-                                                        }
-                                                    })
-                                                    .start();
+                                            Intent launchSchoolIntent =
+                                                    new Intent(getApplicationContext(), LaunchSchoolActivity.class);
+                                            startActivity(launchSchoolIntent);
                                         }
-                                    })).execute();
+                                    })
+                                    .start();
                         }
-
                     }
                 });
             } else if (responseJson.get("status").equals("UNVERIFIED")) {

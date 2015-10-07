@@ -143,29 +143,13 @@ public class ConfirmationCodeActivity extends SeshActivity {
                                 seshMixpanelAPI.track("User Verified Signup");
 
                                 if (user.school.enabled) {
-                                    HashSet<LaunchPrerequisiteFlag> fulfilledPrereqs = new HashSet<>();
-                                    fulfilledPrereqs.add(LaunchPrerequisiteFlag.USER_INFORMATION_FETCHED);
-                                    (new LaunchPrerequisiteAsyncTask(getApplicationContext(), fulfilledPrereqs,
-                                            new PrereqsFulfilledListener() {
-                                                @Override
-                                                public void onPrereqsFulfilled() {
-                                                    Intent intent = new Intent(getApplicationContext(), MainContainerActivity.class);
-                                                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                                                    startActivity(intent);
-                                                }
-                                            })).execute();
+                                    Intent intent = new Intent(getApplicationContext(), MainContainerActivity.class);
+                                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                    startActivity(intent);
                                 } else {
-                                    HashSet<LaunchPrerequisiteFlag> fulfilledPrereqs = new HashSet<>();
-                                    fulfilledPrereqs.add(LaunchPrerequisiteFlag.USER_INFORMATION_FETCHED);
-                                    (new LaunchPrerequisiteAsyncTask(getApplicationContext(), fulfilledPrereqs,
-                                            new PrereqsFulfilledListener() {
-                                                @Override
-                                                public void onPrereqsFulfilled() {
-                                                    Intent intent = new Intent(getApplicationContext(), LaunchSchoolActivity.class);
-                                                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                                                    startActivity(intent);
-                                                }
-                                            })).execute();
+                                    Intent intent = new Intent(getApplicationContext(), LaunchSchoolActivity.class);
+                                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                    startActivity(intent);
                                 }
                             }
                         });
