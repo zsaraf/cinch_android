@@ -41,6 +41,7 @@ public class AvailableJob extends SugarRecord<AvailableJob> {
     private static final String AVAILABLE_BLOCKS_KEY = "available_blocks";
     private static final String RATE_KEY = "hourly_rate";
     private static final String IS_INSTANT_KEY = "is_instant";
+    private static final String ESTIMATED_WAGE_KEY = "estimated_wage_key";
 
 
     public String description;
@@ -51,6 +52,7 @@ public class AvailableJob extends SugarRecord<AvailableJob> {
     public double maxTime;
     public int availableJobId;
     public boolean isSelected;
+    public double estimatedWage;
 
     @Ignore
     public Set<AvailableBlock> availableBlocks;
@@ -62,7 +64,7 @@ public class AvailableJob extends SugarRecord<AvailableJob> {
     public AvailableJob() {}
 
     public AvailableJob(String description, String studentName, int numPeople, double latitude, double longitude,
-                        double maxTime, int availableJobId, Set<AvailableBlock> availableBlocks, Course course, double rate, Boolean isInstant) {
+                        double maxTime, int availableJobId, Set<AvailableBlock> availableBlocks, Course course, double rate, Boolean isInstant, double estimatedWage) {
         this.description = description;
         this.studentName = studentName;
         this.numPeople = numPeople;
@@ -74,6 +76,7 @@ public class AvailableJob extends SugarRecord<AvailableJob> {
         this.course = course;
         this.rate = rate;
         this.isInstant = isInstant;
+        this.estimatedWage = estimatedWage;
     }
 
     public static AvailableJob createOrUpdateAvailableJobWithObject(JSONObject json) {
@@ -89,6 +92,7 @@ public class AvailableJob extends SugarRecord<AvailableJob> {
         Course courseVal;
         double rateVal;
         Boolean isInstantVal;
+        double estimatedWageVal;
 
         try {
             descriptionVal = json.getString(DESCRIPTION_KEY);
@@ -100,7 +104,8 @@ public class AvailableJob extends SugarRecord<AvailableJob> {
             requestIdVal = json.getInt(REQUEST_ID_KEY);
             rateVal = json.getDouble(RATE_KEY);
             courseVal = Course.createOrUpdateCourseWithJSON(json.getJSONObject(CLASS_KEY), null, true);
-            isInstantVal = json.getInt(IS_INSTANT_KEY) == 1 ? true : false;
+            isInstantVal = json.getInt(IS_INSTANT_KEY) == 1;
+            estimatedWageVal = json.getDouble(ESTIMATED_WAGE_KEY);
 
             if (AvailableJob.listAll(AvailableJob.class).size() > 0) {
                 List<AvailableJob> availableJobsFound = AvailableJob.find(AvailableJob.class, "available_job_id = ?", Integer.toString(requestIdVal));
@@ -125,6 +130,7 @@ public class AvailableJob extends SugarRecord<AvailableJob> {
             availableJob.course = courseVal;
             availableJob.rate = rateVal;
             availableJob.isInstant = isInstantVal;
+            availableJob.estimatedWage = estimatedWageVal;
             availableJob.save();
 
             AvailableBlock.deleteAll(AvailableBlock.class, "available_job = ?", Long.toString(availableJob.getId()));

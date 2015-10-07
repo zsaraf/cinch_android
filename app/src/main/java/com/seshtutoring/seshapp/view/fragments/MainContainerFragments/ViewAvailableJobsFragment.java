@@ -443,7 +443,7 @@ public class ViewAvailableJobsFragment extends ListFragment {
                 viewHolder.checkImageView.setVisibility(View.GONE);
                 viewHolder.rateTextView.setVisibility(View.VISIBLE);
                 NumberFormat money = NumberFormat.getCurrencyInstance(Locale.US);
-                viewHolder.rateTextView.setText(money.format(item.rate * item.maxTime));
+                viewHolder.rateTextView.setText(money.format(item.estimatedWage));
                 viewHolder.acceptButton.setVisibility(View.VISIBLE);
                 viewHolder.setConfirmMode(false);
             }
