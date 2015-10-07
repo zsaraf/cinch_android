@@ -41,7 +41,7 @@ public class AvailableJob extends SugarRecord<AvailableJob> {
     private static final String AVAILABLE_BLOCKS_KEY = "available_blocks";
     private static final String RATE_KEY = "hourly_rate";
     private static final String IS_INSTANT_KEY = "is_instant";
-    private static final String ESTIMATED_WAGE_KEY = "estimated_wage_key";
+    private static final String ESTIMATED_WAGE_KEY = "estimated_wage";
 
 
     public String description;
