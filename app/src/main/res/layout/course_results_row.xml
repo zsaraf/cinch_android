@@ -11,5 +11,5 @@
         android:textSize="16dp"
         android:textColor="@color/seshorange"
         android:padding="10dp"
-        android:background="@color/seshorangeopaque"/>
+        android:background="@drawable/sesh_list_row_selector"/>
 </RelativeLayout>
