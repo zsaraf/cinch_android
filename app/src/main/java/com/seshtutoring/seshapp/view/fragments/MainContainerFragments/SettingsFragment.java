@@ -81,7 +81,6 @@ public class SettingsFragment extends Fragment implements FragmentOptionsReceive
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
         );
-        params.setMargins(0, Math.round(getResources().getDimension(R.dimen.action_bar_height)), 0, 0);
         menu.setLayoutParams(params);
         mainContainerActivity = (MainContainerActivity) getActivity();
         seshNetworking = new SeshNetworking(mainContainerActivity);

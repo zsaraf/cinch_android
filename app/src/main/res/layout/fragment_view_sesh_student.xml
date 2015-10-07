@@ -2,8 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools" android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:custom="http://schemas.android.com/apk/res-auto"
-    tools:context="com.seshtutoring.seshapp.view.fragments.ViewSeshFragment"
-    android:layout_marginTop="@dimen/action_bar_height">
+    tools:context="com.seshtutoring.seshapp.view.fragments.ViewSeshFragment">
 
     <fragment xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"

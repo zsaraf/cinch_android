@@ -3,6 +3,7 @@ package com.seshtutoring.seshapp.view;
 import android.app.ActionBar;
 import android.app.AlarmManager;
 import android.app.Application;
+import android.content.res.Configuration;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.os.Looper;
@@ -22,6 +23,8 @@ import android.os.SystemClock;
 import android.os.Vibrator;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.SimpleOnPageChangeListener;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.text.Layout;
 import android.text.Spannable;
@@ -30,6 +33,7 @@ import android.text.TextPaint;
 import android.text.style.MetricAffectingSpan;
 import android.util.Log;
 import android.util.LruCache;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -50,8 +54,6 @@ import com.facebook.login.LoginResult;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.maps.GoogleMap;
-import com.jeremyfeinstein.slidingmenu.lib.CustomViewAbove;
-import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.SeshApplication;
 import com.seshtutoring.seshapp.SeshStateManager;
@@ -116,7 +118,8 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
         void clearFragmentOptions();
     }
 
-    public SlidingMenu slidingMenu;
+    private DrawerLayout mDrawerLayout;
+    private ActionBarDrawerToggle mDrawerToggle;
     private SideMenuFragment sideMenuFragment;
     private RelativeLayout editButton;
     private MainContainerStateManager containerStateManager;
@@ -201,6 +204,9 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
 
         setContentView(R.layout.main_container_activity);
 
+        Toolbar toolbar = (Toolbar) findViewById(R.id.my_awesome_toolbar);
+        setSupportActionBar(toolbar);
+
         LayoutUtils layoutUtils = new LayoutUtils(this);
         layoutUtils.setupCustomActionBar(this, false);
 
@@ -210,23 +216,46 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
 
         editButton = (RelativeLayout)findViewById(R.id.action_bar_edit_button);
 
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.main_main_container);
+        mDrawerToggle = new ActionBarDrawerToggle(
+                this,                  /* host Activity */
+                mDrawerLayout,         /* DrawerLayout object */
+                R.string.drawer_layout_open,  /* "open drawer" description */
+                R.string.drawer_layout_close  /* "close drawer" description */
+        ) {
+
+            @Override
+            public void onDrawerStateChanged(int newState) {
+                if (newState == DrawerLayout.STATE_SETTLING) {
+                    if (!isDrawerOpen()) {
+                        // starts opening
+                        sideMenuFragment.onOpen();
+                    }
+                    invalidateOptionsMenu();
+                }
+            }
+
+            /** Called when a drawer has settled in a completely closed state. */
+            public void onDrawerClosed(View view) {
+                super.onDrawerClosed(view);
+            }
+
+            /** Called when a drawer has settled in a completely open state. */
+            public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
+                sideMenuFragment.onOpened();
+            }
+        };
+
+        // Set the drawer toggle as the DrawerListener
+        mDrawerLayout.setDrawerListener(mDrawerToggle);
+
         sideMenuFragment = new SideMenuFragment();
         containerStateManager = new MainContainerStateManager(this, sideMenuFragment);
 
-        slidingMenu = new SlidingMenu(this);
-        slidingMenu.attachToActivity(this, SlidingMenu.SLIDING_WINDOW);
-        slidingMenu.setMode(SlidingMenu.LEFT);
-        slidingMenu.setTouchModeAbove(SlidingMenu.TOUCHMODE_MARGIN);
-        slidingMenu.setBehindOffsetRes(R.dimen.sliding_menu_behind_offset);
-        slidingMenu.setBehindScrollScale(0);
-        slidingMenu.setFadeEnabled(false);
-        slidingMenu.setMenu(R.layout.sliding_menu_frame);
-        slidingMenu.setOnOpenListener(sideMenuFragment);
-        slidingMenu.setOnOpenedListener(sideMenuFragment);
-
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.sliding_menu_frame, sideMenuFragment)
+                .replace(R.id.left_drawer, sideMenuFragment)
                 .commit();
 
         RelativeLayout menuButton = (RelativeLayout) findViewById(R.id.action_bar_menu_button);
@@ -235,7 +264,11 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
             public boolean onTouch(View v, MotionEvent event) {
                 Log.i(TAG, "ACTION BAR HEIGHT: " + getSupportActionBar().getHeight());
                 if (event.getAction() == MotionEvent.ACTION_UP) {
-                    slidingMenu.toggle(true);
+                    if (mDrawerLayout.isDrawerOpen(Gravity.LEFT)) {
+                        mDrawerLayout.closeDrawer(Gravity.LEFT);
+                    } else {
+                        mDrawerLayout.openDrawer(Gravity.LEFT);
+                    }
                 }
                 return true;
             }
@@ -271,6 +304,19 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
 
             }
         });
+    }
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        // Sync the toggle state after onRestoreInstanceState has occurred.
+        mDrawerToggle.syncState();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        mDrawerToggle.onConfigurationChanged(newConfig);
     }
 
     private void handleFacebookResponse() {
@@ -373,11 +419,11 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
                 Runnable openSideMenu = new Runnable() {
                     @Override
                     public void run() {
-                        slidingMenu.toggle(true);
+                        mDrawerLayout.openDrawer(Gravity.LEFT);
                     }
                 };
 
-                if (!slidingMenu.isMenuShowing()) {
+                if (!mDrawerLayout.isDrawerOpen(Gravity.LEFT)) {
                     // hacky, but delay menu open animation to account for activity transition
                     handler.postDelayed(openSideMenu, 2000);
                 }
@@ -396,7 +442,7 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
                         handler.postDelayed(new Runnable() {
                             @Override
                             public void run() {
-                                slidingMenu.toggle(true);
+                                mDrawerLayout.openDrawer(Gravity.LEFT);
                             }
                         }, 1000);
                     }
@@ -491,7 +537,7 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
 
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.main_container, newState.fragment, newState.fragment.getTag())
+                .replace(R.id.content_frame, newState.fragment, newState.fragment.getTag())
                 .commitAllowingStateLoss();
 
         if (options != null) {
@@ -509,21 +555,18 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
 
 
     public void onFragmentReplacedAndRendered() {
-//        if (slidingMenu.isMenuShowing()) {
-////            slidingMenu.stretchOut();
-//            slidingMenu.toggle(true);
-//        }
+        // Handle fragment replacement (if necessary)
     }
 
     public void closeDrawer(boolean animated) {
         Log.d(TAG, "CLOSING DRAWER");
-        if (slidingMenu.isMenuShowing()) {
-            slidingMenu.toggle(animated);
+        if (mDrawerLayout.isDrawerOpen(Gravity.LEFT)) {
+            mDrawerLayout.closeDrawer(Gravity.LEFT);
         }
     }
 
     public boolean isDrawerOpen() {
-        return slidingMenu.isMenuShowing();
+        return mDrawerLayout.isDrawerOpen(Gravity.LEFT);
     }
 
     @Override

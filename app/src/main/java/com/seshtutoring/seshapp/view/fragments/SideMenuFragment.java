@@ -33,7 +33,6 @@ import com.facebook.rebound.Spring;
 import com.facebook.rebound.SpringConfig;
 import com.facebook.rebound.SpringSystem;
 import com.google.android.gms.maps.model.Circle;
-import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.LearnRequest;
 import com.seshtutoring.seshapp.model.LearnRequest.LearnRequestTableListener;
@@ -62,8 +61,7 @@ import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenListener,
-        SlidingMenu.OnOpenedListener, SeshTableListener, LearnRequestTableListener {
+public class SideMenuFragment extends Fragment implements SeshTableListener, LearnRequestTableListener {
     private static final String TAG = SideMenuFragment.class.getName();
 
     private MainContainerActivity mainContainerActivity;
@@ -481,7 +479,6 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenList
         label.setTypeface(utils.getLightGothamTypeface());
     }
 
-    @Override
     public void onOpen() {
         Log.d(TAG, "ON OPEN");
         if (sideMenuOpenAnimation != null) {
@@ -489,7 +486,6 @@ public class SideMenuFragment extends Fragment implements SlidingMenu.OnOpenList
         }
     }
 
-    @Override
     public void onOpened() {
         Log.d(TAG, "ON OPENED");
         if (sideMenuOpenAnimation != null) {

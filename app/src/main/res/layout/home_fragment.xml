@@ -10,7 +10,6 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="@dimen/home_view_tab_buttons_height"
-        android:layout_marginTop="@dimen/action_bar_height"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true">
 

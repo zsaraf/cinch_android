@@ -3,7 +3,6 @@ package com.seshtutoring.seshapp.view;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 
-import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.LearnRequest;
 import com.seshtutoring.seshapp.model.Sesh;
@@ -56,33 +55,21 @@ public class MainContainerStateManager {
         setContainerState(new ContainerState("Sesh", 0,
                 ViewSeshFragment.newInstance(sesh.seshId, false),
                 sesh.getContainerStateTag(),
-                false,
-                SlidingMenu.TOUCHMODE_MARGIN));
+                false));
     }
 
     public void setContainerStateForSeshWithMessaging(Sesh sesh) {
         setContainerState(new ContainerState("Sesh", 0,
                 ViewSeshFragment.newInstance(sesh.seshId, true),
                 sesh.getContainerStateTag(),
-                false,
-                SlidingMenu.TOUCHMODE_MARGIN));
+                false));
     }
-//
-//
-//    public void setContainerStateForSeshWithId(Sesh sesh) {
-//        setContainerState(new ContainerState("Sesh", 0,
-//                ViewSeshFragment.newInstance(sesh.seshId, false),
-//                sesh.getContainerStateTag(),
-//                false,
-//                SlidingMenu.TOUCHMODE_MARGIN));
-//    }
 
     public void setContainerStateForLearnRequest(LearnRequest learnRequest) {
         setContainerState(new ContainerState("Request", 0,
                 ViewRequestFragment.newInstance(learnRequest.learnRequestId),
                 learnRequest.getContainerStateTag(),
-                false,
-                SlidingMenu.TOUCHMODE_MARGIN));
+                false));
     }
 
     public void setContainerStateForNavigation(NavigationItemState navigationItemState, Map<String, Object> options) {
@@ -93,19 +80,19 @@ public class MainContainerStateManager {
         ContainerState containerState = null;
         switch(item) {
             case HOME:
-                containerState = new ContainerState("Home", R.drawable.home, new HomeFragment(), "home", true, SlidingMenu.TOUCHMODE_NONE);
+                containerState = new ContainerState("Home", R.drawable.home, new HomeFragment(), "home", true);
                 break;
             case PROFILE:
-                containerState = new ContainerState("Profile", R.drawable.profile, new ProfileFragment(), "profile", true, SlidingMenu.TOUCHMODE_MARGIN);
+                containerState = new ContainerState("Profile", R.drawable.profile, new ProfileFragment(), "profile", true);
                 break;
             case PAYMENT:
-                containerState = new ContainerState("Payment", R.drawable.payment, new PaymentFragment(), "payment", true, SlidingMenu.TOUCHMODE_MARGIN);
+                containerState = new ContainerState("Payment", R.drawable.payment, new PaymentFragment(), "payment", true);
                 break;
             case SETTINGS:
-                containerState = new ContainerState("Settings", R.drawable.settings, new SettingsFragment(), "settings", true, SlidingMenu.TOUCHMODE_MARGIN);
+                containerState = new ContainerState("Settings", R.drawable.settings, new SettingsFragment(), "settings", true);
                 break;
             case PROMOTE:
-                containerState = new ContainerState("Promote", R.drawable.share, new PromoteFragment(), "promote", true, SlidingMenu.TOUCHMODE_MARGIN);
+                containerState = new ContainerState("Promote", R.drawable.share, new PromoteFragment(), "promote", true);
                 break;
         }
         return containerState;
@@ -113,7 +100,6 @@ public class MainContainerStateManager {
 
     public void setContainerState(ContainerState newState, Map<String, Object> options) {
         // handle side menu
-        mainContainerActivity.slidingMenu.setTouchModeAbove(newState.slidingMenuTouchMode);
         mainContainerActivity.replaceCurrentFragment(currentMainContainerState, newState, options);
         sideMenuFragment.selectItemForContainerState(newState);
         currentMainContainerState = newState;
