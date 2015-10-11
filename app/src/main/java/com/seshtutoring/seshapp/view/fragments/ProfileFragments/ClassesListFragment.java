@@ -48,7 +48,9 @@ public class ClassesListFragment extends Fragment implements ViewClassesView.Vie
     }
 
     public void refreshListWithUser(User user) {
-        viewClassesView.refreshClassesViewWithUser(user);
+        if (viewClassesView != null) {
+            viewClassesView.refreshClassesViewWithUser(user);
+        }
     }
 
     public void viewClassesViewDidTapAddClasses() {
