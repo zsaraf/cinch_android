@@ -346,7 +346,7 @@ public class LearnViewFragment extends Fragment implements OnMapReadyCallback {
     }
 
     private void setUpMap() {
-        int topMapPadding = getResources().getDimensionPixelOffset(R.dimen.learn_view_map_padding_top);
+        int topMapPadding = getResources().getDimensionPixelOffset(R.dimen.home_view_tab_buttons_height);
 
         mMap.setPadding(0, topMapPadding, 0, 0);
         mMap.setMyLocationEnabled(true);
