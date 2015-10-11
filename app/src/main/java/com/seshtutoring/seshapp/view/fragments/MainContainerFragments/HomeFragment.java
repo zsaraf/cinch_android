@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.os.Handler;
 import android.os.Parcelable;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
@@ -20,6 +21,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.seshtutoring.seshapp.R;
@@ -61,13 +63,14 @@ public class HomeFragment extends Fragment implements FragmentOptionsReceiver {
         }
     };
 
+    private static final String LEARN_TEXT="LEARN";
+    private static final String TEACH_TEXT="TEACH";
+
     private View homeView;
     private ViewPager viewPager;
-    private Button learnTabButton;
-    private Button teachTabButton;
     private TabItem currTabItem;
-    private LinearLayout tabButtons;
     private BroadcastReceiver broadcastReceiver;
+    private TabLayout tabLayout;
 
     private Map<String, Object> options;
 
@@ -76,31 +79,24 @@ public class HomeFragment extends Fragment implements FragmentOptionsReceiver {
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
         homeView = layoutInflater.inflate(R.layout.home_fragment, container, false);
 
-        // initialized in viewPager bc may be contributing to issues with detached fragments
-
         this.viewPager = (ViewPager) homeView.findViewById(R.id.view_pager);
         this.viewPager.setAdapter(new HomeViewPagerAdapter(getChildFragmentManager(), User.currentUser(getActivity()).tutor.enabled));
 
-        LayoutUtils utils = new LayoutUtils(getActivity());
-
-        tabButtons = (LinearLayout) homeView.findViewById(R.id.home_tabs);
-        learnTabButton = (Button) homeView.findViewById(R.id.learn_button);
-        teachTabButton = (Button) homeView.findViewById(R.id.teach_button);
-
-        learnTabButton.setOnClickListener(new View.OnClickListener() {
+        tabLayout = (TabLayout) homeView.findViewById(R.id.tab_layout);
+        tabLayout.addTab(tabWithText(tabLayout, LEARN_TEXT, TabItem.LEARN_TAB));
+        tabLayout.addTab(tabWithText(tabLayout, TEACH_TEXT, TabItem.TEACH_TAB));
+        tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
-            public void onClick(View v) {
-                learnTabButton.setPressed(true);
-                setCurrentTabItem(TabItem.LEARN_TAB, true);
+            public void onTabSelected(TabLayout.Tab tab) {
+                TabItem tabItem = (TabItem) tab.getTag();
+                setCurrentTabItem(tabItem, true);
             }
-        });
 
-        teachTabButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                teachTabButton.setPressed(true);
-                setCurrentTabItem(TabItem.TEACH_TAB, true);
-            }
+            public void onTabUnselected(TabLayout.Tab tab) { }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) { }
         });
 
         if (options != null && options.containsKey(SHOW_AVAILABLE_JOBS_FLAG) &&
@@ -126,6 +122,16 @@ public class HomeFragment extends Fragment implements FragmentOptionsReceiver {
         return homeView;
     }
 
+    private TabLayout.Tab tabWithText(TabLayout tabLayout, String text, TabItem tabItem) {
+        LayoutInflater inflater = LayoutInflater.from(getActivity());
+        LayoutUtils layoutUtils = new LayoutUtils(getActivity());
+        View customView = inflater.inflate(R.layout.sesh_tab_bar, null);
+        TextView textView = (TextView) customView.findViewById(R.id.tab_text_view);
+        textView.setText(text);
+        textView.setTypeface(layoutUtils.getBookGothamTypeface());
+        return tabLayout.newTab().setCustomView(customView).setTag(tabItem);
+    }
+
     private void setCurrentTabItem(TabItem tabItem, boolean withAnimation) {
         viewPager.setCurrentItem(tabItem.viewPagerPosition, withAnimation);
         if (tabItem == TabItem.LEARN_TAB) {
@@ -134,16 +140,14 @@ public class HomeFragment extends Fragment implements FragmentOptionsReceiver {
             if (viewJobsFragment != null) {
                 viewJobsFragment.stopRepeatingTask();
             }
-            learnTabButton.setTextColor(getResources().getColor(R.color.seshorange));
-            teachTabButton.setTextColor(getResources().getColor(R.color.seshextralightgray));
+            tabLayout.getTabAt(0).select();
         } else if (tabItem == TabItem.TEACH_TAB) {
             //turn on calls to refresh open jobs when we enter the teach tab
             ViewAvailableJobsFragment viewJobsFragment = (ViewAvailableJobsFragment)getActivity().getFragmentManager().findFragmentByTag("ViewJobsFragment");
             if (viewJobsFragment != null) {
                 viewJobsFragment.startRepeatingTask();
             }
-            teachTabButton.setTextColor(getResources().getColor(R.color.seshorange));
-            learnTabButton.setTextColor(getResources().getColor(R.color.seshextralightgray));
+            tabLayout.getTabAt(1).select();
         }
         currTabItem = tabItem;
     }

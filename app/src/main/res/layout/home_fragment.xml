@@ -1,64 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
     android:layout_height="match_parent">
     <com.seshtutoring.seshapp.view.components.NonSwipeableViewPager
         android:id="@+id/view_pager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
-    <RelativeLayout
+    <android.support.design.widget.TabLayout
         android:layout_width="match_parent"
         android:layout_height="@dimen/home_view_tab_buttons_height"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true">
-
-    <LinearLayout
-        android:id="@+id/home_tabs"
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:alpha="0.95">
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="@dimen/home_view_tab_buttons_height"
-            android:padding="0dp"
-            android:text="@string/learn_tab_button_title"
-            android:textColor="@color/seshextralightgray"
-            android:id="@+id/learn_button"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_weight="1"
-            android:background="@drawable/tab_button"
-            android:textSize="14dp" />
-
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="@dimen/home_view_tab_buttons_height"
-            android:padding="0dp"
-            android:text="@string/teach_tab_button_title"
-            android:textColor="@color/seshextralightgray"
-            android:id="@+id/teach_button"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true"
-            android:background="@drawable/tab_button"
-            android:layout_weight="1"
-            android:textSize="14dp" />
-    </LinearLayout>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height=".5dp"
-            android:background="@color/seshextralightgray"
-            android:layout_alignParentBottom="true"/>
-        <View
-            android:layout_width=".5dp"
-            android:layout_height="match_parent"
-            android:background="@color/seshextralightgray"
-            android:layout_centerInParent="true"/>
-    </RelativeLayout>
+        android:id="@+id/tab_layout"
+        android:background="@color/seshorange"
+        app:tabIndicatorColor="@android:color/white"
+        app:tabTextColor="#99ffffff"
+        app:tabSelectedTextColor="@android:color/white"
+        app:tabIndicatorHeight="3dp"
+        app:tabPaddingBottom="4dp"
+        app:tabPaddingStart="20dp"
+        app:tabPaddingEnd="20dp" />
 </RelativeLayout>
