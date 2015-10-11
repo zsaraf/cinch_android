@@ -27,8 +27,7 @@ import java.util.Set;
 /**
  * Created by nadavhollander on 8/3/15.
  */
-public class LaunchPrerequisiteAsyncTask extends AsyncTask<Void, Void, Void>
-        implements LocationManager.LocationManagerSetUpListener {
+public class LaunchPrerequisiteAsyncTask extends AsyncTask<Void, Void, Void> {
     private static final String TAG = LaunchPrerequisiteAsyncTask.class.getName();
 
     private Context mContext;
@@ -37,10 +36,9 @@ public class LaunchPrerequisiteAsyncTask extends AsyncTask<Void, Void, Void>
     private Object lock = new Object();
 
     public enum LaunchPrerequisiteFlag {
-        LOCATION_MANAGER_LOADED, CONSTANTS_FETCHED, USER_INFORMATION_FETCHED, SESH_STATE_VERIFIED
+        CONSTANTS_FETCHED, USER_INFORMATION_FETCHED, SESH_STATE_VERIFIED
     }
 
-    private boolean locationManagerLoaded;
     private boolean constantsFetched;
     private boolean userInformationFetched;
     private boolean seshStateVerified;
@@ -54,7 +52,6 @@ public class LaunchPrerequisiteAsyncTask extends AsyncTask<Void, Void, Void>
     public LaunchPrerequisiteAsyncTask(Context context, PrereqsFulfilledListener listener) {
         this.mContext = context;
         this.listener = listener;
-        locationManagerLoaded = false;
         constantsFetched = false;
         userInformationFetched = false;
         seshStateVerified = false;
@@ -65,7 +62,6 @@ public class LaunchPrerequisiteAsyncTask extends AsyncTask<Void, Void, Void>
                                        PrereqsFulfilledListener listener) {
         this.mContext = context;
         this.listener = listener;
-        locationManagerLoaded = false;
         constantsFetched = false;
         userInformationFetched = false;
         seshStateVerified = false;
@@ -75,12 +71,6 @@ public class LaunchPrerequisiteAsyncTask extends AsyncTask<Void, Void, Void>
             constantsFetched = true;
         } else {
             constantsFetched = false;
-        }
-
-        if (launchPrerequisitesFulfilled.contains(LaunchPrerequisiteFlag.LOCATION_MANAGER_LOADED)) {
-            locationManagerLoaded = true;
-        } else {
-            locationManagerLoaded = false;
         }
 
         if (launchPrerequisitesFulfilled.contains(LaunchPrerequisiteFlag.USER_INFORMATION_FETCHED)) {
@@ -105,21 +95,6 @@ public class LaunchPrerequisiteAsyncTask extends AsyncTask<Void, Void, Void>
     public Void doInBackground(Void... params) {
         if (!constantsFetched) {
             Constants.fetchConstantsFromServer(mContext);
-        }
-
-        if (!locationManagerLoaded) {
-            LocationManager locationManager = LocationManager.sharedInstance(mContext);
-            locationManager.setUp(this);
-
-            synchronized (lock) {
-                if (!locationManagerLoaded) {
-                    try {
-                        lock.wait(); // block until location manager is ready in onLocationManagerSetUp()
-                    } catch (InterruptedException e) {
-                        return null;
-                    }
-                }
-            }
         }
 
         if (!userInformationFetched) {
@@ -175,11 +150,4 @@ public class LaunchPrerequisiteAsyncTask extends AsyncTask<Void, Void, Void>
         }
     }
 
-    @Override
-    public void onLocationManagerSetUp() {
-        synchronized (lock) {
-            locationManagerLoaded = true;
-            lock.notify();
-        }
-    }
 }

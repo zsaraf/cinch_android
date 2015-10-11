@@ -2,8 +2,11 @@ package com.seshtutoring.seshapp.view;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.IntentSender;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -14,12 +17,17 @@ import android.widget.Toast;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.Notification;
 import com.seshtutoring.seshapp.model.PastSesh;
 import com.seshtutoring.seshapp.model.User;
+import com.seshtutoring.seshapp.services.GCMRegistrationIntentService;
+import com.seshtutoring.seshapp.services.SeshInstanceIDListenerService;
 import com.seshtutoring.seshapp.util.ApplicationLifecycleTracker;
 import com.seshtutoring.seshapp.util.LayoutUtils;
+import com.seshtutoring.seshapp.util.LocationManager;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.components.SeshActivityIndicator;
 import com.seshtutoring.seshapp.view.components.SeshAnimatedCheckmark;
@@ -46,6 +54,7 @@ public class LaunchSchoolActivity extends SeshActivity implements SeshDialog.OnS
     private SeshAnimatedCheckmark animatedCheckmark;
     private RelativeLayout logoutButton;
     private RelativeLayout overlay;
+    private BroadcastReceiver broadcastReceiver;
 
     private User user;
 
@@ -134,6 +143,36 @@ public class LaunchSchoolActivity extends SeshActivity implements SeshDialog.OnS
 
             }
         });
+        broadcastReceiver = actionBroadcastReceiver;
+    }
+
+    private BroadcastReceiver actionBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            if (intent.getAction() == MainContainerActivity.REFRESH_USER_INFO) {
+                User currentUser = User.currentUser(getApplicationContext());
+                if (currentUser.school.enabled) {
+                    Intent mainContainerIntent = new Intent(getApplicationContext(), MainContainerActivity.class);
+                    startActivity(mainContainerIntent);
+                    overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+                }
+            }
+        }
+    };
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        this.unregisterReceiver(broadcastReceiver);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(MainContainerActivity.REFRESH_USER_INFO);
+        this.registerReceiver(broadcastReceiver, intentFilter);
     }
 
     public void onDialogSelection(int selection, String type) {

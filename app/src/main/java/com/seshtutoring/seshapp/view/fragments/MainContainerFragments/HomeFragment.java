@@ -121,6 +121,8 @@ public class HomeFragment extends Fragment implements FragmentOptionsReceiver {
             e.printStackTrace();
         }
 
+        ((MainContainerActivity)getActivity()).onFragmentReplacedAndRendered();
+
         return homeView;
     }
 
@@ -315,9 +317,5 @@ public class HomeFragment extends Fragment implements FragmentOptionsReceiver {
             }
         }
         this.getActivity().unregisterReceiver(broadcastReceiver);
-    }
-
-    public void mapViewReady() {
-        ((MainContainerActivity)getActivity()).onFragmentReplacedAndRendered();
     }
 }

@@ -197,6 +197,7 @@ public class ViewAvailableJobsFragment extends ListFragment {
         // Listen for new messages
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(MainContainerActivity.REFRESH_JOBS);
+        intentFilter.addAction(MainContainerActivity.LOCATION_MANAGER_CONNECTED);
         this.getActivity().registerReceiver(broadcastReceiver, intentFilter);
     }
 
@@ -210,7 +211,11 @@ public class ViewAvailableJobsFragment extends ListFragment {
     private BroadcastReceiver actionBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            getAvailableJobs();
+            if (intent.getAction() == MainContainerActivity.LOCATION_MANAGER_CONNECTED) {
+                availableJobsAdapter.notifyDataSetChanged();
+            } else {
+                getAvailableJobs();
+            }
         }
     };
 
@@ -460,20 +465,25 @@ public class ViewAvailableJobsFragment extends ListFragment {
             viewHolder.assignmentInformationLabel.setVisibility(View.VISIBLE);
 
             float[] results = new float[3];
-            Location currentLocation = locationManager.getCurrentLocation();
-            Location jobLocation = new Location("job location");
-            jobLocation.setLatitude(item.latitude);
-            jobLocation.setLongitude(item.longitude);
-            Location.distanceBetween(
-                    currentLocation.getLatitude(),
-                    item.latitude,
-                    currentLocation.getLongitude(),
-                    item.longitude,
-                    results);
-            float mi = currentLocation.distanceTo(jobLocation);
-            /* Convert from emters to miles */
-            Double miles = mi * 0.000621371;
-            viewHolder.distanceInformationLabel.setText(fmtDistance(miles) + " miles");
+            if (locationManager.isConnected) {
+                Location currentLocation = locationManager.getCurrentLocation();
+                Location jobLocation = new Location("job location");
+                jobLocation.setLatitude(item.latitude);
+                jobLocation.setLongitude(item.longitude);
+                Location.distanceBetween(
+                        currentLocation.getLatitude(),
+                        item.latitude,
+                        currentLocation.getLongitude(),
+                        item.longitude,
+                        results);
+                float mi = currentLocation.distanceTo(jobLocation);
+                /* Convert from emters to miles */
+                Double miles = mi * 0.000621371;
+                viewHolder.distanceInformationLabel.setText(fmtDistance(miles) + " miles");
+            } else {
+                viewHolder.distanceInformationLabel.setText("?? miles");
+            }
+
 
             viewHolder.durationInformationLabel.setText(item.maxTime + " hours");
             viewHolder.durationInformationLabel.setVisibility(View.VISIBLE);

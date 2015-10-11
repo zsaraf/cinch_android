@@ -1,47 +1,26 @@
 package com.seshtutoring.seshapp.view;
 
-import android.app.ActionBar;
-import android.app.AlarmManager;
-import android.app.Application;
 import android.content.res.Configuration;
-import android.graphics.Paint;
-import android.graphics.Typeface;
-import android.os.Looper;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
+import android.content.IntentSender;
 import android.support.v4.app.Fragment;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Bitmap;
 import android.os.Handler;
 import android.content.Context;
 import android.os.Bundle;
-import android.os.SystemClock;
-import android.os.Vibrator;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.SimpleOnPageChangeListener;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
-import android.text.Layout;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.TextPaint;
-import android.text.style.MetricAffectingSpan;
 import android.util.Log;
-import android.util.LruCache;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
-import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -53,30 +32,23 @@ import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.android.gms.maps.GoogleMap;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.SeshApplication;
-import com.seshtutoring.seshapp.SeshStateManager;
 import com.seshtutoring.seshapp.model.Notification;
 import com.seshtutoring.seshapp.model.Sesh;
-import com.seshtutoring.seshapp.services.PeriodicFetchBroadcastReceiver;
 import com.seshtutoring.seshapp.services.GCMRegistrationIntentService;
 import com.seshtutoring.seshapp.model.User;
-import com.seshtutoring.seshapp.services.SeshGCMListenerService;
 import com.seshtutoring.seshapp.services.SeshInstanceIDListenerService;
 import com.seshtutoring.seshapp.services.notifications.SeshNotificationManagerService;
 import com.seshtutoring.seshapp.services.notifications.handlers.SeshCancelledNotificationHandler;
 import com.seshtutoring.seshapp.util.ApplicationLifecycleTracker;
+import com.seshtutoring.seshapp.util.LaunchPrerequisiteAsyncTask;
 import com.seshtutoring.seshapp.util.LayoutUtils;
+import com.seshtutoring.seshapp.util.LocationManager;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
-import com.seshtutoring.seshapp.view.components.SeshActivityIndicator;
-import com.seshtutoring.seshapp.view.components.SeshBanner;
 import com.seshtutoring.seshapp.view.components.SeshDialog;
-import com.seshtutoring.seshapp.view.fragments.LearnViewFragment;
-import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.HomeFragment;
 import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.LoadingFragment;
 import com.seshtutoring.seshapp.view.MainContainerStateManager.NavigationItemState;
-import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.SettingsFragment;
 import com.seshtutoring.seshapp.view.fragments.SideMenuFragment;
 import com.seshtutoring.seshapp.view.fragments.ViewSeshFragment;
 
@@ -98,6 +70,8 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
     private static final String INTENT_HANDLED = "intent_handled";
     public static final String UPDATE_CONTAINER_STATE_ACTION = "update_main_container_state";
     public static final String DISPLAY_SIDE_MENU_UPDATE = "display_side_menu_update";
+    public static final String LOCATION_MANAGER_CONNECTED = "location_manager_connected";
+    public static final String LOCATION_MANAGER_FAILED = "location_manager_failed";
     public static final String VIEW_SESH_ACTION = "view_sesh";
     public static final String SESH_CANCELLED_ACTION = "sesh_cancelled";
     public static final String NEW_MESSAGE_ACTION = "new_message";
@@ -124,6 +98,8 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
     private RelativeLayout editButton;
     private MainContainerStateManager containerStateManager;
     private CallbackManager fbCallbackManager;
+    private LocationManager locationManager;
+    private BroadcastReceiver broadcastReceiver;
     private ApplicationLifecycleTracker tracker;
 
     private final Fragment loadingFragment = new LoadingFragment();
@@ -166,7 +142,6 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
         super.onStop();
         Log.i(TAG, "On Stop .....");
     }
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -274,36 +249,8 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
             }
         });
 
-        ApplicationLifecycleTracker.sharedInstance(this).setApplicationLifecycleCallback(new ApplicationLifecycleTracker.ApplicationLifecycleCallback() {
-            @Override
-            public void applicationDidEnterForeground() {
-                SeshNetworking seshNetworking = new SeshNetworking(getApplicationContext());
-                seshNetworking.getFullUserInfo(new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject jsonObject) {
-                        try {
-                            if (jsonObject.getString("status").equals("SUCCESS")) {
-                                Context context = getApplicationContext();
-                                User.createOrUpdateUserWithObject(jsonObject.getJSONObject("data"), context);
-                                context.sendBroadcast(new Intent(MainContainerActivity.REFRESH_USER_INFO));
-                            }
-                        } catch (JSONException e) {
-
-                        }
-                    }
-                }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError volleyError) {
-
-                    }
-                });
-            }
-
-            @Override
-            public void applicationWillEnterBackground() {
-
-            }
-        });
+        this.locationManager = LocationManager.sharedInstance(this);
+        broadcastReceiver = actionBroadcastReceiver;
     }
 
     @Override
@@ -318,6 +265,31 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
         super.onConfigurationChanged(newConfig);
         mDrawerToggle.onConfigurationChanged(newConfig);
     }
+
+    private BroadcastReceiver actionBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction() == LOCATION_MANAGER_FAILED) {
+                Log.e(TAG, "Resolving location manager");
+                try {
+                    // Start an Activity that tries to resolve the error
+                    ConnectionResult cr = intent.getParcelableExtra(LocationManager.CONNECTION_RESULT);
+                    int resolutionRequest = intent.getIntExtra(LocationManager.RESOLUTION_REQUEST, 0);
+                    cr.startResolutionForResult(MainContainerActivity.this, resolutionRequest);
+                } catch (IntentSender.SendIntentException e) {
+                    e.printStackTrace();
+                }
+            } else if (intent.getAction() == REFRESH_USER_INFO) {
+                User currentUser = User.currentUser(getApplicationContext());
+                if (!currentUser.school.enabled) {
+                    Intent launchSchoolIntent = new Intent(getApplicationContext(), LaunchSchoolActivity.class);
+                    startActivity(launchSchoolIntent);
+                    overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+                }
+
+            }
+        }
+    };
 
     private void handleFacebookResponse() {
         //handle facebook login response here
@@ -350,6 +322,13 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
     }
 
     @Override
+    public void onPause() {
+        super.onPause();
+        this.locationManager.disconnectClient();
+        this.unregisterReceiver(broadcastReceiver);
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
 
@@ -365,6 +344,12 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
         if (code != ConnectionResult.SUCCESS) {
             googleApiAvailability.getErrorDialog(this, code, 0).show();
         }
+
+        this.locationManager.connectClient();
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(MainContainerActivity.LOCATION_MANAGER_FAILED);
+        intentFilter.addAction(MainContainerActivity.REFRESH_USER_INFO);
+        this.registerReceiver(broadcastReceiver, intentFilter);
     }
 
     @Override

@@ -1,12 +1,20 @@
 package com.seshtutoring.seshapp;
 
 import android.content.Context;
+import android.content.Intent;
+import android.util.Log;
+
 import com.crashlytics.android.Crashlytics;
 import com.mixpanel.android.mpmetrics.MixpanelAPI;
 import com.orm.SugarApp;
+import com.seshtutoring.seshapp.model.User;
 import com.seshtutoring.seshapp.util.ApplicationLifecycleTracker;
+import com.seshtutoring.seshapp.util.LaunchPrerequisiteAsyncTask;
 import com.seshtutoring.seshapp.util.SeshImageCache;
 import com.seshtutoring.seshapp.util.SeshMixpanelAPI;
+import com.seshtutoring.seshapp.util.networking.SeshAuthManager;
+import com.seshtutoring.seshapp.view.LaunchSchoolActivity;
+import com.seshtutoring.seshapp.view.MainContainerActivity;
 import com.squareup.okhttp.Interceptor;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
@@ -52,6 +60,26 @@ public class SeshApplication extends SugarApp {
 
         this.seshMixpanelAPI = SeshMixpanelAPI.getInstance(this);
 
+        ApplicationLifecycleTracker.sharedInstance(this).setApplicationLifecycleCallback(new ApplicationLifecycleTracker.ApplicationLifecycleCallback() {
+            @Override
+            public void applicationDidEnterForeground() {
+                beginAsyncTask();
+            }
+
+            @Override
+            public void applicationWillEnterBackground() {
+
+            }
+        });
+    }
+
+    public void beginAsyncTask() {
+        (new LaunchPrerequisiteAsyncTask(getApplicationContext(), new LaunchPrerequisiteAsyncTask.PrereqsFulfilledListener() {
+            @Override
+            public void onPrereqsFulfilled() {
+                getApplicationContext().sendBroadcast(new Intent(MainContainerActivity.REFRESH_USER_INFO));
+            }
+        })).execute();
     }
 
     public ApplicationLifecycleTracker getApplicationLifecycleTracker() {
