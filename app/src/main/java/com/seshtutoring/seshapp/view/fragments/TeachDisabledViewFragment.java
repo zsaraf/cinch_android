@@ -76,9 +76,6 @@ public class TeachDisabledViewFragment extends Fragment {
             return view;
         }
 
-        LayoutUtils layUtils = new LayoutUtils(getActivity());
-        view.setPadding(0, layUtils.getActionBarHeightPx() + (int)getResources().getDimensionPixelSize(R.dimen.home_view_tab_buttons_height) - 1, 0, 0);
-
         this.requestFlowOverlay = (RelativeLayout) view.findViewById(R.id.request_flow_overlay);
         this.activityIndicator = (SeshActivityIndicator) view.findViewById(R.id.request_activity_indicator);
         this.animatedCheckmark = (SeshAnimatedCheckmark) view.findViewById(R.id.animated_check_mark);
