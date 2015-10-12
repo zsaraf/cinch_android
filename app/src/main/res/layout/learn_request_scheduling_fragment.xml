@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <com.seshtutoring.seshapp.view.components.TwoDHScrollView
+        android:id="@+id/horizontal_scrollview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="@dimen/scheduling_columns_total_width"
+            android:layout_height="match_parent">
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:id="@+id/day_label_1"
+                    android:textColor="@color/seshorange"
+                    android:text="TODAY"
+                    android:textSize="16dp"
+                    android:gravity="center"
+                    android:paddingLeft="30dp"
+                    android:layout_width="@dimen/scheduling_column_width"
+                    android:layout_height="wrap_content" />
+                <TextView
+                    android:paddingLeft="30dp"
+                    android:id="@+id/day_label_2"
+                    android:textColor="@color/seshorange"
+                    android:text="TMRW"
+                    android:gravity="center"
+                    android:textSize="16dp"
+                    android:layout_width="@dimen/scheduling_column_width"
+                    android:layout_height="wrap_content" />
+                <TextView
+                    android:id="@+id/day_label_3"
+                    android:textColor="@color/seshorange"
+                    android:text="MON"
+                    android:gravity="center"
+                    android:textSize="16dp"
+                    android:layout_width="@dimen/scheduling_column_width"
+                    android:paddingLeft="30dp"
+                    android:layout_height="wrap_content" />
+                <TextView
+                    android:id="@+id/day_label_4"
+                    android:textColor="@color/seshorange"
+                    android:text="TUES"
+                    android:gravity="center"
+                    android:textSize="16dp"
+                    android:paddingLeft="30dp"
+                    android:layout_width="@dimen/scheduling_column_width"
+                    android:layout_height="wrap_content" />
+                <TextView
+                    android:id="@+id/day_label_5"
+                    android:textColor="@color/seshorange"
+                    android:text="WED"
+                    android:textSize="16dp"
+                    android:gravity="center"
+                    android:paddingLeft="30dp"
+                    android:layout_width="@dimen/scheduling_column_width"
+                    android:layout_height="wrap_content" />
+                <TextView
+                    android:id="@+id/day_label_6"
+                    android:textColor="@color/seshorange"
+                    android:text="THURS"
+                    android:textSize="16dp"
+                    android:gravity="center"
+                    android:paddingLeft="30dp"
+                    android:layout_width="@dimen/scheduling_column_width"
+                    android:layout_height="wrap_content" />
+                <TextView
+                    android:id="@+id/day_label_7"
+                    android:textColor="@color/seshorange"
+                    android:text="FRI"
+                    android:textSize="16dp"
+                    android:gravity="center"
+                    android:paddingLeft="30dp"
+                    android:layout_width="@dimen/scheduling_column_width"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+                <com.seshtutoring.seshapp.view.components.TwoDVScrollView
+                    android:id="@+id/vertical_scrollview"
+                    android:layout_marginTop="20dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+                    <LinearLayout
+                        android:id="@+id/schedule_columns_container"
+                        android:orientation="horizontal"
+                        android:layout_width="@dimen/scheduling_columns_total_width"
+                        android:layout_height="wrap_content">
+
+                    </LinearLayout>
+                </com.seshtutoring.seshapp.view.components.TwoDVScrollView>
+        </LinearLayout>
+    </com.seshtutoring.seshapp.view.components.TwoDHScrollView>
+</RelativeLayout>

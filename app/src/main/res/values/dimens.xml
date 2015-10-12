@@ -33,4 +33,8 @@
 
     <dimen name="learn_view_map_marker_height">70dp</dimen>
     <dimen name="learn_view_map_marker_width">70dp</dimen>
+
+    <!--Scheduling -->
+    <dimen name="scheduling_column_width">120dp</dimen>
+    <dimen name="scheduling_columns_total_width">840dp</dimen>
 </resources>

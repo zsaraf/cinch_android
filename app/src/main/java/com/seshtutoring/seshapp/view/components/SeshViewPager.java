@@ -78,6 +78,11 @@ public class SeshViewPager extends RelativeLayout {
             // optional implementation
         }
 
+        public boolean allowsSwiping() {
+            // optional implementation
+            return true;
+        }
+
         public SeshEditText editText() {
             return null;
         }
@@ -103,8 +108,11 @@ public class SeshViewPager extends RelativeLayout {
         scrollView.setOnTouchListener(new OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                gestureDetector.onTouchEvent(motionEvent);
-                return true;
+                if (swipingAllowed && ((InputFragment) fragments.get(currentFragmentIndex)).allowsSwiping()) {
+                    return gestureDetector.onTouchEvent(motionEvent);
+                } else {
+                    return true;
+                }
             }
         });
 
@@ -427,13 +435,11 @@ public class SeshViewPager extends RelativeLayout {
     private class RequestFlowGestureDetector extends GestureDetector.SimpleOnGestureListener {
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-            if (swipingAllowed) {
                 if (velocityX < 0) {
                     flingNextFragment();
                 } else {
                     flingPrevFragment();
                 }
-            }
             return true;
         }
     }

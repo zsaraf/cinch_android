@@ -44,6 +44,7 @@ import com.seshtutoring.seshapp.view.fragments.LearnRequestFragments.LearnReques
 import com.seshtutoring.seshapp.view.fragments.LearnRequestFragments.LearnRequestConfirmFragment;
 import com.seshtutoring.seshapp.view.fragments.LearnRequestFragments.LearnRequestCourseFragment;
 import com.seshtutoring.seshapp.view.fragments.LearnRequestFragments.LearnRequestNumberOfStudentsFragment;
+import com.seshtutoring.seshapp.view.fragments.LearnRequestFragments.LearnRequestSchedulingFragment;
 import com.seshtutoring.seshapp.view.fragments.LearnRequestFragments.LearnRequestTimeFragment;
 import com.seshtutoring.seshapp.view.fragments.LearnViewFragment;
 import com.seshtutoring.seshapp.view.OnboardingActivity;
@@ -150,6 +151,7 @@ public class RequestActivity extends SeshActivity implements
         });
 
         this.requestFlowFragments = new ArrayList<>();
+        requestFlowFragments.add(new LearnRequestSchedulingFragment());
         requestFlowFragments.add(new LearnRequestCourseFragment());
         requestFlowFragments.add(new LearnRequestAssignmentFragment());
         requestFlowFragments.add(new LearnRequestNumberOfStudentsFragment());

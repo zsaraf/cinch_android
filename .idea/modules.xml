@@ -5,8 +5,8 @@
       <module fileurl="file://$PROJECT_DIR$/StackBlur/StackBlur.iml" filepath="$PROJECT_DIR$/StackBlur/StackBlur.iml" />
       <module fileurl="file://$PROJECT_DIR$/android_numberpicker/android_numberpicker.iml" filepath="$PROJECT_DIR$/android_numberpicker/android_numberpicker.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/cinch_android.iml" filepath="$PROJECT_DIR$/cinch_android.iml" />
       <module fileurl="file://$PROJECT_DIR$/pk-library/pk-library.iml" filepath="$PROJECT_DIR$/pk-library/pk-library.iml" />
+      <module fileurl="file://$PROJECT_DIR$/seshandroid.iml" filepath="$PROJECT_DIR$/seshandroid.iml" />
       <module fileurl="file://$PROJECT_DIR$/slidingmenu/slidingmenu.iml" filepath="$PROJECT_DIR$/slidingmenu/slidingmenu.iml" />
       <module fileurl="file://$PROJECT_DIR$/stripe/stripe.iml" filepath="$PROJECT_DIR$/stripe/stripe.iml" />
     </modules>

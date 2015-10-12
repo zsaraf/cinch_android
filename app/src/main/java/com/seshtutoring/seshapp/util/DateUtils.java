@@ -6,7 +6,9 @@ import org.joda.time.LocalDate;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by zacharysaraf on 8/26/15.
@@ -69,5 +71,20 @@ public class DateUtils {
         }
         return "";
     }
+
+    public static List<String> getSeshFormattedDaysOfTheWeek(DateTime startDay) {
+        List<DateTime> daysOfWeek = new ArrayList<>();
+        for (int i = 0; i < 7; i++) {
+            daysOfWeek.add(startDay.plusDays(i));
+        }
+
+        List<String> formattedDays = new ArrayList<>();
+        for (DateTime day : daysOfWeek) {
+            formattedDays.add(getSeshFormattedDayString(day));
+        }
+
+        return formattedDays;
+    }
+
 
 }
