@@ -38,7 +38,7 @@ public class SeshApplication extends SugarApp {
     private ApplicationLifecycleTracker applicationLifecycleTracker;
 
     public static final boolean IS_LIVE = true;
-    public static final boolean IS_DEV = false;
+    public static final boolean IS_DEV = true;
     public static final boolean USE_PERSONAL = true;
 
     //    Pre-reg app functionality -- to be deleted v1
