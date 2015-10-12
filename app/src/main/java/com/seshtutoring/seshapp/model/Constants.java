@@ -16,8 +16,8 @@ import org.json.JSONObject;
  */
 public class Constants {
     private static final String TAG = Constants.class.getName();
-    private static final String CONSTANTS_SHARED_PREFS = "constants";
-    private static final String HOURLY_RATE_KEY = "hourly_rate";
+    public static final String CONSTANTS_SHARED_PREFS = "constants";
+    public static final String HOURLY_RATE_KEY = "hourly_rate";
     private static final String USER_SHARE_KEY = "user_share";
     private static final String FRIEND_SHARE_KEY = "friend_share";
     private static final String ADDITIONAL_STUDENT_FEE_KEY = "additional_student_fee";
@@ -64,7 +64,7 @@ public class Constants {
     public static float getHourlyRate(Context context) {
         SharedPreferences sharedPreferences =
                 context.getSharedPreferences(CONSTANTS_SHARED_PREFS, 0);
-        return sharedPreferences.getFloat(HOURLY_RATE_KEY, -1f);
+        return sharedPreferences.getFloat(HOURLY_RATE_KEY, 25f);
     }
 
     public static float getUserShareRate(Context context) {
@@ -88,6 +88,6 @@ public class Constants {
     public static int getAdditionalStudentFee(Context context) {
         SharedPreferences sharedPreferences =
                 context.getSharedPreferences(CONSTANTS_SHARED_PREFS, 0);
-        return sharedPreferences.getInt(ADDITIONAL_STUDENT_FEE_KEY, -1);
+        return sharedPreferences.getInt(ADDITIONAL_STUDENT_FEE_KEY, 5);
     }
 }

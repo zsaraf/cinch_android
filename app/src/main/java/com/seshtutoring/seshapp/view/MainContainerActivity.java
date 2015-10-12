@@ -1,5 +1,6 @@
 package com.seshtutoring.seshapp.view;
 
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.IntentSender;
 import android.support.v4.app.Fragment;
@@ -34,6 +35,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.SeshApplication;
+import com.seshtutoring.seshapp.model.Constants;
 import com.seshtutoring.seshapp.model.Notification;
 import com.seshtutoring.seshapp.model.Sesh;
 import com.seshtutoring.seshapp.services.GCMRegistrationIntentService;
@@ -80,6 +82,7 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
     public static final String REFRESH_USER_INFO = "refresh_user_info";
     public static final String REQUEST_SENT_ACTION = "request_sent";
     public static final String FOUND_TUTOR_ACTION = "com.seshtutoring.seshapp.FOUND_TUTOR";
+
 
     /**
      * All fragments inserted in the Main Container must implement this interface.  This allows
@@ -248,6 +251,12 @@ public class MainContainerActivity extends SeshActivity implements SeshDialog.On
                 return true;
             }
         });
+
+        // If the constants have not been fetched, fetch 'em
+        SharedPreferences prefs = this.getSharedPreferences(Constants.CONSTANTS_SHARED_PREFS, 0);
+        if (prefs.getFloat(Constants.HOURLY_RATE_KEY, -1) == -1) {
+            Constants.fetchConstantsFromServer(this);
+        }
 
         this.locationManager = LocationManager.sharedInstance(this);
         broadcastReceiver = actionBroadcastReceiver;
