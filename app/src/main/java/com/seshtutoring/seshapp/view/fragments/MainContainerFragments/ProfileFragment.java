@@ -244,7 +244,7 @@ public class ProfileFragment extends Fragment implements FragmentOptionsReceiver
         blackOverlay.setVisibility(View.VISIBLE);
         blackOverlay.animate().setListener(null).alpha(0.8f).setDuration(300).start();
         spring.setCurrentValue(addPhotosOptionsCardView.getY());
-        spring.setEndValue(utils.getScreenHeightPx() - utils.dpToPixels(35) - addPhotosOptionsCardView.getHeight());
+        spring.setEndValue(((View) addPhotosOptionsCardView.getParent()).getHeight() - addPhotosOptionsCardView.getHeight());
         cardIsUp = true;
     }
 

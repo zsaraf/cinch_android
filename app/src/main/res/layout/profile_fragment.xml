@@ -42,8 +42,6 @@
         android:alpha="0"/>
     <android.support.v7.widget.CardView
         android:id="@+id/add_photo_options_card_view"
-        android:layout_marginLeft="35dp"
-        android:layout_marginRight="35dp"
         card_view:cardElevation="5dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
