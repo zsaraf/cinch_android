@@ -565,16 +565,16 @@ public class SeshNetworking {
 
     private String apiUrl() {
         String apiUrl;
-        String user = "";
-        try {
-            JSONObject obj = new JSONObject(loadUserJSON());
-            user = obj.getString("user");
-        } catch (JSONException ex) {
-            ex.printStackTrace();
-            return "ios-php/";
-        }
 
         if (SeshApplication.USE_PERSONAL && SeshApplication.IS_DEV) {
+            String user = "";
+            try {
+                JSONObject obj = new JSONObject(loadUserJSON());
+                user = obj.getString("user");
+            } catch (JSONException ex) {
+                ex.printStackTrace();
+                return "ios-php/";
+            }
             apiUrl = "users/" + user + "/";
         } else {
             apiUrl = "ios-php/";
