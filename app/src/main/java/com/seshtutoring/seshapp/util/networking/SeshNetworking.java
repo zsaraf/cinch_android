@@ -360,15 +360,6 @@ public class SeshNetworking {
         postWithRelativeUrl("update_tutor_location.php", params, successListener, errorListener);
     }
 
-    public void notifyThatTutorDoneReviewingSesh(String identifier,
-                                                 Response.Listener<JSONObject> successListener,
-                                                 Response.ErrorListener errorListener) {
-        Map<String, String> params = new HashMap<>();
-        params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
-
-        postWithRelativeUrl("tutor_done_reviewing_sesh.php", params, successListener, errorListener);
-    }
-
     public void submitSeshRating(int helpfulRating, int knowledgeRating, int friendlinessRating,
                                  boolean favorited, Response.Listener<JSONObject> successListener,
                                  Response.ErrorListener errorListener) {
@@ -417,14 +408,6 @@ public class SeshNetworking {
         params.put(SCHOOL_NAME_PARAM, school);
 
         postWithRelativeUrl("become_campus_rep.php", params, successListener, errorListener);
-    }
-
-    public void hasSeenSeshCancellationNotice(Response.Listener<JSONObject> successListener,
-                                              Response.ErrorListener errorListener) {
-        Map<String, String> params = new HashMap<>();
-        params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
-
-        postWithRelativeUrl("has_seen_sesh_cancellation_notice.php", params, successListener, errorListener);
     }
 
     public void updateFullLegalName(String fullLegalName,
