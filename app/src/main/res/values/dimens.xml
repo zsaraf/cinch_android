@@ -37,4 +37,6 @@
     <!--Scheduling -->
     <dimen name="scheduling_column_width">120dp</dimen>
     <dimen name="scheduling_columns_total_width">840dp</dimen>
+    <dimen name="scheduling_columns_total_height">840dp</dimen>
+    <dimen name="scheduling_grid_block_height">35dp</dimen>
 </resources>

@@ -151,7 +151,27 @@
                         android:orientation="horizontal"
                         android:layout_width="@dimen/scheduling_columns_total_width"
                         android:layout_height="wrap_content">
-
+                        <com.seshtutoring.seshapp.view.components.SchedulingColumn
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+                        <com.seshtutoring.seshapp.view.components.SchedulingColumn
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+                        <com.seshtutoring.seshapp.view.components.SchedulingColumn
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+                        <com.seshtutoring.seshapp.view.components.SchedulingColumn
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+                        <com.seshtutoring.seshapp.view.components.SchedulingColumn
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+                        <com.seshtutoring.seshapp.view.components.SchedulingColumn
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+                        <com.seshtutoring.seshapp.view.components.SchedulingColumn
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
                     </LinearLayout>
                 </ScrollView>
             </LinearLayout>

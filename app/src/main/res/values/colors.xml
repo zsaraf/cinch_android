@@ -44,4 +44,5 @@
     <color name="sesh_alert_badge_background">#ED4547</color>
 
     <color name="sesh_information_label_dots_default">#dddddd</color>
+    <color name="sesh_green">#59F2AB</color>
 </resources>

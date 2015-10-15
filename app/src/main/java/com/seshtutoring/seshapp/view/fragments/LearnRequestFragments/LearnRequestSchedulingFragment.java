@@ -5,11 +5,15 @@ import android.animation.AnimatorListenerAdapter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Layout;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
+import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.seshtutoring.seshapp.R;
@@ -38,23 +42,31 @@ public class LearnRequestSchedulingFragment extends SeshViewPager.InputFragment 
     private boolean buttonsRaised;
     private RequestActivity parentActivity;
     private boolean allowsSwiping;
+    private LinearLayout columnsContainer;
+    private HorizontalScrollView hScrollView;
+    private ScrollView vScrollView;
 
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
-        View v = layoutInflater.inflate(R.layout.learn_request_scheduling_fragment, container, false);
+        final View v = layoutInflater.inflate(R.layout.learn_request_scheduling_fragment, container, false);
 
-        LinearLayout columnsContainer = (LinearLayout) v.findViewById(R.id.schedule_columns_container);
-        for (int i = 0; i < 7; i++) {
-            View column = layoutInflater.inflate(R.layout.scheduling_column_layout, null);
-            columnsContainer.addView(column);
-        }
-
-        initDayLabels(v);
-
+        columnsContainer = (LinearLayout) v.findViewById(R.id.schedule_columns_container);
         nowButton = (TextView) v.findViewById(R.id.now_button);
         scheduleButton = (TextView) v.findViewById(R.id.schedule_button);
         schedulingContainer = (RelativeLayout) v.findViewById(R.id.scheduling_container);
         nowScheduleButtons = (LinearLayout) v.findViewById(R.id.now_schedule_buttons);
         whenSeshLabel = (TextView) v.findViewById(R.id.when_sesh_label);
+        hScrollView = (HorizontalScrollView) v.findViewById(R.id.horizontal_scrollview);
+        vScrollView = (ScrollView) v.findViewById(R.id.vertical_scrollview);
+
+        initDayLabels(v);
+
+        v.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                initCurrentTimeLine();
+                v.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+            }
+        });
 
         final LayoutUtils utils = new LayoutUtils(getActivity());
 
@@ -160,6 +172,25 @@ public class LearnRequestSchedulingFragment extends SeshViewPager.InputFragment 
         scheduleButton.setTextColor(getResources().getColor(R.color.white));
     }
 
+    private void initCurrentTimeLine() {
+        RelativeLayout todayColumn = (RelativeLayout) columnsContainer.getChildAt(0);
+        LinearLayout currentTimeLine = (LinearLayout) todayColumn.findViewById(R.id.current_time_line);
+        currentTimeLine.setVisibility(View.VISIBLE);
+
+        int currentTimeLineY = yForTime(DateTime.now());
+        currentTimeLine.setY(currentTimeLineY);
+
+        int scrollViewY = currentTimeLineY - vScrollView.getMeasuredHeight() / 2;
+        int maxScrollY = vScrollView.getChildAt(0).getHeight() - vScrollView.getMeasuredHeight();
+        if (scrollViewY < 0) {
+            scrollViewY = 0;
+        } else if (scrollViewY > maxScrollY) {
+            scrollViewY = maxScrollY;
+        }
+
+        vScrollView.scrollTo(0, scrollViewY);
+    }
+
     private void animateNowSeshButtonsUp() {
         whenSeshLabel.animate().alpha(0).setDuration(150).start();
         nowScheduleButtons.animate().y(0).setDuration(300).start();
@@ -183,6 +214,14 @@ public class LearnRequestSchedulingFragment extends SeshViewPager.InputFragment 
             label.setText(daysFormattedText.get(i));
             label.setTypeface(layoutUtils.getMediumGothamTypeface());
         }
+    }
+
+    private int yForTime(DateTime time) {
+        int blockHeight = getResources().getDimensionPixelOffset(R.dimen.scheduling_grid_block_height);
+        int hourY = time.getHourOfDay() * blockHeight;
+        int minuteOfHourY = (int) ((time.getMinuteOfHour() / 60.0) * blockHeight);
+
+        return hourY + minuteOfHourY;
     }
 
     @Override
