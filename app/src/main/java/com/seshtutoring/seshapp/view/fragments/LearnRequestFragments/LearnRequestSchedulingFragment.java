@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.text.Layout;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -20,6 +21,7 @@ import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.util.DateUtils;
 import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.view.RequestActivity;
+import com.seshtutoring.seshapp.view.components.SchedulingContainer;
 import com.seshtutoring.seshapp.view.components.SeshViewPager;
 
 import org.joda.time.DateTime;
@@ -36,7 +38,8 @@ public class LearnRequestSchedulingFragment extends SeshViewPager.InputFragment 
     private SeshViewPager seshViewPager;
     private TextView nowButton;
     private TextView scheduleButton;
-    private RelativeLayout schedulingContainer;
+    private RelativeLayout schedulingContainerWithLabel;
+    private SchedulingContainer schedulingContainer;
     private LinearLayout nowScheduleButtons;
     private TextView whenSeshLabel;
     private boolean buttonsRaised;
@@ -52,13 +55,22 @@ public class LearnRequestSchedulingFragment extends SeshViewPager.InputFragment 
         columnsContainer = (LinearLayout) v.findViewById(R.id.schedule_columns_container);
         nowButton = (TextView) v.findViewById(R.id.now_button);
         scheduleButton = (TextView) v.findViewById(R.id.schedule_button);
-        schedulingContainer = (RelativeLayout) v.findViewById(R.id.scheduling_container);
+        schedulingContainerWithLabel = (RelativeLayout) v.findViewById(R.id.scheduling_container_with_label);
+        schedulingContainer = (SchedulingContainer) v.findViewById(R.id.scheduling_container);
         nowScheduleButtons = (LinearLayout) v.findViewById(R.id.now_schedule_buttons);
         whenSeshLabel = (TextView) v.findViewById(R.id.when_sesh_label);
         hScrollView = (HorizontalScrollView) v.findViewById(R.id.horizontal_scrollview);
         vScrollView = (ScrollView) v.findViewById(R.id.vertical_scrollview);
 
         initDayLabels(v);
+
+        schedulingContainer.setInterceptTouchEvents(false);
+        schedulingContainer.setSchedulingTouchListener(new SchedulingContainer.SchedulingTouchListener() {
+            @Override
+            public void onTouchEvent(MotionEvent e, boolean isUserCreatingBlock) {
+                onSchedulingTouchEvent(e, isUserCreatingBlock);
+            }
+        });
 
         v.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
@@ -103,7 +115,7 @@ public class LearnRequestSchedulingFragment extends SeshViewPager.InputFragment 
             isCompleted = true;
             seshViewPager.flingNextFragment();
         } else {
-            schedulingContainer
+            schedulingContainerWithLabel
                     .animate()
                     .x(utils.getScreenWidthPx())
                     .setDuration(200)
@@ -120,6 +132,7 @@ public class LearnRequestSchedulingFragment extends SeshViewPager.InputFragment 
         }
 
         parentActivity.getCurrentLearnRequest().setIsInstant(true);
+        schedulingContainer.setInterceptTouchEvents(false);
         allowsSwiping = true;
     }
 
@@ -132,7 +145,7 @@ public class LearnRequestSchedulingFragment extends SeshViewPager.InputFragment 
 
         if (!buttonsRaised) {
             animateNowSeshButtonsUp();
-            schedulingContainer
+            schedulingContainerWithLabel
                     .animate()
                     .alpha(1)
                     .setDuration(300)
@@ -141,13 +154,13 @@ public class LearnRequestSchedulingFragment extends SeshViewPager.InputFragment 
                         @Override
                         public void onAnimationStart(Animator animation) {
                             super.onAnimationStart(animation);
-                            schedulingContainer.setVisibility(View.VISIBLE);
+                            schedulingContainerWithLabel.setVisibility(View.VISIBLE);
                         }
                     })
                     .start();
             buttonsRaised = true;
         } else {
-            schedulingContainer
+            schedulingContainerWithLabel
                     .animate()
                     .x(0)
                     .setDuration(200)
@@ -156,6 +169,7 @@ public class LearnRequestSchedulingFragment extends SeshViewPager.InputFragment 
         }
 
         parentActivity.getCurrentLearnRequest().setIsInstant(false);
+        schedulingContainer.setInterceptTouchEvents(true);
     }
 
     private void setScheduleButtonSelected(LayoutUtils utils) {
@@ -188,7 +202,14 @@ public class LearnRequestSchedulingFragment extends SeshViewPager.InputFragment 
             scrollViewY = maxScrollY;
         }
 
+        // round scrollViewY to a value that doesn't cutoff any of the labels
+        scrollViewY -= scrollViewY % getResources().getDimensionPixelSize(R.dimen.scheduling_grid_block_height);
+
         vScrollView.scrollTo(0, scrollViewY);
+    }
+
+    private void onSchedulingTouchEvent(MotionEvent e, boolean userCreatingBlock) {
+        if (userCreatingBlock) Log.d(TAG, "USER CREATING BLOCK");
     }
 
     private void animateNowSeshButtonsUp() {
