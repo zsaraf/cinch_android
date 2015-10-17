@@ -14,7 +14,7 @@
                     android:textSize="12dp"
                     android:textColor="@color/seshorange"
                     android:gravity="center"
-                    android:layout_width="35dp"
+                    android:layout_width="@dimen/scheduling_time_labels_width"
                     android:layout_height="wrap_content" />
                 <View
                     android:layout_width="match_parent"
@@ -34,7 +34,7 @@
                     android:textSize="12dp"
                     android:textColor="@color/seshorange"
                     android:gravity="center"
-                    android:layout_width="35dp"
+                    android:layout_width="@dimen/scheduling_time_labels_width"
                     android:layout_height="wrap_content" />
                 <View
                     android:layout_width="match_parent"
@@ -54,7 +54,7 @@
                     android:textSize="12dp"
                     android:textColor="@color/seshorange"
                     android:gravity="center"
-                    android:layout_width="35dp"
+                    android:layout_width="@dimen/scheduling_time_labels_width"
                     android:layout_height="wrap_content" />
                 <View
                     android:layout_width="match_parent"
@@ -74,7 +74,7 @@
                     android:textSize="12dp"
                     android:textColor="@color/seshorange"
                     android:gravity="center"
-                    android:layout_width="35dp"
+                    android:layout_width="@dimen/scheduling_time_labels_width"
                     android:layout_height="wrap_content" />
                 <View
                     android:layout_width="match_parent"
@@ -94,7 +94,7 @@
                     android:textSize="12dp"
                     android:textColor="@color/seshorange"
                     android:gravity="center"
-                    android:layout_width="35dp"
+                    android:layout_width="@dimen/scheduling_time_labels_width"
                     android:layout_height="wrap_content" />
                 <View
                     android:layout_width="match_parent"
@@ -114,7 +114,7 @@
                     android:textSize="12dp"
                     android:textColor="@color/seshorange"
                     android:gravity="center"
-                    android:layout_width="35dp"
+                    android:layout_width="@dimen/scheduling_time_labels_width"
                     android:layout_height="wrap_content" />
                 <View
                     android:layout_width="match_parent"
@@ -134,7 +134,7 @@
                     android:textSize="12dp"
                     android:textColor="@color/seshorange"
                     android:gravity="center"
-                    android:layout_width="35dp"
+                    android:layout_width="@dimen/scheduling_time_labels_width"
                     android:layout_height="wrap_content" />
                 <View
                     android:layout_width="match_parent"
@@ -154,7 +154,7 @@
                     android:textSize="12dp"
                     android:textColor="@color/seshorange"
                     android:gravity="center"
-                    android:layout_width="35dp"
+                    android:layout_width="@dimen/scheduling_time_labels_width"
                     android:layout_height="wrap_content" />
                 <View
                     android:layout_width="match_parent"
@@ -174,7 +174,7 @@
                     android:textSize="12dp"
                     android:textColor="@color/seshorange"
                     android:gravity="center"
-                    android:layout_width="35dp"
+                    android:layout_width="@dimen/scheduling_time_labels_width"
                     android:layout_height="wrap_content" />
                 <View
                     android:layout_width="match_parent"
@@ -194,7 +194,7 @@
                     android:textSize="12dp"
                     android:textColor="@color/seshorange"
                     android:gravity="center"
-                    android:layout_width="35dp"
+                    android:layout_width="@dimen/scheduling_time_labels_width"
                     android:layout_height="wrap_content" />
                 <View
                     android:layout_width="match_parent"
@@ -214,7 +214,7 @@
                     android:textSize="12dp"
                     android:textColor="@color/seshorange"
                     android:gravity="center"
-                    android:layout_width="35dp"
+                    android:layout_width="@dimen/scheduling_time_labels_width"
                     android:layout_height="wrap_content" />
                 <View
                     android:layout_width="match_parent"
@@ -234,7 +234,7 @@
                     android:textSize="12dp"
                     android:textColor="@color/seshorange"
                     android:gravity="center"
-                    android:layout_width="35dp"
+                    android:layout_width="@dimen/scheduling_time_labels_width"
                     android:layout_height="wrap_content" />
                 <View
                     android:layout_width="match_parent"
@@ -254,7 +254,7 @@
                     android:textSize="12dp"
                     android:textColor="@color/seshorange"
                     android:gravity="center"
-                    android:layout_width="35dp"
+                    android:layout_width="@dimen/scheduling_time_labels_width"
                     android:layout_height="wrap_content" />
                 <View
                     android:layout_width="match_parent"
@@ -274,7 +274,7 @@
                     android:textSize="12dp"
                     android:textColor="@color/seshorange"
                     android:gravity="center"
-                    android:layout_width="35dp"
+                    android:layout_width="@dimen/scheduling_time_labels_width"
                     android:layout_height="wrap_content" />
                 <View
                     android:layout_width="match_parent"
@@ -294,7 +294,7 @@
                     android:textSize="12dp"
                     android:textColor="@color/seshorange"
                     android:gravity="center"
-                    android:layout_width="35dp"
+                    android:layout_width="@dimen/scheduling_time_labels_width"
                     android:layout_height="wrap_content" />
                 <View
                     android:layout_width="match_parent"
@@ -314,7 +314,7 @@
                     android:textSize="12dp"
                     android:textColor="@color/seshorange"
                     android:gravity="center"
-                    android:layout_width="35dp"
+                    android:layout_width="@dimen/scheduling_time_labels_width"
                     android:layout_height="wrap_content" />
                 <View
                     android:layout_width="match_parent"
@@ -334,7 +334,7 @@
                     android:textSize="12dp"
                     android:textColor="@color/seshorange"
                     android:gravity="center"
-                    android:layout_width="35dp"
+                    android:layout_width="@dimen/scheduling_time_labels_width"
                     android:layout_height="wrap_content" />
                 <View
                     android:layout_width="match_parent"
@@ -354,7 +354,7 @@
                     android:textSize="12dp"
                     android:textColor="@color/seshorange"
                     android:gravity="center"
-                    android:layout_width="35dp"
+                    android:layout_width="@dimen/scheduling_time_labels_width"
                     android:layout_height="wrap_content" />
                 <View
                     android:layout_width="match_parent"
@@ -374,7 +374,7 @@
                     android:textSize="12dp"
                     android:textColor="@color/seshorange"
                     android:gravity="center"
-                    android:layout_width="35dp"
+                    android:layout_width="@dimen/scheduling_time_labels_width"
                     android:layout_height="wrap_content" />
                 <View
                     android:layout_width="match_parent"
@@ -394,7 +394,7 @@
                     android:textSize="12dp"
                     android:textColor="@color/seshorange"
                     android:gravity="center"
-                    android:layout_width="35dp"
+                    android:layout_width="@dimen/scheduling_time_labels_width"
                     android:layout_height="wrap_content" />
                 <View
                     android:layout_width="match_parent"
@@ -414,7 +414,7 @@
                     android:textSize="12dp"
                     android:textColor="@color/seshorange"
                     android:gravity="center"
-                    android:layout_width="35dp"
+                    android:layout_width="@dimen/scheduling_time_labels_width"
                     android:layout_height="wrap_content" />
                 <View
                     android:layout_width="match_parent"
@@ -434,7 +434,7 @@
                     android:textSize="12dp"
                     android:textColor="@color/seshorange"
                     android:gravity="center"
-                    android:layout_width="35dp"
+                    android:layout_width="@dimen/scheduling_time_labels_width"
                     android:layout_height="wrap_content" />
                 <View
                     android:layout_width="match_parent"
@@ -454,7 +454,7 @@
                     android:textSize="12dp"
                     android:textColor="@color/seshorange"
                     android:gravity="center"
-                    android:layout_width="35dp"
+                    android:layout_width="@dimen/scheduling_time_labels_width"
                     android:layout_height="wrap_content" />
                 <View
                     android:layout_width="match_parent"
@@ -474,7 +474,7 @@
                     android:textSize="12dp"
                     android:textColor="@color/seshorange"
                     android:gravity="center"
-                    android:layout_width="35dp"
+                    android:layout_width="@dimen/scheduling_time_labels_width"
                     android:layout_height="wrap_content" />
                 <View
                     android:layout_width="match_parent"
@@ -497,7 +497,7 @@
             android:textSize="12dp"
             android:textColor="@color/seshgreen"
             android:gravity="center"
-            android:layout_width="35dp"
+            android:layout_width="@dimen/scheduling_time_labels_width"
             android:layout_height="wrap_content" />
         <View
             android:layout_width="match_parent"

@@ -2,10 +2,13 @@ package com.seshtutoring.seshapp.view.fragments.LearnRequestFragments;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.view.GestureDetectorCompat;
 import android.text.Layout;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -26,7 +29,10 @@ import com.seshtutoring.seshapp.view.components.SeshViewPager;
 
 import org.joda.time.DateTime;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -39,6 +45,7 @@ public class LearnRequestSchedulingFragment extends SeshViewPager.InputFragment 
     private TextView nowButton;
     private TextView scheduleButton;
     private RelativeLayout schedulingContainerWithLabel;
+    private RelativeLayout schedulingBlocksContainer;
     private SchedulingContainer schedulingContainer;
     private LinearLayout nowScheduleButtons;
     private TextView whenSeshLabel;
@@ -48,7 +55,28 @@ public class LearnRequestSchedulingFragment extends SeshViewPager.InputFragment 
     private LinearLayout columnsContainer;
     private HorizontalScrollView hScrollView;
     private ScrollView vScrollView;
+    private GestureDetectorCompat gestureDetectorCompat;
 
+    private List<Block> blocks;
+
+    private class Block {
+        public int dayIndex;
+        public double startHour;
+        public double endHour;
+        public boolean isShadow;
+    }
+
+    private class BlockComparator implements Comparator<Block> {
+        @Override
+        public int compare(Block b1, Block b2) {
+            int dayDiff = b1.dayIndex - b2.dayIndex;
+            if (dayDiff == 0) {
+                return (int) (10 * (b1.startHour - b2.startHour));
+            } else {
+                return dayDiff;
+            }
+        }
+    }
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
         final View v = layoutInflater.inflate(R.layout.learn_request_scheduling_fragment, container, false);
 
@@ -56,11 +84,27 @@ public class LearnRequestSchedulingFragment extends SeshViewPager.InputFragment 
         nowButton = (TextView) v.findViewById(R.id.now_button);
         scheduleButton = (TextView) v.findViewById(R.id.schedule_button);
         schedulingContainerWithLabel = (RelativeLayout) v.findViewById(R.id.scheduling_container_with_label);
+        schedulingBlocksContainer = (RelativeLayout) v.findViewById(R.id.scheduling_blocks_container);
         schedulingContainer = (SchedulingContainer) v.findViewById(R.id.scheduling_container);
         nowScheduleButtons = (LinearLayout) v.findViewById(R.id.now_schedule_buttons);
         whenSeshLabel = (TextView) v.findViewById(R.id.when_sesh_label);
         hScrollView = (HorizontalScrollView) v.findViewById(R.id.horizontal_scrollview);
         vScrollView = (ScrollView) v.findViewById(R.id.vertical_scrollview);
+
+        blocks = new ArrayList<>();
+        Block block1 = new Block();
+        Block block2 = new Block();
+        block1.dayIndex = 0;
+        block1.startHour = 15;
+        block1.endHour = 16;
+        block2.dayIndex = 0;
+        block2.startHour = 16;
+        block2.endHour = 17;
+        blocks.add(block1);
+        blocks.add(block2);
+        coalesceBlocks();
+
+        updateBlocksDisplay();
 
         initDayLabels(v);
 
@@ -101,6 +145,9 @@ public class LearnRequestSchedulingFragment extends SeshViewPager.InputFragment 
         buttonsRaised = false;
 
         parentActivity = (RequestActivity) getActivity();
+
+        gestureDetectorCompat = new GestureDetectorCompat(parentActivity, new SimpleTapUpGestureDetector());
+
         return v;
     }
 
@@ -209,7 +256,73 @@ public class LearnRequestSchedulingFragment extends SeshViewPager.InputFragment 
     }
 
     private void onSchedulingTouchEvent(MotionEvent e, boolean userCreatingBlock) {
-        if (userCreatingBlock) Log.d(TAG, "USER CREATING BLOCK");
+        if (userCreatingBlock) {
+            dragCreationHandler(e);
+        } else {
+            // tapCreationHandler gets routed through the gesture detector)
+            gestureDetectorCompat.onTouchEvent(e);
+        }
+    }
+
+    private void dragCreationHandler(MotionEvent e) {
+        // do something
+    }
+
+    private void tapCreationHandler(MotionEvent e) {
+        blocks.add(blockForTapCoordinates(e.getRawX(), e.getRawY()));
+        coalesceBlocks();
+        updateBlocksDisplay();
+        debugBlocks();
+    }
+
+    private Block blockForTapCoordinates(float x, float y) {
+        LayoutUtils utils = new LayoutUtils(parentActivity);
+
+        Block block = new Block();
+        float adjustedXVal = x + hScrollView.getScrollX();
+        block.dayIndex = (int) adjustedXVal / getResources().getDimensionPixelSize(R.dimen.scheduling_column_width);
+
+        int[] scrollViewXY = new int[2];
+        vScrollView.getLocationInWindow(scrollViewXY);
+        float adjustedYVal = y - scrollViewXY[1] + vScrollView.getScrollY() - utils.dpToPixels(7);
+        int gridBlockHeight = getResources().getDimensionPixelSize(R.dimen.scheduling_grid_block_height);
+        block.startHour = Math.floor(adjustedYVal / gridBlockHeight);
+
+        if (adjustedYVal % gridBlockHeight > gridBlockHeight / 2) {
+            block.startHour += 0.5;
+        }
+
+        block.endHour = block.startHour + 0.5;
+        return block;
+    }
+
+    private void debugBlocks() {
+        Log.d(TAG, "DEBUG BLOCKS");
+        for (Block block : blocks) {
+            Log.d(TAG, "----=====---- BLOCK");
+            Log.d(TAG, "dayIndex: " + block.dayIndex);
+            Log.d(TAG, "startHour: " + block.startHour);
+            Log.d(TAG, "endHour: " + block.endHour);
+        }
+    }
+
+    private void coalesceBlocks() {
+        Collections.sort(blocks, new BlockComparator());
+
+        Block prevBlock = null;
+
+        for (int i = 0;i < blocks.size(); i++) {
+            Block currBlock = blocks.get(i);
+            if (prevBlock != null && prevBlock.endHour == currBlock.startHour
+                    && prevBlock.dayIndex == currBlock.dayIndex
+                    && prevBlock.isShadow == currBlock.isShadow) {
+                prevBlock.endHour = currBlock.endHour;
+                blocks.remove(i);
+                i--;
+            } else {
+                prevBlock = currBlock;
+            }
+        }
     }
 
     private void animateNowSeshButtonsUp() {
@@ -234,6 +347,34 @@ public class LearnRequestSchedulingFragment extends SeshViewPager.InputFragment 
             TextView label = dayLabels.get(i);
             label.setText(daysFormattedText.get(i));
             label.setTypeface(layoutUtils.getMediumGothamTypeface());
+        }
+    }
+
+    private void updateBlocksDisplay() {
+        schedulingBlocksContainer.removeViewsInLayout(1, schedulingContainer.getChildCount() - 1);
+        for (Block block : blocks) {
+            RelativeLayout blockView = new RelativeLayout(getActivity());
+            int width = getResources().getDimensionPixelSize(R.dimen.scheduling_block_width);
+            int height = (int)
+                    ((block.endHour - block.startHour) * getResources().getDimensionPixelSize(R.dimen.scheduling_grid_block_height));
+            blockView.setLayoutParams(new RelativeLayout.LayoutParams(width, height));
+
+            if (Build.VERSION.SDK_INT < 21) {
+                blockView.setBackground(getResources().getDrawable(R.drawable.available_block_bg));
+            } else  {
+                blockView.setBackground(getResources().getDrawable(R.drawable.available_block_bg, null));
+            }
+
+            if (block.isShadow) {
+                blockView.setAlpha(0.8f);
+            }
+
+            LayoutUtils utils = new LayoutUtils(getActivity());
+
+            schedulingBlocksContainer.addView(blockView);
+            blockView.setX(block.dayIndex * getResources().getDimensionPixelSize(R.dimen.scheduling_column_width)
+                    + getResources().getDimensionPixelSize(R.dimen.scheduling_time_labels_width));
+            blockView.setY((float) block.startHour * getResources().getDimensionPixelSize(R.dimen.scheduling_grid_block_height)  + utils.dpToPixels(7));
         }
     }
 
@@ -263,5 +404,13 @@ public class LearnRequestSchedulingFragment extends SeshViewPager.InputFragment 
     @Override
     public void onFragmentInForeground() {
         parentActivity.hideKeyboard();
+    }
+
+    private class SimpleTapUpGestureDetector extends GestureDetector.SimpleOnGestureListener {
+        @Override
+        public boolean onSingleTapUp(MotionEvent e) {
+            tapCreationHandler(e);
+            return true;
+        }
     }
 }

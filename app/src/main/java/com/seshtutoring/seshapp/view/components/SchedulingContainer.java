@@ -38,9 +38,8 @@ public class SchedulingContainer extends RelativeLayout {
     public boolean onInterceptTouchEvent(MotionEvent e) {
         if (interceptTouchEvents) {
             gestureDetector.onTouchEvent(e);
+            listener.onTouchEvent(e, userCreatingBlock);
         }
-
-        onTouchEvent(e);
 
         return userCreatingBlock;
     }
