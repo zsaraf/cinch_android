@@ -46,11 +46,10 @@ public class SchedulingContainer extends RelativeLayout {
 
     @Override
     public boolean onTouchEvent(MotionEvent e) {
+        listener.onTouchEvent(e, userCreatingBlock);
         if (e.getActionMasked() == MotionEvent.ACTION_UP && userCreatingBlock) {
             userCreatingBlock = false;
         }
-
-        listener.onTouchEvent(e, userCreatingBlock);
         return interceptTouchEvents;
     }
 

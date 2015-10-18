@@ -184,7 +184,7 @@
                             <ImageView
                                 android:layout_width="@dimen/scheduling_columns_total_width"
                                 android:layout_height="@dimen/scheduling_columns_total_height"
-                                android:background="@drawable/test_image"/>
+                                android:background="@drawable/schedule_bg"/>
                         </RelativeLayout>
                     </ScrollView>
                 </LinearLayout>
