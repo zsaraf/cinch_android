@@ -1,0 +1,1 @@
+alter table SCHOOL add column REQUESTS_ENABLED INTEGER;

@@ -143,6 +143,14 @@ public class LearnViewFragment extends Fragment implements OnMapReadyCallback {
                 Iterator<OutstandingCharge> outstandingChargesList = OutstandingCharge.findAll(OutstandingCharge.class);
                 if (outstandingChargesList.hasNext()) {
                     handleOutstandingCharges(outstandingChargesList);
+                } else if (!User.currentUser(getActivity()).school.requestsEnabled) {
+                    SeshDialog.createDialog("Almost there!",
+                            "We're still building up our tutor base right now. Spread the word and we'll send you a push notification when we're enabled at " +
+                                    User.currentUser(getActivity()).school.schoolName +
+                                    "!",
+                            "OKAY",
+                            null,
+                            "SCHOOL_NOT_ENABLED").show(getActivity().getFragmentManager(), "SCHOOL_NOT_ENABLED");
                 } else {
                     (new StartRequestActivityAsyncTask()).execute();
                 }
