@@ -147,7 +147,6 @@
                         android:layout_marginTop="20dp"
                         android:overScrollMode="never"
                         android:scrollbars="none"
-                        android:paddingRight="5dp"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent">
                         <RelativeLayout
@@ -184,7 +183,8 @@
                             <ImageView
                                 android:layout_width="@dimen/scheduling_columns_total_width"
                                 android:layout_height="@dimen/scheduling_columns_total_height"
-                                android:background="@drawable/schedule_bg"/>
+                                android:scaleType="fitXY"
+                                android:src="@drawable/schedule_bg"/>
                         </RelativeLayout>
                     </ScrollView>
                 </LinearLayout>

@@ -104,12 +104,6 @@ public class LearnRequestSchedulingFragment extends SeshViewPager.InputFragment 
         vScrollView = (ScrollView) v.findViewById(R.id.vertical_scrollview);
 
         commitedBlocks = new ArrayList<>();
-        Block shadowBlock = new Block();
-        shadowBlock.startHour = 15;
-        shadowBlock.endHour = 16;
-        shadowBlock.dayIndex = 0;
-        shadowBlock.isShadow = true;
-        commitedBlocks.add(shadowBlock);
 
         updateBlocksDisplay(commitedBlocks);
 
@@ -273,19 +267,22 @@ public class LearnRequestSchedulingFragment extends SeshViewPager.InputFragment 
 
     private void dragCreationHandler(MotionEvent e) {
         if (initDragBlock == null) {
+            uncommitedBlocks = deepCopyBlocks(commitedBlocks);
             initDragBlock = blockForTapCoordinates(e.getRawX(), e.getRawY());
-        }
-
-        if (e.getAction() == MotionEvent.ACTION_MOVE) {
+            initDragBlock.isShadow = true;
+            uncommitedBlocks.add(initDragBlock);
+            coalesceBlocks(uncommitedBlocks);
+            updateBlocksDisplay(uncommitedBlocks);
+        } else if (e.getAction() == MotionEvent.ACTION_MOVE) {
             Block shadowBlock = blockForTapCoordinates(e.getRawX(), e.getRawY());
             uncommitedBlocks = deepCopyBlocks(commitedBlocks);
 
             if (initDragBlock.dayIndex == shadowBlock.dayIndex) {
                 if (initDragBlock.startHour != shadowBlock.startHour
                         || initDragBlock.endHour != shadowBlock.endHour) {
-                    if (initDragBlock.endHour < shadowBlock.startHour) {
+                    if (initDragBlock.endHour <= shadowBlock.startHour) {
                         shadowBlock.startHour = initDragBlock.startHour;
-                    } else if (initDragBlock.startHour > shadowBlock.endHour) {
+                    } else if (initDragBlock.startHour >= shadowBlock.endHour) {
                         shadowBlock.endHour = initDragBlock.endHour;
                     }
                 }
@@ -293,8 +290,8 @@ public class LearnRequestSchedulingFragment extends SeshViewPager.InputFragment 
 
             shadowBlock.isShadow = true;
 
-            Block overlap = getOverlappingBlock(uncommitedBlocks, shadowBlock);
-            if (overlap != null) {
+            List<Block> overlappingBlocks = getOverlappingBlocks(uncommitedBlocks, shadowBlock);
+            for (Block overlap : overlappingBlocks) {
                 removeOverlap(uncommitedBlocks, overlap, shadowBlock);
             }
 
@@ -317,30 +314,36 @@ public class LearnRequestSchedulingFragment extends SeshViewPager.InputFragment 
         Block blockForTap = blockForTapCoordinates(e.getRawX(), e.getRawY());
         blockForTap.isShadow = false;
 
-        Block overlappingBlock = getOverlappingBlock(commitedBlocks, blockForTap);
-        if (overlappingBlock == null) {
+        List<Block> overlappingBlocks = getOverlappingBlocks(commitedBlocks, blockForTap);
+        if (overlappingBlocks.size() == 0) {
             commitedBlocks.add(blockForTap);
-        } else {
+        }
+
+        for (Block overlappingBlock : overlappingBlocks) {
             removeOverlap(commitedBlocks, overlappingBlock, blockForTap);
         }
 
         coalesceBlocks(commitedBlocks);
         updateBlocksDisplay(commitedBlocks);
-//        debugBlocks();
     }
 
-    private Block getOverlappingBlock(List<Block> blocks, Block precedentBlock) {
-        Block overlappingBlock = null;
+    private List<Block> getOverlappingBlocks(List<Block> blocks, Block precedentBlock) {
+        ArrayList<Block> overlappingBlocks = new ArrayList<>();
 
         for (Block block : blocks) {
-            if (block.dayIndex == precedentBlock.dayIndex
-                    && block.startHour <= precedentBlock.startHour
-                    && block.endHour >= precedentBlock.endHour) {
-                overlappingBlock = block;
+            if (block.dayIndex == precedentBlock.dayIndex) {
+                if ((precedentBlock.startHour <= block.startHour && precedentBlock.endHour > block.startHour)
+                        || (precedentBlock.endHour >= block.endHour && precedentBlock.startHour < block.endHour)) {
+                    overlappingBlocks.add(block);
+                } else if (precedentBlock.startHour >= block.startHour && precedentBlock.endHour <= block.endHour) {
+                    overlappingBlocks.add(block);
+                } else if (precedentBlock.endHour >= block.endHour && precedentBlock.startHour <= block.startHour) {
+                    overlappingBlocks.add(block);
+                }
             }
         }
 
-        return overlappingBlock;
+        return overlappingBlocks;
 
     }
 
@@ -353,11 +356,11 @@ public class LearnRequestSchedulingFragment extends SeshViewPager.InputFragment 
                 splitBlock.endHour = overlappingBlock.endHour;
                 blocks.add(splitBlock);
                 overlappingBlock.endHour = precedentBlock.startHour;
-            } else if (overlappingBlock.startHour == precedentBlock.startHour
+            } else if (overlappingBlock.startHour >= precedentBlock.startHour
                     && overlappingBlock.endHour > precedentBlock.endHour) {
                 overlappingBlock.startHour = precedentBlock.endHour;
             } else if (overlappingBlock.startHour < precedentBlock.startHour &&
-                    overlappingBlock.endHour == precedentBlock.endHour) {
+                    overlappingBlock.endHour <= precedentBlock.endHour) {
                 overlappingBlock.endHour = precedentBlock.startHour;
             } else {
                 blocks.remove(overlappingBlock);
@@ -386,15 +389,19 @@ public class LearnRequestSchedulingFragment extends SeshViewPager.InputFragment 
         return block;
     }
 
-//    private void debugBlocks() {
-//        Log.d(TAG, "DEBUG BLOCKS");
-//        for (Block block : blocks) {
-//            Log.d(TAG, "----=====---- BLOCK");
-//            Log.d(TAG, "dayIndex: " + block.dayIndex);
-//            Log.d(TAG, "startHour: " + block.startHour);
-//            Log.d(TAG, "endHour: " + block.endHour);
-//        }
-//    }
+    private void debugBlocks(List<Block> blocks) {
+        Log.d(TAG, "DEBUG BLOCKS");
+        for (Block block : blocks) {
+            debugBlock(block);
+        }
+    }
+
+    private void debugBlock(Block block) {
+        Log.d(TAG, "----=====---- BLOCK");
+        Log.d(TAG, "dayIndex: " + block.dayIndex);
+        Log.d(TAG, "startHour: " + block.startHour);
+        Log.d(TAG, "endHour: " + block.endHour);
+    }
 
     private void coalesceBlocks(List<Block> blocks) {
         Collections.sort(blocks, new BlockComparator());
