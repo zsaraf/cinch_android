@@ -40,6 +40,7 @@ import java.util.List;
  */
 public class LearnRequestSchedulingFragment extends SeshViewPager.InputFragment  {
     private static final String TAG = LearnRequestSchedulingFragment.class.getName();
+
     private boolean isCompleted;
     private SeshViewPager seshViewPager;
     private TextView nowButton;
@@ -57,6 +58,7 @@ public class LearnRequestSchedulingFragment extends SeshViewPager.InputFragment 
     private ScrollView vScrollView;
     private GestureDetectorCompat gestureDetectorCompat;
     private Block initDragBlock;
+    private int timeLabelYOffset;
 
     private List<Block> commitedBlocks;
     private List<Block> uncommitedBlocks;
@@ -144,6 +146,8 @@ public class LearnRequestSchedulingFragment extends SeshViewPager.InputFragment 
         scheduleButton.setTypeface(utils.getBookGothamTypeface());
         isCompleted = false;
         buttonsRaised = false;
+
+        timeLabelYOffset = utils.dpToPixels(7);
 
         parentActivity = (RequestActivity) getActivity();
 
@@ -327,6 +331,10 @@ public class LearnRequestSchedulingFragment extends SeshViewPager.InputFragment 
         updateBlocksDisplay(commitedBlocks);
     }
 
+    private int getBlockHeight() {
+        return (schedulingBlocksContainer.getHeight() - timeLabelYOffset) / 24;
+    }
+
     private List<Block> getOverlappingBlocks(List<Block> blocks, Block precedentBlock) {
         ArrayList<Block> overlappingBlocks = new ArrayList<>();
 
@@ -378,7 +386,7 @@ public class LearnRequestSchedulingFragment extends SeshViewPager.InputFragment 
         int[] scrollViewXY = new int[2];
         vScrollView.getLocationInWindow(scrollViewXY);
         float adjustedYVal = y - scrollViewXY[1] + vScrollView.getScrollY() - utils.dpToPixels(7);
-        int gridBlockHeight = getResources().getDimensionPixelSize(R.dimen.scheduling_grid_block_height);
+        int gridBlockHeight = getBlockHeight();
         block.startHour = Math.floor(adjustedYVal / gridBlockHeight);
 
         if (adjustedYVal % gridBlockHeight > gridBlockHeight / 2) {
@@ -448,15 +456,16 @@ public class LearnRequestSchedulingFragment extends SeshViewPager.InputFragment 
     }
 
     private void updateBlocksDisplay(List<Block> blocks) {
-        Log.d(TAG, "before child count: " + schedulingBlocksContainer.getChildCount());
         schedulingBlocksContainer.removeViews(1, schedulingBlocksContainer.getChildCount() - 1);
-        Log.d(TAG, "after child count: " + schedulingBlocksContainer.getChildCount());
+        LayoutUtils utils = new LayoutUtils(getActivity());
         for (Block block : blocks) {
             RelativeLayout blockView = new RelativeLayout(getActivity());
-            int width = getResources().getDimensionPixelSize(R.dimen.scheduling_block_width);
+            int colWidth = schedulingBlocksContainer.getWidth() / 7;
+            int blockWidth = colWidth * 85 / 120;
+            int timeLabelOffsetX = colWidth * 35 / 120;
             int height = (int)
-                    ((block.endHour - block.startHour) * getResources().getDimensionPixelSize(R.dimen.scheduling_grid_block_height));
-            blockView.setLayoutParams(new RelativeLayout.LayoutParams(width, height));
+                    ((block.endHour - block.startHour) * getBlockHeight());
+            blockView.setLayoutParams(new RelativeLayout.LayoutParams(blockWidth, height));
 
             if (Build.VERSION.SDK_INT < 21) {
                 blockView.setBackground(getResources().getDrawable(R.drawable.available_block_bg));
@@ -465,22 +474,20 @@ public class LearnRequestSchedulingFragment extends SeshViewPager.InputFragment 
             }
 
             if (block.isShadow) {
-                blockView.setAlpha(0.7f);
+                blockView.setAlpha(0.5f);
             } else {
                 blockView.setAlpha(0.9f);
             }
 
-            LayoutUtils utils = new LayoutUtils(getActivity());
-
             schedulingBlocksContainer.addView(blockView);
-            blockView.setX(block.dayIndex * getResources().getDimensionPixelSize(R.dimen.scheduling_column_width)
-                    + getResources().getDimensionPixelSize(R.dimen.scheduling_time_labels_width));
-            blockView.setY((float) block.startHour * getResources().getDimensionPixelSize(R.dimen.scheduling_grid_block_height)  + utils.dpToPixels(7));
+            blockView.setX(block.dayIndex * colWidth + timeLabelOffsetX);
+            blockView.setY((float) block.startHour * getBlockHeight() + utils.dpToPixels(7));
         }
     }
 
+
     private int yForTime(DateTime time) {
-        int blockHeight = getResources().getDimensionPixelOffset(R.dimen.scheduling_grid_block_height);
+        int blockHeight = getBlockHeight();
         int hourY = time.getHourOfDay() * blockHeight;
         int minuteOfHourY = (int) ((time.getMinuteOfHour() / 60.0) * blockHeight);
 
