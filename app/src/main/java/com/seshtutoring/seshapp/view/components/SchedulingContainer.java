@@ -13,7 +13,9 @@ import android.widget.RelativeLayout;
 import org.joda.time.DateTime;
 
 /**
- * Container is used to
+ * Container is used to detect long taps -- and disable scrolling when a user is "holding"
+ * SchedulingContainer exports a listener called SchedulingTouchListener, which has a touch listener
+ * that can specify whether a user is trying to create a block by holding and dragging.
  *
  * Created by nadavhollander on 10/16/15.
  */
@@ -40,6 +42,14 @@ public class SchedulingContainer extends RelativeLayout {
     public void setSchedulingTouchListener(SchedulingTouchListener listener) {
         this.listener = listener;
     }
+
+    /**
+     * Worth reading up on the difference and interaction between onInterceptTouchEvent and
+     * onTouchEvent, but, basically, whenever the user is "holding down", all events are routed to
+     * onTouchEvent (meaning they will not propogate down to the scrollview), while, if not,
+     * all events are routed only through onInterceptTouchEvent and the scrollView receives events as well.
+     *
+     */
 
     @Override
     public boolean onInterceptTouchEvent(final MotionEvent e) {

@@ -60,6 +60,9 @@ public class LearnRequestSchedulingFragment extends SeshViewPager.InputFragment 
     private Block initDragBlock;
     private int timeLabelYOffset;
 
+    /**
+     * uncommitedBlocks are only relevant when user adds blocks by dragging -- see dragCreationHandler
+     */
     private List<Block> commitedBlocks;
     private List<Block> uncommitedBlocks;
 
@@ -244,6 +247,12 @@ public class LearnRequestSchedulingFragment extends SeshViewPager.InputFragment 
         scheduleButton.setTextColor(getResources().getColor(R.color.white));
     }
 
+    /**
+     * Implementation is deprecated! This method needs to be rewritten -- supposed to initialize the
+     * line that shows current time and center the scrollview on it.  Was written in the context
+     * of when the columns were programatically drawn in, should give a good idea of how it should
+     * work now that we're only placing a png in the background.
+     */
     private void initCurrentTimeLine() {
         RelativeLayout todayColumn = (RelativeLayout) columnsContainer.getChildAt(0);
         LinearLayout currentTimeLine = (LinearLayout) todayColumn.findViewById(R.id.current_time_line);
@@ -270,11 +279,38 @@ public class LearnRequestSchedulingFragment extends SeshViewPager.InputFragment 
         if (userCreatingBlock) {
             dragCreationHandler(e);
         } else {
-            // tapCreationHandler gets routed through the gesture detector)
+            // tapCreationHandler gets routed through the gesture detector
             gestureDetectorCompat.onTouchEvent(e);
         }
     }
 
+    private void tapCreationHandler(MotionEvent e) {
+        Block blockForTap = blockForTapCoordinates(e.getRawX(), e.getRawY());
+        blockForTap.isShadow = false;
+
+        List<Block> overlappingBlocks = getOverlappingBlocks(commitedBlocks, blockForTap);
+        if (overlappingBlocks.size() == 0) {
+            commitedBlocks.add(blockForTap);
+        }
+
+        for (Block overlappingBlock : overlappingBlocks) {
+            removeOverlap(commitedBlocks, overlappingBlock, blockForTap);
+        }
+
+        coalesceBlocks(commitedBlocks);
+        updateBlocksDisplay(commitedBlocks);
+    }
+
+    /**
+     * Gets an initDragBlock to represent the initial tap -- any subsequent touch event
+     * generates a new block that's referred to as shadowBlock.  After every touch event,
+     * uncommitedBlocks copies all the blocks from commitedBlocks and updates them with a new
+     * block that is constructed by combining the initDragBlock and shadow block's start/end coords.
+     * The uncommited/commited blocks distinction exists in order to make sure that, if a user drags
+     * a new block over previous blocks, and then afterwards drags back to his initial position, the
+     * previous blocks would still be present.
+     * @param e
+     */
     private void dragCreationHandler(MotionEvent e) {
         if (initDragBlock == null) {
             uncommitedBlocks = deepCopyBlocks(commitedBlocks);
@@ -320,27 +356,17 @@ public class LearnRequestSchedulingFragment extends SeshViewPager.InputFragment 
         }
     }
 
-    private void tapCreationHandler(MotionEvent e) {
-        Block blockForTap = blockForTapCoordinates(e.getRawX(), e.getRawY());
-        blockForTap.isShadow = false;
-
-        List<Block> overlappingBlocks = getOverlappingBlocks(commitedBlocks, blockForTap);
-        if (overlappingBlocks.size() == 0) {
-            commitedBlocks.add(blockForTap);
-        }
-
-        for (Block overlappingBlock : overlappingBlocks) {
-            removeOverlap(commitedBlocks, overlappingBlock, blockForTap);
-        }
-
-        coalesceBlocks(commitedBlocks);
-        updateBlocksDisplay(commitedBlocks);
-    }
-
     private int getBlockHeight() {
         return (schedulingBlocksContainer.getHeight() - timeLabelYOffset) / 24;
     }
 
+    /**
+     * Given a block that takes precedence (hence precedentblock), returns a list of blocks that
+     * intersect this block.
+     * @param blocks
+     * @param precedentBlock
+     * @return
+     */
     private List<Block> getOverlappingBlocks(List<Block> blocks, Block precedentBlock) {
         ArrayList<Block> overlappingBlocks = new ArrayList<>();
 
@@ -361,10 +387,20 @@ public class LearnRequestSchedulingFragment extends SeshViewPager.InputFragment 
 
     }
 
+    /**
+     * Overlapping Block is the block that needs to be modified -- precedent block is the block
+     * that overlappingBlock is overlapping
+     * @param blocks
+     * @param overlappingBlock
+     * @param precedentBlock
+     */
     private void removeOverlap(List<Block> blocks, Block overlappingBlock, Block precedentBlock) {
         if (overlappingBlock != null) {
+
             if (overlappingBlock.startHour < precedentBlock.startHour
                     && overlappingBlock.endHour > precedentBlock.endHour) {
+                // overlapping block starts before precedentBlock and ends after precedent block,
+                // in which case we split overlapping block in two
                 Block splitBlock = overlappingBlock.clone();
                 splitBlock.startHour = precedentBlock.endHour;
                 splitBlock.endHour = overlappingBlock.endHour;
@@ -372,11 +408,15 @@ public class LearnRequestSchedulingFragment extends SeshViewPager.InputFragment 
                 overlappingBlock.endHour = precedentBlock.startHour;
             } else if (overlappingBlock.startHour >= precedentBlock.startHour
                     && overlappingBlock.endHour > precedentBlock.endHour) {
+                // overlapping block starts after precedent block, but also ends after precedent block
                 overlappingBlock.startHour = precedentBlock.endHour;
             } else if (overlappingBlock.startHour < precedentBlock.startHour &&
                     overlappingBlock.endHour <= precedentBlock.endHour) {
+                // overlapping block starts before precedent block, but also ends before precedent block
                 overlappingBlock.endHour = precedentBlock.startHour;
             } else {
+                // overlapping block is either identical to precedent block or contained within
+                // precedent block, meaning we just remove it.
                 blocks.remove(overlappingBlock);
             }
         }
@@ -461,6 +501,7 @@ public class LearnRequestSchedulingFragment extends SeshViewPager.InputFragment 
         }
     }
 
+    // removes all existing blocks from display and recreates block views given a list of blocks.
     private void updateBlocksDisplay(List<Block> blocks) {
         schedulingBlocksContainer.removeViews(1, schedulingBlocksContainer.getChildCount() - 1);
         LayoutUtils utils = new LayoutUtils(getActivity());
