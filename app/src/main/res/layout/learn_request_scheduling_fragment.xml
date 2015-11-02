@@ -58,7 +58,7 @@
             android:textSize="16dp"
             android:layout_centerHorizontal="true"
             android:gravity="center"
-            android:text="tag or hold and drag to add your availability"/>
+            android:text="tap or hold and drag to add your availability"/>
         <com.seshtutoring.seshapp.view.components.SchedulingContainer
             android:id="@+id/scheduling_container"
             android:layout_width="wrap_content"
@@ -153,33 +153,6 @@
                             android:id="@+id/scheduling_blocks_container"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content">
-                            <!--<LinearLayout-->
-                                <!--android:id="@+id/schedule_columns_container"-->
-                                <!--android:orientation="horizontal"-->
-                                <!--android:layout_width="@dimen/scheduling_columns_total_width"-->
-                                <!--android:layout_height="wrap_content">-->
-                                <!--<com.seshtutoring.seshapp.view.components.SchedulingColumn-->
-                                    <!--android:layout_width="wrap_content"-->
-                                    <!--android:layout_height="wrap_content"/>-->
-                                <!--<com.seshtutoring.seshapp.view.components.SchedulingColumn-->
-                                    <!--android:layout_width="wrap_content"-->
-                                    <!--android:layout_height="wrap_content"/>-->
-                                <!--<com.seshtutoring.seshapp.view.components.SchedulingColumn-->
-                                    <!--android:layout_width="wrap_content"-->
-                                    <!--android:layout_height="wrap_content"/>-->
-                                <!--<com.seshtutoring.seshapp.view.components.SchedulingColumn-->
-                                    <!--android:layout_width="wrap_content"-->
-                                    <!--android:layout_height="wrap_content"/>-->
-                                <!--<com.seshtutoring.seshapp.view.components.SchedulingColumn-->
-                                    <!--android:layout_width="wrap_content"-->
-                                    <!--android:layout_height="wrap_content"/>-->
-                                <!--<com.seshtutoring.seshapp.view.components.SchedulingColumn-->
-                                    <!--android:layout_width="wrap_content"-->
-                                    <!--android:layout_height="wrap_content"/>-->
-                                <!--<com.seshtutoring.seshapp.view.components.SchedulingColumn-->
-                                    <!--android:layout_width="wrap_content"-->
-                                    <!--android:layout_height="wrap_content"/>-->
-                            <!--</LinearLayout>-->
                             <ImageView
                                 android:layout_width="@dimen/scheduling_columns_total_width"
                                 android:layout_height="@dimen/scheduling_columns_total_height"

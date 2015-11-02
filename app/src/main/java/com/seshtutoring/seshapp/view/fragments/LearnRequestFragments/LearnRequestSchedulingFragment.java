@@ -94,7 +94,6 @@ public class LearnRequestSchedulingFragment extends SeshViewPager.InputFragment 
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
         final View v = layoutInflater.inflate(R.layout.learn_request_scheduling_fragment, container, false);
 
-//        columnsContainer = (LinearLayout) v.findViewById(R.id.schedule_columns_container);
         nowButton = (TextView) v.findViewById(R.id.now_button);
         scheduleButton = (TextView) v.findViewById(R.id.schedule_button);
         schedulingContainerWithLabel = (RelativeLayout) v.findViewById(R.id.scheduling_container_with_label);
@@ -221,7 +220,14 @@ public class LearnRequestSchedulingFragment extends SeshViewPager.InputFragment 
         }
 
         parentActivity.getCurrentLearnRequest().setIsInstant(false);
-        schedulingContainer.setInterceptTouchEvents(true);
+
+        Handler handle = new Handler();
+        handle.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                schedulingContainer.setInterceptTouchEvents(true);
+            }
+        }, 1000);
     }
 
     private void setScheduleButtonSelected(LayoutUtils utils) {

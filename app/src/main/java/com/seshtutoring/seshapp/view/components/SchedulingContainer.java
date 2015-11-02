@@ -13,6 +13,8 @@ import android.widget.RelativeLayout;
 import org.joda.time.DateTime;
 
 /**
+ * Container is used to
+ *
  * Created by nadavhollander on 10/16/15.
  */
 public class SchedulingContainer extends RelativeLayout {
@@ -28,14 +30,7 @@ public class SchedulingContainer extends RelativeLayout {
     public SchedulingContainer(Context context, AttributeSet attrs) {
         super(context, attrs);
         userCreatingBlock = false;
-        longPressDetector = new LongPressDetector(500) {
-            @Override
-            public void onLongPress(MotionEvent e) {
-                userCreatingBlock = true;
-                Log.d("TAG", "DRAG MODE ON");
-                listener.onTouchEvent(e, userCreatingBlock);
-            }
-        };
+        longPressDetector = new LongPressDetector(500);
     }
 
     public void setInterceptTouchEvents(boolean interceptTouchEvents) {
@@ -52,47 +47,71 @@ public class SchedulingContainer extends RelativeLayout {
             longPressDetector.onTouchEvent(e);
             listener.onTouchEvent(e, userCreatingBlock);
         }
+        Log.d("TAG", "INTERCEPT TOUCH EVENT: " + e + " intercepting = " + (userCreatingBlock ? "true" : "false"));
 
         return userCreatingBlock;
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent e) {
+        if (!interceptTouchEvents) return false;
+
+        Log.d("TAG", "REGULAR TOUCH EVENT: " + e + " intercepting = " + (userCreatingBlock ? "true" : "false"));
+        longPressDetector.onTouchEvent(e);
         listener.onTouchEvent(e, userCreatingBlock);
         if (e.getActionMasked() == MotionEvent.ACTION_UP && userCreatingBlock) {
             userCreatingBlock = false;
             Log.d("TAG", "DRAG MODE OFF");
         }
+
         return interceptTouchEvents;
     }
 
-    private abstract class LongPressDetector {
+    private class LongPressDetector {
         private MotionEvent initMotionEvent;
         private boolean listenForLongPress = false;
         private int longPressThreshold;
+        private Handler handler;
+        private Runnable longPressRunnable;
 
         public LongPressDetector(int longPressThreshold) {
             this.longPressThreshold = longPressThreshold;
+            this.handler = new Handler();
+            this.longPressRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    if (listenForLongPress) {
+                        onLongPress(initMotionEvent);
+                    }
+                }
+            };
         }
 
         public void onTouchEvent(MotionEvent e) {
+//            Log.d("TAG", "DRAG MODE TOUCH EVENT: " + e.toString());
             if (e.getAction() == MotionEvent.ACTION_DOWN) {
-                listenForLongPress = true;
-                initMotionEvent = e;
-                Handler handler = new Handler();
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (listenForLongPress) {
-                            onLongPress(initMotionEvent);
-                        }
-                    }
-                }, longPressThreshold);
+                if (userCreatingBlock) userCreatingBlock = false;
+
+                if (listenForLongPress) {
+                    listenForLongPress = false;
+                    handler.removeCallbacks(longPressRunnable);
+                } else {
+                    listenForLongPress = true;
+                    initMotionEvent = e;
+                    handler.postDelayed(longPressRunnable, longPressThreshold);
+                    Log.d("TAG", "==== DRAG RUNNABLE POSTED");
+                }
             } else if (e.getAction() == MotionEvent.ACTION_UP || e.getAction() == MotionEvent.ACTION_MOVE) {
                 listenForLongPress = false;
+                handler.removeCallbacks(longPressRunnable);
+                Log.d("TAG", "==== DRAG RUNNABLE CANCELED");
             }
         }
 
-        public abstract void onLongPress(MotionEvent e);
+        public void onLongPress(MotionEvent e) {
+            userCreatingBlock = true;
+            Log.d("TAG", "DRAG MODE ON");
+            listener.onTouchEvent(e, userCreatingBlock);
+        }
     }
 }
