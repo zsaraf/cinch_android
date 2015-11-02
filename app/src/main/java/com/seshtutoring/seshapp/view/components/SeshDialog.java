@@ -21,6 +21,8 @@ import com.facebook.rebound.Spring;
 import com.facebook.rebound.SpringConfig;
 import com.facebook.rebound.SpringSystem;
 import com.seshtutoring.seshapp.R;
+import com.seshtutoring.seshapp.model.Course;
+import com.seshtutoring.seshapp.model.Department;
 import com.seshtutoring.seshapp.model.PastRequest;
 import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
@@ -35,15 +37,22 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.animation.AccelerateInterpolator;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by lillioetting on 7/20/15.
  */
 public class SeshDialog extends DialogFragment {
     OnSelectionListener mCallback;
-    public enum SeshDialogType { ONE_BUTTON, TWO_BUTTON, CUSTOM_BUTTONS };
+    public enum SeshDialogType { ONE_BUTTON, TWO_BUTTON, CUSTOM_BUTTONS, MULTIPLE_OPTIONS };
 
     private static final String TAG = SeshDialog.class.getName();
     private Bitmap backgroundOverlayBitmap = null;
@@ -69,8 +78,11 @@ public class SeshDialog extends DialogFragment {
     private LayoutUtils utils;
     private Spring animationSpring;
 
+    private ArrayList<String> options;
+
     private View.OnClickListener firstButtonClickListener;
     private View.OnClickListener secondButtonClickListener;
+    private View.OnClickListener menuClickListener;
 
     private LayoutInflater inflater;
 
@@ -131,7 +143,16 @@ public class SeshDialog extends DialogFragment {
         dialogTransparentBackground.animate().alpha(1).setDuration(500).start();
 
         if (contentLayout == null) {
-            contentLayout = inflater.inflate(R.layout.sesh_dialog_content_default, null);
+            if (dialogType == SeshDialogType.MULTIPLE_OPTIONS) {
+                contentLayout = inflater.inflate(R.layout.sesh_dialog_content_cancellation, null);
+                dialogView.findViewById(R.id.dialog_second_button).setBackgroundColor(getResources().getColor(R.color.seshlightgray));
+                final float scale = getActivity().getResources().getDisplayMetrics().density;
+                int pixels = (int) (10 * scale + 0.5f);
+                ((Button)dialogView.findViewById(R.id.dialog_second_button)).setTextSize(pixels);
+                populateMenu();
+            }else {
+                contentLayout = inflater.inflate(R.layout.sesh_dialog_content_default, null);
+            }
         }
 
         replaceContentLayout(dialogView, contentLayout);
@@ -142,6 +163,9 @@ public class SeshDialog extends DialogFragment {
         if (titleText != null) {
             titleText.setText(title);
             titleText.setTypeface(book);
+            if (dialogType == SeshDialogType.MULTIPLE_OPTIONS) {
+                titleText.setTypeface(medium);
+            }
         }
 
         TextView text = (TextView) dialogView.findViewById(R.id.dialog_text);
@@ -174,8 +198,14 @@ public class SeshDialog extends DialogFragment {
         if (dialogType == SeshDialogType.ONE_BUTTON || dialogType == SeshDialogType.CUSTOM_BUTTONS) {
             secondButton.setVisibility(View.GONE);
         } else {
+            if (dialogType == SeshDialogType.MULTIPLE_OPTIONS) {
+                firstButton.setVisibility(View.GONE);
+            }
             secondButton.setText(secondChoice);
             secondButton.setTypeface(medium);
+            if (dialogType == SeshDialogType.MULTIPLE_OPTIONS) {
+                secondButton.setTypeface(book);
+            }
 
             if (secondButtonClickListener != null) {
                 secondButton.setOnClickListener(secondButtonClickListener);
@@ -218,7 +248,7 @@ public class SeshDialog extends DialogFragment {
                 LayoutUtils utils = new LayoutUtils(mActivity);
                 screenHeight = utils.getScreenHeightPx();
                 /* Layout a tiny bit above center */
-                double centeredDialogY = (screenHeight - dialogCard.getMeasuredHeight())/2.0 - utils.dpToPixels(30);
+                double centeredDialogY = (screenHeight - dialogCard.getMeasuredHeight()) / 2.0 - utils.dpToPixels(30);
 
                 dialogCard.setY((float) screenHeight);
                 dialogCard.setAlpha(1);
@@ -271,6 +301,63 @@ public class SeshDialog extends DialogFragment {
 
         slideCardUp();
         dialogView.getViewTreeObserver().dispatchOnGlobalLayout();
+    }
+
+    private void populateMenu() {
+
+        LinearLayout optionsHolder = (LinearLayout) contentLayout.findViewById(R.id.dialog_options);
+
+        for (String option : options) {
+
+            RelativeLayout child = (RelativeLayout) inflater.inflate(R.layout.cancellation_menu_row, null);
+            TextView text = (TextView) child.findViewById(R.id.option_text);
+            text.setText(option);
+            text.setTypeface(utils.getBookGothamTypeface());
+            text.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    TextView text = (TextView)v;
+                    menuClickListener.onClick(v);
+                    dismiss(1);
+                }
+            });
+            optionsHolder.addView(child);
+        }
+
+    }
+
+    private class DialogOptionsAdapter extends ArrayAdapter<String> {
+        private Context mContext;
+        private LayoutInflater layoutInflater;
+
+        public DialogOptionsAdapter(Context context, ArrayList<String> dialogOptions) {
+            super(context, R.layout.cancellation_menu_row, dialogOptions);
+            this.mContext = context;
+            layoutInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        }
+
+        public int getCount() {
+            return Math.min(options.size(), maxRowsForScreenSize());
+        }
+
+        public View getView(int position, View convertView, ViewGroup parent) {
+            String optionStr = getItem(position);
+            View v = convertView;
+
+            if (v == null) {
+                v = layoutInflater.inflate(R.layout.cancellation_menu_row, null);
+            }
+
+            TextView text = (TextView) v.findViewById(R.id.option_text);
+            text.setText(optionStr);
+            text.setTypeface(utils.getLightGothamTypeface());
+
+            return v;
+        }
+
+        private int maxRowsForScreenSize() {
+            return 5;
+        }
     }
 
     public static void showDialog(FragmentManager manager, String title, String message,
@@ -382,6 +469,10 @@ public class SeshDialog extends DialogFragment {
         this.secondButtonClickListener = clickListener;
     }
 
+    public void setMenuClickListener(View.OnClickListener clickListener) {
+        this.menuClickListener = clickListener;
+    }
+
     public void setFirstChoice(String firstChoice) {
         this.firstChoice = firstChoice;
     }
@@ -389,11 +480,13 @@ public class SeshDialog extends DialogFragment {
     public void setSecondChoice(String secondChoice) {
 
         this.secondChoice = secondChoice;
-        if (secondChoice != null) {
+        if (secondChoice != null && this.dialogType != SeshDialogType.MULTIPLE_OPTIONS) {
             this.dialogType = SeshDialog.SeshDialogType.TWO_BUTTON;
         }
 
     }
+
+    public void setOptions(ArrayList<String> options) {this.options = options;}
 
     public void setTitle(String title) {
         this.title = title;

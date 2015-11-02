@@ -65,6 +65,7 @@ import org.json.JSONObject;
 import org.w3c.dom.Text;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -415,14 +416,28 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
     }
 
     private void cancelButtonClicked() {
-        Boolean isStudent = true;
-        String message = isStudent ? "Are you sure you would like to cancel your Sesh?" : "Please note that if you cancel too many times, you will lose tutoring privileges.";
-        createDialog("Cancel Sesh?", message, "CANCEL SESH", "NEVERMIND", new View.OnClickListener() {
+        String message = "Please tell us why you are cancelling.";
+        ArrayList<String> options = new ArrayList<String>();
+        if (sesh.isStudent) {
+            options.add("I don't need a tutor anymore");
+            options.add("I don't want this tutor");
+            options.add("Our schedules don't align");
+            options.add("Tutor is unresponsive");
+            options.add("Other");
+        }else {
+            options.add("Our schedules don't align");
+            options.add("I can't help this student");
+            options.add("Student is unresponsive");
+            options.add("I don't want this student");
+            options.add("Other");
+        }
+        createOptionsDialog("Why?", message, null, "DON'T CANCEL", options, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                String option = ((TextView)v).getText().toString();
                 setNetworking(true);
                 SeshNetworking seshNetworking = new SeshNetworking(myContext);
-                seshNetworking.cancelSeshWithSeshId(sesh.seshId, new Response.Listener<JSONObject>() {
+                seshNetworking.cancelSeshWithSeshId(sesh.seshId, option, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject jsonObject) {
                         setNetworking(false);
@@ -499,6 +514,25 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
         intent.putExtra(MessagingActivity.SESH_ID, this.sesh.seshId);
         startActivityForResult(intent, MESSAGE_ACTIVITY_CLOSED);
     }
+
+    private void createOptionsDialog(String title, String message, String firstChoice, String secondChoice, ArrayList<String> options, final View.OnClickListener menuClickListener) {
+        final SeshDialog seshDialog = new SeshDialog();
+        seshDialog.setDialogType(SeshDialog.SeshDialogType.MULTIPLE_OPTIONS);
+        seshDialog.setOptions(options);
+        seshDialog.setTitle(title);
+        seshDialog.setMessage(message);
+        seshDialog.setSecondChoice(secondChoice);
+        seshDialog.setSecondButtonClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                seshDialog.dismiss();
+            }
+        });
+        seshDialog.setType("SESH_CANCELLED");
+        seshDialog.setMenuClickListener(menuClickListener);
+        seshDialog.show(getActivity().getFragmentManager(), "SESH_CANCELLED");
+    }
+
 
     private void createDialog(String title, String message, String firstChoice, String secondChoice, final View.OnClickListener firstClickListener) {
         final SeshDialog seshDialog = new SeshDialog();
