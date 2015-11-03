@@ -21,18 +21,20 @@ public class School extends SugarRecord<School> {
     public String emailDomain;
     public String schoolName;
     public Boolean enabled;
+    public Boolean requestsEnabled;
     public int linePosition;
     public int schoolId;
 
     // empty constructor necessary for SugarORM to work
     public School() {}
 
-    public School(String schoolName, int schoolId, int linePosition, Boolean enabled, String emailDomain) {
+    public School(String schoolName, int schoolId, int linePosition, Boolean enabled, String emailDomain, Boolean requestsEnabled) {
         this.schoolId = schoolId;
         this.linePosition = linePosition;
         this.enabled = enabled;
         this.emailDomain = emailDomain;
         this.schoolName = schoolName;
+        this.requestsEnabled = requestsEnabled;
     }
 
     public static School createOrUpdateSchoolWithObject(JSONObject schoolRow) {
@@ -54,8 +56,9 @@ public class School extends SugarRecord<School> {
             school.schoolId = schoolId;
             school.schoolName = schoolRow.getString("name");
             school.emailDomain = schoolRow.getString("email_domain");
-            school.enabled = (schoolRow.getInt("enabled") == 1) ? true : false;
+            school.enabled = schoolRow.getInt("enabled") == 1;
             school.linePosition = schoolRow.getInt("line_position");
+            school.requestsEnabled = schoolRow.getInt("requests_enabled") == 1;
 
             school.save();
         } catch (JSONException e) {
