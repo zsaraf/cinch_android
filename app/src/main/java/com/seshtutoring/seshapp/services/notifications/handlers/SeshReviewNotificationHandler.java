@@ -33,6 +33,13 @@ public class SeshReviewNotificationHandler extends SeshEndedNotificationHandler 
     }
 
     @Override
+    public void handleDisplayOutsideApp() {
+        if (mNotification.getNotificationType() == NotificationType.SESH_REVIEW_STUDENT) {
+            super.handleDisplayOutsideApp();
+        }
+    }
+
+    @Override
     public void onSeshReplacedWithPastSesh(PastSesh pastSesh) {
         ApplicationLifecycleTracker applicationLifecycleTracker
                 = ApplicationLifecycleTracker.sharedInstance(mContext);
