@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent">
+    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/dialog_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="18dp"
+        android:capitalize="characters"
+        android:textSize="26dp"
+        android:text="TestTitle"
+        android:layout_centerHorizontal="true"
+        android:gravity="center"
+        android:textColor="@color/seshorange"
+        android:layout_alignParentTop="true"
+        android:inputType="none"/>
+    <TextView
+        android:id="@+id/dialog_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/dialog_title"
+        android:layout_marginRight="20dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginBottom="40dp"
+        android:layout_centerHorizontal="true"
+        android:capitalize="characters"
+        android:textSize="13dp"
+        android:text="Lorem ipsum"
+        android:gravity="center"
+        android:textColor="@color/seshlightgray"
+        android:inputType="none" />
+    <!--<ListView-->
+        <!--android:id="@+id/dialog_options_list"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_centerHorizontal="true"-->
+        <!--android:layout_marginRight="30dp"-->
+        <!--android:layout_marginLeft="30dp"-->
+        <!--android:layout_marginBottom="40dp"-->
+        <!--android:layout_below="@id/dialog_text"-->
+        <!--android:divider="@null"-->
+        <!--android:dividerHeight="0.5dp">-->
+    <!--</ListView>-->
+    <LinearLayout
+        android:orientation="vertical"
+        android:id="@+id/dialog_options"
+        android:layout_below="@id/dialog_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="40dp">
+    </LinearLayout>
+
+</RelativeLayout>

@@ -46,6 +46,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -166,13 +167,19 @@ public class ViewRequestFragment extends Fragment implements MainContainerActivi
     }
 
     public void cancelButtonClicked() {
-        String message = "Are you sure you would like to cancel your request?";
-        createDialog("Cancel Request?", message, "CANCEL REQUEST", "NEVERMIND", new View.OnClickListener() {
+        String message = "Please tell us why you are cancelling.";
+        ArrayList<String> options = new ArrayList<String>();
+        options.add("I don't need a tutor anymore");
+        options.add("Resubmitting request with changes");
+        options.add("I don't want to wait anymore");
+        options.add("Other");
+        createDialog("Why?", message, null, "DON'T CANCEL", options, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                String option = ((TextView)v).getText().toString();
                 setNetworking(true);
                 SeshNetworking seshNetworking = new SeshNetworking(getActivity());
-                seshNetworking.cancelRequestWithRequestId(request.learnRequestId, new Response.Listener<JSONObject>() {
+                seshNetworking.cancelRequestWithRequestId(request.learnRequestId, option, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject jsonObject) {
                         setNetworking(false);
@@ -202,6 +209,7 @@ public class ViewRequestFragment extends Fragment implements MainContainerActivi
                 });
             }
         });
+
     }
 
     private void setNetworking(Boolean networking) {
@@ -222,27 +230,22 @@ public class ViewRequestFragment extends Fragment implements MainContainerActivi
                 .start();
     }
 
-    private void createDialog(String title, String message, String firstChoice, String secondChoice, final View.OnClickListener firstClickListener) {
+    private void createDialog(String title, String message, String firstChoice, String secondChoice, ArrayList<String> options, final View.OnClickListener menuClickListener) {
         final SeshDialog seshDialog = new SeshDialog();
-        seshDialog.setDialogType(SeshDialog.SeshDialogType.TWO_BUTTON);
+        seshDialog.setDialogType(SeshDialog.SeshDialogType.MULTIPLE_OPTIONS);
+        seshDialog.setOptions(options);
         seshDialog.setTitle(title);
         seshDialog.setMessage(message);
         seshDialog.setType("VIEW REQUEST CANCELLATION");
-        seshDialog.setFirstChoice(firstChoice);
-        seshDialog.setFirstButtonClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                firstClickListener.onClick(v);
-                seshDialog.dismiss();
-            }
-        });
         seshDialog.setSecondChoice(secondChoice);
         seshDialog.setSecondButtonClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //firstClickListener.onClick(v);
                 seshDialog.dismiss();
             }
         });
+        seshDialog.setMenuClickListener(menuClickListener);
         seshDialog.show(getActivity().getFragmentManager(), "REQUEST_CANCELLATION");
     }
 

@@ -119,6 +119,8 @@ public class SeshNetworking {
     private static final String CLASSES_TO_DELETE_ID = "classes_to_delete";
     private static final String DEPARTMENTS_TO_ADD_ID = "depts_to_add";
     private static final String DEPARTMENTS_TO_DELETE_ID = "depts_to_delete";
+    private static final String CANCELLATION_REASON_PARAM = "cancellation_reason";
+
 
     private Context mContext;
 
@@ -711,20 +713,22 @@ public class SeshNetworking {
         postWithRelativeUrl("start_sesh.php", params, successListener, errorListener);
     }
 
-    public void cancelSeshWithSeshId(int seshId, Response.Listener<JSONObject> successListener,
+    public void cancelSeshWithSeshId(int seshId, String reason, Response.Listener<JSONObject> successListener,
                                      Response.ErrorListener errorListener) {
         Map<String, String> params = new HashMap<>();
         params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
         params.put(SESH_ID_PARAM, Integer.toString(seshId));
+        params.put(CANCELLATION_REASON_PARAM, reason);
 
         postWithRelativeUrl("cancel_sesh.php", params, successListener, errorListener);
     }
 
-    public void cancelRequestWithRequestId(int requestId, Response.Listener<JSONObject> successListener,
+    public void cancelRequestWithRequestId(int requestId, String reason, Response.Listener<JSONObject> successListener,
                                            Response.ErrorListener errorListener) {
         Map<String, String> params = new HashMap<>();
         params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
         params.put(REQUEST_ID_PARAM, Integer.toString(requestId));
+        params.put(CANCELLATION_REASON_PARAM, reason);
 
         postWithRelativeUrl("delete_request.php", params, successListener, errorListener);
     }
