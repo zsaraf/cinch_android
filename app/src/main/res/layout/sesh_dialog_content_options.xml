@@ -24,7 +24,7 @@
         android:layout_marginBottom="40dp"
         android:layout_centerHorizontal="true"
         android:capitalize="characters"
-        android:textSize="12dp"
+        android:textSize="13dp"
         android:text="Lorem ipsum"
         android:gravity="center"
         android:textColor="@color/seshlightgray"

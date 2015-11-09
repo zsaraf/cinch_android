@@ -713,12 +713,12 @@ public class SeshNetworking {
         postWithRelativeUrl("start_sesh.php", params, successListener, errorListener);
     }
 
-    public void cancelSeshWithSeshId(int seshId, String option, Response.Listener<JSONObject> successListener,
+    public void cancelSeshWithSeshId(int seshId, String reason, Response.Listener<JSONObject> successListener,
                                      Response.ErrorListener errorListener) {
         Map<String, String> params = new HashMap<>();
         params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
         params.put(SESH_ID_PARAM, Integer.toString(seshId));
-        params.put(CANCELLATION_REASON_PARAM, option);
+        params.put(CANCELLATION_REASON_PARAM, reason);
 
         postWithRelativeUrl("cancel_sesh.php", params, successListener, errorListener);
     }
