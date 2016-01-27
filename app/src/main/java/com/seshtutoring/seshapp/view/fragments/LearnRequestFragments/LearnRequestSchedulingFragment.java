@@ -21,6 +21,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.seshtutoring.seshapp.R;
+import com.seshtutoring.seshapp.model.AvailableBlock;
 import com.seshtutoring.seshapp.util.DateUtils;
 import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.view.RequestActivity;
@@ -33,6 +34,7 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -43,14 +45,10 @@ public class LearnRequestSchedulingFragment extends SeshViewPager.InputFragment 
 
     private boolean isCompleted;
     private SeshViewPager seshViewPager;
-    private TextView nowButton;
-    private TextView scheduleButton;
     private RelativeLayout schedulingContainerWithLabel;
     private RelativeLayout schedulingBlocksContainer;
     private SchedulingContainer schedulingContainer;
-    private LinearLayout nowScheduleButtons;
     private TextView whenSeshLabel;
-    private boolean buttonsRaised;
     private RequestActivity parentActivity;
     private boolean allowsSwiping;
     private LinearLayout columnsContainer;
@@ -96,13 +94,9 @@ public class LearnRequestSchedulingFragment extends SeshViewPager.InputFragment 
     }
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
         final View v = layoutInflater.inflate(R.layout.learn_request_scheduling_fragment, container, false);
-
-        nowButton = (TextView) v.findViewById(R.id.now_button);
-        scheduleButton = (TextView) v.findViewById(R.id.schedule_button);
         schedulingContainerWithLabel = (RelativeLayout) v.findViewById(R.id.scheduling_container_with_label);
         schedulingBlocksContainer = (RelativeLayout) v.findViewById(R.id.scheduling_blocks_container);
         schedulingContainer = (SchedulingContainer) v.findViewById(R.id.scheduling_container);
-        nowScheduleButtons = (LinearLayout) v.findViewById(R.id.now_schedule_buttons);
         whenSeshLabel = (TextView) v.findViewById(R.id.when_sesh_label);
         hScrollView = (HorizontalScrollView) v.findViewById(R.id.horizontal_scrollview);
         vScrollView = (ScrollView) v.findViewById(R.id.vertical_scrollview);
@@ -113,7 +107,7 @@ public class LearnRequestSchedulingFragment extends SeshViewPager.InputFragment 
 
         initDayLabels(v);
 
-        schedulingContainer.setInterceptTouchEvents(false);
+        schedulingContainer.setInterceptTouchEvents(true);
         schedulingContainer.setSchedulingTouchListener(new SchedulingContainer.SchedulingTouchListener() {
             @Override
             public void onTouchEvent(MotionEvent e, boolean isUserCreatingBlock) {
@@ -131,120 +125,15 @@ public class LearnRequestSchedulingFragment extends SeshViewPager.InputFragment 
 
         final LayoutUtils utils = new LayoutUtils(getActivity());
 
-        nowButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onNowButtonSelected(utils);
-            }
-        });
-        scheduleButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                onScheduleButtonSelected(utils);
-            }
-        });
-
-        nowButton.setTypeface(utils.getBookGothamTypeface());
-        scheduleButton.setTypeface(utils.getBookGothamTypeface());
         isCompleted = false;
-        buttonsRaised = false;
 
-        timeLabelYOffset = utils.dpToPixels(7);
+        timeLabelYOffset = utils.dpToPixels(8);
 
         parentActivity = (RequestActivity) getActivity();
 
         gestureDetectorCompat = new GestureDetectorCompat(parentActivity, new SimpleTapUpGestureDetector());
 
         return v;
-    }
-
-    private void onNowButtonSelected(LayoutUtils utils) {
-        setNowButtonSelected(utils);
-
-        if (!buttonsRaised) {
-            animateNowSeshButtonsUp();
-        }
-
-        if (parentActivity.getCurrentLearnRequest().isInstant()) {
-            isCompleted = true;
-            seshViewPager.flingNextFragment();
-        } else {
-            schedulingContainerWithLabel
-                    .animate()
-                    .x(utils.getScreenWidthPx())
-                    .setDuration(200)
-                    .setStartDelay(0)
-                    .start();
-            Handler handler = new Handler();
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    isCompleted = true;
-                    seshViewPager.flingNextFragment();
-                }
-            }, 300);
-        }
-
-        parentActivity.getCurrentLearnRequest().setIsInstant(true);
-        schedulingContainer.setInterceptTouchEvents(false);
-        allowsSwiping = true;
-    }
-
-    private void onScheduleButtonSelected(LayoutUtils utils) {
-        if (!parentActivity.getCurrentLearnRequest().isInstant()) return;
-
-        setScheduleButtonSelected(utils);
-        isCompleted = false;
-        allowsSwiping = false;
-
-        if (!buttonsRaised) {
-            animateNowSeshButtonsUp();
-            schedulingContainerWithLabel
-                    .animate()
-                    .alpha(1)
-                    .setDuration(300)
-                    .setStartDelay(300)
-                    .setListener(new AnimatorListenerAdapter() {
-                        @Override
-                        public void onAnimationStart(Animator animation) {
-                            super.onAnimationStart(animation);
-                            schedulingContainerWithLabel.setVisibility(View.VISIBLE);
-                        }
-                    })
-                    .start();
-            buttonsRaised = true;
-        } else {
-            schedulingContainerWithLabel
-                    .animate()
-                    .x(0)
-                    .setDuration(200)
-                    .setStartDelay(0)
-                    .start();
-        }
-
-        parentActivity.getCurrentLearnRequest().setIsInstant(false);
-
-        Handler handle = new Handler();
-        handle.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                schedulingContainer.setInterceptTouchEvents(true);
-            }
-        }, 1000);
-    }
-
-    private void setScheduleButtonSelected(LayoutUtils utils) {
-        scheduleButton.setTypeface(utils.getMediumGothamTypeface());
-        scheduleButton.setTextColor(getResources().getColor(R.color.seshorange));
-        nowButton.setTypeface(utils.getBookGothamTypeface());
-        nowButton.setTextColor(getResources().getColor(R.color.white));
-    }
-
-    private void setNowButtonSelected(LayoutUtils utils) {
-        nowButton.setTypeface(utils.getMediumGothamTypeface());
-        nowButton.setTextColor(getResources().getColor(R.color.seshorange));
-        scheduleButton.setTypeface(utils.getBookGothamTypeface());
-        scheduleButton.setTextColor(getResources().getColor(R.color.white));
     }
 
     /**
@@ -476,11 +365,6 @@ public class LearnRequestSchedulingFragment extends SeshViewPager.InputFragment 
         }
     }
 
-    private void animateNowSeshButtonsUp() {
-        whenSeshLabel.animate().alpha(0).setDuration(150).start();
-        nowScheduleButtons.animate().y(0).setDuration(300).start();
-    }
-
     private void initDayLabels(View v) {
         List<TextView> dayLabels = new ArrayList<>();
         dayLabels.add((TextView) v.findViewById(R.id.day_label_1));
@@ -556,12 +440,32 @@ public class LearnRequestSchedulingFragment extends SeshViewPager.InputFragment 
 
     @Override
     public boolean isCompleted() {
-        return isCompleted;
+        return commitedBlocks.size() != 0;
     }
 
     @Override
     public boolean allowsSwiping() {
         return allowsSwiping;
+    }
+
+    @Override
+    public void saveValues() {
+        HashSet<AvailableBlock> availableBlocks = new HashSet<>();
+        for (Block block : commitedBlocks) {
+            DateTime currentDay = DateTime.now().plusDays(block.dayIndex);
+
+            int startHour = (int) block.startHour;
+            int startMinute = (int) ((block.startHour - startHour) * 60);
+            DateTime startTime = currentDay.withHourOfDay(startHour).withMinuteOfHour(startMinute);
+
+            int endHour = (int) block.endHour;
+            int endMinute = (int) ((block.endHour - endHour) * 60);
+            DateTime endTime = currentDay.withHourOfDay(endHour).withMinuteOfHour(endMinute);
+
+            AvailableBlock availableBlock = new AvailableBlock(startTime.getMillis(), endTime.getMillis(), parentActivity.getCurrentLearnRequest(), null, null);
+            availableBlocks.add(availableBlock);
+        }
+        parentActivity.getCurrentLearnRequest().availableBlocks = availableBlocks;
     }
 
     @Override

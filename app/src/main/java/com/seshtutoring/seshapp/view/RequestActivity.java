@@ -107,7 +107,6 @@ public class RequestActivity extends SeshActivity implements
         this.currentLearnRequest = new LearnRequest();
         currentLearnRequest.latitude = intent.getDoubleExtra(LearnViewFragment.CHOSEN_LOCATION_LAT, 0);
         currentLearnRequest.longitude = intent.getDoubleExtra(LearnViewFragment.CHOSEN_LOCATION_LONG, 0);
-        currentLearnRequest.setIsInstant(true);
 
         List<Discount> discounts = User.currentUser(this).getDiscounts();
         if (discounts.size() > 0) {

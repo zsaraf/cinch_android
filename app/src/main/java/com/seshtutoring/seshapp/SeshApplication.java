@@ -39,7 +39,6 @@ public class SeshApplication extends SugarApp {
 
     public static final boolean IS_LIVE = true;
     public static final boolean IS_DEV = true;
-    public static final boolean USE_PERSONAL = true;
 
     //    Pre-reg app functionality -- to be deleted v1
     private DateTime androidReleaseDate;

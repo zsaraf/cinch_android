@@ -61,6 +61,7 @@ public class LearnRequest extends SugarRecord<LearnRequest> {
 
     public LearnRequest() {
         this.availableBlocks = new HashSet<AvailableBlock>();
+        this.isInstant = false;
     }
 
     public LearnRequest(String classId, String classString, String descr, int estTime, boolean isInstant, double latitude,

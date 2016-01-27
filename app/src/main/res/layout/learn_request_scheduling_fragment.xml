@@ -10,44 +10,8 @@
         android:textColor="@color/white"
         android:textSize="14dp"
         android:text="When would you like your Sesh?"/>
-    <LinearLayout
-        android:orientation="horizontal"
-        android:id="@+id/now_schedule_buttons"
-        android:layout_marginTop="30dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <View
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1"/>
-        <TextView
-            android:id="@+id/now_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/white"
-            android:padding="5dp"
-            android:textSize="18dp"
-            android:text="NOW"/>
-        <View
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1"/>
-        <TextView
-            android:id="@+id/schedule_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="5dp"
-            android:textColor="@color/white"
-            android:textSize="18dp"
-            android:text="SCHEDULE"/>
-        <View
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1"/>
-    </LinearLayout>
     <RelativeLayout
         android:id="@+id/scheduling_container_with_label"
-        android:alpha="0"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <TextView

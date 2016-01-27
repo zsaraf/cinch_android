@@ -23,11 +23,13 @@ import com.seshtutoring.seshapp.util.LayoutUtils;
  * Created by nadavhollander on 7/21/15.
  */
 public class LearnRequestProgressBar extends UnderlineProgressBar {
+    private ImageButton scheduleIconClickable;
     private ImageButton classIconClickable;
     private ImageButton assignmentIconClickable;
     private ImageButton numberStudentsIconClickable;
     private ImageButton durationIconClickable;
     private ImageButton confirmIconClickable;
+    private ImageView scheduleIcon;
     private ImageView classIcon;
     private ImageView assignmentIcon;
     private ImageView numberStudentsIcon;
@@ -50,12 +52,14 @@ public class LearnRequestProgressBar extends UnderlineProgressBar {
 
         this.mContext = context;
 
+        this.scheduleIconClickable = (ImageButton) view.findViewById(R.id.schedule_icon_clickable);
         this.classIconClickable = (ImageButton) view.findViewById(R.id.class_icon_clickable);
         this.assignmentIconClickable = (ImageButton) view.findViewById(R.id.assignment_icon_clickable);
         this.numberStudentsIconClickable = (ImageButton) view.findViewById(R.id.number_students_icon_clickable);
         this.durationIconClickable = (ImageButton) view.findViewById(R.id.duration_icon_clickable);
         this.confirmIconClickable = (ImageButton) view.findViewById(R.id.confirm_icon_clickable);
 
+        this.scheduleIcon = (ImageView) view.findViewById(R.id.schedule_icon);
         this.classIcon = (ImageView) view.findViewById(R.id.class_icon);
         this.assignmentIcon = (ImageView) view.findViewById(R.id.assignment_icon);
         this.numberStudentsIcon = (ImageView) view.findViewById(R.id.number_students_icon);
@@ -64,9 +68,9 @@ public class LearnRequestProgressBar extends UnderlineProgressBar {
 
         this.underline = view.findViewById(R.id.progress_underline);
 
-        this.icons = new ImageView[] { classIcon, assignmentIcon,
+        this.icons = new ImageView[] { scheduleIcon, classIcon, assignmentIcon,
                 numberStudentsIcon, durationIcon, confirmIcon };
-        this.clickableIcons = new ImageButton[] { classIconClickable, assignmentIconClickable,
+        this.clickableIcons = new ImageButton[] { scheduleIconClickable, classIconClickable, assignmentIconClickable,
                 numberStudentsIconClickable, durationIconClickable, confirmIconClickable };
 
         for (int i = 0; i < clickableIcons.length; i++) {

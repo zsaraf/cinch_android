@@ -122,6 +122,11 @@ public class SeshNetworking {
     private static final String CANCELLATION_REASON_PARAM = "cancellation_reason";
 
 
+    public enum RequestType {
+        DJANGO,
+        PHP,
+    }
+
     private Context mContext;
 
     public SeshNetworking(Context context) {
@@ -155,16 +160,16 @@ public class SeshNetworking {
 
     }
 
-    public void postWithRelativeUrl(String relativeUrl, Map<String, String> params,
+    public void postWithRelativeUrl(String relativeUrl, Map<String, String> params, RequestType requestType,
                                     final Response.Listener<JSONObject> successListener,
                                     Response.ErrorListener errorListener) {
-        postWithRelativeUrl(relativeUrl, new JSONObject(params), successListener, errorListener);
+        postWithRelativeUrl(relativeUrl, new JSONObject(params), requestType, successListener, errorListener);
     }
 
-    public void postWithRelativeUrl(String relativeUrl, JSONObject jsonParams,
+    public void postWithRelativeUrl(String relativeUrl, JSONObject jsonParams, RequestType requestType,
                                     final Response.Listener<JSONObject> successListener,
                                     Response.ErrorListener errorListener) {
-        String absoluteUrl = baseUrl() + apiUrl() + relativeUrl;
+        String absoluteUrl = baseUrl() + apiUrl(requestType) + relativeUrl;
 
         Log.i(TAG, "Issuing POST request to URL:  " + absoluteUrl + " with params: " +
                 jsonParams.toString());
@@ -548,22 +553,15 @@ public class SeshNetworking {
         return baseUrl;
     }
 
-    private String apiUrl() {
+    private String apiUrl(RequestType requestType) {
         String apiUrl;
 
-        if (SeshApplication.USE_PERSONAL && SeshApplication.IS_DEV) {
-            String user = "";
-            try {
-                JSONObject obj = new JSONObject(loadUserJSON());
-                user = obj.getString("user");
-            } catch (JSONException ex) {
-                ex.printStackTrace();
-                return "ios-php/";
-            }
-            apiUrl = "users/" + user + "/";
+        if (requestType == RequestType.DJANGO) {
+            apiUrl = "django/";
         } else {
-            apiUrl = "ios-php/";
+            apiUrl = "php/";
         }
+
         return apiUrl;
     }
 
@@ -572,15 +570,9 @@ public class SeshNetworking {
         long expirationTime = 0;
         long thirtyMinutesMillis = 30 * 60 * 1000;
 
-        if (learnRequest.isInstant()) {
-            if (learnRequest.expirationTime < learnRequest.timestamp) {
-                learnRequest.expirationTime = learnRequest.timestamp + thirtyMinutesMillis;
-            }
-        } else {
-            for (AvailableBlock block : learnRequest.availableBlocks) {
-                if (block.endTime - expirationTime > 0) {
-                    expirationTime = block.endTime;
-                }
+        for (AvailableBlock block : learnRequest.availableBlocks) {
+            if (block.endTime - expirationTime > 0) {
+                expirationTime = block.endTime;
             }
         }
 
