@@ -151,6 +151,8 @@ public class Sesh extends SugarRecord<Sesh> {
                 sesh.startTime = -1;
             }
 
+            sesh.chatroom = Chatroom.createOrUpdateChatroomWithObject(seshJson.getJSONObject("chatroom"), context);
+
             sesh.save();
 
             AvailableBlock.deleteAll(AvailableBlock.class, "sesh = ?", Long.toString(sesh.getId()));
@@ -165,8 +167,6 @@ public class Sesh extends SugarRecord<Sesh> {
                 }
             }
 
-            sesh.chatroom = Chatroom.createOrUpdateChatroomWithObject(seshJson.getJSONObject("chatroom"), context);
-            sesh.save();
         } catch (JSONException e) {
             Log.e(TAG, "Failed to create or update user in db; JSON user object from server is malformed: " + e.getMessage());
             return null;

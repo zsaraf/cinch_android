@@ -361,10 +361,16 @@ public class Notification extends SugarRecord<Notification> {
             return Sesh.findSeshWithId(seshId);
         } else if (notificationType == NotificationType.NEW_MESSAGE) {
             try {
-                int chatroomId = ((JSONObject)this.getDataObject("chatroom_activity")).getInt("chatroom");
-                List<Sesh> seshes = Sesh.find(Sesh.class, "chatroom.chatroom_id = ?", chatroomId + "");
-                if (seshes.size() > 0) {
-                    return seshes.get(0);
+                int chatroomId = ((JSONObject) this.getDataObject("chatroom_activity")).getInt("chatroom");
+                List<Chatroom> chatroomList = Chatroom.find(Chatroom.class, "chatroom_id = ?", Long.toString(chatroomId));
+                if (chatroomList.size() == 1) {
+                    Chatroom chatroom = chatroomList.get(0);
+                    List<Sesh> seshes = Sesh.find(Sesh.class, "chatroom = ?", Long.toString(chatroom.getId()));
+                    if (seshes.size() > 0) {
+                        return seshes.get(0);
+                    } else {
+                        return null;
+                    }
                 } else {
                     return null;
                 }

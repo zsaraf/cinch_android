@@ -84,9 +84,8 @@ public class PastSesh extends SugarRecord<PastSesh> {
                 pastSesh.studentMajor = studentObject.getString("major");
                 pastSesh.studentUserId = studentObject.getInt("id");
                 pastSesh.studentProfilePicture = studentObject.getString("profile_picture");
-            } else {
-                pastSesh.studentId = pastSeshObject.getInt("student");
             }
+            pastSesh.studentId = pastSeshObject.getInt("student");
 
             if (pastSeshObject.has("tutor_data")) {
                 JSONObject tutorObject = pastSeshObject.getJSONObject("tutor_data");
@@ -94,9 +93,8 @@ public class PastSesh extends SugarRecord<PastSesh> {
                 pastSesh.tutorMajor = tutorObject.getString("major");
                 pastSesh.tutorUserId = tutorObject.getInt("id");
                 pastSesh.tutorProfilePicture = tutorObject.getString("profile_picture");
-            } else {
-                pastSesh.tutorId = pastSeshObject.getInt("tutor");
             }
+            pastSesh.tutorId = pastSeshObject.getInt("tutor");
 
             pastSesh.creditsUsed = pastSeshObject.getDouble("credits_used");
             pastSesh.paymentUsed = pastSeshObject.getDouble("payment_used");

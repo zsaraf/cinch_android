@@ -133,6 +133,7 @@ public class User extends SugarRecord<User> {
             user.bio = userRow.getString("bio");
             user.stripeCustomerId = !userRow.isNull("stripe_customer_id") ?
                     userRow.getString("stripe_customer_id") : "";
+
             user.major = userRow.getString("major");
             user.notificationsEnabled = userRow.getBoolean("notifications_enabled");
             user.completedAppTour = userRow.getBoolean("completed_app_tour");

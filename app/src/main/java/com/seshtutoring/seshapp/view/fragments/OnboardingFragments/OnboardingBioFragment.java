@@ -145,17 +145,7 @@ public class OnboardingBioFragment extends SeshViewPager.InputFragment implement
             JSONObject jsonObject = request.execute();
 
             if (jsonObject != null) {
-                try {
-                    if (jsonObject.getString("status").equals("SUCCESS")) {
-                        user.save();
-                    } else {
-                        Log.e(TAG, "Failed to update bio; " + jsonObject.getString("message"));
-                        errorDialog = getErrorDialog("Error!", jsonObject.getString("message"));
-                    }
-                } catch (JSONException e) {
-                    Log.e(TAG, "Failed to update bio; json malformed " + e);
-                    errorDialog = getErrorDialog("Network Error", "Check your network connection and try again!");
-                }
+                    user.save();
             }
 
             return null;

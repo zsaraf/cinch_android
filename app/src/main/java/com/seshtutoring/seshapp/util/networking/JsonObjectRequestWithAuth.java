@@ -32,10 +32,11 @@ public class JsonObjectRequestWithAuth extends JsonObjectRequest {
     public Map<String, String> mParams;
     public Context mContext;
 
-    public JsonObjectRequestWithAuth(int method, String url, JSONObject params,
+    public JsonObjectRequestWithAuth(int method, String url, JSONObject params, Context mContext,
                                      Response.Listener<JSONObject> successListener,
                                      Response.ErrorListener errorListener) {
         super(method, url, params, successListener, errorListener);
+        this.mContext = mContext;
     }
 
     @Override

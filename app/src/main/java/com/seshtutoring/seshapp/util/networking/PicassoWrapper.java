@@ -25,15 +25,14 @@ public class PicassoWrapper {
 
         //make Picasso builder
         OkHttpClient picassoClient = new OkHttpClient();
-        picassoClient.interceptors().add(new Interceptor() {
-            @Override
-            public com.squareup.okhttp.Response intercept(Chain chain) throws IOException {
-                Request newRequest = chain.request().newBuilder()
-                        .addHeader("Authorization", "Basic dGVhbXNlc2g6RWFibHRmMSE=")
-                        .build();
-                return chain.proceed(newRequest);
-            }
-        });
+//        picassoClient.interceptors().add(new Interceptor() {
+//            @Override
+//            public com.squareup.okhttp.Response intercept(Chain chain) throws IOException {
+//                Request newRequest = chain.request().newBuilder()
+//                        .build();
+//                return chain.proceed(newRequest);
+//            }
+//        });
         Picasso.Builder builder = new Picasso.Builder(mContext);
 
         this.picasso = builder

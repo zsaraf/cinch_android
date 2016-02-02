@@ -123,7 +123,8 @@ public class ProfileBioViewFragment extends Fragment implements MainContainerAct
                     }, new Response.ErrorListener() {
                         @Override
                         public void onErrorResponse(VolleyError volleyError) {
-                            onUpdateInfoFailure(volleyError.getMessage());
+                            String detail = SeshNetworking.networkErrorDetail(volleyError);
+                            onUpdateInfoFailure(detail);
                         }
                     });
                 }else if (resultCode == EditProfileActivity.RESULT_CANCELED) {
@@ -135,34 +136,20 @@ public class ProfileBioViewFragment extends Fragment implements MainContainerAct
     }
 
     private void onUpdateInfoResponse(JSONObject responseJson) {
-        try {
-            if (responseJson.get("status").equals("SUCCESS")) {
-                //success!!
-                bioView.setTextColor(getResources().getColor(R.color.seshlightgray));
-                majorView.setTextColor(getResources().getColor(R.color.seshlightgray));
-                user.major = majorView.getText().toString();
-                user.bio = bioView.getText().toString();
-                if (bioView.getText().equals("edit profile to add bio")) {
-                    bioView.setTextColor(getResources().getColor(R.color.light_gray));
-                    user.bio = "";
-                }
-                if (majorView.getText().equals("edit profile to add major")) {
-                    majorView.setTextColor(getResources().getColor(R.color.light_gray));
-                    user.major = "";
-                }
-                user.save();
-
-            } else if (responseJson.get("status").equals("FAILURE")) {
-                String message = responseJson.get("message").toString();
-                showErrorDialog("Whoops!", message);
-                bioView.setText(oldBio);
-                majorView.setText(oldMajor);
-            }
-        } catch (JSONException e) {
-            showErrorDialog("Whoops!", "There was an error updating your profile, please try again later.");
-            bioView.setText(oldBio);
-            majorView.setText(oldMajor);
+        //success!!
+        bioView.setTextColor(getResources().getColor(R.color.seshlightgray));
+        majorView.setTextColor(getResources().getColor(R.color.seshlightgray));
+        user.major = majorView.getText().toString();
+        user.bio = bioView.getText().toString();
+        if (bioView.getText().equals("edit profile to add bio")) {
+            bioView.setTextColor(getResources().getColor(R.color.light_gray));
+            user.bio = "";
         }
+        if (majorView.getText().equals("edit profile to add major")) {
+            majorView.setTextColor(getResources().getColor(R.color.light_gray));
+            user.major = "";
+        }
+        user.save();
     }
 
     private void onUpdateInfoFailure(String errorMessage) {

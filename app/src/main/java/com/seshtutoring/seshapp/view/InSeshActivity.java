@@ -103,8 +103,9 @@ public class InSeshActivity extends SeshActivity {
                                 @Override
                                 public void onErrorResponse(VolleyError volleyError) {
                                     setNetworking(false);
+                                    String detail = SeshNetworking.networkErrorDetail(volleyError);
                                     Log.e(TAG, "Failed to end sesh; network error: " + volleyError);
-                                    showErrorDialog("Network Error", "Whoops! We couldn't reach the server.  Check your network settings and try again.");
+                                    showErrorDialog("Network Error", detail);
                                 }
                             });
                         }

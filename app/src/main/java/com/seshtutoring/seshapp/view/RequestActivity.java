@@ -20,6 +20,7 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
+import com.android.volley.VolleyError;
 import com.android.volley.toolbox.RequestFuture;
 import com.facebook.rebound.SimpleSpringListener;
 import com.facebook.rebound.Spring;
@@ -365,8 +366,12 @@ public class RequestActivity extends SeshActivity implements
 
                 @Override
                 public void onErrorException(Exception e) {
-                    errorDialog = SeshDialog.createDialog("Network Error",
-                            "We couldn't reach the server.  Check your network settings and try again.",
+                    String detail = "We couldn't reach the server.  Check your network settings and try again.";
+                    if (e instanceof VolleyError) {
+                        detail = SeshNetworking.networkErrorDetail((VolleyError)e);
+                    }
+                    errorDialog = SeshDialog.createDialog("Error",
+                            detail,
                             "Got it", null,
                             DIALOG_TYPE_LEARN_REQUEST_FAILURE);
                     Log.e(TAG, "Network Error: " + e.getMessage());
@@ -377,18 +382,10 @@ public class RequestActivity extends SeshActivity implements
 
             if (jsonObject == null) return null;
 
-//            try {
-                LearnRequest newLearnRequest
-                        = LearnRequest.createOrUpdateLearnRequest(jsonObject);
-                newLearnRequest.requiresAnimatedDisplay = true;
-                newLearnRequest.save();
-//            } catch (JSONException e) {
-//                errorDialog = SeshDialog.createDialog("Whoops!",
-//                        "Something went wrong.  Try again later.",
-//                        "Got it", null,
-//                        DIALOG_TYPE_LEARN_REQUEST_FAILURE);
-//                Log.e(TAG, "Failed to create request, json malformed: " + e);
-//            }
+            LearnRequest newLearnRequest
+                    = LearnRequest.createOrUpdateLearnRequest(jsonObject);
+            newLearnRequest.requiresAnimatedDisplay = true;
+            newLearnRequest.save();
 
             return null;
         }

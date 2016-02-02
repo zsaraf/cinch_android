@@ -1,5 +1,6 @@
 package com.seshtutoring.seshapp.util.networking;
 
+import android.content.Context;
 import android.util.Base64;
 
 import com.android.volley.AuthFailureError;
@@ -36,22 +37,15 @@ public class JsonMultipartRequest<T> extends Request<T> {
     private MultipartEntityBuilder mBuilder = MultipartEntityBuilder.create();
     private final Response.Listener<JSONObject> mListener;
     private final File yourImageFile;
+    public Context mContext;
     protected Map<String, String> headers;
     protected Map<String, String> mParams;
 
-    public JsonMultipartRequest(String url, String sessionId, Response.Listener<JSONObject> listener, Response.ErrorListener errorListener, String imageUri) {
+    public JsonMultipartRequest(String url, Context mContext, Response.Listener<JSONObject> listener, Response.ErrorListener errorListener, File image) {
         super(Method.POST, url, errorListener);
-        mListener = listener;
-        yourImageFile = new File(imageUri);
-        mBuilder.addTextBody("session_id", sessionId, ContentType.TEXT_PLAIN);
-        addImageEntity();
-    }
-
-    public JsonMultipartRequest(String url, String sessionId, Response.Listener<JSONObject> listener, Response.ErrorListener errorListener, File image) {
-        super(Method.POST, url, errorListener);
+        this.mContext = mContext;
         mListener = listener;
         yourImageFile = image;
-        mBuilder.addTextBody("session_id", sessionId, ContentType.TEXT_PLAIN);
         addImageEntity();
     }
 
@@ -63,15 +57,14 @@ public class JsonMultipartRequest<T> extends Request<T> {
             headers = new HashMap<String, String>();
         }
         //headers.put("Accept", "application/json");
-        headers.put("Authorization", String.format("Basic %s", Base64.encodeToString(
-                String.format("%s:%s", BASIC_AUTH_USERNAME, BASIC_AUTH_PASSWORD).getBytes(),
-                Base64.NO_WRAP)));
+        headers.put("Authorization", "Basic dGVhbXNlc2g6RWFibHRmMSE=");
+        headers.put("X-Session-Id", SeshAuthManager.sharedManager(mContext).getAccessToken());
         return headers;
     }
 
     private void addImageEntity() {
         //mBuilder.addBinaryBody("file", yourImageFile, ContentType.create("image/jpeg"), yourImageFile.getName());
-        mBuilder.addBinaryBody("file", yourImageFile, ContentType.create("image/jpeg"), "file");
+        mBuilder.addBinaryBody("profile_picture", yourImageFile, ContentType.create("image/jpeg"), "profile_picture");
         mBuilder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
         mBuilder.setLaxMode().setBoundary("xx").setCharset(Charset.forName("UTF-8"));
     }

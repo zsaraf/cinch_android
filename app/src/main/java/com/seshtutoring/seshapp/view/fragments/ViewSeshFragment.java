@@ -427,17 +427,18 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
                     @Override
                     public void onResponse(JSONObject jsonObject) {
                         setNetworking(false);
-                            sesh.delete();
-                            MainContainerActivity mainContainerActivity = (MainContainerActivity) getActivity();
-                            MainContainerStateManager mainContainerStateManager
-                                    = mainContainerActivity.getContainerStateManager();
-                            mainContainerStateManager.setContainerStateForNavigation(NavigationItemState.HOME);
+                        sesh.delete();
+                        MainContainerActivity mainContainerActivity = (MainContainerActivity) getActivity();
+                        MainContainerStateManager mainContainerStateManager
+                                = mainContainerActivity.getContainerStateManager();
+                        mainContainerStateManager.setContainerStateForNavigation(NavigationItemState.HOME);
                     }
                 }, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError volleyError) {
                         setNetworking(false);
-                        showNetworkingErrorWithTitle("Error!", null);
+                        String detail = SeshNetworking.networkErrorDetail(volleyError);
+                        showNetworkingErrorWithTitle("Error!", detail);
                     }
                 });
             }
@@ -468,7 +469,8 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
                     @Override
                     public void onErrorResponse(VolleyError volleyError) {
                         setNetworking(false);
-                        showNetworkingErrorWithTitle("Error!", null);
+                        String detail = SeshNetworking.networkErrorDetail(volleyError);
+                        showNetworkingErrorWithTitle("Error!", detail);
                     }
                 });
             }

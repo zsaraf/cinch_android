@@ -131,24 +131,29 @@ public class SeshNetworking {
     }
 
     public String s3BucketPrefix() {
-        if (SeshApplication.IS_LIVE) {
+        if (!SeshApplication.IS_DEV) {
             return "https://sesh-tutoring-prod.s3.amazonaws.com";
         } else {
             return "https://sesh-tutoring-dev.s3.amazonaws.com";
         }
     }
 
+    public static String networkErrorDetail(VolleyError volleyError) {
+        if (volleyError.networkResponse != null) {
+            try {
+                JSONObject object = new JSONObject(new String(volleyError.networkResponse.data));
+                return object.getString("detail");
+            } catch (JSONException e) {
+                return "We couldn't reach the network, sorry!";
+            }
+        } else {
+            return "We couldn't reach the network, sorry!";
+        }
+    }
+
     public void downloadProfilePictureAsync(String profilePictureUrl, ImageView imageView, Callback callback) {
         profilePictureUrl = s3BucketPrefix() + "/images/profile_pictures/" + profilePictureUrl + "_large.jpeg";
         PicassoWrapper.getInstance(mContext).picasso.load(profilePictureUrl).placeholder(R.drawable.default_profile_picture).into(imageView, callback);
-    }
-
-    public void downloadProfilePictureAsyncNoPlaceholder(String profilePictureUrl, ImageView imageView, Callback callback) {
-
-        profilePictureUrl = baseUrl() + "resources/images/profile_pictures/" + profilePictureUrl;
-        PicassoWrapper.getInstance(mContext).picasso.load(profilePictureUrl).into(imageView, callback);
-
-
     }
 
     public void postWithRelativeUrl(String relativeUrl, Map<String, String> params, RequestType requestType, RequestMethod requestMethod,
@@ -176,7 +181,7 @@ public class SeshNetworking {
 
             int method = requestMethod == RequestMethod.GET ? 0 : 1;
             JsonObjectRequestWithAuth requestWithAuth = new JsonObjectRequestWithAuth(method, absoluteUrl,
-                    jsonParams, successListenerWrapper, errorListener);
+                    jsonParams, mContext, successListenerWrapper, errorListener);
             requestWithAuth.setRetryPolicy(new DefaultRetryPolicy(
                     20000,
                     DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
@@ -209,7 +214,7 @@ public class SeshNetworking {
                 params.toString());
         int method = requestMethod == RequestMethod.GET ? 0 : 1;
         JsonObjectRequestWithAuth requestWithAuth = new JsonObjectRequestWithAuth(method, absoluteUrl,
-                new JSONObject(params), successListener, errorListener);
+                new JSONObject(params), mContext, successListener, errorListener);
         requestWithAuth.setRetryPolicy(new DefaultRetryPolicy(
                 20000,
                 DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
@@ -673,12 +678,8 @@ public class SeshNetworking {
     public void uploadProfilePicture(Response.Listener<JSONObject> successListener, Response.ErrorListener errorListener, File image) {
         Map<String, String> params = new HashMap<>();
         String url = baseUrl() + apiUrl(RequestType.DJANGO) + "accounts/users/upload_profile_picture/";
-        JsonMultipartRequest request = new JsonMultipartRequest(url, SeshAuthManager.sharedManager(mContext).getAccessToken(), successListener, errorListener, image);
+        JsonMultipartRequest request = new JsonMultipartRequest(url, mContext, successListener, errorListener, image);
 
-        Map<String, String> headerParams = new HashMap<String, String>();
-        headerParams.put("Authorization", "Basic dGVhbXNlc2g6RWFibHRmMSE=");
-        headerParams.put("X-Session-Id", SeshAuthManager.sharedManager(mContext).getAccessToken());
-        request.headers = headerParams;
         VolleyNetworkingWrapper.getInstance(mContext).addToRequestQueue(request);
     }
 

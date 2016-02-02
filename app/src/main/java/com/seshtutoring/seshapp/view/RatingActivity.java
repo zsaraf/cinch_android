@@ -143,9 +143,10 @@ public class RatingActivity extends SeshActivity {
                     }, new Response.ErrorListener() {
                         @Override
                         public void onErrorResponse(VolleyError volleyError) {
+                            String detail = SeshNetworking.networkErrorDetail(volleyError);
                             setNetworkOperationInProgress(false);
                             SeshDialog.showDialog(getFragmentManager(), "Whoops",
-                                    "Something went wrong.  Try again later.",
+                                    detail,
                                     "Okay", null, "error");
                         }
                     });

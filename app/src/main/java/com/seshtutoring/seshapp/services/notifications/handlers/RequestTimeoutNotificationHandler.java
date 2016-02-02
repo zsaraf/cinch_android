@@ -158,15 +158,9 @@ public class RequestTimeoutNotificationHandler extends NotificationHandler {
                     @Override
                     public void onResponse(JSONObject jsonObject) {
                         try {
-                            if (jsonObject.getString("status").equals("SUCCESS")) {
                                 LearnRequest.createOrUpdateLearnRequest(jsonObject.getJSONObject("learn_request"));
                                 seshDialog.setNetworking(false);
                                 Notification.currentNotificationHandled(mContext, true);
-                            } else {
-                                Log.e(TAG, "Failed to recreate Learn request: " + jsonObject.getString("message"));
-                                seshDialog.networkOperationFailed("Error!", jsonObject.getString("message"), "OKAY",
-                                        dismissCallback);
-                            }
                         } catch (JSONException e) {
                             Log.e(TAG, "Failed to recreate Learn request; json malformed: " + e);
                             seshDialog.networkOperationFailed("Error!", "Something went wrong.  Try again later.", "OKAY", dismissCallback);
@@ -175,8 +169,9 @@ public class RequestTimeoutNotificationHandler extends NotificationHandler {
                 }, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError volleyError) {
-                        Log.e(TAG, "Failed to recreate Learn request; network error: " + volleyError);
-                        seshDialog.networkOperationFailed("Network Error", "We couldn't reach the server.  Try again later.", "OKAY", dismissCallback);
+                        String detail = SeshNetworking.networkErrorDetail(volleyError);
+                        Log.e(TAG, "Failed to recreate Learn request; network error: " + detail);
+                        seshDialog.networkOperationFailed("Error", detail, "OKAY", dismissCallback);
                     }
                 });
             }

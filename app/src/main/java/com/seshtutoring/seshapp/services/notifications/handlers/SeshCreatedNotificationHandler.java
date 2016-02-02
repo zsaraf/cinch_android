@@ -148,8 +148,8 @@ public class SeshCreatedNotificationHandler extends NotificationHandler {
                     foregroundActivity.startActivity(intent);
                 }
 
+//                Notification.currentNotificationHandled(mContext, false);
                 seshDialog.dismiss();
-                Notification.currentNotificationHandled(mContext, false);
             }
         });
 

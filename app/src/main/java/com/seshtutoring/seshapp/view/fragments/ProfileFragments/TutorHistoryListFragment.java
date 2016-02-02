@@ -5,6 +5,7 @@ import android.content.Context;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -95,7 +96,7 @@ public class TutorHistoryListFragment extends ListFragment{
 
     private void filterPastSeshesForStudent() {
         for (int i = 0; i < pastSeshes.size(); i++) {
-            if (pastSeshes.get(i).tutorUserId == user.userId) {
+            if (!pastSeshes.get(i).isStudent(mainContainerActivity)) {
                 //user is the tutor in this sesh, do not include on this page
                 pastSeshes.remove(i);
                 i--;
@@ -159,12 +160,10 @@ public class TutorHistoryListFragment extends ListFragment{
             seshNetworking.downloadProfilePictureAsync(item.tutorProfilePicture, viewHolder.profileImageView, new Callback() {
                 @Override
                 public void onSuccess() {
-
                 }
 
                 @Override
                 public void onError() {
-
                 }
             });
 
