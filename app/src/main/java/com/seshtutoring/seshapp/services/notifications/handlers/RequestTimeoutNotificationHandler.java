@@ -42,30 +42,24 @@ public class RequestTimeoutNotificationHandler extends NotificationHandler {
 
     @Override
     public void handleDisplayInsideApp() {
-        int pastRequestId = (int) mNotification.getDataObject("past_request_id");
         final int requestId = (int) mNotification.getDataObject("request_id");
 
         SeshNetworking seshNetworking = new SeshNetworking(mContext);
-        seshNetworking.getPastRequestInformationForPastRequestId(pastRequestId, new Response.Listener<JSONObject>() {
+        seshNetworking.getRequestInformationForRequestId(requestId, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject jsonObject) {
                 try {
-                    if (jsonObject.getString("status").equals("SUCCESS")) {
-                        List<LearnRequest> learnRequestsFound =
-                                LearnRequest.find(LearnRequest.class, "learn_request_id = ?", Integer.toString(requestId));
+                    List<LearnRequest> learnRequestsFound =
+                            LearnRequest.find(LearnRequest.class, "learn_request_id = ?", Integer.toString(requestId));
 
-                        if (learnRequestsFound.size() > 0) {
-                            LearnRequest currentLearnRequest = learnRequestsFound.get(0);
-                            currentLearnRequest.delete();
-                        }
-
-                        PastRequest pastRequest = PastRequest.createOrUpdatePastRequest(jsonObject.getJSONObject("past_request"));
-
-                        showDialog(pastRequest, false);
-                    } else {
-                        Log.e(TAG, "Failed to get past request information: " + jsonObject.getString("message"));
-                        Notification.currentNotificationHandled(mContext, false);
+                    if (learnRequestsFound.size() > 0) {
+                        LearnRequest currentLearnRequest = learnRequestsFound.get(0);
+                        currentLearnRequest.delete();
                     }
+
+                    PastRequest pastRequest = PastRequest.createOrUpdatePastRequest(jsonObject.getJSONObject("past_request"));
+
+                    showDialog(pastRequest, false);
                 } catch (JSONException e) {
                     Log.e(TAG, "Failed to get past request information; json malformed: " + e);
                     Notification.currentNotificationHandled(mContext, false);

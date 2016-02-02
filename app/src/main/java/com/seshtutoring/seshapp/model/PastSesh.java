@@ -6,6 +6,7 @@ import android.widget.ImageView;
 
 import com.orm.SugarRecord;
 import com.orm.dsl.Ignore;
+import com.seshtutoring.seshapp.util.DateUtils;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.squareup.picasso.Callback;
 
@@ -51,55 +52,61 @@ public class PastSesh extends SugarRecord<PastSesh> {
 
     public static PastSesh createOrUpdatePastSesh(JSONObject pastSeshObject) {
         PastSesh pastSesh = null;
-        int pastSeshId = -1;
 
         try {
-            if (pastSeshObject.has("past_sesh_id")) {
-                pastSeshId = pastSeshObject.getInt("past_sesh_id");
+            int pastSeshId = pastSeshObject.getInt("id");
+            Course course = Course.createOrUpdateCourseWithJSON(pastSeshObject.getJSONObject("course"), null, true);
+            String className = course.shortFormatForTextView();
 
-                List<PastSesh> pastSeshesFound = PastSesh.find(PastSesh.class, "past_sesh_id = ?", Integer.toString(pastSeshId));
+            pastSeshId = pastSeshObject.getInt("id");
 
-                if (pastSeshesFound.size() > 0) {
-                    pastSesh = pastSeshesFound.get(0);
-                } else {
-                    pastSesh = new PastSesh();
-                }
+            List<PastSesh> pastSeshesFound = PastSesh.find(PastSesh.class, "past_sesh_id = ?", Integer.toString(pastSeshId));
+
+            if (pastSeshesFound.size() > 0) {
+                pastSesh = pastSeshesFound.get(0);
             } else {
                 pastSesh = new PastSesh();
             }
 
             pastSesh.pastSeshId = pastSeshId;
-            pastSesh.className = pastSeshObject.getString("class_name");
+
+            pastSesh.className = className;
             if (!pastSeshObject.getString("start_time").equals("null")) {
-                pastSesh.startTime = formattedTime(pastSeshObject.getString("start_time")).getTime();
+                pastSesh.startTime = DateUtils.djangoFormattedTime(pastSeshObject.getString("start_time")).getTime();
             }
             if (!pastSeshObject.getString("end_time").equals("null")) {
-                pastSesh.endTime = formattedTime(pastSeshObject.getString("end_time")).getTime();
+                pastSesh.endTime = DateUtils.djangoFormattedTime(pastSeshObject.getString("end_time")).getTime();
             }
 
-            JSONObject studentObject = pastSeshObject.getJSONObject("student");
-            JSONObject tutorObject = pastSeshObject.getJSONObject("tutor");
+            if (pastSeshObject.get("student") instanceof JSONObject) {
+                JSONObject studentObject = pastSeshObject.getJSONObject("student");
+                pastSesh.studentFullName = studentObject.getString("full_name");
+                pastSesh.studentMajor = studentObject.getString("major");
+                pastSesh.studentUserId = studentObject.getInt("user_id");
+                pastSesh.studentId = studentObject.getInt("id");
+                pastSesh.studentProfilePicture = studentObject.getString("profile_picture");
+            } else {
+                pastSesh.studentId = pastSeshObject.getInt("student");
+            }
 
-            pastSesh.studentFullName = studentObject.getString("full_name");
-            pastSesh.studentMajor = studentObject.getString("major");
-            pastSesh.studentUserId = studentObject.getInt("user_id");
-            pastSesh.studentId = studentObject.getInt("id");
-            pastSesh.studentProfilePicture = studentObject.getString("profile_picture");
-
-            pastSesh.tutorFullName = tutorObject.getString("full_name");
-            pastSesh.tutorMajor = tutorObject.getString("major");
-            pastSesh.tutorUserId = tutorObject.getInt("user_id");
-            pastSesh.tutorId = tutorObject.getInt("id");
-            pastSesh.tutorProfilePicture = tutorObject.getString("profile_picture");
+            if (pastSeshObject.get("tutor") instanceof JSONObject) {
+                JSONObject tutorObject = pastSeshObject.getJSONObject("tutor");
+                pastSesh.tutorFullName = tutorObject.getString("full_name");
+                pastSesh.tutorMajor = tutorObject.getString("major");
+                pastSesh.tutorUserId = tutorObject.getInt("user_id");
+                pastSesh.tutorId = tutorObject.getInt("id");
+                pastSesh.tutorProfilePicture = tutorObject.getString("profile_picture");
+            } else {
+                pastSesh.tutorId = pastSeshObject.getInt("tutor");
+            }
 
             pastSesh.creditsUsed = pastSeshObject.getDouble("credits_used");
             pastSesh.paymentUsed = pastSeshObject.getDouble("payment_used");
-            pastSesh.descr = pastSeshObject.getString("description");
             pastSesh.cost = pastSeshObject.getDouble("cost");
             pastSesh.tutorEarnings = pastSeshObject.getDouble("tutor_earnings");
-            pastSesh.wasCancelled = (pastSeshObject.getInt("was_cancelled") == 1);
+            pastSesh.wasCancelled = pastSeshObject.getBoolean("was_cancelled");
             pastSesh.cancellationCharge = pastSeshObject.getDouble("cancellation_charge");
-            pastSesh.pastRequestId = pastSeshObject.getInt("past_request_id");
+            pastSesh.pastRequestId = pastSeshObject.getInt("past_request");
 
             pastSesh.save();
         } catch (JSONException e) {
@@ -108,11 +115,6 @@ public class PastSesh extends SugarRecord<PastSesh> {
         }
 
         return pastSesh;
-    }
-
-    private static Date formattedTime(String rawTimeString) {
-        DateTimeFormatter formatter = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss").withZoneUTC();
-        return formatter.parseDateTime(rawTimeString).toDate();
     }
 
     public boolean isStudent(Context context) {

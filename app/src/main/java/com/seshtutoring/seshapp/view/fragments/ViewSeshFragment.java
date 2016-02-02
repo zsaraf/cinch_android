@@ -1,23 +1,16 @@
 package com.seshtutoring.seshapp.view.fragments;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Bitmap;
-import android.location.Location;
-import android.net.Uri;
-import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -36,25 +29,21 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.seshtutoring.seshapp.R;
-import com.seshtutoring.seshapp.model.Message;
+import com.seshtutoring.seshapp.model.ChatroomActivity;
 import com.seshtutoring.seshapp.model.Sesh;
 import com.seshtutoring.seshapp.util.DateUtils;
-import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.util.SeshUtils;
-import com.seshtutoring.seshapp.util.StorageUtils;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
 import com.seshtutoring.seshapp.view.MainContainerStateManager;
 import com.seshtutoring.seshapp.view.MainContainerStateManager.NavigationItemState;
 import com.seshtutoring.seshapp.view.MessagingActivity;
-import com.seshtutoring.seshapp.view.ReportProblemActivity;
 import com.seshtutoring.seshapp.view.ViewSeshMapActivity;
 import com.seshtutoring.seshapp.view.ViewSeshSetTimeActivity;
 import com.seshtutoring.seshapp.view.components.SeshActivityIndicator;
 import com.seshtutoring.seshapp.view.components.SeshButton;
 import com.seshtutoring.seshapp.view.components.SeshDialog;
 import com.seshtutoring.seshapp.view.components.SeshPageIndicator;
-import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.HomeFragment;
 import com.seshtutoring.seshapp.view.fragments.ViewSeshFragments.ViewSeshSeshDescriptionFragment;
 import com.seshtutoring.seshapp.view.fragments.ViewSeshFragments.ViewSeshUserDescriptionFragment;
 import com.squareup.picasso.Callback;
@@ -62,9 +51,7 @@ import com.squareup.picasso.Callback;
 import org.joda.time.DateTime;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -276,8 +263,7 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
 
     public void refreshMessageButtonText() {
         // Check to see if any messages are unread
-        List<Message> messages = sesh.getMessages();
-        int unreadMessages  = Message.getUnreadMessagesCount(messages);
+        int unreadMessages = sesh.chatroom.unreadActivityCount;
         String messageText = "MESSAGE";
         if (unreadMessages > 0 && unreadMessages < 10) {
             messageText += " (" + unreadMessages + ")";

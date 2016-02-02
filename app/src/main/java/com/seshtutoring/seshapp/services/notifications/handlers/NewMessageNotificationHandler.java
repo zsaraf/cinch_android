@@ -1,29 +1,23 @@
 package com.seshtutoring.seshapp.services.notifications.handlers;
 
-import android.app.Activity;
-import android.app.Application;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.support.v4.app.TaskStackBuilder;
-import android.widget.ImageView;
 
-import com.seshtutoring.seshapp.R;
-import com.seshtutoring.seshapp.SeshApplication;
-import com.seshtutoring.seshapp.model.Message;
+import com.seshtutoring.seshapp.model.Chatroom;
+import com.seshtutoring.seshapp.model.ChatroomActivity;
 import com.seshtutoring.seshapp.model.Notification;
 import com.seshtutoring.seshapp.model.Sesh;
 import com.seshtutoring.seshapp.util.ApplicationLifecycleTracker;
-import com.seshtutoring.seshapp.view.ContainerState;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
-import com.seshtutoring.seshapp.view.MainContainerStateManager;
 import com.seshtutoring.seshapp.view.MessagingActivity;
 import com.seshtutoring.seshapp.view.fragments.ViewSeshFragment;
 import com.squareup.picasso.Callback;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
-import de.hdodenhof.circleimageview.CircleImageView;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Created by nadavhollander on 8/20/15.
@@ -33,18 +27,37 @@ public class NewMessageNotificationHandler extends BannerNotificationHandler {
         super(notification, context);
     }
 
-    private void saveNewMessage() {
-        Sesh sesh = mNotification.correspondingSesh();
-        JSONObject messageJSON = (JSONObject) mNotification.getDataObject("message");
-        Message message = Message.createOrUpdateMessageWithJSON(messageJSON, sesh, mContext);
-        message.save();
-        mContext.sendBroadcast(refreshMessagesIntent());
+    private boolean saveNewMessage() {
+        JSONObject messageJSON = (JSONObject) mNotification.getDataObject("chatroom_activity");
+
+        Chatroom chatroom = null;
+
+        try {
+            List<Chatroom> list = Chatroom.find(Chatroom.class, "chatroom_id = ?", messageJSON.getInt("chatroom") + "");
+            if (list.size() >= 1) {
+                chatroom = list.get(0);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        if (chatroom != null) {
+            ChatroomActivity chatroomActivity = ChatroomActivity.createOrUpdateChatroomActivityWithJSON(messageJSON, chatroom, mContext);
+            if (chatroomActivity != null) {
+                chatroomActivity.save();
+                mContext.sendBroadcast(refreshMessagesIntent());
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
     }
 
     @Override
     public void handleDisplayInsideApp() {
-        saveNewMessage();
-        if (!(ApplicationLifecycleTracker.sharedInstance(mContext).activityInForeground instanceof MessagingActivity)) {
+        boolean messageSaved = saveNewMessage();
+        if (messageSaved && !(ApplicationLifecycleTracker.sharedInstance(mContext).activityInForeground instanceof MessagingActivity)) {
             loadImage(profilePicture, new Callback() {
                 @Override
                 public void onSuccess() {
@@ -63,8 +76,10 @@ public class NewMessageNotificationHandler extends BannerNotificationHandler {
 
     @Override
     public void handleDisplayOutsideApp() {
-        saveNewMessage();
-        showNotificationForIntent(viewSeshActionIntent(false, mNotification.correspondingSesh()));
+        boolean messageSaved = saveNewMessage();
+        if (messageSaved) {
+            showNotificationForIntent(viewSeshActionIntent(false, mNotification.correspondingSesh()));
+        }
     }
 
     public Runnable bannerTapCallback() {

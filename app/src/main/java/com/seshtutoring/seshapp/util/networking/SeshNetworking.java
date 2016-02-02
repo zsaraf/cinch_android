@@ -1,11 +1,9 @@
 package com.seshtutoring.seshapp.util.networking;
 
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.Build;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -14,7 +12,6 @@ import android.widget.ImageView;
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.RequestFuture;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.SeshApplication;
@@ -25,19 +22,9 @@ import com.seshtutoring.seshapp.model.Department;
 import com.seshtutoring.seshapp.model.LearnRequest;
 import com.seshtutoring.seshapp.model.Notification;
 import com.seshtutoring.seshapp.util.DeviceUtils;
-import com.seshtutoring.seshapp.util.SeshImageCache;
-import com.seshtutoring.seshapp.view.SeshActivity;
-import com.squareup.okhttp.Interceptor;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
 import com.squareup.picasso.Callback;
-import com.squareup.picasso.LruCache;
-import com.squareup.picasso.OkHttpDownloader;
-import com.squareup.picasso.Picasso;
-import com.stripe.android.Stripe;
 
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.json.JSONArray;
@@ -46,16 +33,10 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.TimeZone;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -89,7 +70,7 @@ public class SeshNetworking {
     private static final String NEW_PASSWORD_PARAM = "new_password";
     private static final String SCHOOL_NAME_PARAM = "school_name";
     private static final String FULL_LEGAL_NAME_PARAM = "full_legal_name";
-    private static final String CLASS_ID_PARAM = "class_id";
+    private static final String CLASS_ID_PARAM = "course";
     private static final String CODE_PARAM = "code";
     private static final String CUSTOMER_TOKEN_PARAM = "customer_token";
     private static final String RECIPIENT_TOKEN_PARAM = "recipient_token";
@@ -97,7 +78,7 @@ public class SeshNetworking {
     private static final String NUM_PEOPLE_PARAM = "num_people";
     private static final String DESCRIPTION_PARAM = "description";
     private static final String EST_TIME_PARAM = "est_time";
-    private static final String RATE_PARAM = "rate";
+    private static final String RATE_PARAM = "hourly_rate";
     private static final String FAVORITES_PARAM = "favorites";
     private static final String AVAILABLE_BLOCKS_PARAM = "available_blocks";
     private static final String IS_INSTANT_PARAM = "is_instant";
@@ -109,10 +90,10 @@ public class SeshNetworking {
     private static final String LOCATION_NOTES_PARAM = "location_notes";
     private static final String IS_PAST_PARAM = "is_past";
     private static final String PAST_SESH_ID_PARAM = "past_sesh_id";
-    private static final String CONTENT_PARAM = "content";
+    private static final String CONTENT_PARAM = "message";
     private static final String SET_TIME_PARAM = "start_time";
     private static final String HANDLED_NOTIFICATIONS_PARAM = "handled_notifications";
-    private static final String MESSAGE_ID_PARAM = "message_id";
+    private static final String MESSAGE_ID_PARAM = "last_activity_id";
     private static final String DISCOUNT_ID = "discount_id";
     private static final String CARD_ID_PARAM = "card_id";
     private static final String CLASSES_TO_ADD_ID = "classes_to_add";
@@ -121,6 +102,10 @@ public class SeshNetworking {
     private static final String DEPARTMENTS_TO_DELETE_ID = "depts_to_delete";
     private static final String CANCELLATION_REASON_PARAM = "cancellation_reason";
 
+    public enum RequestMethod {
+        POST,
+        GET,
+    }
 
     public enum RequestType {
         DJANGO,
@@ -160,21 +145,21 @@ public class SeshNetworking {
 
     }
 
-    public void postWithRelativeUrl(String relativeUrl, Map<String, String> params, RequestType requestType,
+    public void postWithRelativeUrl(String relativeUrl, Map<String, String> params, RequestType requestType, RequestMethod requestMethod,
                                     final Response.Listener<JSONObject> successListener,
                                     Response.ErrorListener errorListener) {
-        postWithRelativeUrl(relativeUrl, new JSONObject(params), requestType, successListener, errorListener);
+        postWithRelativeUrl(relativeUrl, new JSONObject(params), requestType, requestMethod, successListener, errorListener);
     }
 
-    public void postWithRelativeUrl(String relativeUrl, JSONObject jsonParams, RequestType requestType,
+    public void postWithRelativeUrl(String relativeUrl, JSONObject jsonParams, RequestType requestType, RequestMethod requestMethod,
                                     final Response.Listener<JSONObject> successListener,
                                     Response.ErrorListener errorListener) {
         String absoluteUrl = baseUrl() + apiUrl(requestType) + relativeUrl;
 
-        Log.i(TAG, "Issuing POST request to URL:  " + absoluteUrl + " with params: " +
-                jsonParams.toString());
+//        Log.i(TAG, "Issuing POST request to URL:  " + absoluteUrl + " with params: " +
+//                jsonParams != null ? jsonParams.toString() : "{}");
 
-        if (!jsonParams.has(SESSION_ID_PARAM) || SeshAuthManager.sharedManager(mContext).isValidSession()) {
+        if ((requestType == RequestType.DJANGO || !jsonParams.has(SESSION_ID_PARAM)) || SeshAuthManager.sharedManager(mContext).isValidSession()) {
             Response.Listener<JSONObject> successListenerWrapper = new Response.Listener<JSONObject>() {
                 @Override
                 public void onResponse(JSONObject jsonObject) {
@@ -183,7 +168,8 @@ public class SeshNetworking {
                 }
             };
 
-            JsonPostRequestWithAuth requestWithAuth = new JsonPostRequestWithAuth(absoluteUrl,
+            int method = requestMethod == RequestMethod.GET ? 0 : 1;
+            JsonObjectRequestWithAuth requestWithAuth = new JsonObjectRequestWithAuth(method, absoluteUrl,
                     jsonParams, successListenerWrapper, errorListener);
             requestWithAuth.setRetryPolicy(new DefaultRetryPolicy(
                     20000,
@@ -208,14 +194,15 @@ public class SeshNetworking {
         }
     }
 
-    public void postWithLongTimeout(String relativeUrl, Map<String, String> params,
+    public void postWithLongTimeout(String relativeUrl, Map<String, String> params, RequestType requestType,  RequestMethod requestMethod,
                                     Response.Listener<JSONObject> successListener,
                                     Response.ErrorListener errorListener) {
-        String absoluteUrl = baseUrl() + apiUrl() + relativeUrl;
+        String absoluteUrl = baseUrl() + apiUrl(requestType) + relativeUrl;
 
         Log.i(TAG, "Issuing POST request to URL:  " + absoluteUrl + " with params: " +
                 params.toString());
-        JsonPostRequestWithAuth requestWithAuth = new JsonPostRequestWithAuth(absoluteUrl,
+        int method = requestMethod == RequestMethod.GET ? 0 : 1;
+        JsonObjectRequestWithAuth requestWithAuth = new JsonObjectRequestWithAuth(method, absoluteUrl,
                 new JSONObject(params), successListener, errorListener);
         requestWithAuth.setRetryPolicy(new DefaultRetryPolicy(
                 20000,
@@ -235,7 +222,7 @@ public class SeshNetworking {
         params.put(PASSWORD_PARAM, password);
         params.put(VERSION_NUMBER_PARAM, "2.0");
 
-        postWithRelativeUrl("create_user.php", params, successListener, errorListener);
+        postWithRelativeUrl("accounts/users/", params, RequestType.DJANGO, RequestMethod.POST, successListener, errorListener);
     }
 
     public void loginWithEmail(String email, String password,
@@ -248,7 +235,7 @@ public class SeshNetworking {
 
         DeviceUtils.paramsByAddingDeviceInformation(params, mContext);
 
-        postWithRelativeUrl("login.php", params, successListener, errorListener);
+        postWithRelativeUrl("accounts/users/login/", params, RequestType.DJANGO, RequestMethod.POST, successListener, errorListener);
     }
 
     public void forgotPasswordWithEmail(String email,
@@ -257,7 +244,7 @@ public class SeshNetworking {
         Map<String, String> params = new HashMap<>();
         params.put(EMAIL_PARAM, email);
 
-        postWithRelativeUrl("forgot_password.php", params, successListener, errorListener);
+        postWithRelativeUrl("forgot_password.php", params, RequestType.PHP, RequestMethod.POST, successListener, errorListener);
     }
 
     public void searchForClassName(String className,
@@ -268,7 +255,7 @@ public class SeshNetworking {
         params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
         params.put(SEARCH_QUERY_PARAM, className);
 
-        postWithRelativeUrl("search_classes.php", params, successListener, errorListener);
+        postWithRelativeUrl("search_classes.php", params, RequestType.PHP, RequestMethod.POST, successListener, errorListener);
     }
 
     public void updateDeviceToken(String deviceToken,
@@ -277,23 +264,21 @@ public class SeshNetworking {
         Map<String, String> params = new HashMap<>();
         params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
         params.put(DEVICE_TOKEN_PARAM, deviceToken);
-        params.put(IS_DEV_PARAM, SeshApplication.IS_DEV ? "1" : "0");
 
         DeviceUtils.paramsByAddingDeviceInformation(params, mContext);
 
-        postWithRelativeUrl("update_device_token.php", params, successListener, errorListener);
+        postWithRelativeUrl("update_device_token.php", params, RequestType.PHP, RequestMethod.POST, successListener, errorListener);
     }
 
     public void updateUserInformationWithMajorAndBio(String major, String bio,
                                                      Response.Listener<JSONObject> successListener,
                                                      Response.ErrorListener errorListener) {
         Map<String, String> params = new HashMap<>();
-        params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
         params.put(MAJOR_PARAM, major);
         params.put(BIO_PARAM, bio);
         params.put(CLASS_YEAR_PARAM, "2015"); // @TODO this is sketchy
 
-        postWithRelativeUrl("update_user_info.php", params, successListener, errorListener);
+        postWithRelativeUrl("accounts/users/update_user_info/", params, RequestType.DJANGO, RequestMethod.POST, successListener, errorListener);
     }
 
     public void sendBecomeATutorEmail(Response.Listener<JSONObject> successListener,
@@ -301,31 +286,14 @@ public class SeshNetworking {
         Map<String, String> params = new HashMap<>();
         params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
 
-        postWithRelativeUrl("send_become_a_tutor_email.php", params, successListener, errorListener);
+        postWithRelativeUrl("send_become_a_tutor_email.php", params, RequestType.PHP, RequestMethod.POST, successListener, errorListener);
     }
 
     public void getFullUserInfo(Response.Listener<JSONObject> successListener,
                                 Response.ErrorListener errorListener) {
         Map<String, String> params = new HashMap<>();
-        params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
 
-        postWithRelativeUrl("get_user_info.php", params, successListener, errorListener);
-    }
-
-    public void makeTutorUnavailable(Response.Listener<JSONObject> successListener,
-                                     Response.ErrorListener errorListener) {
-        Map<String, String> params = new HashMap<>();
-        params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
-
-        postWithRelativeUrl("make_tutor_unavailable.php", params, successListener, errorListener);
-    }
-
-    public void getSeshInformation(Response.Listener<JSONObject> successListener,
-                                   Response.ErrorListener errorListener) {
-        Map<String, String> params = new HashMap<>();
-        params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
-
-        postWithRelativeUrl("get_sesh_info.php", params, successListener, errorListener);
+        postWithRelativeUrl("accounts/users/get_full_info/", params, RequestType.DJANGO, RequestMethod.GET, successListener, errorListener);
     }
 
     public void verifySeshStateWithSeshStateIdentifier(String identifier,
@@ -335,39 +303,10 @@ public class SeshNetworking {
         params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
         params.put(SESH_STATE_IDENTIFIER_PARAM, identifier);
 
-        postWithRelativeUrl("verify_sesh_state.php", params, successListener, errorListener);
+        postWithRelativeUrl("verify_sesh_state.php", params, RequestType.PHP, RequestMethod.POST, successListener, errorListener);
     }
 
-    public void favoriteTutor(String tutorId, Response.Listener<JSONObject> successListener,
-                              Response.ErrorListener errorListener) {
-        Map<String, String> params = new HashMap<>();
-        params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
-        params.put(TUTOR_ID_PARAM, tutorId);
-
-        postWithRelativeUrl("favorite_tutor.php", params, successListener, errorListener);
-    }
-
-    public void unfavoriteTutor(String tutorId, Response.Listener<JSONObject> successListener,
-                                Response.ErrorListener errorListener) {
-        Map<String, String> params = new HashMap<>();
-        params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
-        params.put(TUTOR_ID_PARAM, tutorId);
-
-        postWithRelativeUrl("unfavorite_tutor.php", params, successListener, errorListener);
-    }
-
-    public void updateTutorLatLong(float latitude, float longitude,
-                                   Response.Listener<JSONObject> successListener,
-                                   Response.ErrorListener errorListener) {
-        Map<String, String> params = new HashMap<>();
-        params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
-        params.put(LATITUDE_PARAM, Float.toString(latitude));
-        params.put(LONGITUDE_PARAM, Float.toString(longitude));
-
-        postWithRelativeUrl("update_tutor_location.php", params, successListener, errorListener);
-    }
-
-    public void submitSeshRating(int helpfulRating, int knowledgeRating, int friendlinessRating,
+    public void submitSeshRating(int seshId, int helpfulRating, int knowledgeRating, int friendlinessRating,
                                  boolean favorited, Response.Listener<JSONObject> successListener,
                                  Response.ErrorListener errorListener) {
         Map<String, String> params = new HashMap<>();
@@ -377,7 +316,7 @@ public class SeshNetworking {
         params.put(FRIENDLINESS_RATING_PARAM, Integer.toString(friendlinessRating));
         params.put(FAVORITED_PARAM, favorited ? "1" : "0");
 
-        postWithRelativeUrl("submit_rating.php", params, successListener, errorListener);
+        postWithRelativeUrl("tutoring/past_seshes/" + seshId + "/submit_rating/", params, RequestType.DJANGO, RequestMethod.POST, successListener, errorListener);
     }
 
     public void changePassword(String oldPassword, String newPassword,
@@ -388,23 +327,7 @@ public class SeshNetworking {
         params.put(OLD_PASSWORD_PARAM, oldPassword);
         params.put(NEW_PASSWORD_PARAM, newPassword);
 
-        postWithRelativeUrl("change_password.php", params, successListener, errorListener);
-    }
-
-    public void completeOnboarding(Response.Listener<JSONObject> successListener,
-                                   Response.ErrorListener errorListener) {
-        Map<String, String> params = new HashMap<>();
-        params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
-
-        postWithRelativeUrl("complete_onboarding.php", params, successListener, errorListener);
-    }
-
-    public void completeAppTour(Response.Listener<JSONObject> successListener,
-                                Response.ErrorListener errorListener) {
-        Map<String, String> params = new HashMap<>();
-        params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
-
-        postWithRelativeUrl("complete_app_tour.php", params, successListener, errorListener);
+        postWithRelativeUrl("change_password.php", params, RequestType.PHP, RequestMethod.POST, successListener, errorListener);
     }
 
     public void becomeCampusRepAtSchool(String school,
@@ -414,7 +337,7 @@ public class SeshNetworking {
         params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
         params.put(SCHOOL_NAME_PARAM, school);
 
-        postWithRelativeUrl("become_campus_rep.php", params, successListener, errorListener);
+        postWithRelativeUrl("become_campus_rep.php", params, RequestType.PHP, RequestMethod.POST, successListener, errorListener);
     }
 
     public void updateFullLegalName(String fullLegalName,
@@ -424,15 +347,7 @@ public class SeshNetworking {
         params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
         params.put(FULL_LEGAL_NAME_PARAM, fullLegalName);
 
-        postWithRelativeUrl("update_full_legal_name.php", params, successListener, errorListener);
-    }
-
-    public void getCurrentRate(Response.Listener<JSONObject> successListener,
-                               Response.ErrorListener errorListener) {
-        Map<String, String> params = new HashMap<>();
-        params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
-
-        postWithRelativeUrl("get_rate.php", params, successListener, errorListener);
+        postWithRelativeUrl("update_full_legal_name.php", params, RequestType.PHP, RequestMethod.POST, successListener, errorListener);
     }
 
     public void getConstants(Response.Listener<JSONObject> successListener,
@@ -440,16 +355,7 @@ public class SeshNetworking {
         Map<String, String> params = new HashMap<>();
         params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
 
-        postWithRelativeUrl("get_constants.php", params, successListener, errorListener);
-    }
-
-
-    public void getPastSeshes(Response.Listener<JSONObject> successListener,
-                              Response.ErrorListener errorListener) {
-        Map<String, String> params = new HashMap<>();
-        params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
-
-        postWithRelativeUrl("get_past_sesh_info.php", params, successListener, errorListener);
+        postWithRelativeUrl("get_constants.php", params, RequestType.PHP, RequestMethod.POST, successListener, errorListener);
     }
 
     public void resendVerificationEmail(String email, Response.Listener<JSONObject> successListener,
@@ -457,7 +363,7 @@ public class SeshNetworking {
         Map<String, String> params = new HashMap<>();
         params.put(EMAIL_PARAM, email);
 
-        postWithRelativeUrl("resend_verification_email.php", params, successListener, errorListener);
+        postWithRelativeUrl("resend_verification_email.php", params, RequestType.PHP, RequestMethod.POST, successListener, errorListener);
     }
 
     public void cashout(Response.Listener<JSONObject> successListener,
@@ -465,7 +371,7 @@ public class SeshNetworking {
         Map<String, String> params = new HashMap<>();
         params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
 
-        postWithRelativeUrl("cash_out.php", params, successListener, errorListener);
+        postWithRelativeUrl("cash_out.php", params, RequestType.PHP, RequestMethod.POST, successListener, errorListener);
     }
 
     public void logout(Response.Listener<JSONObject> successListener,
@@ -473,18 +379,7 @@ public class SeshNetworking {
         Map<String, String> params = new HashMap<>();
         params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
 
-        postWithRelativeUrl("logout.php", params, successListener, errorListener);
-    }
-
-    public void getFavoritesEligibleForClass(String classId,
-                                             Response.Listener<JSONObject> successListener,
-                                             Response.ErrorListener errorListener) {
-        Map<String, String> params = new HashMap<>();
-        params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
-        params.put(CLASS_ID_PARAM, classId);
-
-        postWithRelativeUrl("get_favorites_eligible_for_class.php", params, successListener,
-                errorListener);
+        postWithRelativeUrl("logout.php", params, RequestType.PHP, RequestMethod.POST, successListener, errorListener);
     }
 
     public void acceptTutorTerms(Response.Listener<JSONObject> successListener,
@@ -492,7 +387,7 @@ public class SeshNetworking {
         Map<String, String> params = new HashMap<>();
         params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
 
-        postWithRelativeUrl("accept_terms.php", params, successListener,
+        postWithRelativeUrl("accept_terms.php", params, RequestType.PHP, RequestMethod.POST, successListener,
                 errorListener);
     }
 
@@ -502,16 +397,7 @@ public class SeshNetworking {
         params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
         params.put(CODE_PARAM, code);
 
-        postWithRelativeUrl("redeem_code.php", params, successListener,
-                errorListener);
-    }
-
-    public void getCards(Response.Listener<JSONObject> successListener,
-                         Response.ErrorListener errorListener) {
-        Map<String, String> params = new HashMap<>();
-        params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
-
-        postWithRelativeUrl("get_cards.php", params, successListener,
+        postWithRelativeUrl("redeem_code.php", params, RequestType.PHP, RequestMethod.POST, successListener,
                 errorListener);
     }
 
@@ -523,32 +409,16 @@ public class SeshNetworking {
         params.put(RECIPIENT_TOKEN_PARAM, recipientToken);
         params.put(IS_RECIPIENT_PARAM, isRecipient ? "1" : "0");
 
-        postWithLongTimeout("add_card.php", params, successListener,
+        postWithLongTimeout("add_card.php", params, RequestType.PHP, RequestMethod.POST, successListener,
                 errorListener);
-    }
-
-    private String loadUserJSON() {
-        String json = null;
-        try {
-            InputStream is = mContext.getResources().getAssets().open("json/user.json");
-            int size = is.available();
-            byte[] buffer = new byte[size];
-            is.read(buffer);
-            is.close();
-            json = new String(buffer, "UTF-8");
-        } catch (IOException ex) {
-            Log.e(TAG, "Couldn't open user.json file -- make sure you've added this asset! " + ex.getMessage());
-            return null;
-        }
-        return json;
     }
 
     private String baseUrl() {
         String baseUrl;
         if (SeshApplication.IS_DEV) {
-            baseUrl = "https://www.cinchtutoring.com/";
+            baseUrl = "https://cinchtutoring.com/";
         } else {
-            baseUrl = "https://www.seshtutoring.com/";
+            baseUrl = "https://seshtutoring.com/";
         }
         return baseUrl;
     }
@@ -567,20 +437,10 @@ public class SeshNetworking {
 
     public void createRequestWithLearnRequest(LearnRequest learnRequest, Response.Listener<JSONObject> successListener,
                                               Response.ErrorListener errorListener) {
-        long expirationTime = 0;
-        long thirtyMinutesMillis = 30 * 60 * 1000;
-
-        for (AvailableBlock block : learnRequest.availableBlocks) {
-            if (block.endTime - expirationTime > 0) {
-                expirationTime = block.endTime;
-            }
-        }
-
         DateTimeFormatter formatter = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss").withZoneUTC();
 
         JSONObject params = new JSONObject();
         try  {
-            params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
             params.put(LATITUDE_PARAM, learnRequest.latitude);
             params.put(LONGITUDE_PARAM, learnRequest.longitude);
             params.put(NUM_PEOPLE_PARAM, learnRequest.numPeople);
@@ -588,9 +448,7 @@ public class SeshNetworking {
             params.put(DESCRIPTION_PARAM, learnRequest.descr);
             params.put(EST_TIME_PARAM, learnRequest.estTime);
             params.put(RATE_PARAM, Constants.getHourlyRate(mContext));
-            params.put(FAVORITES_PARAM, new ArrayList<>());  // until Favorites implemented....
-            params.put(IS_INSTANT_PARAM, learnRequest.isInstant() ? "1" :    "0");
-            params.put(EXPIRATION_TIME_PARAM, formatter.print(new DateTime(learnRequest.expirationTime)));
+            params.put(IS_INSTANT_PARAM, "0");
 
             if (learnRequest.discount != null) {
                 params.put(DISCOUNT_ID, learnRequest.discount.discountId);
@@ -607,24 +465,14 @@ public class SeshNetworking {
             return;
         }
 
-        postWithRelativeUrl("create_request.php", params, successListener, errorListener);
+        postWithRelativeUrl("tutoring/sesh_requests/", params, RequestType.DJANGO, RequestMethod.POST, successListener, errorListener);
     }
 
-    public void getTutorCourses(Response.Listener<JSONObject> successListener,
-                                Response.ErrorListener errorListener) {
-        Map<String, String> params = new HashMap<>();
-        params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
-
-        postWithRelativeUrl("get_tutor_classes.php", params, successListener,
-                errorListener);
-    }
-
-    public void getAvailableJobs(ArrayList<Course> courses, Response.Listener<JSONObject> successListener,
+    public void getAvailableJobs(Response.Listener<JSONObject> successListener,
                                  Response.ErrorListener errorListener) {
         Map<String, String> params = new HashMap<>();
-        params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
 
-        postWithRelativeUrl("get_possible_jobs.php", params, successListener,
+        postWithRelativeUrl("tutoring/sesh_requests/get_available_jobs/", params, RequestType.DJANGO, RequestMethod.POST, successListener,
                 errorListener);
     }
 
@@ -636,23 +484,8 @@ public class SeshNetworking {
         params.put(LONGITUDE_PARAM, Double.toString(longitude));
         params.put(REQUEST_ID_PARAM, Integer.toString(request_id));
 
-        postWithRelativeUrl("create_bid.php", params, successListener,
+        postWithRelativeUrl("create_bid.php", params, RequestType.PHP, RequestMethod.POST, successListener,
                 errorListener);
-    }
-
-    public void motivateTeam(Response.Listener<JSONObject> successListener,
-                             Response.ErrorListener errorListener) {
-        Map<String, String> params = new HashMap<>();
-
-        postWithRelativeUrl("motivate_team.php", params, successListener,
-                errorListener);
-    }
-
-    public void getAndroidLaunchDate(Response.Listener<JSONObject> successListener,
-                                     Response.ErrorListener errorListener) {
-        Map<String, String> params = new HashMap<>();
-
-        postWithRelativeUrl("get_android_launch_date.php", params, successListener, errorListener);
     }
 
     public void refreshNotifications(List<Notification> handledNotifications, Response.Listener<JSONObject> successListener,
@@ -673,56 +506,44 @@ public class SeshNetworking {
             return;
         }
 
-        postWithRelativeUrl("refresh_notifications.php", params, successListener, errorListener);
+        postWithRelativeUrl("refresh_notifications.php", params, RequestType.PHP, RequestMethod.POST, successListener, errorListener);
     }
 
     public void getSeshInformationForSeshId(int seshId, Response.Listener<JSONObject> successListener,
                                             Response.ErrorListener errorListener) {
         Map<String, String> params = new HashMap<>();
-        params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
-        params.put(SESH_ID_PARAM, Integer.toString(seshId));
-        params.put(IS_PAST_PARAM, "0");
 
-        postWithRelativeUrl("get_info_for_sesh.php", params, successListener, errorListener);
+        postWithRelativeUrl("tutoring/open_seshes/" + seshId + "/", params, RequestType.DJANGO, RequestMethod.GET, successListener, errorListener);
     }
 
-    public void getPastRequestInformationForPastRequestId(int pastRequestId, Response.Listener<JSONObject> successListener,
+    public void getRequestInformationForRequestId(int requestId, Response.Listener<JSONObject> successListener,
                                                           Response.ErrorListener errorListener) {
         Map<String, String> params = new HashMap<>();
-        params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
-        params.put(REQUEST_ID_PARAM, Integer.toString(pastRequestId));
-        params.put(IS_PAST_PARAM, "1");
 
-        postWithRelativeUrl("get_info_for_request.php", params, successListener, errorListener);
+        postWithRelativeUrl("tutoring/sesh_requests/" + requestId + "/", params, RequestType.DJANGO, RequestMethod.GET, successListener, errorListener);
     }
 
     public void startSeshWithSeshId(int seshId, Response.Listener<JSONObject> successListener,
                                     Response.ErrorListener errorListener) {
         Map<String, String> params = new HashMap<>();
-        params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
-        params.put(SESH_ID_PARAM, Integer.toString(seshId));
 
-        postWithRelativeUrl("start_sesh.php", params, successListener, errorListener);
+        postWithRelativeUrl("tutoring/open_seshes/" + seshId + "/start/", params, RequestType.DJANGO, RequestMethod.POST, successListener, errorListener);
     }
 
     public void cancelSeshWithSeshId(int seshId, String reason, Response.Listener<JSONObject> successListener,
                                      Response.ErrorListener errorListener) {
         Map<String, String> params = new HashMap<>();
-        params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
-        params.put(SESH_ID_PARAM, Integer.toString(seshId));
         params.put(CANCELLATION_REASON_PARAM, reason);
 
-        postWithRelativeUrl("cancel_sesh.php", params, successListener, errorListener);
+        postWithRelativeUrl("tutoring/open_seshes/" + seshId + "/cancel/", params, RequestType.DJANGO, RequestMethod.POST, successListener, errorListener);
     }
 
     public void cancelRequestWithRequestId(int requestId, String reason, Response.Listener<JSONObject> successListener,
                                            Response.ErrorListener errorListener) {
         Map<String, String> params = new HashMap<>();
-        params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
-        params.put(REQUEST_ID_PARAM, Integer.toString(requestId));
         params.put(CANCELLATION_REASON_PARAM, reason);
 
-        postWithRelativeUrl("delete_request.php", params, successListener, errorListener);
+        postWithRelativeUrl("tutoring/sesh_requests/" + requestId + "/cancel/", params, RequestType.DJANGO, RequestMethod.POST, successListener, errorListener);
     }
 
     public void reportProblem(String problem, int pastSeshId, Response.Listener<JSONObject> successListener, Response.ErrorListener errorListener) {
@@ -731,26 +552,21 @@ public class SeshNetworking {
         params.put(PAST_SESH_ID_PARAM, Integer.toString(pastSeshId));
         params.put(CONTENT_PARAM, problem);
 
-        postWithRelativeUrl("report_problem.php", params, successListener, errorListener);
+        postWithRelativeUrl("report_problem.php", params, RequestType.PHP, RequestMethod.POST, successListener, errorListener);
 
     }
 
     public void getPastSeshInformationForPastSeshId(int pastSeshId, Response.Listener<JSONObject> successListener,
                                                     Response.ErrorListener errorListener) {
         Map<String, String> params = new HashMap<>();
-        params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
-        params.put(SESH_ID_PARAM, Integer.toString(pastSeshId));
-        params.put(IS_PAST_PARAM, "1");
 
-        postWithRelativeUrl("get_info_for_sesh.php", params, successListener, errorListener);
+        postWithRelativeUrl("tutoring/past_seshes/" + pastSeshId + "/", params, RequestType.DJANGO, RequestMethod.GET, successListener, errorListener);
     }
 
     public void endSesh(int seshId, Response.Listener<JSONObject> successListener, Response.ErrorListener errorListener) {
         Map<String, String> params = new HashMap<>();
-        params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
-        params.put(SESH_ID_PARAM, Integer.toString(seshId));
 
-        postWithRelativeUrl("end_sesh.php", params, successListener, errorListener);
+        postWithRelativeUrl("tutoring/open_seshes/" + seshId + "/end/", params, RequestType.DJANGO, RequestMethod.POST, successListener, errorListener);
     }
 
     public void setSetTime(int seshId, DateTime setTime, Response.Listener<JSONObject> successListener, Response.ErrorListener errorListener) {
@@ -760,7 +576,7 @@ public class SeshNetworking {
         params.put(SESH_ID_PARAM, Integer.toString(seshId));
         params.put(SET_TIME_PARAM, formatter.print(new DateTime(setTime)));
 
-        postWithRelativeUrl("set_start_time.php", params, successListener, errorListener);
+        postWithRelativeUrl("set_start_time.php", params, RequestType.PHP, RequestMethod.POST, successListener, errorListener);
     }
 
     public void setLocationNotesForSesh(int seshId, String locationNotes, Response.Listener<JSONObject> successListener, Response.ErrorListener errorListener) {
@@ -769,7 +585,7 @@ public class SeshNetworking {
         params.put(SESH_ID_PARAM, Integer.toString(seshId));
         params.put(LOCATION_NOTES_PARAM, locationNotes);
 
-        postWithRelativeUrl("set_location_notes.php", params, successListener, errorListener);
+        postWithRelativeUrl("set_location_notes.php", params, RequestType.PHP, RequestMethod.POST, successListener, errorListener);
     }
 
     public void setLocationNotesForRequest(int requestId, String locationNotes, Response.Listener<JSONObject> successListener, Response.ErrorListener errorListener) {
@@ -778,32 +594,28 @@ public class SeshNetworking {
         params.put(REQUEST_ID_PARAM, Integer.toString(requestId));
         params.put(LOCATION_NOTES_PARAM, locationNotes);
 
-        postWithRelativeUrl("set_location_notes.php", params, successListener, errorListener);
+        postWithRelativeUrl("set_location_notes.php", params, RequestType.PHP, RequestMethod.POST, successListener, errorListener);
     }
 
-    public void sendMessage(String message, int seshId, Response.Listener<JSONObject> successListener, Response.ErrorListener errorListener) {
+    public void sendMessage(String message, int chatroomId, Response.Listener<JSONObject> successListener, Response.ErrorListener errorListener) {
         Map<String, String> params = new HashMap<>();
-        params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
-        params.put(SESH_ID_PARAM, Integer.toString(seshId));
         params.put(CONTENT_PARAM, message);
 
-        postWithRelativeUrl("send_message.php", params, successListener, errorListener);
+        postWithRelativeUrl("chatrooms/chatrooms/" + chatroomId + "/send_message/", params, RequestType.DJANGO, RequestMethod.POST, successListener, errorListener);
     }
 
     public void payOutstandingCharges(Response.Listener<JSONObject> successListener, Response.ErrorListener errorListener) {
         Map<String, String> params = new HashMap<>();
         params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
 
-        postWithRelativeUrl("pay_outstanding_charge.php", params, successListener, errorListener);
+        postWithRelativeUrl("pay_outstanding_charge.php", params, RequestType.PHP, RequestMethod.POST, successListener, errorListener);
     }
 
-    public void hasReadUpToMessage(int messageId, int seshId, Response.Listener<JSONObject> successListener, Response.ErrorListener errorListener) {
+    public void markMessagesReadWithChatroomId(int messageId, int chatroomId, Response.Listener<JSONObject> successListener, Response.ErrorListener errorListener) {
         Map<String, String> params = new HashMap<>();
-        params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
-        params.put(SESH_ID_PARAM, Integer.toString(seshId));
         params.put(MESSAGE_ID_PARAM, Integer.toString(messageId));
 
-        postWithRelativeUrl("has_read_up_to_message.php", params, successListener, errorListener);
+        postWithRelativeUrl("chatrooms/chatrooms/" + chatroomId + "/mark_as_read/", params, RequestType.DJANGO, RequestMethod.POST, successListener, errorListener);
     }
 
     public void deleteCard(String cardId, boolean isRecipient, Response.Listener<JSONObject> successListener, Response.ErrorListener errorListener) {
@@ -812,7 +624,7 @@ public class SeshNetworking {
         params.put(IS_RECIPIENT_PARAM, isRecipient ? "1" : "0");
         params.put(CARD_ID_PARAM, cardId);
 
-        postWithRelativeUrl("delete_card.php", params, successListener, errorListener);
+        postWithRelativeUrl("delete_card.php", params, RequestType.PHP, RequestMethod.POST, successListener, errorListener);
     }
 
     public void makeDefaultCard(String cardId, boolean isRecipient, Response.Listener<JSONObject> successListener, Response.ErrorListener errorListener) {
@@ -821,14 +633,14 @@ public class SeshNetworking {
         params.put(IS_RECIPIENT_PARAM, isRecipient ? "1" : "0");
         params.put(CARD_ID_PARAM, cardId);
 
-        postWithRelativeUrl("make_default_card.php", params, successListener, errorListener);
+        postWithRelativeUrl("make_default_card.php", params, RequestType.PHP, RequestMethod.POST, successListener, errorListener);
     }
 
-    public void toggleNotificationsEnabled(Response.Listener<JSONObject> successListener, Response.ErrorListener errorListener) {
-        Map<String, String> params = new HashMap<>();
-        params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
-        postWithRelativeUrl("toggle_notifications_enabled.php", params, successListener, errorListener);
-    }
+//    public void toggleNotificationsEnabled(Response.Listener<JSONObject> successListener, Response.ErrorListener errorListener) {
+//        Map<String, String> params = new HashMap<>();
+//        params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
+//        postWithRelativeUrl("toggle_notifications_enabled.php", params, successListener, errorListener);
+//    }
 
     public static abstract class SynchronousRequest {
         public JSONObject execute() {
@@ -856,16 +668,16 @@ public class SeshNetworking {
     public void uploadProfilePicture(Response.Listener<JSONObject> successListener, Response.ErrorListener errorListener, File image) {
         Map<String, String> params = new HashMap<>();
         params.put("session_id", SeshAuthManager.sharedManager(mContext).getAccessToken());
-        String url = baseUrl() + apiUrl() + "upload_profile_picture.php";
+        String url = baseUrl() + apiUrl(RequestType.DJANGO) + "accounts/users/upload_profile_picture/";
         JsonMultipartRequest request = new JsonMultipartRequest(url, SeshAuthManager.sharedManager(mContext).getAccessToken(), successListener, errorListener, image);
-        VolleyNetworkingWrapper.getInstance(mContext).addToRequestQueue(request);
-    }
 
-    public void uploadProfilePicture(Response.Listener<JSONObject> successListener, Response.ErrorListener errorListener, Uri selectedImageUri) {
-        Map<String, String> params = new HashMap<>();
-        params.put("session_id", SeshAuthManager.sharedManager(mContext).getAccessToken());
-        String url = baseUrl() + apiUrl() + "upload_profile_picture.php";
-        JsonMultipartRequest request = new JsonMultipartRequest(url, SeshAuthManager.sharedManager(mContext).getAccessToken(), successListener, errorListener, getRealPathFromURI(selectedImageUri));
+        Map<String, String> headerParams = new HashMap<String, String>();
+//        params.put("Authorization", String.format("Basic %s", Base64.encodeToString(
+//                String.format("%s:%s", BASIC_AUTH_USERNAME, BASIC_AUTH_PASSWORD).getBytes(),
+//                Base64.NO_WRAP)));
+        headerParams.put("Authorization", "Basic dGVhbXNlc2g6RWFibHRmMSE=");
+        headerParams.put("X-Session-Id", SeshAuthManager.sharedManager(mContext).getAccessToken());
+        request.headers = headerParams;
         VolleyNetworkingWrapper.getInstance(mContext).addToRequestQueue(request);
     }
 
@@ -906,7 +718,7 @@ public class SeshNetworking {
             e.printStackTrace();
         }
 
-        postWithRelativeUrl("edit_tutor_classes.php", params, successListener, errorListener);
+        postWithRelativeUrl("edit_tutor_classes.php", params, RequestType.PHP, RequestMethod.POST, successListener, errorListener);
     }
 
     public String getRealPathFromURI(Uri contentUri) {

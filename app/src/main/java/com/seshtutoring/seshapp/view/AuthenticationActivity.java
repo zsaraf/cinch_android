@@ -485,8 +485,10 @@ public class AuthenticationActivity extends SeshActivity implements SeshDialog.O
 
     private void handleLogin() {
 
-        String email = emailEditText.getText().toString();
-        String password = passwordEditText.getText().toString();
+//        String email = emailEditText.getText().toString();
+//        String password = passwordEditText.getText().toString();
+        String email = "zach@seshtutoring.com";
+        String password = "deaths";
 
         if (validateLoginDetails(email, password)) {
             seshNetworking.loginWithEmail(email, password,

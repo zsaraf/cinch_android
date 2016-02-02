@@ -1,16 +1,12 @@
 package com.seshtutoring.seshapp.view.components;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Typeface;
-import android.util.TypedValue;
-import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.seshtutoring.seshapp.model.Message;
+import com.seshtutoring.seshapp.model.ChatroomActivity;
 import com.seshtutoring.seshapp.util.LayoutUtils;
 
 /**
@@ -20,16 +16,16 @@ public class MessageRow {
 
     public TextView leftText;
     public TextView rightText;
-    private Message message;
+    private ChatroomActivity chatroomActivity;
 
-    public void setCurrentMessage(Message message, Typeface tf, int position, int totalItems, Context context) {
-        this.message = message;
+    public void setCurrentMessage(ChatroomActivity chatroomActivity, Typeface tf, int position, int totalItems, Context context) {
+        this.chatroomActivity = chatroomActivity;
 
         leftText.setTypeface(tf);
         rightText.setTypeface(tf);
 
-        TextView activeTextView = message.fromYou ? rightText : leftText;
-        TextView inactiveTextView = message.fromYou ? leftText : rightText;
+        TextView activeTextView = chatroomActivity.fromYou ? rightText : leftText;
+        TextView inactiveTextView = chatroomActivity.fromYou ? leftText : rightText;
 
         int leftMargin = 10;
         int rightMargin = 10;
@@ -38,7 +34,7 @@ public class MessageRow {
         int topSpecialMargin = 10;
         int bottomSpecialMargin = 10;
 
-        activeTextView.setText(message.content.trim());
+        activeTextView.setText(chatroomActivity.message.trim());
 
         if (activeTextView == rightText) {
 

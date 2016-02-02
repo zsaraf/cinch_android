@@ -559,22 +559,18 @@ public class ViewAvailableJobsFragment extends ListFragment {
 
     private void getAvailableJobs() {
         Log.d(TAG, "REFRESHING JOBS");
-        seshNetworking.getAvailableJobs(tutorCourses, new Response.Listener<JSONObject>() {
+        seshNetworking.getAvailableJobs(new Response.Listener<JSONObject>() {
             public void onResponse(JSONObject jsonResponse) {
                 try {
-                    if (jsonResponse.get("status").equals("SUCCESS")) {
-                        availableJobsAdapter.clear();
-                        availableJobs.clear();
-                        JSONArray availableJobsArrayJson = jsonResponse.getJSONArray("courses");
-                        for (int i = 0; i < availableJobsArrayJson.length(); i++) {
-                            AvailableJob availableJob= AvailableJob.createOrUpdateAvailableJobWithObject((availableJobsArrayJson.getJSONObject(i)));
-                            availableJobs.add(availableJob);
-                        }
-                        AvailableJob.deleteAvailableJobsNotInArray(availableJobs);
-                        availableJobsAdapter.notifyDataSetChanged();
-                    } else {
-                        Log.e(TAG, jsonResponse.getString("message"));
+                    availableJobsAdapter.clear();
+                    availableJobs.clear();
+                    JSONArray availableJobsArrayJson = jsonResponse.getJSONArray("courses");
+                    for (int i = 0; i < availableJobsArrayJson.length(); i++) {
+                        AvailableJob availableJob= AvailableJob.createOrUpdateAvailableJobWithObject((availableJobsArrayJson.getJSONObject(i)));
+                        availableJobs.add(availableJob);
                     }
+                    AvailableJob.deleteAvailableJobsNotInArray(availableJobs);
+                    availableJobsAdapter.notifyDataSetChanged();
                 } catch (JSONException e) {
                     Log.e(TAG, e.getMessage());
                 }
@@ -582,7 +578,7 @@ public class ViewAvailableJobsFragment extends ListFragment {
             }
         }, new Response.ErrorListener() {
             public void onErrorResponse(VolleyError volleyError) {
-                Log.e(TAG, volleyError.getMessage());
+//                Log.e(TAG, volleyError.getMessage());
                 mSwipeRefreshLayout.setRefreshing(false);
             }
         });

@@ -282,7 +282,7 @@ public class RequestActivity extends SeshActivity implements
     }
 
     private void reenableConfirmFragmentUsage() {
-        LearnRequestConfirmFragment fragment = (LearnRequestConfirmFragment) requestFlowFragments.get(4);
+        LearnRequestConfirmFragment fragment = (LearnRequestConfirmFragment) requestFlowFragments.get(5);
         fragment.enableRequestButton();
     }
 
@@ -377,26 +377,18 @@ public class RequestActivity extends SeshActivity implements
 
             if (jsonObject == null) return null;
 
-            try {
-                if (jsonObject.getString("status").equals("SUCCESS")) {
-                    LearnRequest newLearnRequest
-                            = LearnRequest.createOrUpdateLearnRequest(jsonObject.getJSONObject("learn_request"));
-                    newLearnRequest.requiresAnimatedDisplay = true;
-                    newLearnRequest.save();
-                } else {
-                    errorDialog = SeshDialog.createDialog("Whoops!",
-                            jsonObject.getString("message"),
-                            "Got it", null,
-                            DIALOG_TYPE_LEARN_REQUEST_FAILURE);
-                    Log.e(TAG, "Failed to create request, server error: " + jsonObject.getString("message"));
-                }
-            } catch (JSONException e) {
-                errorDialog = SeshDialog.createDialog("Whoops!",
-                        "Something went wrong.  Try again later.",
-                        "Got it", null,
-                        DIALOG_TYPE_LEARN_REQUEST_FAILURE);
-                Log.e(TAG, "Failed to create request, json malformed: " + e);
-            }
+//            try {
+                LearnRequest newLearnRequest
+                        = LearnRequest.createOrUpdateLearnRequest(jsonObject);
+                newLearnRequest.requiresAnimatedDisplay = true;
+                newLearnRequest.save();
+//            } catch (JSONException e) {
+//                errorDialog = SeshDialog.createDialog("Whoops!",
+//                        "Something went wrong.  Try again later.",
+//                        "Got it", null,
+//                        DIALOG_TYPE_LEARN_REQUEST_FAILURE);
+//                Log.e(TAG, "Failed to create request, json malformed: " + e);
+//            }
 
             return null;
         }

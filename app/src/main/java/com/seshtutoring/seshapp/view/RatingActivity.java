@@ -133,7 +133,7 @@ public class RatingActivity extends SeshActivity {
                             "WHOOPS");
                 } else {
                     setNetworkOperationInProgress(true);
-                    seshNetworking.submitSeshRating(helpfulRating, knowledgeRating, friendlyRating, false, new Response.Listener<JSONObject>() {
+                    seshNetworking.submitSeshRating(pastSesh.pastSeshId, helpfulRating, knowledgeRating, friendlyRating, false, new Response.Listener<JSONObject>() {
                         @Override
                         public void onResponse(JSONObject jsonObject) {
                             try {

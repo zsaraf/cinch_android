@@ -25,6 +25,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -112,10 +113,10 @@ public class User extends SugarRecord<User> {
     public static User createOrUpdateUserWithObject(JSONObject dataJson, Context context) {
         User user = null;
         try {
-            JSONObject userRow = dataJson.getJSONObject("user");
-            JSONObject studentRow = dataJson.getJSONObject("student");
-            JSONObject tutorRow = dataJson.getJSONObject("tutor");
-            JSONObject schoolRow = dataJson.getJSONObject("school");
+            JSONObject userRow = (dataJson.has("data")) ? dataJson.getJSONObject("data") : dataJson;
+            JSONObject studentRow = userRow.getJSONObject("student");
+            JSONObject tutorRow = userRow.getJSONObject("tutor");
+            JSONObject schoolRow = userRow.getJSONObject("school");
 
             int userId = userRow.getInt("id");
 
@@ -132,16 +133,18 @@ public class User extends SugarRecord<User> {
 
             user.userId = userId;
             user.email = userRow.getString("email");
-            user.sessionId = dataJson.getString("session_id");
+            if (dataJson.has("session_id")) {
+                user.sessionId = dataJson.getString("session_id");
+            }
             user.fullName = userRow.getString("full_name");
             user.profilePictureUrl = userRow.getString("profile_picture");
             user.bio = userRow.getString("bio");
             user.stripeCustomerId = !userRow.isNull("stripe_customer_id") ?
                     userRow.getString("stripe_customer_id") : "";
             user.major = userRow.getString("major");
-            user.notificationsEnabled = (userRow.getInt("notifications_enabled") == 1) ? true : false;
-            user.completedAppTour = (userRow.getInt("completed_app_tour") == 1) ? true : false;
-            user.isVerified = (userRow.getInt("is_verified") == 1) ? true : false;
+            user.notificationsEnabled = userRow.getBoolean("notifications_enabled");
+            user.completedAppTour = userRow.getBoolean("completed_app_tour");
+            user.isVerified = userRow.getBoolean("is_verified");
             user.fullLegalName = userRow.getString("full_legal_name");
             user.shareCode = userRow.getString("share_code");
             user.school = School.createOrUpdateSchoolWithObject(schoolRow);
@@ -149,14 +152,11 @@ public class User extends SugarRecord<User> {
             user.student = Student.createOrUpdateStudentWithObject(studentRow);
             user.save();
 
-            SeshAuthManager.sharedManager(context).foundSessionId(user.sessionId);
-
-            if (dataJson.has("past_seshes")) {
-                JSONArray pastSeshes = dataJson.getJSONArray("past_seshes");
-                for (int i = 0; i < pastSeshes.length(); i++) {
-                    JSONObject pastSeshJson = pastSeshes.getJSONObject(i);
-                    PastSesh.createOrUpdatePastSesh(pastSeshJson);
-                }
+            if (studentRow.has("past_seshes")) {
+                addPastSeshes(studentRow.getJSONArray("past_seshes"));
+            }
+            if (tutorRow.has("past_seshes")) {
+                addPastSeshes(tutorRow.getJSONArray("past_seshes"));
             }
 
             // Load the cards
@@ -171,19 +171,17 @@ public class User extends SugarRecord<User> {
             }
 
             List<Sesh> currentSeshes = new ArrayList<>();
-            if (dataJson.has("open_seshes")) {
-                JSONArray openSeshes = dataJson.getJSONArray("open_seshes");
-                for (int i = 0; i < openSeshes.length(); i++) {
-                    JSONObject openSeshJson = openSeshes.getJSONObject(i);
-                    Sesh newSesh = Sesh.createOrUpdateSeshWithObject(openSeshJson, context);
-                    currentSeshes.add(newSesh);
-                }
+            if (studentRow.has("open_seshes")) {
+                currentSeshes.addAll(addOpenSeshes(studentRow.getJSONArray("open_seshes"), context));
+            }
+            if (tutorRow.has("open_seshes")) {
+                currentSeshes.addAll(addOpenSeshes(tutorRow.getJSONArray("open_seshes"), context));
             }
             deleteSeshesNotInArray(currentSeshes);
 
             LearnRequest.deleteAll(LearnRequest.class);
-            if (dataJson.has("open_requests")) {
-                JSONArray openRequests = dataJson.getJSONArray("open_requests");
+            if (studentRow.has("requests")) {
+                JSONArray openRequests = studentRow.getJSONArray("requests");
                 for (int i = 0; i < openRequests.length(); i++) {
                     JSONObject openRequestJson = openRequests.getJSONObject(i);
                     LearnRequest.createOrUpdateLearnRequest(openRequestJson);
@@ -191,16 +189,16 @@ public class User extends SugarRecord<User> {
             }
 
             Discount.deleteAll(Discount.class);
-            if (dataJson.has("discounts")) {
-                JSONArray discounts = dataJson.getJSONArray("discounts");
+            if (userRow.has("discounts")) {
+                JSONArray discounts = userRow.getJSONArray("discounts");
                 for (int i = 0; i < discounts.length(); i++) {
                     JSONObject discountJson = discounts.getJSONObject(i);
                     Discount.createOrUpdateDiscountWithObject(context, discountJson);
                 }
             }
 
-            if (dataJson.has("tutor_classes")) {
-                user.refreshTutorCoursesWithArray(dataJson.getJSONArray("tutor_classes"), dataJson.getJSONArray("tutor_departments"));
+            if (tutorRow.has("courses")) {
+                user.refreshTutorCoursesWithArray(tutorRow.getJSONArray("courses"), tutorRow.getJSONArray("departments"));
             } else {
                 user.tutor.clearTutorCourses();
             }
@@ -214,6 +212,8 @@ public class User extends SugarRecord<User> {
                 }
             }
 
+            SeshAuthManager.sharedManager(context).foundSessionId(user.sessionId);
+
 //            Add hinting mechanism, eg:
 //            if (!currentUser.hint_displays) {
 //                currentUser.hint_displays = [HintDisplays createNewHintDisplays];
@@ -225,6 +225,23 @@ public class User extends SugarRecord<User> {
             return null;
         }
         return user;
+    }
+
+    public static void addPastSeshes(JSONArray pastSeshes) throws JSONException {
+        for (int i = 0; i < pastSeshes.length(); i++) {
+            JSONObject pastSeshJson = pastSeshes.getJSONObject(i);
+            PastSesh.createOrUpdatePastSesh(pastSeshJson);
+        }
+    }
+
+    public static List<Sesh> addOpenSeshes(JSONArray openSeshes, Context context) throws JSONException {
+        ArrayList<Sesh> currentSeshes = new ArrayList<Sesh>();
+        for (int i = 0; i < openSeshes.length(); i++) {
+            JSONObject openSeshJson = openSeshes.getJSONObject(i);
+            Sesh newSesh = Sesh.createOrUpdateSeshWithObject(openSeshJson, context);
+            currentSeshes.add(newSesh);
+        }
+        return currentSeshes;
     }
 
     public float getCreditSum() {
@@ -261,7 +278,7 @@ public class User extends SugarRecord<User> {
         for (int i = 0; i < courses.length(); i++) {
             JSONObject courseJSON = null;
             try {
-                courseJSON = courses.getJSONObject(i);
+                courseJSON = courses.getJSONObject(i).getJSONObject("course");
                 Course newCourse = Course.createOrUpdateCourseWithJSON(courseJSON, tutor, false);
                 newCourse.save();
             } catch (JSONException e) {

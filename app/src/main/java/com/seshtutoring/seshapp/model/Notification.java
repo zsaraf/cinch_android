@@ -266,7 +266,7 @@ public class Notification extends SugarRecord<Notification> {
     public NotificationType getNotificationType() {
         if (identifier.equals("NEW_REQUEST")) {
             return NotificationType.NEW_REQUEST;
-        } else if (identifier.equals("NEW_MESSAGE")) {
+        } else if (identifier.contains("NEW_MESSAGE")) {
             return NotificationType.NEW_MESSAGE;
         } else if (identifier.equals("SESH_STARTED_STUDENT")) {
             return NotificationType.SESH_STARTED_STUDENT;
@@ -351,8 +351,7 @@ public class Notification extends SugarRecord<Notification> {
 
     public Sesh correspondingSesh() {
         NotificationType notificationType = getNotificationType();
-        if (notificationType == NotificationType.NEW_MESSAGE ||
-                notificationType == NotificationType.LOCATION_NOTES_UPDATED ||
+        if (notificationType == NotificationType.LOCATION_NOTES_UPDATED ||
                 notificationType == NotificationType.SET_TIME_UPDATED ||
                 notificationType == NotificationType.SESH_APPROACHING_TUTOR ||
                 notificationType == NotificationType.SESH_APPROACHING_STUDENT ||
@@ -360,6 +359,19 @@ public class Notification extends SugarRecord<Notification> {
                 notificationType == NotificationType.SESH_CREATED_STUDENT) {
             int seshId = (int) getDataObject("sesh_id");
             return Sesh.findSeshWithId(seshId);
+        } else if (notificationType == NotificationType.NEW_MESSAGE) {
+            try {
+                int chatroomId = ((JSONObject)this.getDataObject("chatroom_activity")).getInt("chatroom");
+                List<Sesh> seshes = Sesh.find(Sesh.class, "chatroom.chatroom_id = ?", chatroomId + "");
+                if (seshes.size() > 0) {
+                    return seshes.get(0);
+                } else {
+                    return null;
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+                return null;
+            }
         } else {
             return null;
         }

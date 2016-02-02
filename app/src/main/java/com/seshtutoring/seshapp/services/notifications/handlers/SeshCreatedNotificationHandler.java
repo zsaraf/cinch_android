@@ -71,37 +71,27 @@ public class SeshCreatedNotificationHandler extends NotificationHandler {
         JSONObject jsonObject = request.execute();
 
         if (jsonObject != null) {
-            try {
-                if (jsonObject.getString("status").equals("SUCCESS")) {
-                    List<LearnRequest> learnRequestsFound
-                            = LearnRequest.find(LearnRequest.class,
-                            "learn_request_id = ?", Integer.toString(requestId));
-                    if (learnRequestsFound.size() > 0) {
-                        learnRequestsFound.get(0).delete();
-                    }
-                    final Sesh createdSesh = Sesh.createOrUpdateSeshWithObject(jsonObject.getJSONObject("sesh"), mContext);
-                    createdSesh.requiresAnimatedDisplay = true;
-                    createdSesh.save();
-
-                    final ImageView profilePicture = new ImageView(mContext);
-                    loadImage(profilePicture, new Callback() {
-                        @Override
-                        public void onSuccess() {
-                            showDialog(createdSesh, profilePicture);
-                        }
-                        @Override
-                        public void onError() {
-                            showDialog(createdSesh, profilePicture);
-                        }
-                    });
-                } else {
-                    Log.e(TAG, "Failed to get sesh info for sesh id: " + jsonObject.getString("message"));
-                    Notification.currentNotificationHandled(mContext, false);
-                }
-            } catch (JSONException e) {
-                Log.e(TAG, "Failed to get sesh info for sesh id; malformed response: " + e);
-                Notification.currentNotificationHandled(mContext, false);
+            List<LearnRequest> learnRequestsFound
+                    = LearnRequest.find(LearnRequest.class,
+                    "learn_request_id = ?", Integer.toString(requestId));
+            if (learnRequestsFound.size() > 0) {
+                learnRequestsFound.get(0).delete();
             }
+            final Sesh createdSesh = Sesh.createOrUpdateSeshWithObject(jsonObject, mContext);
+            createdSesh.requiresAnimatedDisplay = true;
+            createdSesh.save();
+
+            final ImageView profilePicture = new ImageView(mContext);
+            loadImage(profilePicture, new Callback() {
+                @Override
+                public void onSuccess() {
+                    showDialog(createdSesh, profilePicture);
+                }
+                @Override
+                public void onError() {
+                    showDialog(createdSesh, profilePicture);
+                }
+            });
         }
     }
 
@@ -159,6 +149,7 @@ public class SeshCreatedNotificationHandler extends NotificationHandler {
                 }
 
                 seshDialog.dismiss();
+                Notification.currentNotificationHandled(mContext, false);
             }
         });
 

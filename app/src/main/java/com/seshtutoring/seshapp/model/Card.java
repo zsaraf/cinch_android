@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * Created by franzwarning on 9/8/15.
  */
-public class Card extends SugarRecord<Message> {
+public class Card extends SugarRecord<Card> {
     private static final String TAG = Card.class.getName();
 
     private static final String TYPE_KEY = "type";

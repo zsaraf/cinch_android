@@ -1,27 +1,18 @@
 package com.seshtutoring.seshapp.view.fragments;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Rect;
-import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -32,14 +23,11 @@ import com.facebook.rebound.SimpleSpringListener;
 import com.facebook.rebound.Spring;
 import com.facebook.rebound.SpringConfig;
 import com.facebook.rebound.SpringSystem;
-import com.google.android.gms.maps.model.Circle;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.LearnRequest;
 import com.seshtutoring.seshapp.model.LearnRequest.LearnRequestTableListener;
-import com.seshtutoring.seshapp.model.Message;
 import com.seshtutoring.seshapp.model.Sesh;
 import com.seshtutoring.seshapp.model.Sesh.SeshTableListener;
-import com.seshtutoring.seshapp.services.PeriodicFetchBroadcastReceiver;
 import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.view.MainContainerActivity;
 import com.seshtutoring.seshapp.view.ContainerState;
@@ -48,16 +36,10 @@ import com.seshtutoring.seshapp.view.MainContainerStateManager.NavigationItemSta
 import com.seshtutoring.seshapp.view.MessagingActivity;
 import com.seshtutoring.seshapp.view.animations.LearnRequestDisplayAnimation;
 import com.seshtutoring.seshapp.view.animations.SeshDisplayAnimation;
-import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.DummyRequestSeshFragment;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -391,7 +373,7 @@ public class SideMenuFragment extends Fragment implements SeshTableListener, Lea
                 }
 
                 RelativeLayout alertBadge = (RelativeLayout) convertView.findViewById(R.id.alert_badge);
-                int unreadMessages = Message.getUnreadMessagesCountForSesh(item.sesh);
+                int unreadMessages = item.sesh.chatroom.unreadActivityCount;
 
                 if (unreadMessages > 0) {
                     alertBadge.setVisibility(View.VISIBLE);

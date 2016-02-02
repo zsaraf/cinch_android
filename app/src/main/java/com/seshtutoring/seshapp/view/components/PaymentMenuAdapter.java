@@ -1,10 +1,7 @@
 package com.seshtutoring.seshapp.view.components;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.graphics.Typeface;
-import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,10 +10,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import com.seshtutoring.seshapp.R;
 import com.seshtutoring.seshapp.model.Card;
-import com.seshtutoring.seshapp.model.Message;
 import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.PaymentFragment;
-import com.seshtutoring.seshapp.view.fragments.MainContainerFragments.SettingsFragment;
 
 import java.util.List;
 

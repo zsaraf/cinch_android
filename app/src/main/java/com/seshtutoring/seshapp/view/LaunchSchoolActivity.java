@@ -118,7 +118,7 @@ public class LaunchSchoolActivity extends SeshActivity implements SeshDialog.OnS
                         try {
                             if (jsonObject.getString("status").equals("SUCCESS")) {
                                 Context context = getApplicationContext();
-                                user = User.createOrUpdateUserWithObject(jsonObject.getJSONObject("data"), context);
+                                user = User.createOrUpdateUserWithObject(jsonObject, context);
                                 if (user.school.enabled) {
                                     Intent mainContainerIntent = new Intent(getApplicationContext(), MainContainerActivity.class);
                                     startActivity(mainContainerIntent);

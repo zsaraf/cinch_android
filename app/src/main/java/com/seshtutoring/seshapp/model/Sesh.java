@@ -64,6 +64,7 @@ public class Sesh extends SugarRecord<Sesh> {
     public String userSchool;
     public boolean isInstant;
     public boolean requiresAnimatedDisplay;
+    public Chatroom chatroom;
 
     // Due to a bug in SugarORM, Date fields cannot be set to null, so, in order to communicate
     // whether or not the following variables are set, we use longs representing Milliseconds since epoch
@@ -88,14 +89,13 @@ public class Sesh extends SugarRecord<Sesh> {
     public static Sesh createOrUpdateSeshWithObject(JSONObject seshJson, Context context) {
         Sesh sesh = null;
         try {
-            int seshId = seshJson.getInt("sesh_id");
-            JSONObject studentRow = seshJson.getJSONObject("student");
-            JSONObject tutorRow = seshJson.getJSONObject("tutor");
+            int seshId = seshJson.getInt("id");
+            Boolean isStudent = seshJson.getBoolean("is_student");
 
-            Boolean isStudent = User.currentUser(context).userId == studentRow.getInt("user_id");
-
-            JSONObject otherPersonRow = isStudent ? tutorRow : studentRow;
-
+            JSONObject userObject = seshJson.getJSONObject("user_data");
+            JSONObject learnRequestObject = seshJson.getJSONObject("past_request");
+            Course course = Course.createOrUpdateCourseWithJSON(learnRequestObject.getJSONObject("course"), null, true);
+            String className = course.shortFormatForTextView();
             boolean isNewlyCreatedSesh;
 
             if (Sesh.listAll(Sesh.class).size() > 0) {
@@ -112,22 +112,22 @@ public class Sesh extends SugarRecord<Sesh> {
                 isNewlyCreatedSesh = false;
             }
 
-            sesh.className = seshJson.getString("class_name");
-            sesh.hasStarted = (seshJson.getInt("has_started") == 1) ? true : false;
+            sesh.className = className;
             sesh.isStudent = isStudent;
-            sesh.latitude = seshJson.getDouble("latitude");
-            sesh.locationNotes = seshJson.getString("location_notes");
-            sesh.longitude = seshJson.getDouble("longitude");
-            sesh.pastRequestId = seshJson.getInt("past_request_id");
-            sesh.seshDescription = seshJson.getString("description");
-            sesh.seshEstTime = seshJson.getInt("est_time");
+            sesh.locationNotes = learnRequestObject.getString("location_notes");
+
+            sesh.pastRequestId = learnRequestObject.getInt("id");
+            sesh.seshDescription = learnRequestObject.getString("description");
+            sesh.seshNumStudents = learnRequestObject.getInt("num_people");
+            sesh.seshEstTime = learnRequestObject.getInt("est_time");
             sesh.seshId = seshId;
-            sesh.seshNumStudents = seshJson.getInt("num_students");
-            sesh.userDescription = otherPersonRow.getString("bio");
-            sesh.userImageUrl = otherPersonRow.getString("profile_picture");
-            sesh.userMajor = otherPersonRow.getString("major");
-            sesh.userName = otherPersonRow.getString("full_name");
-            sesh.isInstant = (seshJson.getInt("is_instant") == 1) ? true : false;
+
+            sesh.userDescription = userObject.getString("bio");
+            sesh.userImageUrl = userObject.getString("profile_picture");
+            sesh.userMajor = userObject.getString("major");
+            sesh.userName = userObject.getString("full_name");
+
+            sesh.isInstant = false;
 
             if (isNewlyCreatedSesh) {
                 sesh.requiresAnimatedDisplay = false;
@@ -135,7 +135,7 @@ public class Sesh extends SugarRecord<Sesh> {
 
             String seshSetTime = seshJson.getString("set_time");
             if (seshSetTime != null && !seshSetTime.equals("null")) {
-                sesh.seshSetTime = formattedTime(seshSetTime).getTime();
+                sesh.seshSetTime = DateUtils.djangoFormattedTime(seshSetTime).getTime();
             } else {
                 // Due to SugarORM bug, we set time to -1 if retrieved result is null
                 sesh.seshSetTime = -1;
@@ -143,9 +143,11 @@ public class Sesh extends SugarRecord<Sesh> {
 
             String startTime = seshJson.getString("start_time");
             if (startTime != null && !startTime.equals("null")) {
-                sesh.startTime = formattedTime(startTime).getTime();
+                sesh.startTime = DateUtils.djangoFormattedTime(startTime).getTime();
+                sesh.hasStarted = true;
             } else {
                 // Due to SugarORM bug, we set time to -1 if retrieved result is null
+                sesh.hasStarted = false;
                 sesh.startTime = -1;
             }
 
@@ -153,8 +155,8 @@ public class Sesh extends SugarRecord<Sesh> {
 
             AvailableBlock.deleteAll(AvailableBlock.class, "sesh = ?", Long.toString(sesh.getId()));
             Set<AvailableBlock> availableBlocksVal = new HashSet<AvailableBlock>();
-            if (seshJson.get(AVAILABLE_BLOCKS_KEY) != null) {
-                JSONArray availableBlocksJson = seshJson.getJSONArray(AVAILABLE_BLOCKS_KEY);
+            if (learnRequestObject.get(AVAILABLE_BLOCKS_KEY) != null) {
+                JSONArray availableBlocksJson = learnRequestObject.getJSONArray(AVAILABLE_BLOCKS_KEY);
                 for (int i = 0; i < availableBlocksJson.length(); i++) {
                     JSONObject availableBlockJson = availableBlocksJson.getJSONObject(i);
                     AvailableBlock availableBlockObj = AvailableBlock.createAvailableBlock(availableBlockJson);
@@ -163,24 +165,13 @@ public class Sesh extends SugarRecord<Sesh> {
                 }
             }
 
-            if (seshJson.get(MESSAGES_KEY) != null) {
-                JSONArray messagesJSON = seshJson.getJSONArray(MESSAGES_KEY);
-                for (int i = 0; i < messagesJSON.length(); i++) {
-                    JSONObject messageJSON = messagesJSON.getJSONObject(i);
-                    Message message = Message.createOrUpdateMessageWithJSON(messageJSON, sesh, context);
-                    message.save();
-                }
-                sesh.save();
-            }
+            sesh.chatroom = Chatroom.createOrUpdateChatroomWithObject(seshJson.getJSONObject("chatroom"), context);
+            sesh.save();
         } catch (JSONException e) {
             Log.e(TAG, "Failed to create or update user in db; JSON user object from server is malformed: " + e.getMessage());
             return null;
         }
         return sesh;
-    }
-
-    public List<Message> getMessages() {
-        return Message.find(Message.class, "sesh = ?", Long.toString(this.getId()));
     }
 
     public static void setTableListener(SeshTableListener tableListener) {
@@ -199,16 +190,11 @@ public class Sesh extends SugarRecord<Sesh> {
     public void delete() {
         // Delete all available blocks associated with this Sesh
         AvailableBlock.deleteAll(AvailableBlock.class, "sesh = ?", Long.toString(this.getId()));
-        Message.deleteAll(Message.class, "sesh = ?", Long.toString(this.getId()));
+        Chatroom.deleteAll(Chatroom.class, "sesh = ?", Long.toString(this.getId()));
         super.delete();
         if (listener != null) {
             listener.tableUpdated();
         }
-    }
-
-    private static Date formattedTime(String rawTimeString) {
-        DateTimeFormatter formatter = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss").withZoneUTC();
-        return formatter.parseDateTime(rawTimeString).toDate();
     }
 
     public static synchronized Sesh getCurrentSesh() {

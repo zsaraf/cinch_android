@@ -55,12 +55,12 @@ public class Tutor extends SugarRecord<Tutor> {
             }
 
             tutor.tutorId = tutorId;
-            tutor.userId = tutorJson.getInt("user_id");
-            tutor.enabled = (tutorJson.getInt("enabled") == 1) ? true : false;
+            tutor.userId = tutorJson.getInt("user");
+            tutor.enabled = tutorJson.getBoolean("enabled");
             JSONObject stats = tutorJson.getJSONObject("stats");
-            tutor.cashAvailable = (float) stats.getDouble("cash_available");
+            tutor.cashAvailable = (float) stats.getDouble("credits");
             tutor.hoursTutored = stats.getInt("hours_tutored");
-            tutor.didAcceptTerms = (tutorJson.getInt("did_accept_terms") == 1) ? true : false;
+            tutor.didAcceptTerms = tutorJson.getBoolean("did_accept_terms");
 
             tutor.save();
         } catch (JSONException e) {
