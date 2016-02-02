@@ -190,7 +190,6 @@ public class Sesh extends SugarRecord<Sesh> {
     public void delete() {
         // Delete all available blocks associated with this Sesh
         AvailableBlock.deleteAll(AvailableBlock.class, "sesh = ?", Long.toString(this.getId()));
-        Chatroom.deleteAll(Chatroom.class, "sesh = ?", Long.toString(this.getId()));
         super.delete();
         if (listener != null) {
             listener.tableUpdated();

@@ -25,6 +25,7 @@ import java.util.TimeZone;
 import com.orm.SugarRecord;
 import com.orm.dsl.Ignore;
 import com.seshtutoring.seshapp.model.AvailableBlock;
+import com.seshtutoring.seshapp.util.SeshUtils;
 
 public class AvailableJob extends SugarRecord<AvailableJob> {
     @Ignore
@@ -32,16 +33,15 @@ public class AvailableJob extends SugarRecord<AvailableJob> {
 
     private static final String DESCRIPTION_KEY = "description";
     private static final String MAX_TIME_KEY = "est_time";
-    private static final String STUDENT_NAME_KEY = "first_name";
-    private static final String CLASS_KEY = "class";
-    private static final String REQUEST_ID_KEY = "request_id";
+    private static final String STUDENT_NAME_KEY = "full_name";
+    private static final String CLASS_KEY = "course";
+    private static final String REQUEST_ID_KEY = "id";
     private static final String NUM_PEOPLE_KEY = "num_people";
-    private static final String LATITUDE_KEY = "latitude";
-    private static final String LONGITUDE_KEY = "longitude";
     private static final String AVAILABLE_BLOCKS_KEY = "available_blocks";
     private static final String RATE_KEY = "hourly_rate";
     private static final String IS_INSTANT_KEY = "is_instant";
     private static final String ESTIMATED_WAGE_KEY = "estimated_wage";
+    private static final String LOCATION_NOTES_KEY = "location_notes";
 
 
     public String description;
@@ -53,6 +53,7 @@ public class AvailableJob extends SugarRecord<AvailableJob> {
     public int availableJobId;
     public boolean isSelected;
     public double estimatedWage;
+    public String locationNotes;
 
     @Ignore
     public Set<AvailableBlock> availableBlocks;
@@ -84,9 +85,8 @@ public class AvailableJob extends SugarRecord<AvailableJob> {
 
         String descriptionVal;
         String studentNameVal;
+        String locationNotesVal;
         int numPeopleVal;
-        double latitudeVal;
-        double longitudeVal;
         double maxTimeVal;
         int requestIdVal;
         Course courseVal;
@@ -95,17 +95,18 @@ public class AvailableJob extends SugarRecord<AvailableJob> {
         double estimatedWageVal;
 
         try {
+            JSONObject studentData = json.getJSONObject("student_data");
+            studentNameVal = SeshUtils.firstName(studentData.getString(STUDENT_NAME_KEY));
+
             descriptionVal = json.getString(DESCRIPTION_KEY);
-            studentNameVal = json.getString(STUDENT_NAME_KEY);
             numPeopleVal = json.getInt(NUM_PEOPLE_KEY);
-            latitudeVal = json.getDouble(LATITUDE_KEY);
-            longitudeVal = json.getDouble(LONGITUDE_KEY);
             maxTimeVal = json.getDouble(MAX_TIME_KEY)/60;
             requestIdVal = json.getInt(REQUEST_ID_KEY);
             rateVal = json.getDouble(RATE_KEY);
-            courseVal = Course.createOrUpdateCourseWithJSON(json.getJSONObject(CLASS_KEY), null, true);
+            courseVal = Course.createOrUpdateCourseWithJSON(json.getJSONObject(CLASS_KEY), null, false);
             isInstantVal = json.getBoolean(IS_INSTANT_KEY);
             estimatedWageVal = json.getDouble(ESTIMATED_WAGE_KEY);
+            locationNotesVal = json.getString(LOCATION_NOTES_KEY);
 
             if (AvailableJob.listAll(AvailableJob.class).size() > 0) {
                 List<AvailableJob> availableJobsFound = AvailableJob.find(AvailableJob.class, "available_job_id = ?", Integer.toString(requestIdVal));
@@ -123,14 +124,13 @@ public class AvailableJob extends SugarRecord<AvailableJob> {
             availableJob.description = descriptionVal;
             availableJob.studentName = studentNameVal;
             availableJob.numPeople = numPeopleVal;
-            availableJob.latitude = latitudeVal;
-            availableJob.longitude = longitudeVal;
             availableJob.maxTime = maxTimeVal;
             availableJob.availableJobId = requestIdVal;
             availableJob.course = courseVal;
             availableJob.rate = rateVal;
             availableJob.isInstant = isInstantVal;
             availableJob.estimatedWage = estimatedWageVal;
+            availableJob.locationNotes = locationNotesVal;
             availableJob.save();
 
             AvailableBlock.deleteAll(AvailableBlock.class, "available_job = ?", Long.toString(availableJob.getId()));

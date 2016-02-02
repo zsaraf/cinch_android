@@ -53,7 +53,7 @@ public class JsonObjectRequestWithAuth extends JsonObjectRequest {
     protected Response<JSONObject> parseNetworkResponse(NetworkResponse response) {
         try {
             String je = new String(response.data, HttpHeaderParser.parseCharset(response.headers, "utf-8"));
-            Object json = new JSONTokener(je).nextValue();
+            Object json = je.length() > 2 ? new JSONTokener(je).nextValue() : new JSONObject();
             if (json instanceof JSONObject) {
                 return Response.success((JSONObject)json, null);
             } else {

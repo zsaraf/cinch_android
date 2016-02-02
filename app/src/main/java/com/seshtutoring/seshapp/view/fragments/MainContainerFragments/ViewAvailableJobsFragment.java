@@ -464,26 +464,8 @@ public class ViewAvailableJobsFragment extends ListFragment {
             viewHolder.assignmentInformationLabel.setText(item.description);
             viewHolder.assignmentInformationLabel.setVisibility(View.VISIBLE);
 
-            float[] results = new float[3];
-            if (locationManager.isConnected) {
-                Location currentLocation = locationManager.getCurrentLocation();
-                Location jobLocation = new Location("job location");
-                jobLocation.setLatitude(item.latitude);
-                jobLocation.setLongitude(item.longitude);
-                Location.distanceBetween(
-                        currentLocation.getLatitude(),
-                        item.latitude,
-                        currentLocation.getLongitude(),
-                        item.longitude,
-                        results);
-                float mi = currentLocation.distanceTo(jobLocation);
-                /* Convert from emters to miles */
-                Double miles = mi * 0.000621371;
-                viewHolder.distanceInformationLabel.setText(fmtDistance(miles) + " miles");
-            } else {
-                viewHolder.distanceInformationLabel.setText("?? miles");
-            }
-
+            viewHolder.distanceInformationLabel.setText(item.locationNotes);
+            viewHolder.distanceInformationLabel.setVisibility(View.VISIBLE);
 
             viewHolder.durationInformationLabel.setText(item.maxTime + " hours");
             viewHolder.durationInformationLabel.setVisibility(View.VISIBLE);
@@ -564,7 +546,7 @@ public class ViewAvailableJobsFragment extends ListFragment {
                 try {
                     availableJobsAdapter.clear();
                     availableJobs.clear();
-                    JSONArray availableJobsArrayJson = jsonResponse.getJSONArray("courses");
+                    JSONArray availableJobsArrayJson = jsonResponse.getJSONArray("results");
                     for (int i = 0; i < availableJobsArrayJson.length(); i++) {
                         AvailableJob availableJob= AvailableJob.createOrUpdateAvailableJobWithObject((availableJobsArrayJson.getJSONObject(i)));
                         availableJobs.add(availableJob);

@@ -79,15 +79,7 @@ public class User extends SugarRecord<User> {
         seshNetworking.getFullUserInfo(new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject jsonObject) {
-                try {
-                    if (jsonObject.get("status").equals("SUCCESS")) {
-                        createOrUpdateUserWithObject(jsonObject.getJSONObject(("data")), context);
-                    } else {
-                        Log.e(TAG, "Failed to fetch full user info from server.");
-                    }
-                } catch (JSONException e) {
-                    Log.e(TAG, "Failed to fetch user info from server; response malformed");
-                }
+                createOrUpdateUserWithObject(jsonObject, context);
             }
         }, new Response.ErrorListener() {
             @Override

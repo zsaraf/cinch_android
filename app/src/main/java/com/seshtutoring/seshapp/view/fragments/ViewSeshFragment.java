@@ -427,20 +427,11 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
                     @Override
                     public void onResponse(JSONObject jsonObject) {
                         setNetworking(false);
-                        try {
-                            if (jsonObject.getString("status").equals("SUCCESS")) {
-                                sesh.delete();
-                                MainContainerActivity mainContainerActivity = (MainContainerActivity) getActivity();
-                                MainContainerStateManager mainContainerStateManager
-                                        = mainContainerActivity.getContainerStateManager();
-                                mainContainerStateManager.setContainerStateForNavigation(NavigationItemState.HOME);
-                            } else {
-                                showNetworkingErrorWithTitle("Error!", jsonObject.getString("message"));
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                            showNetworkingErrorWithTitle("Error!", null);
-                        }
+                            sesh.delete();
+                            MainContainerActivity mainContainerActivity = (MainContainerActivity) getActivity();
+                            MainContainerStateManager mainContainerStateManager
+                                    = mainContainerActivity.getContainerStateManager();
+                            mainContainerStateManager.setContainerStateForNavigation(NavigationItemState.HOME);
                     }
                 }, new Response.ErrorListener() {
                     @Override
@@ -472,17 +463,6 @@ public class ViewSeshFragment extends Fragment implements MainContainerActivity.
                 seshNetworking.startSeshWithSeshId(sesh.seshId, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject jsonObject) {
-                        try {
-                            if (jsonObject.getString("status").equals("SUCCESS")) {
-                            } else {
-                                setNetworking(false);
-                                showNetworkingErrorWithTitle("Error!", jsonObject.getString("message"));
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                            setNetworking(false);
-                            showNetworkingErrorWithTitle("Error!", null);
-                        }
                     }
                 }, new Response.ErrorListener() {
                     @Override

@@ -130,11 +130,17 @@ public class SeshNetworking {
         return bitmap;
     }
 
+    public String s3BucketPrefix() {
+        if (SeshApplication.IS_LIVE) {
+            return "https://sesh-tutoring-prod.s3.amazonaws.com";
+        } else {
+            return "https://sesh-tutoring-dev.s3.amazonaws.com";
+        }
+    }
+
     public void downloadProfilePictureAsync(String profilePictureUrl, ImageView imageView, Callback callback) {
-
-        profilePictureUrl = baseUrl() + "resources/images/profile_pictures/" + profilePictureUrl;
+        profilePictureUrl = s3BucketPrefix() + "/images/profile_pictures/" + profilePictureUrl + "_large.jpeg";
         PicassoWrapper.getInstance(mContext).picasso.load(profilePictureUrl).placeholder(R.drawable.default_profile_picture).into(imageView, callback);
-
     }
 
     public void downloadProfilePictureAsyncNoPlaceholder(String profilePictureUrl, ImageView imageView, Callback callback) {
@@ -310,7 +316,6 @@ public class SeshNetworking {
                                  boolean favorited, Response.Listener<JSONObject> successListener,
                                  Response.ErrorListener errorListener) {
         Map<String, String> params = new HashMap<>();
-        params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
         params.put(HELPFUL_RATING_PARAM, Integer.toString(helpfulRating));
         params.put(KNOWLEDGE_RATING_PARAM, Integer.toString(knowledgeRating));
         params.put(FRIENDLINESS_RATING_PARAM, Integer.toString(friendlinessRating));
@@ -667,14 +672,10 @@ public class SeshNetworking {
 
     public void uploadProfilePicture(Response.Listener<JSONObject> successListener, Response.ErrorListener errorListener, File image) {
         Map<String, String> params = new HashMap<>();
-        params.put("session_id", SeshAuthManager.sharedManager(mContext).getAccessToken());
         String url = baseUrl() + apiUrl(RequestType.DJANGO) + "accounts/users/upload_profile_picture/";
         JsonMultipartRequest request = new JsonMultipartRequest(url, SeshAuthManager.sharedManager(mContext).getAccessToken(), successListener, errorListener, image);
 
         Map<String, String> headerParams = new HashMap<String, String>();
-//        params.put("Authorization", String.format("Basic %s", Base64.encodeToString(
-//                String.format("%s:%s", BASIC_AUTH_USERNAME, BASIC_AUTH_PASSWORD).getBytes(),
-//                Base64.NO_WRAP)));
         headerParams.put("Authorization", "Basic dGVhbXNlc2g6RWFibHRmMSE=");
         headerParams.put("X-Session-Id", SeshAuthManager.sharedManager(mContext).getAccessToken());
         request.headers = headerParams;

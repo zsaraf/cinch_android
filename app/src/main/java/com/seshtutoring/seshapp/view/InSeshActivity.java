@@ -98,16 +98,6 @@ public class InSeshActivity extends SeshActivity {
                             seshNetworking.endSesh(currentSesh.seshId, new Response.Listener<JSONObject>() {
                                 @Override
                                 public void onResponse(JSONObject jsonObject) {
-                                    try {
-                                        if (jsonObject.getString("status").equals("SUCCESS")) {
-                                        } else {
-                                            setNetworking(false);
-                                            showErrorDialog("Error!", jsonObject.getString("message"));
-                                        }
-                                    } catch (JSONException e) {
-                                        Log.e(TAG, "Failed to end sesh; json response malformed: " + e);
-                                        showErrorDialog("Error!", "Something went wrong.  Try again later.");
-                                    }
                                 }
                             }, new Response.ErrorListener() {
                                 @Override

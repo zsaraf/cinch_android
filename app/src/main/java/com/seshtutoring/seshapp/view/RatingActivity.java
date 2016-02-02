@@ -136,26 +136,9 @@ public class RatingActivity extends SeshActivity {
                     seshNetworking.submitSeshRating(pastSesh.pastSeshId, helpfulRating, knowledgeRating, friendlyRating, false, new Response.Listener<JSONObject>() {
                         @Override
                         public void onResponse(JSONObject jsonObject) {
-                            try {
-                                if (jsonObject.getString("status").equals("SUCCESS")) {
-                                    Notification.currentNotificationHandled(getApplicationContext(), true);
-                                    finish();
-                                    overridePendingTransition(0, R.anim.slide_down);
-                                } else {
-                                    setNetworkOperationInProgress(false);
-
-                                    SeshDialog.showDialog(getFragmentManager(), "Whoops",
-                                            jsonObject.getString("message"),
-                                            "Okay", null, "REPORT_PROBLEM");
-                                }
-                            } catch (JSONException e) {
-                                setNetworkOperationInProgress(false);
-
-                                Log.e(TAG, "Failed to send report problem; JSON malformed: " + e);
-                                SeshDialog.showDialog(getFragmentManager(), "Whoops",
-                                        "Something went wrong.  Try again later.",
-                                        "Okay", null, "error");
-                            }
+                            Notification.currentNotificationHandled(getApplicationContext(), true);
+                            finish();
+                            overridePendingTransition(0, R.anim.slide_down);
                         }
                     }, new Response.ErrorListener() {
                         @Override

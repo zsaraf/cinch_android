@@ -78,23 +78,21 @@ public class PastSesh extends SugarRecord<PastSesh> {
                 pastSesh.endTime = DateUtils.djangoFormattedTime(pastSeshObject.getString("end_time")).getTime();
             }
 
-            if (pastSeshObject.get("student") instanceof JSONObject) {
-                JSONObject studentObject = pastSeshObject.getJSONObject("student");
+            if (pastSeshObject.has("student_data")) {
+                JSONObject studentObject = pastSeshObject.getJSONObject("student_data");
                 pastSesh.studentFullName = studentObject.getString("full_name");
                 pastSesh.studentMajor = studentObject.getString("major");
-                pastSesh.studentUserId = studentObject.getInt("user_id");
-                pastSesh.studentId = studentObject.getInt("id");
+                pastSesh.studentUserId = studentObject.getInt("id");
                 pastSesh.studentProfilePicture = studentObject.getString("profile_picture");
             } else {
                 pastSesh.studentId = pastSeshObject.getInt("student");
             }
 
-            if (pastSeshObject.get("tutor") instanceof JSONObject) {
-                JSONObject tutorObject = pastSeshObject.getJSONObject("tutor");
+            if (pastSeshObject.has("tutor_data")) {
+                JSONObject tutorObject = pastSeshObject.getJSONObject("tutor_data");
                 pastSesh.tutorFullName = tutorObject.getString("full_name");
                 pastSesh.tutorMajor = tutorObject.getString("major");
-                pastSesh.tutorUserId = tutorObject.getInt("user_id");
-                pastSesh.tutorId = tutorObject.getInt("id");
+                pastSesh.tutorUserId = tutorObject.getInt("id");
                 pastSesh.tutorProfilePicture = tutorObject.getString("profile_picture");
             } else {
                 pastSesh.tutorId = pastSeshObject.getInt("tutor");
