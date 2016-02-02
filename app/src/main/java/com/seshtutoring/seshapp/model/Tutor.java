@@ -21,7 +21,7 @@ public class Tutor extends SugarRecord<Tutor> {
     public int userId;
     public boolean enabled;
     public float cashAvailable;
-    public int hoursTutored;
+    public float hoursTutored;
     public boolean didAcceptTerms;
 
     // empty constructor necessary for SugarORM to work
@@ -59,7 +59,7 @@ public class Tutor extends SugarRecord<Tutor> {
             tutor.enabled = tutorJson.getBoolean("enabled");
             JSONObject stats = tutorJson.getJSONObject("stats");
             tutor.cashAvailable = (float) stats.getDouble("credits");
-            tutor.hoursTutored = stats.getInt("hours_tutored");
+            tutor.hoursTutored = (float) stats.getDouble("hours_tutored");
             tutor.didAcceptTerms = tutorJson.getBoolean("did_accept_terms");
 
             tutor.save();

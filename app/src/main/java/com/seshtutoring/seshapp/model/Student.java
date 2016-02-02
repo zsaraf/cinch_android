@@ -19,7 +19,7 @@ public class Student extends SugarRecord<Student> {
 
     public int studentId;
     public int userId;
-    public int hoursLearned;
+    public float hoursLearned;
     public float credits;
 
     // empty constructor necessary for SugarORM to work
@@ -52,7 +52,7 @@ public class Student extends SugarRecord<Student> {
             student.studentId = studentId;
             student.userId = studentJson.getInt("user");
             JSONObject stats = studentJson.getJSONObject("stats");
-            student.hoursLearned = stats.getInt("hours_learned");
+            student.hoursLearned = (float) stats.getDouble("hours_learned");
             student.credits = (float) stats.getDouble("credits");
 
             student.save();
