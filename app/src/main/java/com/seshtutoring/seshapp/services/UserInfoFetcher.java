@@ -34,11 +34,7 @@ public class UserInfoFetcher {
         seshNetworking.getFullUserInfo(new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject json) {
-                try  {
-                    (new SaveUserInfoAsyncTask()).execute(mContext, json.getJSONObject("data"), listener);
-                } catch (JSONException e) {
-                    Log.e(TAG, "Failed to fetch user info from server; json malformed: ");
-                }
+                (new SaveUserInfoAsyncTask()).execute(mContext, json, listener);
             }
         }, new Response.ErrorListener() {
             @Override

@@ -29,6 +29,7 @@ import com.seshtutoring.seshapp.SeshApplication;
 import com.seshtutoring.seshapp.model.Discount;
 import com.seshtutoring.seshapp.model.Notification;
 import com.seshtutoring.seshapp.model.User;
+import com.seshtutoring.seshapp.services.UserInfoFetcher;
 import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.util.SeshMixpanelAPI;
 import com.seshtutoring.seshapp.view.AddTutorClassesActivity;

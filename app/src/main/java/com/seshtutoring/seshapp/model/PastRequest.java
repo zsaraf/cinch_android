@@ -74,7 +74,7 @@ public class PastRequest extends SugarRecord<PastRequest> {
             pastRequest.classString = pastRequestJson.getString("class_string");
             pastRequest.descr = pastRequestJson.getString("description");
             pastRequest.estTime = pastRequestJson.getInt("est_time");
-            pastRequest.isInstant = (pastRequestJson.getInt("is_instant") == 1) ? true : false;
+            pastRequest.isInstant = pastRequestJson.getBoolean("is_instant");
             pastRequest.latitude = pastRequestJson.getDouble("latitude");
             pastRequest.longitude = pastRequestJson.getDouble("longitude");
             pastRequest.numPeople = pastRequestJson.getInt("num_people");

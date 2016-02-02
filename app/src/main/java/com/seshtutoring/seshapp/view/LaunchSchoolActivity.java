@@ -115,19 +115,12 @@ public class LaunchSchoolActivity extends SeshActivity implements SeshDialog.OnS
                 seshNetworking.getFullUserInfo(new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject jsonObject) {
-                        try {
-                            if (jsonObject.getString("status").equals("SUCCESS")) {
-                                Context context = getApplicationContext();
-                                user = User.createOrUpdateUserWithObject(jsonObject.getJSONObject("data"), context);
-                                if (user.school.enabled) {
-                                    Intent mainContainerIntent = new Intent(getApplicationContext(), MainContainerActivity.class);
-                                    startActivity(mainContainerIntent);
-                                    overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-                                }
-
-                            }
-                        } catch (JSONException e) {
-
+                        Context context = getApplicationContext();
+                        user = User.createOrUpdateUserWithObject(jsonObject, context);
+                        if (user.school.enabled) {
+                            Intent mainContainerIntent = new Intent(getApplicationContext(), MainContainerActivity.class);
+                            startActivity(mainContainerIntent);
+                            overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
                         }
                     }
                 }, new Response.ErrorListener() {

@@ -3,10 +3,14 @@ package com.seshtutoring.seshapp.util;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.LocalDate;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by zacharysaraf on 8/26/15.
@@ -69,5 +73,39 @@ public class DateUtils {
         }
         return "";
     }
+
+    public static List<String> getSeshFormattedDaysOfTheWeek(DateTime startDay) {
+        List<DateTime> daysOfWeek = new ArrayList<>();
+        for (int i = 0; i < 7; i++) {
+            daysOfWeek.add(startDay.plusDays(i));
+        }
+
+        List<String> formattedDays = new ArrayList<>();
+        for (DateTime day : daysOfWeek) {
+            formattedDays.add(getSeshFormattedDayString(day));
+        }
+
+        return formattedDays;
+    }
+
+    public static Date formattedTime(String rawTimeString) {
+        DateTimeFormatter formatter = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss").withZoneUTC();
+        return formatter.parseDateTime(rawTimeString).toDate();
+    }
+
+    public static Date djangoFormattedTime(String rawTimeString) {
+        int indexOfPeriod = rawTimeString.lastIndexOf('.');
+        if (indexOfPeriod != -1) {
+            rawTimeString = rawTimeString.substring(0, indexOfPeriod);
+        }
+        try {
+            DateTimeFormatter formatter = DateTimeFormat.forPattern("YYYY-MM-dd'T'HH:mm:ss").withZoneUTC();
+            return formatter.parseDateTime(rawTimeString).toDate();
+        } catch (IllegalArgumentException ex) {
+            DateTimeFormatter formatter = DateTimeFormat.forPattern("YYYY-MM-dd'T'HH:mm:ss.SSS").withZoneUTC();
+            return formatter.parseDateTime(rawTimeString).toDate();
+        }
+    }
+
 
 }

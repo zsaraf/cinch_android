@@ -2,6 +2,7 @@ package com.seshtutoring.seshapp.view.components;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.widget.HorizontalScrollView;
 
 /**
@@ -14,6 +15,11 @@ public class SeshHorizontalScrollView extends HorizontalScrollView {
 
     public void scrollToX(int x) {
         super.scrollTo(x, 0);
+    }
+
+    @Override
+    public boolean onInterceptTouchEvent(MotionEvent ev) {
+        return false;
     }
 
     // prevents Horizontal Scroll View from scrolling while user edits SeshEditText

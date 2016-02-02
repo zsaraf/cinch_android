@@ -1,27 +1,20 @@
 package com.seshtutoring.seshapp.view;
 
-import android.app.ActionBar;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Paint;
-import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Looper;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -29,7 +22,7 @@ import android.widget.TextView;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.seshtutoring.seshapp.R;
-import com.seshtutoring.seshapp.model.Message;
+import com.seshtutoring.seshapp.model.ChatroomActivity;
 import com.seshtutoring.seshapp.model.Sesh;
 import com.seshtutoring.seshapp.util.LayoutUtils;
 import com.seshtutoring.seshapp.util.networking.SeshNetworking;
@@ -42,6 +35,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import android.os.Handler;
 
@@ -130,37 +126,23 @@ public class MessagingActivity extends SeshActivity implements View.OnClickListe
 
     private void isCurrentOnMessages() {
 
-        List<Message> messages =  this.sesh.getMessages();
+        List<ChatroomActivity> messages =  this.sesh.chatroom.getChatroomActivities();
 
         if (messages.size() <= 0) return;
 
-        Message.listMesssagesAsRead(messages);
+        this.sesh.chatroom.unreadActivityCount = 0;
+        this.sesh.chatroom.save();
 
-        Message lastMessage = messages.get(messages.size() - 1);
-
-        this.seshNetworking.hasReadUpToMessage(lastMessage.messageId, this.sesh.seshId, new Response.Listener<JSONObject>() {
+        ChatroomActivity lastMessage = messages.get(messages.size() - 1);
+        // TODO: change to markMessagesAsRead
+        this.seshNetworking.markMessagesReadWithChatroomId(lastMessage.chatroomActivityId, this.sesh.chatroom.chatroomId, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject jsonObject) {
-                try {
-                    if (jsonObject.getString("status").equals("SUCCESS")) {
-
-                        Log.d(TAG, "Updated read messages");
-
-
-                    }
-                } catch (JSONException e) {
-                    Log.e(TAG, "Failed to update read messages; JSON malformed: " + e);
-                    SeshDialog.showDialog(getFragmentManager(), "Whoops",
-                            "Something went wrong.  Try again later.",
-                            "Okay", null, "error");
-                }
+                Log.d(TAG, "Updated read messages");
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError volleyError) {
-                SeshDialog.showDialog(getFragmentManager(), "Whoops",
-                        "Something went wrong.  Try again later.",
-                        "Okay", null, "error");
             }
         });
 
@@ -171,7 +153,7 @@ public class MessagingActivity extends SeshActivity implements View.OnClickListe
         super.onResume();
 
         this.sesh = Sesh.findSeshWithId(this.seshId);
-        this.messageAdapter.messages = this.sesh.getMessages();
+        this.messageAdapter.messages = this.sesh.chatroom.getChatroomActivities();
 
         listView.postDelayed(new Runnable() {
             @Override
@@ -206,7 +188,7 @@ public class MessagingActivity extends SeshActivity implements View.OnClickListe
     public void onNewMessage() {
         this.sesh = Sesh.findSeshWithId(this.seshId);
         isCurrentOnMessages();
-        messageAdapter.messages = sesh.getMessages();
+        messageAdapter.messages = sesh.chatroom.getChatroomActivities();
         messageAdapter.notifyDataSetChanged();
         listView.smoothScrollToPosition(messageAdapter.getCount() - 1);
     }
@@ -261,39 +243,26 @@ public class MessagingActivity extends SeshActivity implements View.OnClickListe
             this.textField.setText("");
             this.textField.setHint("Sending...");
             this.textField.setCursorVisible(false);
-            seshNetworking.sendMessage(currentMessage, this.sesh.seshId, new Response.Listener<JSONObject>() {
+            seshNetworking.sendMessage(currentMessage, this.sesh.chatroom.chatroomId, new Response.Listener<JSONObject>() {
                 @Override
                 public void onResponse(JSONObject jsonObject) {
-                    try {
-                        if (jsonObject.getString("status").equals("SUCCESS")) {
+                    ChatroomActivity message = ChatroomActivity.createOrUpdateChatroomActivityWithJSON(jsonObject, sesh.chatroom, getApplicationContext());
+                    message.save();
+                    isCurrentOnMessages();
 
-                            JSONArray messagesJSON = jsonObject.getJSONArray("messages");
-                            List<Message> messages = new ArrayList<>();
-                            for (int i = 0; i < messagesJSON.length(); i++) {
-                                JSONObject messageJSON = messagesJSON.getJSONObject(i);
-                                Message message = Message.createOrUpdateMessageWithJSON(messageJSON, sesh, getApplicationContext());
-                                message.save();
-                                messages.add(message);
-                            }
-                            isCurrentOnMessages();
-
-                            messageAdapter.messages = messages;
-                            messageAdapter.notifyDataSetChanged();
-                            listView.smoothScrollToPosition(messageAdapter.getCount() - 1);
-                            textField.setHint("Message...");
-                            textField.setCursorVisible(true);
-
-                        } else {
-                            SeshDialog.showDialog(getFragmentManager(), "Whoops",
-                                    jsonObject.getString("message"),
-                                    "Okay", null, "SEND_MESSAGE");
+                    List<ChatroomActivity> messages = ChatroomActivity.find(ChatroomActivity.class, "chatroom = ?", Long.toString(sesh.chatroom.getId()));
+                    Collections.sort(messages, new Comparator<ChatroomActivity>() {
+                        @Override
+                        public int compare(ChatroomActivity lhs, ChatroomActivity rhs) {
+                            return (int) (lhs.timestamp- rhs.timestamp);
                         }
-                    } catch (JSONException e) {
-                        Log.e(TAG, "Failed to send report problem; JSON malformed: " + e);
-                        SeshDialog.showDialog(getFragmentManager(), "Whoops",
-                                "Something went wrong.  Try again later.",
-                                "Okay", null, "error");
-                    }
+                    });
+
+                    messageAdapter.messages = messages;
+                    messageAdapter.notifyDataSetChanged();
+                    listView.smoothScrollToPosition(messageAdapter.getCount() - 1);
+                    textField.setHint("Message...");
+                    textField.setCursorVisible(true);
                 }
             }, new Response.ErrorListener() {
                 @Override

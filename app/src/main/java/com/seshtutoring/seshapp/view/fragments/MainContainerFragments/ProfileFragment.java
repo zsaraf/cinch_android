@@ -67,6 +67,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
  */
 
 public class ProfileFragment extends Fragment implements FragmentOptionsReceiver {
+    private static final String TAG = ProfileFragment.class.getName();
 
     private static final int REQUEST_TAKE_PHOTO = 1337;
 
@@ -367,20 +368,16 @@ public class ProfileFragment extends Fragment implements FragmentOptionsReceiver
                     @Override
                     public void onResponse(JSONObject jsonObject) {
                         try {
-                            if (jsonObject.getString("status").equals("SUCCESS")) {
-                                //success handler
-                                updateUserProfile((JSONObject)jsonObject.get("user"));
-                            } else {
-                                //server error hadler
-                            }
+                            //success handler
+                            updateUserProfile((JSONObject)jsonObject.get("user"));
                         } catch (JSONException e) {
-                            //json exception handler
+                            Log.e(TAG, "Failed to fetch user info from server; network error: " + e);
                         }
                     }
                 }, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError volleyError) {
-                        //error response handler
+                        Log.e(TAG, "Failed to fetch user info from server; network error: " + volleyError);
                     }
                 }, resizedPhotoFile);
 

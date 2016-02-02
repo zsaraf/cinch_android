@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.orm.SugarRecord;
 import com.orm.dsl.Ignore;
+import com.seshtutoring.seshapp.util.DateUtils;
 import com.seshtutoring.seshapp.util.networking.SeshAuthManager;
 
 import org.joda.time.DateTime;
@@ -61,6 +62,7 @@ public class LearnRequest extends SugarRecord<LearnRequest> {
 
     public LearnRequest() {
         this.availableBlocks = new HashSet<AvailableBlock>();
+        this.isInstant = false;
     }
 
     public LearnRequest(String classId, String classString, String descr, int estTime, boolean isInstant, double latitude,
@@ -105,19 +107,17 @@ public class LearnRequest extends SugarRecord<LearnRequest> {
 
             java.util.Date date = new java.util.Date();
 
-            DateTimeFormatter formatter = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss");
-
-            learnRequest.classId = learnRequestJson.getString("class_id");
-            learnRequest.classString = learnRequestJson.getString("class_string");
+            Course course = Course.createOrUpdateCourseWithJSON(learnRequestJson.getJSONObject("course"), null, true);
+            String className = course.shortFormatForTextView();
+            String classId = course.courseId + "";
+            learnRequest.classId = classId;
+            learnRequest.classString = className;
             learnRequest.descr = learnRequestJson.getString("description");
             learnRequest.estTime = learnRequestJson.getInt("est_time");
-            learnRequest.isInstant = (learnRequestJson.getInt("is_instant") == 1) ? true : false;
-            learnRequest.latitude = learnRequestJson.getDouble("latitude");
-            learnRequest.longitude = learnRequestJson.getDouble("longitude");
+            learnRequest.isInstant = false;
             learnRequest.learnRequestId = learnRequestJson.getInt("id");
             learnRequest.numPeople = learnRequestJson.getInt("num_people");
-            learnRequest.timestamp = formatter
-                    .parseDateTime(learnRequestJson.getString("timestamp")).getMillis();
+            learnRequest.timestamp = new DateTime(DateUtils.djangoFormattedTime(learnRequestJson.getString("timestamp"))).getMillis();
             learnRequest.locationNotes = learnRequestJson.getString("location_notes");
             learnRequest.requiresAnimatedDisplay = false;
 

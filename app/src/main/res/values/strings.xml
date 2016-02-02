@@ -13,7 +13,7 @@
     <string name="title_activity_promote">Promote</string>
     <string name="title_activity_in_sesh">In Sesh</string>
 
-    <string name="major_hint">Tell us a bit about yourself! What are you passionate about and what do you love to learn? This will be public.</string>
+    <string name="major_hint">Tell us a bit about yourself!</string>
 
     <string name="learn_tab_button_title">LEARN</string>
     <string name="teach_tab_button_title">TEACH</string>

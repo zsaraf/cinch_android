@@ -50,7 +50,7 @@ public class Student extends SugarRecord<Student> {
             }
 
             student.studentId = studentId;
-            student.userId = studentJson.getInt("user_id");
+            student.userId = studentJson.getInt("user");
             JSONObject stats = studentJson.getJSONObject("stats");
             student.hoursLearned = stats.getInt("hours_learned");
             student.credits = (float) stats.getDouble("credits");

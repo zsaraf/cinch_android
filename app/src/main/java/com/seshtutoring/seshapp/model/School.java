@@ -56,9 +56,9 @@ public class School extends SugarRecord<School> {
             school.schoolId = schoolId;
             school.schoolName = schoolRow.getString("name");
             school.emailDomain = schoolRow.getString("email_domain");
-            school.enabled = schoolRow.getInt("enabled") == 1;
+            school.enabled = schoolRow.getBoolean("enabled");
             school.linePosition = schoolRow.getInt("line_position");
-            school.requestsEnabled = schoolRow.getInt("requests_enabled") == 1;
+            school.requestsEnabled = schoolRow.getBoolean("requests_enabled");
 
             school.save();
         } catch (JSONException e) {

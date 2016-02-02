@@ -183,27 +183,18 @@ public class ViewRequestFragment extends Fragment implements MainContainerActivi
                     @Override
                     public void onResponse(JSONObject jsonObject) {
                         setNetworking(false);
-                        try {
-                            if (jsonObject.getString("status").equals("SUCCESS")) {
-                                request.delete();
-                                MainContainerActivity mainContainerActivity = (MainContainerActivity) getActivity();
-                                MainContainerStateManager containerStateManager
-                                        = mainContainerActivity.getContainerStateManager();
-                                containerStateManager.setContainerStateForNavigation(NavigationItemState.HOME);
-                            } else {
-                                SeshDialog.showDialog(getActivity().getFragmentManager(), "Whoops!", jsonObject.getString("message"),
-                                        "OKAY", null, "view_request_network_error");
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
+                        request.delete();
+                        MainContainerActivity mainContainerActivity = (MainContainerActivity) getActivity();
+                        MainContainerStateManager containerStateManager
+                                = mainContainerActivity.getContainerStateManager();
+                        containerStateManager.setContainerStateForNavigation(NavigationItemState.HOME);
                     }
                 }, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError volleyError) {
                         setNetworking(false);
-                        SeshDialog.showDialog(getActivity().getFragmentManager(), "Whoops!", "Please check your internet connection and try again!",
+                        String detail = SeshNetworking.networkErrorDetail(volleyError);
+                        SeshDialog.showDialog(getActivity().getFragmentManager(), "Whoops!", detail,
                                 "OKAY", null, "view_request_network_error");
                     }
                 });

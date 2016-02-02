@@ -520,7 +520,8 @@ public class AuthenticationActivity extends SeshActivity implements SeshDialog.O
                     }, new Response.ErrorListener() {
                         @Override
                         public void onErrorResponse(VolleyError volleyError) {
-                            onLoginSignupError("Network Error", "We couldn't reach the network, sorry!");
+                            String detail = SeshNetworking.networkErrorDetail(volleyError);
+                            onLoginSignupError("Error", detail);
                         }
                     });
         }
@@ -586,7 +587,7 @@ public class AuthenticationActivity extends SeshActivity implements SeshDialog.O
                 seshMixpanelAPI.track("User Login Failed - Unverified");
 
                 final SeshDialog unverifiedDialog = new SeshDialog();
-                unverifiedDialog.setTitle("Unverified Accoun t");
+                unverifiedDialog.setTitle("Unverified Account");
                 unverifiedDialog.setMessage("Your account still hasn't been verified. Check your email for the verification link.");
                 unverifiedDialog.setFirstChoice("OKAY");
                 unverifiedDialog.setSecondChoice("RESEND EMAIL");
@@ -638,26 +639,12 @@ public class AuthenticationActivity extends SeshActivity implements SeshDialog.O
     }
 
     private void onSignupResponse(JSONObject responseJson) {
-        try {
-            if (responseJson.get("status").equals("FAILURE")) {
-                Map<String, Object> properties = new HashMap<>();
-                properties.put("error", responseJson.getString("message"));
-                seshMixpanelAPI.trackMap("User Signup Failed - Error", properties);
+        Intent intent = new Intent(this, ConfirmationCodeActivity.class);
+        intent.putExtra(SIGN_UP_EMAIL_KEY, emailEditText.getText());
+        intent.putExtra(SIGN_UP_PASSWORD_KEY, passwordEditText.getText());
+        startActivity(intent);
 
-                onLoginSignupError("Sign Up Failed",
-                        responseJson.getString("message"));
-            } else {
-                Intent intent = new Intent(this, ConfirmationCodeActivity.class);
-                intent.putExtra(SIGN_UP_EMAIL_KEY, emailEditText.getText());
-                intent.putExtra(SIGN_UP_PASSWORD_KEY, passwordEditText.getText());
-                startActivity(intent);
-
-                seshMixpanelAPI.track("User Signed Up Successfully -- Needs Verification");
-            }
-        } catch (JSONException e) {
-            Log.e(TAG, e.toString());
-            onLoginSignupError("Network Error", "We couldn't reach the network, sorry!");
-        }
+        seshMixpanelAPI.track("User Signed Up Successfully -- Needs Verification");
     }
 
     // @TODO: Implement some sort of verification that Login info formatted correctly

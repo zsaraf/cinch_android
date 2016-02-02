@@ -98,23 +98,14 @@ public class InSeshActivity extends SeshActivity {
                             seshNetworking.endSesh(currentSesh.seshId, new Response.Listener<JSONObject>() {
                                 @Override
                                 public void onResponse(JSONObject jsonObject) {
-                                    try {
-                                        if (jsonObject.getString("status").equals("SUCCESS")) {
-                                        } else {
-                                            setNetworking(false);
-                                            showErrorDialog("Error!", jsonObject.getString("message"));
-                                        }
-                                    } catch (JSONException e) {
-                                        Log.e(TAG, "Failed to end sesh; json response malformed: " + e);
-                                        showErrorDialog("Error!", "Something went wrong.  Try again later.");
-                                    }
                                 }
                             }, new Response.ErrorListener() {
                                 @Override
                                 public void onErrorResponse(VolleyError volleyError) {
                                     setNetworking(false);
+                                    String detail = SeshNetworking.networkErrorDetail(volleyError);
                                     Log.e(TAG, "Failed to end sesh; network error: " + volleyError);
-                                    showErrorDialog("Network Error", "Whoops! We couldn't reach the server.  Check your network settings and try again.");
+                                    showErrorDialog("Network Error", detail);
                                 }
                             });
                         }

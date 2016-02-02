@@ -137,17 +137,7 @@ public class OnboardingMajorFragment extends SeshViewPager.InputFragment impleme
             JSONObject jsonObject = request.execute();
 
             if (jsonObject != null) {
-                try {
-                    if (jsonObject.getString("status").equals("SUCCESS")) {
-                        user.save();
-                    } else {
-                        Log.e(TAG, "Failed to update major; " + jsonObject.getString("message"));
-                        errorDialog = getErrorDialog("Error!", jsonObject.getString("message"));
-                    }
-                } catch (JSONException e) {
-                    Log.e(TAG, "Failed to update major; json malformed " + e);
-                    errorDialog = getErrorDialog("Network Error", "Check your network connection and try again!");
-                }
+                user.save();
             }
 
             return null;

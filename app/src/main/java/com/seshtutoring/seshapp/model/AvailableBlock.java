@@ -65,14 +65,14 @@ public class AvailableBlock extends SugarRecord<AvailableBlock> {
             if (endTimeString == null || endTimeString.equals("null")) {
                 availableBlock.endTime = -1;
             } else {
-                availableBlock.endTime = formatter.parseDateTime(endTimeString).getMillis();
+                availableBlock.endTime = formatter.parseMillis(endTimeString);
             }
 
             String startTimeString = availableBlockJson.getString(START_TIME_KEY);
             if (startTimeString == null || startTimeString.equals("null")) {
                 availableBlock.startTime = -1;
             } else {
-                availableBlock.startTime = formatter.parseDateTime(startTimeString).getMillis();
+                availableBlock.startTime = formatter.parseMillis(startTimeString);
             }
 
             availableBlock.save();

@@ -20,6 +20,7 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
+import com.android.volley.VolleyError;
 import com.android.volley.toolbox.RequestFuture;
 import com.facebook.rebound.SimpleSpringListener;
 import com.facebook.rebound.Spring;
@@ -44,6 +45,7 @@ import com.seshtutoring.seshapp.view.fragments.LearnRequestFragments.LearnReques
 import com.seshtutoring.seshapp.view.fragments.LearnRequestFragments.LearnRequestConfirmFragment;
 import com.seshtutoring.seshapp.view.fragments.LearnRequestFragments.LearnRequestCourseFragment;
 import com.seshtutoring.seshapp.view.fragments.LearnRequestFragments.LearnRequestNumberOfStudentsFragment;
+import com.seshtutoring.seshapp.view.fragments.LearnRequestFragments.LearnRequestSchedulingFragment;
 import com.seshtutoring.seshapp.view.fragments.LearnRequestFragments.LearnRequestTimeFragment;
 import com.seshtutoring.seshapp.view.fragments.LearnViewFragment;
 import com.seshtutoring.seshapp.view.OnboardingActivity;
@@ -106,7 +108,6 @@ public class RequestActivity extends SeshActivity implements
         this.currentLearnRequest = new LearnRequest();
         currentLearnRequest.latitude = intent.getDoubleExtra(LearnViewFragment.CHOSEN_LOCATION_LAT, 0);
         currentLearnRequest.longitude = intent.getDoubleExtra(LearnViewFragment.CHOSEN_LOCATION_LONG, 0);
-        currentLearnRequest.setIsInstant(true);
 
         List<Discount> discounts = User.currentUser(this).getDiscounts();
         if (discounts.size() > 0) {
@@ -150,6 +151,7 @@ public class RequestActivity extends SeshActivity implements
         });
 
         this.requestFlowFragments = new ArrayList<>();
+        requestFlowFragments.add(new LearnRequestSchedulingFragment());
         requestFlowFragments.add(new LearnRequestCourseFragment());
         requestFlowFragments.add(new LearnRequestAssignmentFragment());
         requestFlowFragments.add(new LearnRequestNumberOfStudentsFragment());
@@ -281,7 +283,7 @@ public class RequestActivity extends SeshActivity implements
     }
 
     private void reenableConfirmFragmentUsage() {
-        LearnRequestConfirmFragment fragment = (LearnRequestConfirmFragment) requestFlowFragments.get(4);
+        LearnRequestConfirmFragment fragment = (LearnRequestConfirmFragment) requestFlowFragments.get(5);
         fragment.enableRequestButton();
     }
 
@@ -364,8 +366,12 @@ public class RequestActivity extends SeshActivity implements
 
                 @Override
                 public void onErrorException(Exception e) {
-                    errorDialog = SeshDialog.createDialog("Network Error",
-                            "We couldn't reach the server.  Check your network settings and try again.",
+                    String detail = "We couldn't reach the server.  Check your network settings and try again.";
+                    if (e instanceof VolleyError) {
+                        detail = SeshNetworking.networkErrorDetail((VolleyError)e);
+                    }
+                    errorDialog = SeshDialog.createDialog("Error",
+                            detail,
                             "Got it", null,
                             DIALOG_TYPE_LEARN_REQUEST_FAILURE);
                     Log.e(TAG, "Network Error: " + e.getMessage());
@@ -376,26 +382,10 @@ public class RequestActivity extends SeshActivity implements
 
             if (jsonObject == null) return null;
 
-            try {
-                if (jsonObject.getString("status").equals("SUCCESS")) {
-                    LearnRequest newLearnRequest
-                            = LearnRequest.createOrUpdateLearnRequest(jsonObject.getJSONObject("learn_request"));
-                    newLearnRequest.requiresAnimatedDisplay = true;
-                    newLearnRequest.save();
-                } else {
-                    errorDialog = SeshDialog.createDialog("Whoops!",
-                            jsonObject.getString("message"),
-                            "Got it", null,
-                            DIALOG_TYPE_LEARN_REQUEST_FAILURE);
-                    Log.e(TAG, "Failed to create request, server error: " + jsonObject.getString("message"));
-                }
-            } catch (JSONException e) {
-                errorDialog = SeshDialog.createDialog("Whoops!",
-                        "Something went wrong.  Try again later.",
-                        "Got it", null,
-                        DIALOG_TYPE_LEARN_REQUEST_FAILURE);
-                Log.e(TAG, "Failed to create request, json malformed: " + e);
-            }
+            LearnRequest newLearnRequest
+                    = LearnRequest.createOrUpdateLearnRequest(jsonObject);
+            newLearnRequest.requiresAnimatedDisplay = true;
+            newLearnRequest.save();
 
             return null;
         }

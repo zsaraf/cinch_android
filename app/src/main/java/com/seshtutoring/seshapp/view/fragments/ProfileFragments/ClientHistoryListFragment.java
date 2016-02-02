@@ -98,7 +98,7 @@ public class ClientHistoryListFragment extends ListFragment{
 
     private void filterPastSeshesForTutor() {
         for (int i = 0; i < pastSeshes.size(); i++) {
-            if (pastSeshes.get(i).studentUserId == user.userId) {
+            if (pastSeshes.get(i).isStudent(mainContainerActivity)) {
                 //user is the student in this sesh, do not include on this page
                 pastSeshes.remove(i);
                 i--;

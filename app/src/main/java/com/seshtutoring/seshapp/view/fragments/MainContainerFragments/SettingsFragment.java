@@ -116,20 +116,20 @@ public class SettingsFragment extends Fragment implements FragmentOptionsReceive
         }
     }
     private void toggleNotificationsEnabled() {
-        seshNetworking.toggleNotificationsEnabled(new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject jsonObject) {
-                onNotificationsEnabledResponse(jsonObject);
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError volleyError) {
-                SeshDialog.showDialog(mainContainerActivity.getFragmentManager(),
-                        "Whoops!",
-                        "We can't reach the server right now. Please try again later.",
-                        "OKAY", null, "whoops");
-            }
-        });
+//        seshNetworking.toggleNotificationsEnabled(new Response.Listener<JSONObject>() {
+//            @Override
+//            public void onResponse(JSONObject jsonObject) {
+//                onNotificationsEnabledResponse(jsonObject);
+//            }
+//        }, new Response.ErrorListener() {
+//            @Override
+//            public void onErrorResponse(VolleyError volleyError) {
+//                SeshDialog.showDialog(mainContainerActivity.getFragmentManager(),
+//                        "Whoops!",
+//                        "We can't reach the server right now. Please try again later.",
+//                        "OKAY", null, "whoops");
+//            }
+//        });
     }
 
     public void onActivityCreated(Bundle savedInstanceState) {

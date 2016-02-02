@@ -1,17 +1,14 @@
 package com.seshtutoring.seshapp.view.components;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.graphics.Typeface;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import com.seshtutoring.seshapp.R;
-import com.seshtutoring.seshapp.model.Message;
+import com.seshtutoring.seshapp.model.ChatroomActivity;
 import com.seshtutoring.seshapp.util.LayoutUtils;
 
 import java.util.ArrayList;
@@ -23,7 +20,7 @@ import java.util.List;
 public class MessageAdapter extends BaseAdapter {
 
     Context context;
-    public List<Message> messages;
+    public List<ChatroomActivity> messages;
     private static LayoutInflater inflater = null;
     private Typeface tf;
 
@@ -46,7 +43,7 @@ public class MessageAdapter extends BaseAdapter {
     }
 
     @Override
-    public Message getItem(int position) {
+    public ChatroomActivity getItem(int position) {
         // TODO Auto-generated method stub
         return this.messages.get(position);
     }
@@ -54,7 +51,7 @@ public class MessageAdapter extends BaseAdapter {
     @Override
     public long getItemId(int position) {
         // TODO Auto-generated method stub
-        return this.getItem(position).messageId;
+        return this.getItem(position).chatroomActivityId;
     }
 
     @Override
@@ -62,7 +59,7 @@ public class MessageAdapter extends BaseAdapter {
         // TODO Auto-generated method stub
 
         MessageRow messageRow = null;
-        Message currentMessage = this.getItem(position);
+        ChatroomActivity currentMessage = this.getItem(position);
 
         if (convertView == null) {
             convertView = inflater.inflate(R.layout.message_row, null);

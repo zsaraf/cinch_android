@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <TextView
+        android:id="@+id/when_sesh_label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textColor="@color/white"
+        android:textSize="14dp"
+        android:text="When would you like your Sesh?"/>
+    <RelativeLayout
+        android:id="@+id/scheduling_container_with_label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:textColor="@color/white"
+            android:layout_marginTop="40dp"
+            android:textSize="16dp"
+            android:layout_centerHorizontal="true"
+            android:gravity="center"
+            android:text="tap or hold and drag to add your availability"/>
+        <com.seshtutoring.seshapp.view.components.SchedulingContainer
+            android:id="@+id/scheduling_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <HorizontalScrollView
+                android:id="@+id/horizontal_scrollview"
+                android:overScrollMode="never"
+                android:layout_marginTop="95dp"
+                android:scrollbars="none"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="@dimen/scheduling_columns_total_width"
+                    android:layout_height="match_parent">
+                    <LinearLayout
+                        android:orientation="horizontal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
+                        <TextView
+                            android:id="@+id/day_label_1"
+                            android:textColor="@color/seshorange"
+                            android:text="TODAY"
+                            android:textSize="14dp"
+                            android:gravity="center"
+                            android:paddingLeft="30dp"
+                            android:layout_width="@dimen/scheduling_column_width"
+                            android:layout_height="wrap_content" />
+                        <TextView
+                            android:paddingLeft="30dp"
+                            android:id="@+id/day_label_2"
+                            android:textColor="@color/seshorange"
+                            android:text="TMRW"
+                            android:gravity="center"
+                            android:textSize="14dp"
+                            android:layout_width="@dimen/scheduling_column_width"
+                            android:layout_height="wrap_content" />
+                        <TextView
+                            android:id="@+id/day_label_3"
+                            android:textColor="@color/seshorange"
+                            android:text="MON"
+                            android:gravity="center"
+                            android:textSize="14dp"
+                            android:layout_width="@dimen/scheduling_column_width"
+                            android:paddingLeft="30dp"
+                            android:layout_height="wrap_content" />
+                        <TextView
+                            android:id="@+id/day_label_4"
+                            android:textColor="@color/seshorange"
+                            android:text="TUES"
+                            android:gravity="center"
+                            android:textSize="14dp"
+                            android:paddingLeft="30dp"
+                            android:layout_width="@dimen/scheduling_column_width"
+                            android:layout_height="wrap_content" />
+                        <TextView
+                            android:id="@+id/day_label_5"
+                            android:textColor="@color/seshorange"
+                            android:text="WED"
+                            android:textSize="14dp"
+                            android:gravity="center"
+                            android:paddingLeft="30dp"
+                            android:layout_width="@dimen/scheduling_column_width"
+                            android:layout_height="wrap_content" />
+                        <TextView
+                            android:id="@+id/day_label_6"
+                            android:textColor="@color/seshorange"
+                            android:text="THURS"
+                            android:textSize="14dp"
+                            android:gravity="center"
+                            android:paddingLeft="30dp"
+                            android:layout_width="@dimen/scheduling_column_width"
+                            android:layout_height="wrap_content" />
+                        <TextView
+                            android:id="@+id/day_label_7"
+                            android:textColor="@color/seshorange"
+                            android:text="FRI"
+                            android:textSize="14dp"
+                            android:gravity="center"
+                            android:paddingLeft="30dp"
+                            android:layout_width="@dimen/scheduling_column_width"
+                            android:layout_height="wrap_content" />
+                    </LinearLayout>
+                    <ScrollView
+                        android:id="@+id/vertical_scrollview"
+                        android:layout_marginTop="20dp"
+                        android:overScrollMode="never"
+                        android:scrollbars="none"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+                        <RelativeLayout
+                            android:id="@+id/scheduling_blocks_container"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content">
+                            <ImageView
+                                android:layout_width="@dimen/scheduling_columns_total_width"
+                                android:layout_height="@dimen/scheduling_columns_total_height"
+                                android:scaleType="fitXY"
+                                android:src="@drawable/schedule_bg"/>
+                        </RelativeLayout>
+                    </ScrollView>
+                </LinearLayout>
+            </HorizontalScrollView>
+        </com.seshtutoring.seshapp.view.components.SchedulingContainer>
+    </RelativeLayout>
+</RelativeLayout>

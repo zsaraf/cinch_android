@@ -115,11 +115,7 @@ public class LaunchPrerequisiteAsyncTask extends AsyncTask<Void, Void, Void> {
 
             if (json == null) return null;
 
-            try  {
-                User.createOrUpdateUserWithObject(json.getJSONObject("data"), mContext);
-            } catch (JSONException e) {
-                Log.e(TAG, "Failed to fetch user info; json malformed: " + e);
-            }
+            User.createOrUpdateUserWithObject(json, mContext);
         }
 
         if (!seshStateVerified) {

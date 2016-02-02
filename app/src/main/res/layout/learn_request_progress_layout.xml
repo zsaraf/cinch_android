@@ -13,6 +13,27 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
             <ImageView
+                android:id="@+id/schedule_icon"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_gravity="center_vertical"
+                android:background="@drawable/calendar_white"/>
+            <ImageButton
+                android:id="@+id/schedule_icon_clickable"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:alpha="0"
+                android:layout_gravity="center_vertical"
+                android:background="@drawable/calendar_unfilled"/>
+        </RelativeLayout>
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <ImageView
                 android:id="@+id/class_icon"
                 android:layout_width="18dp"
                 android:layout_height="18dp"
