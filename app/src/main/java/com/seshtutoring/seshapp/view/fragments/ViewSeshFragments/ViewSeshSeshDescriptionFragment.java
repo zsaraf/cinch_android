@@ -113,7 +113,7 @@ public class ViewSeshSeshDescriptionFragment extends Fragment {
         }
         locationNotesLabel.setIcon(drawable);
 
-        if (sesh.locationNotes.length() > 0) {
+        if (sesh.locationNotes != null && sesh.locationNotes.length() > 0) {
             locationNotesLabel.setText(sesh.locationNotes);
         } else {
             locationNotesLabel.setText("waiting for location notes...");

@@ -154,8 +154,8 @@ public class User extends SugarRecord<User> {
 
             // Load the cards
             Card.deleteAll(Card.class);
-            if (dataJson.has("cards")) {
-                JSONArray cards = dataJson.getJSONArray("cards");
+            if (userRow.has("cards")) {
+                JSONArray cards = userRow.getJSONArray("cards");
                 for (int i = 0; i < cards.length(); i++) {
                     JSONObject cardsJson = cards.getJSONObject(i);
                     Card newCard = Card.createOrUpdateCardWithJSON(cardsJson, user);
@@ -197,8 +197,8 @@ public class User extends SugarRecord<User> {
             }
 
             OutstandingCharge.deleteAll(OutstandingCharge.class);
-            if (dataJson.has("outstanding_charges")) {
-                JSONArray outstandingCharges = dataJson.getJSONArray("outstanding_charges");
+            if (userRow.has("outstanding_charges")) {
+                JSONArray outstandingCharges = userRow.getJSONArray("outstanding_charges");
                 for (int i = 0; i < outstandingCharges.length(); i++) {
                     JSONObject outstandingChargesJSONObject = outstandingCharges.getJSONObject(i);
                     OutstandingCharge.createOrUpdateOutstandingChargeWithObject(context, outstandingChargesJSONObject);

@@ -646,11 +646,11 @@ public class SeshNetworking {
         postWithRelativeUrl("make_default_card.php", params, RequestType.PHP, RequestMethod.POST, successListener, errorListener);
     }
 
-//    public void toggleNotificationsEnabled(Response.Listener<JSONObject> successListener, Response.ErrorListener errorListener) {
-//        Map<String, String> params = new HashMap<>();
-//        params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
-//        postWithRelativeUrl("toggle_notifications_enabled.php", params, successListener, errorListener);
-//    }
+    public void toggleNotificationsEnabled(Response.Listener<JSONObject> successListener, Response.ErrorListener errorListener) {
+        Map<String, String> params = new HashMap<>();
+        params.put(SESSION_ID_PARAM, SeshAuthManager.sharedManager(mContext).getAccessToken());
+        postWithRelativeUrl("toggle_notifications_enabled.php", params, RequestType.PHP, RequestMethod.POST, successListener, errorListener);
+    }
 
     public static abstract class SynchronousRequest {
         public JSONObject execute() {
