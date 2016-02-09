@@ -283,7 +283,7 @@ public class User extends SugarRecord<User> {
         for (int i = 0; i < departments.length(); i++) {
             JSONObject departmentJSON = null;
             try {
-                departmentJSON = departments.getJSONObject(i);
+                departmentJSON = departments.getJSONObject(i).getJSONObject("department");
                 Department department = Department.createOrUpdateDepartmentWithJSON(departmentJSON, false);
                 department.tutor = tutor;
                 department.save();
