@@ -55,8 +55,10 @@ public class Chatroom extends SugarRecord<Chatroom> {
                 for (int i = 0; i < chatroomActivitiesJson.length(); i++) {
                     JSONObject chatroomActivityJsonObject = chatroomActivitiesJson.getJSONObject(i);
                     ChatroomActivity chatroomActivityObject = ChatroomActivity.createOrUpdateChatroomActivityWithJSON(chatroomActivityJsonObject, chatroom, context);
-                    chatroomActivityObject.chatroom = chatroom;
-                    chatroomActivityObject.save();
+                    if (chatroomActivityObject != null) {
+                        chatroomActivityObject.chatroom = chatroom;
+                        chatroomActivityObject.save();
+                    }
                 }
             }
 
